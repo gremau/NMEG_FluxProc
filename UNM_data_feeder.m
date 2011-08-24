@@ -56,9 +56,9 @@ function out = UNM_data_feeder(site, varargin)
     p.addParamValue('cmon_end', NaN, @isintval);    %calendar month (end)
     p.addParamValue('jday_start', NaN, @isintval);  %Julian day (start)
     p.addParamValue('jday_end', NaN, @isintval);    %Julian day (end)
-    p.addParamValue('hour_start', 00, ...
+    p.addParamValue('hour_start', 0, ...
                     @(x) isintval(x) && x >= 0 && x <=  23);
-    p.addParamValue('min_start', 00, ...
+    p.addParamValue('min_start', 0, ...
                     @(x) isintval(x) && x >= 0 && x <=  59);
     % user options
     %     use the MS Excel file to specify start, stop parameters
@@ -121,20 +121,25 @@ function out = UNM_data_feeder(site, varargin)
     % end argument checking
     %-----
 
+    % start and end dates are valid, so add start time to start
+    % date
+    start_dn = start_dn + (p.Results.hour_start / 24) + ...
+	(p.Results.min_start / (24 * 60))
+    
     %return the user arguments
     out = p.Results;
     out.hhmm = strcat(sprintf('%02d', p.Results.hour_start),...
                       sprintf('%02d', p.Results.min_start));
     out.start_date = start_dn;
     out.end_date = end_dn;
-    out.hour_start = str2num(datestr(out.start_date, 'hh'));
+    out.hour_start = str2num(datestr(out.start_date, 'HH'));
     out.min_start = str2num(datestr(out.start_date, 'MM'));
     out.cmon_start = str2num(datestr(out.start_date, 'mm'));
     out.cday_start = str2num(datestr(out.start_date, 'dd'));
     out.cmon_end = str2num(datestr(out.end_date, 'mm'));
     out.cday_end = str2num(datestr(out.end_date, 'dd'));
-    out.jday_start = start_dn - datenum(p.Results.year_start, 1, 1) + 1;
-    out.jday_end = end_dn - datenum(p.Results.year_end, 1, 1) + 1; 
+    out.jday_start = floor(start_dn) - datenum(p.Results.year_start, 1, 1) + 1;
+    out.jday_end = floor(end_dn) - datenum(p.Results.year_end, 1, 1) + 1; 
 
 
 %----------
