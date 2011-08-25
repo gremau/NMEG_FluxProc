@@ -1,3 +1,4 @@
+function out = UNM_data_feeder(site, varargin)
 %--------------------------------------------------
 % function to collect necessary information from user to run UNM
 % flux processing code.  
@@ -6,7 +7,9 @@
 % requires a year.  The day may be specified as either a
 % day-of-year (1 to 366) or a calendar month and calendar day.  If
 % both are specified the calendar month - calendary day pair will
-% be ignored.
+% be ignored.  If input_from_excel is set to true, the start/stop
+% dates will be read from data\ to\ run.xls, and dates specified as
+% arguments will be ignored.
 %
 % INPUTS (required)
 %    site: string containing the site to process
@@ -33,117 +36,145 @@
 %    rotation: string; 3d or planar.  Default 3d.
 %    lag_nsteps: integer; number of lag steps to use
 %    writefluxall: logical; write to FLUX_all file.  Default false.
+  
+  this_year = str2num(datestr(now(), 'yyyy'));
 
+  %-----
+  % create a parser to handle user input
+  p = inputParser();
+  % require the site name
+  p.addRequired('site', @ischar);
+  % parameters for start and end year
+  p.addParamValue('year_start', NaN,  @(x) isnumeric(x) && mod(x,1) == 0 ...
+		  && (x >= 2007) && (x <= this_year));
+  p.addParamValue('year_end', NaN,  @(x) isnumeric(x) && mod(x,1) == 0 ...
+		  && (x >= 2007) && (x <= this_year)); 
+  % parameters for start and end day and time
+  p.addParamValue('cday_start', NaN, @isintval);  %calendar day (start)
+  p.addParamValue('cday_end', NaN, @isintval);    %calendar day (end)
+  p.addParamValue('cmon_start', NaN, @isintval);  %calendar month (start) 
+  p.addParamValue('cmon_end', NaN, @isintval);    %calendar month (end)
+  p.addParamValue('jday_start', NaN, @isintval);  %Julian day (start)
+  p.addParamValue('jday_end', NaN, @isintval);    %Julian day (end)
+  p.addParamValue('hour_start', 0, ...
+		  @(x) isintval(x) && x >= 0 && x <=  23);
+  p.addParamValue('min_start', 0, ...
+		  @(x) isintval(x) && x >= 0 && x <=  59);
+  % user options
+  %     use the MS Excel file to specify start, stop parameters
+  p.addParamValue('input_from_excel', false, @islogical);
+  %     display figures
+  p.addParamValue('figures', false, @islogical);
+  %     3d or planar
+  p.addParamValue('rotation', '3d', ...
+		  @(x) any(strcmpi(x,{'3d','planar'})));
+  %     lag -- on or off.  If on must specify number of steps
+  p.addParamValue('lag_nsteps', 0, @(x) isinteger(x) && x >= 0);
+  %     write to FLUX_all file
+  p.addParamValue('writefluxall', false, @islogical);
+  % end parser setup
+  %-----
 
-function out = UNM_data_feeder(site, varargin)
+  % parse the input args and perform checks defined above
+  p.parse('site', varargin{:});
 
-    this_year = str2num(datestr(now(), 'yyyy'));
+  %collect start and end dates for processing
+  if p.Results.input_from_excel
+    % if user asked to input dates via excel, read the excel sheet
+    user_dates = UNM_data_feeder_xls();  
+  else
+    %collect the dates the user provided as arguments    
+    user_dates = struct('year_start', p.Results.year_start,  ...
+			'jday_start', p.Results.jday_start, ...
+			'cmon_start', p.Results.cmon_start, ...
+			'cday_start', p.Results.cday_start, ...
+			'year_end', p.Results.year_end, ...
+			'jday_end', p.Results.jday_end, ...
+			'cmon_end', p.Results.cmon_end, ...
+			'cday_end', p.Results.cday_end, ...
+			'hour_start', p.Results.hour_start, ...
+			'min_start', p.Results.min_start);
+  end
+  
+  % make sure the user-provided dates are sane
+  [start_dn, end_dn] = check_user_dates(user_dates)
+  
+  %return the user arguments
+  out = p.Results;
+  out.hhmm = strcat(sprintf('%02d', p.Results.hour_start),...
+		    sprintf('%02d', p.Results.min_start));
+  out.start_date = start_dn;
+  out.end_date = end_dn;
+  out.hour_start = str2num(datestr(out.start_date, 'HH'));
+  out.min_start = str2num(datestr(out.start_date, 'MM'));
+  out.cmon_start = str2num(datestr(out.start_date, 'mm'));
+  out.cday_start = str2num(datestr(out.start_date, 'dd'));
+  out.cmon_end = str2num(datestr(out.end_date, 'mm'));
+  out.cday_end = str2num(datestr(out.end_date, 'dd'));
+  out.jday_start = floor(start_dn) - datenum(p.Results.year_start, 1, 1) + 1;
+  out.jday_end = floor(end_dn) - datenum(p.Results.year_end, 1, 1) + 1; 
 
-    %-----
-    % create a parser to handle user input
-    p = inputParser();
-    % require the site name
-    p.addRequired('site', @ischar);
-    % parameters for start and end year
-    p.addParamValue('year_start', NaN,  @(x) isnumeric(x) && mod(x,1) == 0 ...
-                    && (x >= 2007) && (x <= this_year));
-    p.addParamValue('year_end', NaN,  @(x) isnumeric(x) && mod(x,1) == 0 ...
-                    && (x >= 2007) && (x <= this_year)); 
-    % parameters for start and end day and time
-    p.addParamValue('cday_start', NaN, @isintval);  %calendar day (start)
-    p.addParamValue('cday_end', NaN, @isintval);    %calendar day (end)
-    p.addParamValue('cmon_start', NaN, @isintval);  %calendar month (start) 
-    p.addParamValue('cmon_end', NaN, @isintval);    %calendar month (end)
-    p.addParamValue('jday_start', NaN, @isintval);  %Julian day (start)
-    p.addParamValue('jday_end', NaN, @isintval);    %Julian day (end)
-    p.addParamValue('hour_start', 0, ...
-                    @(x) isintval(x) && x >= 0 && x <=  23);
-    p.addParamValue('min_start', 0, ...
-                    @(x) isintval(x) && x >= 0 && x <=  59);
-    % user options
-    %     use the MS Excel file to specify start, stop parameters
-    p.addParamValue('input_from_excel', false, @islogical);
-    %     display figures
-    p.addParamValue('figures', false, @islogical);
-    %     3d or planar
-    p.addParamValue('rotation', '3d', ...
-                    @(x) any(strcmpi(x,{'3d','planar'})));
-    %     lag -- on or off.  If on must specify number of steps
-    p.addParamValue('lag_nsteps', 0, @(x) isinteger(x) && x >= 0);
-    %     write to FLUX_all file
-    p.addParamValue('writefluxall', false, @islogical);
-    % end parser setup
-    %-----
+%end UNM_data_feeder()
 
-    % parse the input args and perform checks defined above
-    p.parse('site', varargin{:});
+function [start_dn, end_dn] = check_user_dates(user_dates)
+  %-----
+  % check parsed user arguments for errors not checked above
+  %
+  % -- check dates --
+  % check the start and end dates; if valid convert them to datenum    
+  try  % check start date
+    start_dn = valid_flux_date(user_dates.year_start, user_dates.cmon_start, ...
+			       user_dates.cday_start, user_dates.jday_start);
+  catch start_date_err  
+    %caught the specific problem with the date from valid_flux_date
+    % now add a note that the problem is in the start_date
+    bad_start_date = MException('UNM_data_fneeder:bad_start_date', ...
+				'The start date is not a valid date');
+    complete_err = addCause(start_date_err, bad_start_date);
+    %throw the combined error message
+    throw(complete_err);
+  end
+  
+  try  % same as above try/catch block, but check end date
+    end_dn = valid_flux_date(user_dates.year_end, user_dates.cmon_end, ...
+			     user_dates.cday_end, user_dates.jday_end);
+  catch end_date_err  
+    bad_end_date = MException('UNM_data_feeder:bad_end_date', ...
+			      'The end date is not a valid date');
+    complete_err = addCause(bad_end_date, end_date_err)
+    throw(complete_err)
+  end
+  
+  %make sure end date is before start date
+  if start_dn > end_dn
+    err = MException('UNM_data_feeder:date_error', ...
+		     'The start date is after the end date');
+    throw(err)
+  end
 
-    
+  if ~isintval(user_dates.hour_start) || user_dates.hour_start < 0 || ...
+	user_dates.hour_start > 23
+    throw(MException('UNM_data_feeder:date_error', ...
+		     'start hour should be an integer between 0 and 23'))
+  end
+  if ~isintval(user_dates.min_start) || user_dates.min_start < 0 || ...
+	user_dates.min_start > 59
+    throw(MException('UNM_data_feeder:date_error', ...
+		     'start minute should be an integer between 0 and 59'))
+  end
+  %
+  % end date checking
+  %-----
 
-    %-----
-    % check parsed user arguments for errors not checked above
-    %
-    % -- check dates --
-    % check the start and end dates; if valid convert them to datenum    
-    try  % check start date
-        start_dn = valid_flux_date(p.Results.year_start, ...
-                                   p.Results.cmon_start, ...
-                                   p.Results.cday_start, ...
-                                   p.Results.jday_start);
-    catch start_date_err  
-        %caught the specific problem with the date from valid_flux_date
-        % now add a note that the problem is in the start_date
-        bad_start_date = MException('UNM_data_fneeder:bad_start_date', ...
-                                     'The start date is not a valid date');
-        complete_err = addCause(start_date_err, bad_start_date);
-        %throw the combined error message
-        throw(complete_err);
-    end
-    try  % same as above try/catch block, but check end date
-        end_dn = valid_flux_date(p.Results.year_end, ...
-                                 p.Results.cmon_end, ...
-                                 p.Results.cday_end, ...
-                                 p.Results.jday_end);
-    catch end_date_err  
-        bad_end_date = MException('UNM_data_feeder:bad_end_date', ...
-                                  'The end date is not a valid date');
-        complete_err = addCause(bad_end_date, end_date_err)
-        throw(complete_err)
-    end
-    %make sure end date is before start date
-    if start_dn > end_dn
-        err = MException('UNM_data_feeder:date_error', ...
-                         'The start date is after the end date');
-        throw(err)
-    end
-    %
-    %
-    % end argument checking
-    %-----
+  % start and end dates and times are valid, so add start time to start date
+  start_dn = start_dn + (user_dates.hour_start / 24) + ...
+      (user_dates.min_start / (24 * 60))
 
-    % start and end dates are valid, so add start time to start
-    % date
-    start_dn = start_dn + (p.Results.hour_start / 24) + ...
-	(p.Results.min_start / (24 * 60))
-    
-    %return the user arguments
-    out = p.Results;
-    out.hhmm = strcat(sprintf('%02d', p.Results.hour_start),...
-                      sprintf('%02d', p.Results.min_start));
-    out.start_date = start_dn;
-    out.end_date = end_dn;
-    out.hour_start = str2num(datestr(out.start_date, 'HH'));
-    out.min_start = str2num(datestr(out.start_date, 'MM'));
-    out.cmon_start = str2num(datestr(out.start_date, 'mm'));
-    out.cday_start = str2num(datestr(out.start_date, 'dd'));
-    out.cmon_end = str2num(datestr(out.end_date, 'mm'));
-    out.cday_end = str2num(datestr(out.end_date, 'dd'));
-    out.jday_start = floor(start_dn) - datenum(p.Results.year_start, 1, 1) + 1;
-    out.jday_end = floor(end_dn) - datenum(p.Results.year_end, 1, 1) + 1; 
+%end check_user_dates    
 
-
+function [result] = valid_flux_date(y, m, d, jd)
 %----------
-% check the parsed user inputs from UNM_data_feeder() and make sure they
+% check the parsed user-provided dates from UNM_data_feeder() and make sure they
 % are sane
 %
 % INPUTS:
@@ -151,9 +182,7 @@ function out = UNM_data_feeder(site, varargin)
 % OUTPUTS:
 %    valid: boolean; true if inputs are complete and make sense
 %function [valid] = check_all_inputs(args)
-    
 
-function [result] = valid_flux_date(y, m, d, jd)
     valid = false;
     %check that y is integer value and not in future
     valid_year = (mod(y,1) == 0) && (y <= str2num(datestr(now(), 'yyyy')));
