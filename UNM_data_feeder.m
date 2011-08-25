@@ -101,8 +101,8 @@ function out = UNM_data_feeder(site, varargin)
   
   %return the user arguments
   out = p.Results;
-  out.hhmm = strcat(sprintf('%02d', p.Results.hour_start),...
-		    sprintf('%02d', p.Results.min_start));
+  out.hhmm = strcat(sprintf('%02d', user_dates.hour_start),...
+		    sprintf('%02d', user_dates.min_start));
   out.start_date = start_dn;
   out.end_date = end_dn;
   out.hour_start = str2num(datestr(out.start_date, 'HH'));
@@ -111,8 +111,8 @@ function out = UNM_data_feeder(site, varargin)
   out.cday_start = str2num(datestr(out.start_date, 'dd'));
   out.cmon_end = str2num(datestr(out.end_date, 'mm'));
   out.cday_end = str2num(datestr(out.end_date, 'dd'));
-  out.jday_start = floor(start_dn) - datenum(p.Results.year_start, 1, 1) + 1;
-  out.jday_end = floor(end_dn) - datenum(p.Results.year_end, 1, 1) + 1; 
+  out.jday_start = floor(start_dn) - datenum(user_dates.year_start, 1, 1) + 1;
+  out.jday_end = floor(end_dn) - datenum(user_dates.year_end, 1, 1) + 1; 
 
 %end UNM_data_feeder()
 
@@ -222,18 +222,4 @@ function [result] = valid_jdate(y, jd)
              jd <= 365 + isleapyear(y) && ...
              jd >= 1;
 
-
-%----------
-% check whether a variable has an integer value
-% this is different from isinteger(), which checks the *class*.  A
-% variable of class double with an integral value will pass here.
-% INPUTS:
-%   x: matlab object
-% OUTPUTS:
-%   result: logical; true if x contains an integral value
-%
-%Timothy W. Hilton, UNM, August 2011
-     
-function [result] = isintval(x)
-    result = isnumeric(x) && mod(x, 1) == 0;
 
