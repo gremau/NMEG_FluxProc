@@ -1,3 +1,4 @@
 syntax: glob
 
 *~
+test_batch.m
