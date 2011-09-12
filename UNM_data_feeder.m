@@ -36,7 +36,10 @@ function out = UNM_data_feeder(site, varargin)
 %    rotation: string; 3d or planar.  Default 3d.
 %    lag_nsteps: integer; number of lag steps to use
 %    writefluxall: logical; write to FLUX_all file.  Default false.
+%
+% Timothy W. Hilton, UNM, Aug 2011
   
+  % get current year
   this_year = str2num(datestr(now(), 'yyyy'));
 
   %-----
@@ -81,7 +84,18 @@ function out = UNM_data_feeder(site, varargin)
   %collect start and end dates for processing
   if p.Results.input_from_excel
     % if user asked to input dates via excel, read the excel sheet
-    user_dates = UNM_data_feeder_xls();  
+    user_xls = UNM_data_feeder_xls();  
+    site = user_xls.site;
+    user_dates = struct('year_start', user_xls.year_start,  ...
+			'jday_start', user_xls.jday_start, ...
+			'cmon_start', user_xls.cmon_start, ...
+			'cday_start', user_xls.cday_start, ...
+			'year_end', user_xls.year_end, ...
+			'jday_end', user_xls.jday_end, ...
+			'cmon_end', user_xls.cmon_end, ...
+			'cday_end', user_xls.cday_end, ...
+			'hour_start', user_xls.hour_start, ...
+			'min_start', user_xls.min_start);
   else
     %collect the dates the user provided as arguments    
     user_dates = struct('year_start', p.Results.year_start,  ...
@@ -97,14 +111,17 @@ function out = UNM_data_feeder(site, varargin)
   end
   
   % make sure the user-provided dates are sane
-  [start_dn, end_dn] = check_user_dates(user_dates)
+  [start_dn, end_dn] = check_user_dates(user_dates);
   
   %return the user arguments
   out = p.Results;
+  out.site = site;
   out.hhmm = strcat(sprintf('%02d', user_dates.hour_start),...
 		    sprintf('%02d', user_dates.min_start));
   out.start_date = start_dn;
   out.end_date = end_dn;
+  out.year_start = str2num(datestr(out.start_date, 'YYYY'));
+  out.year_end = str2num(datestr(out.end_date, 'YYYY'));
   out.hour_start = str2num(datestr(out.start_date, 'HH'));
   out.min_start = str2num(datestr(out.start_date, 'MM'));
   out.cmon_start = str2num(datestr(out.start_date, 'mm'));
@@ -118,7 +135,7 @@ function out = UNM_data_feeder(site, varargin)
 
 function [start_dn, end_dn] = check_user_dates(user_dates)
   %-----
-  % check parsed user arguments for errors not checked above
+  % check parsed user arguments for errors not checked in UNM_data_feeder
   %
   % -- check dates --
   % check the start and end dates; if valid convert them to datenum    
@@ -168,7 +185,7 @@ function [start_dn, end_dn] = check_user_dates(user_dates)
 
   % start and end dates and times are valid, so add start time to start date
   start_dn = start_dn + (user_dates.hour_start / 24) + ...
-      (user_dates.min_start / (24 * 60))
+      (user_dates.min_start / (24 * 60));
 
 %end check_user_dates    
 

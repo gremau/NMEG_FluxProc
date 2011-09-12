@@ -1,6 +1,6 @@
 function [site_name] = get_site_name(this_site_code)
   
-  [site_names, FLUXROOT] = UNM_flux_process_config();
+  site_names = UNM_flux_process_config();
   
   if ~isintval(this_site_code) || (this_site_code < 1) ||  ...
 	(this_site_code > length(site_names))  
