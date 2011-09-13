@@ -373,7 +373,9 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
       % produce outputs
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-      if outputs == 0
+      no_data = size(this_half_hour, 1) == 0
+      
+      if outputs == 0 | no_data
 	julday(i,1)=jday;
 	numdate(i,1)=date;
 	%assign NaN's for missing data:
@@ -397,51 +399,28 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 	iokout(i,1:2)=NaN;
 	removed(i,1:5) = NaN;
 	zoLout(i,1) = NaN;
-	uvwtvar(i,1:4)=UVWTVAR_;   %variances of ROTATED wind components and the
-                                   %sonic temperature
-	covuvwt(i,1:6)=COVUVWT_;   %covariances of ROTATED wind components and
-                                   %the sonic temperature
-	hbuoyantout(i,1)=HBUOYANT_;  %bouyancy flux (W m-2)
-	ustar(i,1)=USTAR_;  % NX1 friction velocity (m/s)
-	transportout(i,1)=TRANSPORT_;  %turblent transport
-	u_vector(i,1:3) = u_vector_;
-	w_mean(i,1) = w_mean_; %this is rotated from planar fit
-      end    
-
-    elseif size(find(day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<min_end(i)),1) == 0  %no data
-      datev_30(i,1:6) = [datev(1,1) datev(1,2) datev(1,3) hr(i) min_end(i) 0]; %assign timestamp (end of period)
-      julday(i,1)=jday;
-      numdate(i,1)=date;
-      %assign NaN's for missing data:
-      uvwtmean(i,1:4)=NaN;
-      uvwmeanrot(i,1:3)=NaN;
-      theta(i,1)=NaN;
-      uvwtvar(i,1:4)=NaN;
-      covuvwt(i,1:6)=NaN;
-      ustar(i,1)=NaN;
-      speed(i,1)=NaN;
-      rH(i,1)=NaN;
-      hbuoyantout(i,1)=NaN;
-      transportout(i,1)=NaN;
-      co2out(i,1:5)=NaN;
-      h2oout(i,1:5)=NaN;
-      fco2out(i,1:5)=NaN;
-      fh2oout(i,1:6)=NaN;
-      hsout_flux(i,1:4)=NaN;
-      hlout(i,1:3)=NaN;
-      rhomout(i,1:3)=NaN;
-      tdryout(i,1)=  NaN;
-      iokout(i,1:2)=NaN;
-      removed(i,1:5) = NaN;
-      zoLout(i,1) = NaN;
-      u_vector(i,1) = NaN;
-      w_mean(i,1) = NaN;
-      if lag==1;
-	lagCO2(i,1: 9)=NaN;
-	lagH2O(i,1:5)=NaN;
-      end    
-    end % end if-then for enough data or not enough data
-  end % end 48 half-hour for-loop
+	if (outputs = 0)
+	  uvwtvar(i,1:4)=UVWTVAR_;   %variances of ROTATED wind components and the
+				     %sonic temperature
+          covuvwt(i,1:6)=COVUVWT_;   %covariances of ROTATED wind components and
+				     %the sonic temperature
+          hbuoyantout(i,1)=HBUOYANT_;  %bouyancy flux (W m-2)
+	  ustar(i,1)=USTAR_;  % NX1 friction velocity (m/s)
+	  transportout(i,1)=TRANSPORT_;  %turblent transport
+	  u_vector(i,1:3) = u_vector_;
+	  w_mean(i,1) = w_mean_; %this is rotated from planar fit
+	elseif no_data
+	  rH(i,1)=NaN;
+	  u_vector(i,1) = NaN;
+	  w_mean(i,1) = NaN;
+	  if lag==1;
+	    lagCO2(i,1: 9)=NaN;
+	    lagH2O(i,1:5)=NaN;
+	  end
+	end
+      end
+    end % end 48 half-hour for-loop
+  end
 
   timestamp = datestr(datev_30);
   datenumber = datenum(datev_30);
