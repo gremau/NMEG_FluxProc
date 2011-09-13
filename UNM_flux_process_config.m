@@ -1,4 +1,4 @@
-function site_names =  UNM_flux_process_config()
+function fluxrc =  UNM_flux_process_config()
 
   % defines the allowed site abbreviations and their site codes the order
   % matters -- each abbreviation's position in the list is its site code
@@ -19,6 +19,10 @@ function site_names =  UNM_flux_process_config()
 		'PJG_test', ...      % 11
 		'New_GLand'};        % 12
   
-
+  sitefolder = 'C:\Research - Flux Towers\TEST';
+  %outfolder
+  %infolder
+  
+  fluxrc = struct('site_names', {site_names}, 'sitefolder', sitefolder);
   
   

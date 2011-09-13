@@ -1,4 +1,4 @@
-function out = UNM_data_feeder(site, varargin)
+function out = UNM_data_feeder(site, varargin) 
 %--------------------------------------------------
 % function to collect necessary information from user to run UNM
 % flux processing code.  
@@ -85,7 +85,7 @@ function out = UNM_data_feeder(site, varargin)
   if p.Results.input_from_excel
     % if user asked to input dates via excel, read the excel sheet
     user_xls = UNM_data_feeder_xls();  
-    site = user_xls.site;
+    site = get_site_name(user_xls.site);
     user_dates = struct('year_start', user_xls.year_start,  ...
 			'jday_start', user_xls.jday_start, ...
 			'cmon_start', user_xls.cmon_start, ...
@@ -113,21 +113,24 @@ function out = UNM_data_feeder(site, varargin)
   % make sure the user-provided dates are sane
   [start_dn, end_dn] = check_user_dates(user_dates);
   
+  
+  
   %return the user arguments
   out = p.Results;
   out.site = site;
+  sitecode = get_site_code(out.site);  % just to make sure site is valid site code
   out.hhmm = strcat(sprintf('%02d', user_dates.hour_start),...
 		    sprintf('%02d', user_dates.min_start));
-  out.start_date = start_dn;
-  out.end_date = end_dn;
-  out.year_start = str2num(datestr(out.start_date, 'YYYY'));
-  out.year_end = str2num(datestr(out.end_date, 'YYYY'));
-  out.hour_start = str2num(datestr(out.start_date, 'HH'));
-  out.min_start = str2num(datestr(out.start_date, 'MM'));
-  out.cmon_start = str2num(datestr(out.start_date, 'mm'));
-  out.cday_start = str2num(datestr(out.start_date, 'dd'));
-  out.cmon_end = str2num(datestr(out.end_date, 'mm'));
-  out.cday_end = str2num(datestr(out.end_date, 'dd'));
+  out.date_start = start_dn;
+  out.date_end = end_dn;
+  out.year_start = str2num(datestr(out.date_start, 'YYYY'));
+  out.year_end = str2num(datestr(out.date_end, 'YYYY'));
+  out.hour_start = str2num(datestr(out.date_start, 'HH'));
+  out.min_start = str2num(datestr(out.date_start, 'MM'));
+  out.cmon_start = str2num(datestr(out.date_start, 'mm'));
+  out.cday_start = str2num(datestr(out.date_start, 'dd'));
+  out.cmon_end = str2num(datestr(out.date_end, 'mm'));
+  out.cday_end = str2num(datestr(out.date_end, 'dd'));
   out.jday_start = floor(start_dn) - datenum(user_dates.year_start, 1, 1) + 1;
   out.jday_end = floor(end_dn) - datenum(user_dates.year_end, 1, 1) + 1; 
 
