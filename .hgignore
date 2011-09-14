@@ -1,4 +1,5 @@
 syntax: glob
 
 *~
+*.asv
 test_batch.m

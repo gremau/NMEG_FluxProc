@@ -7,9 +7,11 @@
 %substantially rewritten by Timothy W. Hilton, Sep 2011
 
 function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
-      UNM_data_processor(filename, date, site, figures, rotation, lag, ...
+      UNM_data_processor(filename, date, site, figures_on, rotation, lag, ...
 			 writefluxall)
-  
+
+  % preliminaries -- calculate day of year, get sitecode, set up input &
+  % output directories
   jday = date2doy(date);
   sitecode = get_site_code(site);
   outfolder = get_out_directory(sitecode);
@@ -20,6 +22,11 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
   COMMA=44;
 
   fid=fopen(filename,'r','ieee-le'); % file ID
+  if fid == -1
+    err = MException('UNM_data_processor', ...
+		     'cannot open file %s\n', filename);
+    throw(err);
+  end
   d=fread(fid,864000,'uchar');
 
   % find Line Feeds and Carriage Returns
@@ -39,7 +46,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
   begfields2 = [1 find(HLine2==COMMA)+1];
   endfields2 = [find(HLine2==COMMA)-1 length(HLine2)-1];
 
-  Nfields = length(begfields)
+  Nfields = length(begfields);
 
   % don't read the quotes at beginning and end of each field
   for i=1:Nfields
@@ -161,29 +168,16 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
   datev = datevec((time1./(60.*60.*24))+726834);
   %msec=time2/100000000;  %10 readings/ second-- this gives the number (1-10)
 
-  %decide whether to make plots (based on command in data_feeder)
+  %decide whether to make plots
   plots = 0;
-  plots2 = figures;
-  plots3 = figures;
+  plots2 = figures_on;  
+  plots3 = figures_on;
 
   % Moved call to figure(1); clf; to inside if statement; MF Feb 17, 2011
-  %MAKE PLOTS OF RAW DATA
+  % MAKE PLOTS OF RAW DATA
   if (plots);
-    figure(1);clf;
-    disp('creating plots of raw data.....')    
-    subplot(3,3,1); plot(uin); axis tight; xlabel('time'); ylabel('uin');
-    subplot(3,3,2); plot(vin); axis tight; xlabel('time'); ylabel('vin');
-    subplot(3,3,3); plot(win); axis tight; xlabel('time'); ylabel('win');
-    subplot(3,3,4); plot(co2in); axis tight; xlabel('time'); ylabel('CO2in'); 
-    subplot(3,3,5); plot(h2oin); axis tight; xlabel('time'); ylabel('H2Oin'); 
-    subplot(3,3,6); plot(Tin); axis tight; xlabel('time'); ylabel('Tin'); 
-    subplot(3,3,7); plot(Pin); axis tight; xlabel('time'); ylabel('Pin');   
-    subplot(3,3,8); plot(diagsonin); axis tight; xlabel('time'); ylabel('diagsonin'); 
-    %subplot(3,3,9); plot(diagirga); axis tight; xlabel('time'); ylabel('diagirga');
-    figname= strcat(outfolder, int2str(date), site ,' diagnostic plot');
-    print('-dpng', '-r300', figname);
-    shg;
-  else
+    fig1_h = draw_plots1(uin, vin, win, co2in, h2oin, Tin, Pin, diagsonin, ...
+			 outfolder, date, site);
   end
 
   [m,n] = size(data);
@@ -301,12 +295,13 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
       if lag == 0
-	[CO2_,H2O_,FCO2_,FH2O_,HSENSIBLE_,HLATENT_,RHOM_,TDRY_,IOKNUM_,zoL, ...
-	 UVWTVAR_,COVUVWT_,HBUOYANT_,USTAR_,TRANSPORT_, u_vector_,w_mean_,rH_] ...
-	    = UNM_flux_031010(year_ts,month_ts,UVW2,uvwmean,SONDIAG,CO2', ...
-			      H2O',TD',RHO',IRGADIAG',rotation,site,sitecode, ...
-			      num,PWATER,uvwmeanrot(i,:),IRGAP,speed(i), ...
-			      temp2,theta(i));
+	[CO2_, H2O_, FCO2_, FH2O_, HSENSIBLE_, HLATENT_, RHOM_, TDRY_, IOKNUM_, ...
+	 zoL, UVWTVAR_, COVUVWT_, HBUOYANT_, USTAR_, TRANSPORT_,  u_vector_, ...
+	 w_mean_, rH_] = UNM_flux(year_ts, month_ts, day_ts, UVW2, ...
+				  uvwmean, SONDIAG, CO2', H2O', TD', ...
+				  RHO', IRGADIAG', rotation, site, ...
+				  sitecode, num, PWATER, uvwmeanrot(i, :), ...
+				  IRGAP, speed(i), temp2, theta(i));
 	
       elseif lag==1
 	[CO2_,H2O_,FCO2_,FH2O_,HSENSIBLE_,HLATENT_,RHOM_,TDRY_,IOKNUM_, ...
@@ -364,18 +359,18 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % Hold out periods of known calibration for Texas site
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      outputs = true;
+      outputs_on = true;
       if sitecode == 7
-	outputs = TX_site_known_calibrations(numdate, decimal_day);
+	outputs_on = TX_site_known_calibrations(numdate, decimal_day);
       end
       
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % produce outputs
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-      no_data = size(this_half_hour, 1) == 0
+      no_data = size(this_half_hour, 1) == 0;
       
-      if outputs == 0 | no_data
+      if ~outputs_on | no_data
 	julday(i,1)=jday;
 	numdate(i,1)=date;
 	%assign NaN's for missing data:
@@ -399,7 +394,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 	iokout(i,1:2)=NaN;
 	removed(i,1:5) = NaN;
 	zoLout(i,1) = NaN;
-	if (outputs = 0)
+	if ~outputs_on
 	  uvwtvar(i,1:4)=UVWTVAR_;   %variances of ROTATED wind components and the
 				     %sonic temperature
           covuvwt(i,1:6)=COVUVWT_;   %covariances of ROTATED wind components and
@@ -419,148 +414,96 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 	  end
 	end
       end
-    end % end 48 half-hour for-loop
-  end
+    end % end if-then for enough data or not enough data
+  end  % end 48 half-hour for-loop
 
   timestamp = datestr(datev_30);
   datenumber = datenum(datev_30);
   ioko = iokout(:,2);
 
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % if plots are on, draw them now
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %make automatic plots using these variables
-
-  % Moved call to disp for plots to inside of if statement; MF Feb 17, 2011
-  if (plots2==1);
-    disp ('making plots of processed data....')
-    figure(2); clf;
-    subplot (5,3,1);    plot (datenumber,uvwtmean);    axis tight;      ylabel ('u,v,w, Temp');    %legend ('u','v','w','Temp');   
-    subplot (5,3,3);    plot (datenumber,theta);    axis tight;        ylabel ('theta (wd)');    
-    subplot (5,3,2);    plot (datenumber,uvwtvar);     axis tight;      ylabel ('uvwT variance');    %legend ('along-wind','cross-wind','vertical wind','sonic temp');    %%variances of ROTATED wind components and the sonic temperature
-    subplot (5,3,4);    plot (datenumber,ustar, datenumber, speed);    axis tight;    ylabel ('ustar (bl), speed (gr)');    %legend ('ustar', 'speed');    
-    subplot (5,3,5);    plot (datenumber,co2out);    axis tight;  ylabel ('CO_2 (umol/mol)');      %legend ('min', 'max', 'median', 'mean', 'std');    
-    subplot (5,3,6);    plot (datenumber,h2oout);    axis tight;   ylabel ('H_20 (mmol/mol)');      %legend ('min', 'max', 'median', 'mean', 'std');
-    subplot (5,3,7);    plot (datenumber,fco2out(:,1:5));    axis tight;  ylabel ('CO_2 flux');    %legend ('Fco2','corrected','raw','heat term', 'water term', 'advection');   
-    subplot (5,3,8);    plot (datenumber,fh2oout);    axis tight;   ylabel ('H_2O flux');    %legend ('Ecorr', 'corrected', 'uncorrected', 'heat term', 'water term','advection');
-    subplot (5,3,9);    plot (datenumber,hsout_flux);    axis tight;   ylabel ('sensible heat (W m^-^2)');    %legend ('dry', 'wet', 'wetwet');
-    subplot (5,3,10);   plot (datenumber,hlout);    axis tight;ylabel ('latent heat (W m^-^2)');       %legend('corrected', 'uncorrected', 'advection');
-    subplot (5,3,11);   plot (datenumber,rhomout);    axis tight;   ylabel ('dry air molar density');    %legend('rhoa', 'rhov','rhoc');
-    subplot (5,3,12);   plot (datenumber,tdryout);    axis tight;   ylabel ('T_d_r_y');
-    subplot (5,3,13);   plot (datenumber,hbuoyantout);    axis tight;    xlabel ('time hours)');    ylabel ('buoyancy flux');
-    subplot (5,3,14);   plot (datenumber,transportout);    axis tight;    xlabel ('time (hours)');    ylabel ('transport');
-    subplot (5,3,15);   plot (datenumber,ioko);    axis tight;    xlabel ('time (hours)');    ylabel ('ioko');
-    
-    figname2 = [outfolder,int2str(date) site ' summary plots'];
-    print ('-dpng', '-r300', figname2);
-    shg;
+  % draw_plots2 and draw_plots3 code below
+  if plots2
+    draw_plots2(datenumber, uvwt_mean, theta, uvwtvar, ustar, speed, ...
+		co2out, h2oout, fco2out, fh2oout, hsout_flux, hlout, ...
+		tdryout, hbuoyantout, transportout, ioko, date, ...
+		outfolder)
+  end
+  if plots3
+    draw_plots3(datenumber, tdryout, fco2out, fh2oout, hsout_flux, ...
+		hlout, outfolder)
   end
 
-  %plots3=1;  %1 makes plots, 0 skips
-  % if (plots3==1);
-  %     figure(3); clf;
-  %     subplot (2,2,1);    plot (datenumber,tdryout-273.15);    axis tight;    ylabel ('T_d_r_y (C)');    
-  %     subplot (2,2,2);    plot (datenumber, fco2out(:,1:5));    axis tight;      ylabel ('CO_2 flux');
-  %         legend ('Fco2','corrected','raw','heat term', 'water term', 'advection', 'location', 'Bestoutside');   
-  %     subplot (2,2,3);    plot (datenumber,fh2oout(:,1:5));    axis tight;ylabel ('H_2O flux');
-  %         legend ('Ecorr', 'corrected', 'uncorrected', 'heat term', 'water term','location', 'Bestoutside');
-  %     subplot (2,2,4);    plot (datenumber,hsout_flux, datenumber, hlout);    axis tight; ylabel ('Sensible Heat ,Latent Heat (W m^-^2)');
-  %         legend ('H dry', 'H wet', 'H wetwet', 'LE corrected', 'LE uncorrected', 'LE advection', 'location', 'Bestoutside');
-  %     
-  %     figname3= [outfolder,int2str(date) site ' key plots'];
-  %     print ('-dpng', '-r300', figname3);
-  %     shg;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % write output files
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  % daily output: "fairly useless, except as source for header"
+  y = [datev_30, numdate, julday, ioko, uvwtmean, tdryout, theta, speed, rH, ...
+       uvwtvar, covuvwt, ustar,co2out,h2oout,fco2out,fh2oout,hsout_flux, ...
+       hlout,rhomout, hbuoyantout,transportout, removed,zoLout,u_vector, ...
+       w_mean];
+  write_xls = false;
+  write_daily_files(y, date, outfolder, write_xls);
+  
+  % %running compilation
+  % ofid = fopen(fullfile(sitefolder,' output'),'a');
+  % for i=1:size(y,1)
+  %   fprintf(ofid,'%f ', y(i,:));
+  %   fprintf(ofid, '\n');
   % end
+  % fclose(ofid);
 
-  % data for output
-  y = [datev_30, numdate,julday,ioko,uvwtmean,tdryout,theta,speed,rH,uvwtvar,covuvwt,...
-       ustar,co2out,h2oout,fco2out,fh2oout,hsout_flux,hlout,rhomout,hbuoyantout,transportout,...
-       removed,zoLout,u_vector,w_mean];
-  headertext = {'year', 'month', 'day', 'hour', 'min', 'second', 'date', 'jday', 'iok',...
-		'u_mean', 'v_mean', 'w_mean',...
-		'temp_mean','tdry', 'wind direction (theta)', 'speed','rH',...
-		'along-wind velocity variance','cross-wind velocity variance','vertical-wind velocity variance',...
-		'sonic temperature variance','uw co-variance','vw co-variance','uv co-variance','ut co-variance','vt co-variance','wt co-variance',...
-		'ustar (friction velocity; m/s)',...
-		'CO2_min (umol/mol dry air)', 'CO2_max (umol/mol dry air)','CO2_median (umol/mol dry air)', 'CO2_mean (umol/mol dry air)','CO2_std (umol/mol dry air)',...
-		'H2O_min (mmol/mol dry air)','H2O_max (mmol/mol dry air)','H2O_median (mmol/mol dry air)','H2O_mean (mmol/mol dry air)','H2O_std (mmol/mol dry air)',...
-		'Fc_raw','Fc_raw_massman','Fc_water_term','Fc_heat_term_massman','Fc_raw_massman_ourwpl',...
-		'E_raw','E_raw_massman','E_water_term','E_heat_term_massman','E_raw_massman','E_rhov_massman',...
-		'SensibleHeat_dry (W m-2)','SensibleHeat_wet (W m-2)','SensibleHeat_wetwet (W m-2)','HSdry_massman',...
-		'LatentHeat_raw (W m-2)','LatentHeat_raw_massman','LatentHeat_wpl_massman',...
-		'rhoa_dry air molar density (g/m^3 moist air)','rhov_dry air molar density (g/m^3 moist air)','rhoc_dry air molar density (g/m^3 moist air)',...
-		'BouyancyFlux','transport',...
-		'NaNs','Maxs','Mins','Spikes','Bad variance','zoL',...
-		'urot','vrot','wrot',...
-		'u_vector_u','u_vector_v','u_vector_w','w_mean'};
-
-  %write data to files
-  disp('writing data to files....')
-  date
-
-  %excel daily files-- fairly useless, except as source for header
-  fileout = strcat(outfolder, site,' processed data.xls');
-  if lag == 0
-    xlswrite(fileout, headertext,int2str(date),'A1');
-    xlswrite(fileout, y,int2str(date),'A2');
-  elseif lag == 1
-    xlswrite(fileout, headertext_lag,int2str(date),'A1');
-    xlswrite(fileout, y_lag,int2str(date),'A2');
-  end
-  disp('wrote excel file');
-
-  %running compilation
-  ofid = fopen(strcat(outfolder,site,' output'),'a');
-  for i=1:size(y,1)
-    fprintf(ofid,'%f ',y(i,:));
-    fprintf(ofid, '\n');
-  end
-  fclose(ofid);
-
-  if writefluxall==1
-    disp('preparing to enter data in FLUX_all file....')
-    fluxallfile = strcat(sitedir, site,'_FLUX_all.xls')
-    [num text] = xlsread(fluxallfile,'matlab','A1:A65500');
-    col='B';    
+  % if writefluxall
+  %   disp('preparing to enter data in FLUX_all file....')
+  %   fluxallfile = fullfile(outfolder, [site, '_FLUX_all.xls']);
+  %   [num text] = xlsread(fluxallfile,'matlab','A1:A65500');
+  %   col='B';    
     
-    timestamp2=text(5:size(text,1));
-    n=1;
-    time_match1=NaN; % time match lag is the row of the excel file for a given date/time (MF)
-    for i=1:48
-      if isnan(time_match1)==1 & ioko(i)>6000 %have not yet matched up first row
-	timenum=datenum(timestamp2);
-	time_match=find(abs(timenum-datenumber(i)) < 1/(48*3))+4;
-	if time_match >4  % a row with a matching date/time has been found in timestamp2 (MF)
-	  if lag==0
-	    y2(n,:)=y(i,:);
-	  elseif lag==1
-	    y2(n,:)=y_lag(i,:);
-	  end
-	  time_match1=time_match;  % set time match lag equal to time match if matching row found; otherwise leave as NaN (MF)
-	  n=n+1;           
-	end
-      elseif isnan(time_match1)==0 & sum(find(ioko(i:48)>0))>0 %already have matched up first row & there is more data that day
-	if lag==0 
-	  y2(n,:)=y(i,:);
-	elseif lag==1
-	  y2(n,:)=y_lag(i,:);
-	end
-	n=n+1;  
-      else %no more data
-      end  
-    end 
+  %   timestamp2=text(5:size(text,1));
+  %   n=1;
+  %   time_match1=NaN; % time match lag is the row of the excel file for a given date/time (MF)
+  %   for i=1:48
+  %     if isnan(time_match1)==1 & ioko(i)>6000 %have not yet matched up first row
+  % 	timenum=datenum(timestamp2);
+  % 	time_match=find(abs(timenum-datenumber(i)) < 1/(48*3))+4;
+  % 	if time_match >4  % a row with a matching date/time has been found in timestamp2 (MF)
+  % 	  if lag==0
+  % 	    y2(n,:)=y(i,:);
+  % 	  elseif lag==1
+  % 	    y2(n,:)=y_lag(i,:);
+  % 	  end
+  % 	  time_match1=time_match;  % set time match lag equal to time match if matching row found; otherwise leave as NaN (MF)
+  % 	  n=n+1;           
+  % 	end
+  %     elseif isnan(time_match1)==0 & sum(find(ioko(i:48)>0))>0 %already have matched up first row & there is more data that day
+  % 	if lag==0 
+  % 	  y2(n,:)=y(i,:);
+  % 	elseif lag==1
+  % 	  y2(n,:)=y_lag(i,:);
+  % 	end
+  % 	n=n+1;  
+  %     else %no more data
+  %     end  
+  %   end 
 
-    if isnan(time_match1)==0 & size(time_match1,1)==1;
-      xlswrite(fluxallfile,y2,'matlab', strcat(col,num2str(time_match1)));
-      disp('wrote to FLUX_all')
-    else
-      %disp('rows that match date/time') % MF Aug 2011
-      %disp(time_match1)                 % MF Aug 2011
+  %   if isnan(time_match1)==0 & size(time_match1,1)==1;
+  %     xlswrite(fluxallfile,y2,'matlab', strcat(col,num2str(time_match1)));
+  %     disp('wrote to FLUX_all')
+  %   else
+  %     %disp('rows that match date/time') % MF Aug 2011
+  %     %disp(time_match1)                 % MF Aug 2011
       
-      disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')   
-      disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
-      disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
-      disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
-      disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')     
-    end
-  end 
+  %     disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')   
+  %     disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
+  %     disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
+  %     disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
+  %     disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')     
+  %   end
+  % end 
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -569,80 +512,241 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
   % comparison = strcat(sitedir,site,'_lag_test'); %setting up the lag output file
   % xlswrite(comparison,compoutput);
 
-  removedfile = strcat(sitedir,site,'_removed'); %setting up the removed output file
-  xlswrite(removedfile,removed);
+  %TWH removedfile = strcat(sitedir,site,'_removed'); %setting up the removed output file
+  %TWH xlswrite(removedfile,removed);
 
+  % removed a lot of commented-out code here.  See archived
+  % UNM_data_processor.m for that code.
+ 
+%--------------------------------------------------  
 
-  % figure(8); clf;
-  % hold on;
-  % subplot(2,3,1);
-  % hold on; box on;
-  % title('co2 flux rawwpl v massmanwpl');
-  % plot(datenumber,fco2out(:,2),'-r');
-  % plot(datenumber,fco2out(:,9),':b');
-  % legend('Fc-corr','Fc-corr-mass-ourwpl','location', 'SouthOutside');
-  % 
-  % subplot(2,3,2);
-  % hold on; box on;
-  % title('Correction factors');
-  % co2_massman_correction = fco2out(:,7)./fco2out(:,3);
-  % plot(datenumber,co2_massman_correction,'-r');
-  % h2o_massman_correction = fh2oout(:,7)./fh2oout(:,3);
-  % plot(datenumber,h2o_massman_correction,'--g');
-  % sh_massman_correction = hsout_flux(:,4)./hsout_flux(:,1);
-  % plot(datenumber,sh_massman_correction,':b');
-  % plot(datenumber,zoLout,'*g');
-  % legend('co2','h2o','sh','zoL','location', 'SouthOutside');
-  % 
-  % subplot(2,3,3);
-  % hold on; box on;
-  % title('co2 flux raw versus raw massman');
-  % plot(datenumber,fco2out(:,7),'-b');
-  % plot(datenumber,fco2out(:,3),'--r');
-  % legend('raw mass','raw','location', 'SouthOutside');
-  % 
-  % subplot(2,3,4);
-  % hold on; box on;
-  % title('Sens heat dry v massman');
-  % plot(datenumber,hsout_flux(:,1),'-g');
-  % plot(datenumber,hsout_flux(:,4),':r');
-  % legend('hsdry','hsdry-mass','location', 'SouthOutside');
-  % 
-  % subplot(2,3,5);
-  % hold on; box on;
-  % title('LH wpl v LH wpl massman');
-  % plot(datenumber,hlout(:,2),'-g');
-  % plot(datenumber,hlout(:,4),':c');
-  % plot(datenumber,hlout(:,1),'-r');
-  % plot(datenumber,hlout(:,5),':b');
-  % legend('HLuncorr','HLuncorr-mass','HLcorr','HLcorr-mass','location', 'SouthOutside');
-  % 
-  % subplot(2,3,6);
-  % hold on; box on;
-  % title('E corr and uncorr raw v massman');
-  % plot(datenumber,fh2oout(:,2),'-b');
-  % plot(datenumber,fh2oout(:,9),':r');
-  % plot(datenumber,fh2oout(:,3),'-k');
-  % plot(datenumber,fh2oout(:,7),':g');
-  % legend('E-corr','E-corr-mass','E-uncorr','Euncorr-mass','location', 'SouthOutside');
-  % 
-  % figname8= [outfolder,int2str(date) site ' massmancomps'];
-  % print ('-dpng', '-r300', figname8);
-  % 
-  % shg;
-
-  % fluxlag=strcat(sitedir,site,'_lag_test'); %setting up the lag output file
-  % xlswrite(fluxlag,origfluxlag);
-  % 
-  % figure(4);
-  %     hold on; box on;
-  %     lagvalue = [-5 -4 -3 -2 -1 0 1 2 3 4 5];
-  %     plot(lagvalue,origfluxlag(:,1:11));
-  %     plot(lagCO2(:,2),lagCO2(:,1),'ok');
-  %     shg;
+function write_daily_files(y, date, outdir, write_xls)
+% WRITE_DAILY_FILES - helper function for UNM_data_processor; writes daily files
+% to disk
+%   
   
-  % figure(6);
-  %     hold on; box on;
-  %     plot(datenumber(iokout(:,2)),fco2out(iokout(:,2)),'or');
-  %     
-  %     shg; 
+  headertext = {'year', 'month', 'day', 'hour', 'min', 'second', 'date', ...
+		'jday', 'iok', 'u_mean', 'v_mean', 'w_mean',...
+		'temp_mean','tdry', 'wind direction (theta)', 'speed','rH',...
+		'along-wind velocity variance','cross-wind velocity variance', ...
+		'vertical-wind velocity variance',...
+		'sonic temperature variance','uw co-variance','vw co-variance',...
+		'uv co-variance','ut co-variance','vt co-variance','wt co-variance',...
+		'ustar (friction velocity, m/s)',...
+		'CO2_min (umol/mol dry air)', 'CO2_max (umol/mol dry air)', ...
+		'CO2_median (umol/mol dry air)', 'CO2_mean (umol/mol dry air)',...
+		'CO2_std (umol/mol dry air)',...
+		'H2O_min (mmol/mol dry air)','H2O_max (mmol/mol dry air)',...
+		'H2O_median (mmol/mol dry air)','H2O_mean (mmol/mol dry air)',...
+		'H2O_std (mmol/mol dry air)',...
+		'Fc_raw','Fc_raw_massman','Fc_water_term','Fc_heat_term_massman',...
+		'Fc_raw_massman_ourwpl',...
+		'E_raw','E_raw_massman','E_water_term','E_heat_term_massman',...
+		'E_raw_massman','E_rhov_massman',...
+		'SensibleHeat_dry (W m-2)','SensibleHeat_wet (W m-2)',...
+		'SensibleHeat_wetwet (W m-2)','HSdry_massman',...
+		'LatentHeat_raw (W m-2)','LatentHeat_raw_massman',...
+		'LatentHeat_wpl_massman',...
+		'rhoa_dry air molar density (g/m^3 moist air)',...
+		'rhov_dry air molar density (g/m^3 moist air)',...
+		'rhoc_dry air molar density (g/m^3 moist air)',...
+		'BouyancyFlux','transport',...
+		'NaNs','Maxs','Mins','Spikes','Bad variance','zoL',...
+		'urot','vrot','wrot',...
+		'u_vector_u','u_vector_v','u_vector_w','w_mean'};
+  
+  %write data to files
+  disp('writing data to files....');
+  disp(date);
+
+  %build filename
+  if write_xls
+    outfile_ext = '.xls';
+  else
+    outfile_ext = '.csv';
+  end 
+  outfile = fullfile(outdir, ...
+			 [datestr(date, 'YYYY_mm_dd'), 'processed_data', outfile_ext]);
+  if write_xls
+    %write excel files
+    if lag == 0
+      xlswrite(fileout, headertext,int2str(date),'A1');
+      xlswrite(fileout, y,int2str(date),'A2');
+    elseif lag == 1
+      xlswrite(fileout, headertext_lag,int2str(date),'A1');
+      xlswrite(fileout, y_lag,int2str(date),'A2');
+    end
+    disp('wrote excel file');
+  else
+    %write ascii files
+    dlmwrite(outfile, headertext);
+    dlmwrite(outfile, y, '-append');
+  end
+
+
+%--------------------------------------------------  
+
+function h = draw_plots1(uin, vin, win, co2in, h2oin, Tin, Pin, diagsonin, ...
+			 outfolder, date, site)
+% DRAW_PLOTS1 - draw_plots1: helper function for UNM_data_processor
+  h = figure(1);
+  clf;
+  disp('creating plots of raw data.....')    
+  subplot(3,3,1); plot(uin); axis tight; xlabel('time'); ylabel('uin');
+  subplot(3,3,2); plot(vin); axis tight; xlabel('time'); ylabel('vin');
+  subplot(3,3,3); plot(win); axis tight; xlabel('time'); ylabel('win');
+  subplot(3,3,4); plot(co2in); axis tight; xlabel('time'); ylabel('CO2in'); 
+  subplot(3,3,5); plot(h2oin); axis tight; xlabel('time'); ylabel('H2Oin'); 
+  subplot(3,3,6); plot(Tin); axis tight; xlabel('time'); ylabel('Tin'); 
+  subplot(3,3,7); plot(Pin); axis tight; xlabel('time'); ylabel('Pin');   
+  subplot(3,3,8); plot(diagsonin); axis tight; xlabel('time'); ylabel('diagsonin'); 
+  %subplot(3,3,9); plot(diagirga); axis tight; xlabel('time'); ylabel('diagirga');
+  figname= strcat(outfolder, int2str(date), site ,' diagnostic plot');
+  print('-dpng', '-r300', figname);
+  shg;
+
+%--------------------------------------------------  
+function [h] = draw_plots2(datenumber, uvwt_mean, theta, uvwtvar, ustar, speed, ...
+			   co2out, h2oout, fco2out, fh2oout, hsout_flux, hlout, ...
+			   tdryout, hbuoyantout, transportout, ioko, date, ...
+			   outfolder)
+  % plotting helper function for UNM_data_processor
+
+  disp ('making plots of processed data....')
+  
+  h = figure(2); 
+
+  subplot (5,3,1);    
+  plot (datenumber,uvwtmean);    
+  axis tight;      
+  ylabel ('u,v,w, Temp');    
+  %legend ('u','v','w','Temp');   
+
+  subplot (5,3,3);
+  plot (datenumber,theta);
+  axis tight;
+  ylabel ('theta (wd)');
+  
+  subplot (5,3,2);
+  plot (datenumber,uvwtvar);
+  axis tight;
+  ylabel ('uvwT variance');
+  %legend ('along-wind','cross-wind','vertical wind','sonic temp');
+  %%variances of ROTATED wind components and the sonic temperature
+
+  subplot (5,3,4);
+  plot (datenumber,ustar, datenumber, speed);
+  axis tight;
+  ylabel ('ustar (bl), speed (gr)');
+  %legend ('ustar', 'speed');
+  
+  subplot (5,3,5);
+  plot (datenumber,co2out);
+  axis tight;
+  ylabel ('CO_2 (umol/mol)');
+  %legend ('min', 'max', 'median', 'mean', 'std');
+  
+  subplot (5,3,6);
+  plot (datenumber,h2oout);
+  axis tight;
+  ylabel ('H_20 (mmol/mol)');
+  %legend ('min', 'max', 'median', 'mean', 'std');
+
+  subplot (5,3,7);
+  plot (datenumber,fco2out(:,1:5));
+  axis tight;
+  ylabel ('CO_2 flux');
+  %legend ('Fco2','corrected','raw','heat term', 'water term', 'advection');
+  
+  subplot (5,3,8);
+  plot (datenumber,fh2oout);
+  axis tight;
+  ylabel ('H_2O flux');
+  %legend ('Ecorr', 'corrected', 'uncorrected', 'heat term', 'water term','advection');
+
+  subplot (5,3,9);
+  plot (datenumber,hsout_flux);
+  axis tight;
+  ylabel ('sensible heat (W m^-^2)');
+  %legend ('dry', 'wet', 'wetwet');
+
+  subplot (5,3,10);
+  plot (datenumber,hlout);
+  axis tight;
+  ylabel ('latent heat (W m^-^2)');
+  %legend('corrected', 'uncorrected', 'advection');
+
+  subplot (5,3,11);
+  plot (datenumber,rhomout);
+  axis tight;
+  ylabel ('dry air molar density');
+  %legend('rhoa', 'rhov','rhoc');
+
+  subplot (5,3,12);
+  plot (datenumber,tdryout);
+  axis tight;
+  ylabel ('T_d_r_y');
+
+  subplot (5,3,13);
+  plot (datenumber,hbuoyantout);
+  axis tight;
+  xlabel ('time hours)');
+  ylabel ('buoyancy flux');
+
+  subplot (5,3,14);
+  plot (datenumber,transportout);
+  axis tight;
+  xlabel ('time (hours)');
+  ylabel ('transport');
+
+  subplot (5,3,15);
+  plot (datenumber,ioko);
+  axis tight;
+  xlabel ('time (hours)');
+  ylabel ('ioko');
+
+  figname2 = [outfolder,int2str(date) site ' summary plots'];
+  print ('-dpng', '-r300', figname2);
+  shg;
+
+%--------------------------------------------------  
+function h = draw_plots3(datenumber, tdryout, fco2out, fh2oout, hsout_flux, ...
+			 hlout, outfolder)
+  % DRAW_PLOTS3 - another helper function for UNM_data_processor.  Plots a number
+  % of variables.
+  %  
+  
+  h = figure(3);
+  clf;
+  
+  subplot (2,2,1);
+  plot (datenumber,tdryout-273.15);
+  axis tight;
+  ylabel ('T_d_r_y (C)');
+  
+  subplot (2,2,2);
+  plot (datenumber, fco2out(:,1:5));
+  axis tight;
+  ylabel ('CO_2 flux');
+  legend ('Fco2','corrected','raw','heat term', 'water term', 'advection', ...
+	  'location', 'Bestoutside');
+  
+  subplot (2,2,3);
+  plot (datenumber,fh2oout(:,1:5));
+  axis tight;
+  ylabel ('H_2O flux');
+  legend ('Ecorr', 'corrected', 'uncorrected', 'heat term', 'water term', ...
+	  'location', 'Bestoutside');
+
+  subplot (2,2,4);
+  plot (datenumber,hsout_flux, datenumber, hlout);
+  axis tight;
+  ylabel ('Sensible Heat ,Latent Heat (W m^-^2)');
+  legend ('H dry', 'H wet', 'H wetwet', 'LE corrected', 'LE uncorrected', ...
+	  'LE advection', 'location', 'Bestoutside');
+  
+  figname3= [outfolder, int2str(date) site ' key plots'];
+  print ('-dpng', '-r300', figname3);
+  shg;
+
+
