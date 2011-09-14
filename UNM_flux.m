@@ -238,7 +238,7 @@ elseif strcmp(rotation, 'planar')
             b2 = 0.004444167;
             k(1) = -0.001619988;
             k(2) = -0.004444117;
-            k(3) = 0.999988813;            
+            k(3) = 0.999988813;
             
         elseif sitecode == 7 && year_ts(1) == 2006 % all of 2006 looks pretty consistent, use one set of data
             b0 = 0.064455667;
@@ -255,7 +255,7 @@ elseif strcmp(rotation, 'planar')
             b2 = 0.004444167;
             k(1) = -0.001619988;
             k(2) = -0.004444117;
-            k(3) = 0.999988813;            
+            k(3) = 0.999988813;
             
         elseif sitecode == 7 && year_ts(1) == 2007 && month_ts(1) == 3 || month_ts(1) == 4
             % March and April 2007 has their own set of coefficients
@@ -264,7 +264,7 @@ elseif strcmp(rotation, 'planar')
             b2 = 0.004444167;
             k(1) = -0.001619988;
             k(2) = -0.004444117;
-            k(3) = 0.999988813;       
+            k(3) = 0.999988813;
 
         elseif sitecode == 7 && year_ts(1) == 2007 && month_ts(1) >= 5 %after that, use a new set of
             % coefficients calculated with only the data in the last 6 months of 2007 
@@ -281,7 +281,7 @@ elseif strcmp(rotation, 'planar')
             b2 = -0.000801434;
             k(1) = -0.012985432;
             k(2) = 0.000801367;
-            k(3) = 0.999915365;    
+            k(3) = 0.999915365;
             
             
         elseif sitecode == 8 % TX_forest
@@ -291,28 +291,28 @@ elseif strcmp(rotation, 'planar')
                 b2 = -0.031249502;
                 k(1) = -0.046221527;
                 k(2) = 0.014738558;
-                k(3) = 0.998206387;  
+                k(3) = 0.998206387;
             elseif theta > 60 && theta <= 210
                 b0 = 0.094117303;
                 b1 = 0.03882402;
                 b2 = 0.011170481;
                 k(1) = -0.038792377;
                 k(2) = -0.011161377;
-                k(3) = 0.999184955;  
+                k(3) = 0.999184955;
             elseif theta > 210 && theta <= 270
                 b0 = 0.070326918;
                 b1 = -0.026290012;
                 b2 = -0.009114614;
                 k(1) = 0.02627984;
                 k(2) = 0.009111088;
-                k(3) = 0.999613104;  
+                k(3) = 0.999613104;
             elseif theta > 270 && theta <= 360
                 b0 = 0.215938294;
                 b1 = 0.123314215;
                 b2 = 0.000787889;
                 k(1) = -0.122387155;
                 k(2) = -0.000781966;
-                k(3) = 0.992482127; 
+                k(3) = 0.992482127;
             end    
 
         elseif sitecode == 9 % TX_grassland
@@ -419,7 +419,7 @@ end
 if sitecode == 1    
     z_CSAT = 3.2; sep2 = 0.191; angle = 28.94; h_canopy = 0.25;  %angle was 4 before, sep2 was .157,
 elseif sitecode == 2
-    z_CSAT = 3.2; sep2 = 0.134; angle = 11.18; h_canopy = 0.8;    
+    z_CSAT = 3.2; sep2 = 0.134; angle = 11.18; h_canopy = 0.8;
 elseif sitecode == 3
     z_CSAT = 10.35; sep2 = .2; angle = 25; h_canopy = 3;
 elseif sitecode == 4
@@ -427,7 +427,7 @@ elseif sitecode == 4
 elseif sitecode == 5
     z_CSAT = 24.02; sep2 = 0.15; angle = 15.266; h_canopy = 17.428;
 elseif sitecode == 6
-    z_CSAT = 23.9; sep2 = 0.375; angle = 71.66; h_canopy = 16.56;   
+    z_CSAT = 23.9; sep2 = 0.375; angle = 71.66; h_canopy = 16.56;
 elseif sitecode == 7
     z_CSAT = 8.75; sep2 = .2; angle = 25; h_canopy = 2.5;
 elseif sitecode == 8
@@ -506,8 +506,8 @@ for i=-steps:steps
         TDlag = ([TD(:,(1+ashift:num))]);
         SONDIAGlag=([SONDIAG(1+ashift:num)]);
         
-        iok = find(SONDIAGlag & idiaglag(1,:) & idiaglag(2,:)); first = length(iok)
-        iok = find(iok>steps & iok<num-steps); second = length(iok)
+        iok = find(SONDIAGlag & idiaglag(1,:) & idiaglag(2,:)); first = length(iok);
+        iok = find(iok>steps & iok<num-steps); second = length(iok);
         iok = iok - steps;
         
     end 
@@ -528,7 +528,7 @@ if length(find(irgaok)) > 6000  %gives NaN for CO2 & H2O if less than 9000 good 
     H2OOUT = [min(x); max(x); median(x); mean(x); std(x) ];
 else    
     CO2OUT=NaN*ones(5,1);
-    H2OOUT=NaN*ones(5,1);    
+    H2OOUT=NaN*ones(5,1);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -572,7 +572,7 @@ else
     % calculate densities in grams/m^3 moist air for 10Hz data
     rhoa = RHOlag(1,:)*28.966;
     rhov = (RHOlag(2,:)-RHOlag(1,:))*18.016;
-    rhoc = CO2lag(3,:)*44/10^6;    
+    rhoc = CO2lag(3,:)*44/10^6;
     RHOM = [mean(rhoa(iok))/28.966;mean(rhov(iok))/18.016;mean(rhoc(iok))/44];
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -586,8 +586,8 @@ else
     % CALCULATE SOME STATISTICS
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    cht = [CO2lag(1,iok);H2Olag(1,iok);TDlag(2,iok)]';    
-    covs = cov(cht);    
+    cht = [CO2lag(1,iok);H2Olag(1,iok);TDlag(2,iok)]';
+    covs = cov(cht);
     COVCHT = [covs(1,2); covs(1,3); covs(2,3)];
     
     meanTinC = mean(TDlag(2))-273.15;
@@ -653,7 +653,7 @@ else
     [wco2] = cov( uvwlag(3,iok), umolco2(iok));
     uco2max=(uco2(1,2));
     vco2max=(vco2(1,2));
-    wco2max=(wco2(1,2));    
+    wco2max=(wco2(1,2));
     if strcmp(rotation, '3d'); %3D rotation-- keep variables the same
         uco2max2=uco2max;
         vco2max2=vco2max;
@@ -753,8 +753,8 @@ else
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
        
     co2_1 =  mean(CO2lag(1,iok)); % means needed for massman 
-    co2_2 =  mean(CO2lag(2,iok));       
-    co2_3 =  mean(CO2lag(3,iok));   
+    co2_2 =  mean(CO2lag(2,iok));
+    co2_3 =  mean(CO2lag(3,iok));
     MEANCO2= [co2_1 co2_2 co2_3];
     MEANPWATER = mean(PWATER); % vapor pressure measured by IRGA in kPa
     td_1 =  mean(TDlag(1,iok));

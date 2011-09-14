@@ -7,7 +7,7 @@
 % date_start: datenum; starting date and time for processing
 % date_end: datenum; ending date and time for processing
 
-function all_filenames = UNM_filebuilder(site, date_start, date_end)
+function [all_filenames, dates] = UNM_filebuilder(site, date_start, date_end)
 
   fluxrc = UNM_flux_process_config();
   

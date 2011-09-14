@@ -173,8 +173,8 @@ for i=-steps:steps
         TDlag = ([TD(:,(1+ashift:num))]);
         SONDIAGlag=([SONDIAG(1+ashift:num)]);
         
-        iok = find(SONDIAGlag & idiaglag(1,:) & idiaglag(2,:)); first = length(iok)
-        iok = find(iok>steps & iok<num-steps); second = length(iok)
+        iok = find(SONDIAGlag & idiaglag(1,:) & idiaglag(2,:)); first = length(iok);
+        iok = find(iok>steps & iok<num-steps); second = length(iok);
         iok = iok - steps;
         
     end 
@@ -238,7 +238,7 @@ if length(find(iirga)) > 9000  %gives NaN for CO2 & H2O if less than 9000 good i
     H2OOUT = [min(x);  max(x); median(x);  mean(x); std(x) ];
 else    
     CO2OUT=NaN*ones(5,1);
-    H2OOUT=NaN*ones(5,1);    
+    H2OOUT=NaN*ones(5,1);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -252,7 +252,7 @@ if length(iok) < 6000  %length(find(iok))<6000
     HLATENT=NaN*ones(5,1);
     RHOM=NaN*ones(3,1);
     Lv=NaN;
-    COVCHT=NaN*ones(3,1); 
+    COVCHT=NaN*ones(3,1);
 %   FCO2avg=NaN; 
 %   FCO2std=NaN;
     LAGCO2 = NaN*ones(12,1);
@@ -277,16 +277,16 @@ else
     % calculate densities in grams/m^3 moist air for 10Hz data
     rhoa = RHOlag(1,:)*28.966;
     rhov = (RHOlag(2,:)-RHOlag(1,:))*18.016;
-    rhoc = CO2lag(3,:)*44/10^6;    
+    rhoc = CO2lag(3,:)*44/10^6;
     RHOM = [mean(rhoa(iok))/28.966;mean(rhov(iok))/18.016;mean(rhoc(iok))/44];
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % CALCULATE SOME STATISTICS
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    cht = [CO2lag(1,iok);H2Olag(1,iok);TDlag(2,iok)]';    
-    covs = cov(cht);    
-    COVCHT = [ covs(1,2); covs(1,3); covs(2,3) ]; 
+    cht = [CO2lag(1,iok);H2Olag(1,iok);TDlag(2,iok)]';
+    covs = cov(cht);
+    COVCHT = [ covs(1,2); covs(1,3); covs(2,3) ];
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % LATENT HEAT OF VAPORIZATION
@@ -360,7 +360,7 @@ else
     [wXw] = cov( uvwlag(3,iok) , Xw(iok));
     uXwmax=(uXw(1,2));
     vXwmax=(vXw(1,2));
-    wXwmax=(wXw(1,2));    
+    wXwmax=(wXw(1,2));
     if rotation==0; %3D rotation-- keep variables the same
         uXwmax2=uXwmax;
         vXwmax2=vXwmax;
@@ -381,11 +381,11 @@ else
     % Add advection term...
 
     %if rotation==0;
-    EAdvect  = mean(RHOlag(1,iok))*mean(uvwlag(3,iok))*mean(Xw(iok))*1000; 
+    EAdvect  = mean(RHOlag(1,iok))*mean(uvwlag(3,iok))*mean(Xw(iok))*1000;
     %elseif rotation==1;
     %    EAdvect  = mean(RHOlag(1,iok))*w_mean*mean(Xw(iok))*1000; %THIS NEEDS TO BE CHANGED
     %end   
-    HLAdvect = 18.016/1000*Lv*EAdvect/1000; 
+    HLAdvect = 18.016/1000*Lv*EAdvect/1000;
      
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % UNCORRECTED CO2 FLUX 
@@ -401,7 +401,7 @@ else
     [wco2] = cov( uvwlag(3,iok), umolco2(iok));
     uco2max=(uco2(1,2));
     vco2max=(vco2(1,2));
-    wco2max=(wco2(1,2));    
+    wco2max=(wco2(1,2));
     if rotation==0; %3D rotation-- keep variables the same
         uco2max2=uco2max;
         vco2max2=vco2max;
@@ -431,7 +431,7 @@ else
     [wXc] = cov( uvwlag(3,iok) , Xc(iok));
     uXcmax=(uXc(1,2));
     vXcmax=(vXc(1,2));
-    wXcmax=(wXc(1,2));    
+    wXcmax=(wXc(1,2));
     if rotation==0; %3D rotation-- keep variables the same
         uXcmax2=uXcmax;
         vXcmax2=vXcmax;
@@ -449,7 +449,7 @@ else
     % Add advection term... 
     
     %if rotation==0;
-    Fco2Advect  = rho_a*mean(uvwlag(3,iok))*mean(Xc(iok)); 
+    Fco2Advect  = rho_a*mean(uvwlag(3,iok))*mean(Xc(iok));
     %elseif rotation==1;
     %    Fco2Advect  = rho_a*w_mean*mean(Xc(iok));   %CHANGE HERE!!!!!
     %end   
@@ -574,8 +574,8 @@ else
     % means needed for massman
     
     co2_1 =  mean(CO2lag(1,iok));
-    co2_2 =  mean(CO2lag(2,iok));       
-    co2_3 =  mean(CO2lag(3,iok));   
+    co2_2 =  mean(CO2lag(2,iok));
+    co2_3 =  mean(CO2lag(3,iok));
     MEANCO2= [co2_1 co2_2 co2_3];
     MEANPWATER = mean(PWATER);  %vapor pressure measured by IRGA in kPa
     td_1 =  mean(TDlag(1,iok)); %put : instead of iok
@@ -590,7 +590,7 @@ else
     Fc_raw_massman = Uz_co2_c/0.044;
     Euncorr_massman = Uz_h2o_c/0.018;
     HSdry_massman =  28.966/1000*rho_a*Cp*Uz_Ts_c;
-    HLuncorr_massman = 18.016/1000*Lv*Euncorr_massman;    
+    HLuncorr_massman = 18.016/1000*Lv*Euncorr_massman;
 
     Hs_wet_massman = Hs_wet_c; %should be in W m-2
     Fc_raw_massman_Jameswpl = Fc_c/0.044; %should be in umol m-2 s-1
@@ -601,7 +601,7 @@ else
     James_water_term = James_water_term/0.044;
     James_heat_term = James_heat_term/0.044;
     
-    Fc_raw_massman_lag(count) = Fc_raw_massman;  
+    Fc_raw_massman_lag(count) = Fc_raw_massman;
     
    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -639,7 +639,7 @@ else
     Fc_heat_term  = (1+mu*sigma)*mean(rhoc(iok))/mean(TDlag(2,iok))*wTdmax2*(10^6/44);
     Fc_heat_term_massman = (1+mu*sigma)*mean(rhoc(iok))/mean(TDlag(2,iok))*Uz_Ts_c*(10^6/44);
     
-    Fc_corr = Fc_raw + Fc_water_term + Fc_heat_term ; 
+    Fc_corr = Fc_raw + Fc_water_term + Fc_heat_term ;
     Fc_corr_massman_ourwpl = Fc_raw_massman  + Fc_water_term + Fc_heat_term_massman;
     
     Fc_wt_lag(count)=Fc_water_term;
@@ -763,7 +763,7 @@ end
         
  if length(find(iok))>=6000
  
-         FCO2avg=mean(Fluxco2); 
+         FCO2avg=mean(Fluxco2);
          FCO2std=std(Fluxco2);
          FCO2max=FCO2avg;
          %FCO2max=Fluxco2(1);%(i);
@@ -776,9 +776,9 @@ end
          HLcorrmax=NaN;
          E_wtmax=NaN;
          E_htmax=NaN;
-         E_corrmax=NaN;  
+         E_corrmax=NaN;
          %ioknumout=NaN;
-         lag=NaN;        
+         lag=NaN;
          
          for j=1:(steps*2+1)  
                 if (FCO2avg > 0)
@@ -793,7 +793,7 @@ end
                         HLcorrmax=HLcorrlag(j);
                         E_wtmax=E_wt_lag(j);
                         E_htmax=E_ht_lag(j);
-                        E_corrmax=E_corr_lag(j);   
+                        E_corrmax=E_corr_lag(j);
                         %ioknumout=oknum(j);
                         lag=(j-(steps+1));
                     end
@@ -811,7 +811,7 @@ end
                          E_htmax=E_ht_lag(j);
                          E_corrmax=E_corr_lag(j);
                          %ioknumout=oknum(j);
-                        lag=(j-(steps+1));                 
+                        lag=(j-(steps+1));
                     end
                 end    
          end
@@ -821,7 +821,7 @@ end
     LAGCO2 = [FCO2max; lag;  Fc_wtmax; Fc_htmax; Fc_corrmax; Ecorrmax; HLcorrmax];  %FLUXCO2;  removed by KAT 1/08. was after 'lag'
     LAGH2O = [Ecorrmax; HLcorrmax; E_wtmax; E_htmax; E_corrmax];
  else
-    LAGCO2 = [NaN; NaN; NaN; NaN; NaN; NaN; NaN];  
+    LAGCO2 = [NaN; NaN; NaN; NaN; NaN; NaN; NaN];
     LAGH2O = [NaN; NaN; NaN; NaN; NaN];
  end
 

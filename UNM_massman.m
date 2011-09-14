@@ -12,7 +12,6 @@ zoL = z./L;
 
 % zoL=2;      % stability parameter, either positive or negative
 % U = logspace(-1, 2, 50);    % wind speed array for plotting
-U
 test = U>20;
 U(test)=[];
 

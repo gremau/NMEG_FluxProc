@@ -9,10 +9,9 @@ args = UNM_data_feeder('PJ', ...
 		       'cday_end', 27);
 %args_xls = UNM_data_feeder('GLand', 'input_from_excel', true); 
 
-infile_names = UNM_filebuilder(args.site, args.date_start, args.date_end);
+[infile_names, all_dates] = UNM_filebuilder(args.site, args.date_start, args.date_end);
 
-UNM_data_processor(infile_names{1}, args.date_start, args.site, args.figures, ...
-		   args.rotation, args.lag_nsteps, args.writefluxall);
-
-% for i = 1:numel(infile_names)
-%   UNM_data_processor(infile_names{i},	% 
+for i = 1:5
+  UNM_data_processor(infile_names{i}, all_dates(i), args.site, args.figures, ...
+		     args.rotation, args.lag_nsteps, args.writefluxall);
+end

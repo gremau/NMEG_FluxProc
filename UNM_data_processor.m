@@ -17,7 +17,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
   outfolder = get_out_directory(sitecode);
   sitefolder = get_site_directory(sitecode);
 
-  CR=13; 
+  CR=13;
   LF=10;
   COMMA=44;
 
@@ -68,12 +68,12 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
       MatlabPrec{i}='float32';
     elseif strcmp(char(Field(i)),'SecNano')
       NBytes(i) = 4;
-      MatlabPrec{i}='uint32';    
+      MatlabPrec{i}='uint32';
     end       
   end
 
   %%% Start reading the channels
-  disp('reading data....')
+  fprintf(1, 'reading data: %s\n', datestr(date, 'dd mmm YYYY'));
   % first position pointer at the end of the header
   fseek(fid,EOH,'bof');   %fseek repositions file position indicator (doc fseek). 'bof' = beginning of file
   ftell(fid);  %position = ftell(fid) returns the location of the file position indicator for the file specified by fid
@@ -84,20 +84,20 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
   % read each column into data matrix:
   for i=1:Nfields
     % fseek repositions file position indicator (doc fseek). problem here
-    fseek(fid,EOH+BytesCumulative(i),'bof'); 
+    fseek(fid,EOH+BytesCumulative(i),'bof');
     % reads data into matrix (data, col i)
-    data(:,i)= fread(fid,24*3600*10,char(MatlabPrec(i)),BytesPerRecord); 
+    data(:,i)= fread(fid,24*3600*10,char(MatlabPrec(i)),BytesPerRecord);
   end
   
   % assign variable names to columns of data:
   if (Nfields==14) % TX_forest & TX_grassland
-    time1=(data(:,1));     
+    time1=(data(:,1));
     uin=(data(:,7));
     vin=(data(:,8));
     win=(data(:,9));
-    Tin=(data(:,10)+273.15);     
-    co2in=(data(:,11))/44;     
-    h2oin=(data(:,12))/.018;     
+    Tin=(data(:,10)+273.15);
+    co2in=(data(:,11))/44;
+    h2oin=(data(:,12))/.018;
     Pin=(data(:,13));
     diagcsat=(data(:,14));
     diagsonin = zeros(length(diagcsat),1);
@@ -113,7 +113,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
     h2oin=h2oin/.018;
     Tin=(data(:,8)+273.15);
     Pin=(data(:,9));
-    diagsonin=(data(:,10)); 
+    diagsonin=(data(:,10));
   elseif (Nfields==12 & (sitecode==1 | sitecode==2 | sitecode==10));  
     %GLand, SLand. %Sev sites have their columns mixed up. There is no irga
     %diagnositc!
@@ -136,11 +136,11 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 
     Tin=(data(:,8)+273.15);
     Pin=(data(:,9));
-    diagsonin=(data(:,10));     
+    diagsonin=(data(:,10));
   elseif (Nfields==12 & ~(sitecode==1 | sitecode==2));
     time1=(data(:,1));  %seconds since 
     time2=(data(:,2));   % nanoseconds
-    rn=(data(:,3)); 
+    rn=(data(:,3));
     uin=(data(:,4));
     vin=(data(:,5));
     win=(data(:,6));
@@ -152,7 +152,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
     Pin=(data(:,10));
     diagsonin=(data(:,11));
   elseif (Nfields==9);
-    uin=(data(:,1)); 
+    uin=(data(:,1));
     vin=(data(:,2));
     win=(data(:,3));
     co2in=(data(:,4))/44;
@@ -161,7 +161,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
     h2oin=h2oin/.018;
     Tin=(data(:,6)+273.15);
     Pin=(data(:,7));
-    diagsonin=(data(:,8)); 
+    diagsonin=(data(:,8));
   end
 
   %convert seconds since 1990 to date vector [year ...]
@@ -170,7 +170,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 
   %decide whether to make plots
   plots = 0;
-  plots2 = figures_on;  
+  plots2 = figures_on;
   plots3 = figures_on;
 
   % Moved call to figure(1); clf; to inside if statement; MF Feb 17, 2011
@@ -183,10 +183,10 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
   [m,n] = size(data);
   hfhrs = m/18000;
   hfhr1 = floor(hfhrs);
-  hfhr2 = round(hfhrs)
+  hfhr2 = round(hfhrs);
 
   %%%calculate half-hourly values
-  disp('calculating half-hourly vectors....')
+  fprintf(1, 'calculating half-hourly vectors');
   year_ts=datev(:,1);
   month_ts=datev(:,2);
   day_ts=datev(:,3);
@@ -201,6 +201,10 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
   for i=1:48  %cycle through all 48 (potential) half-hour time periods
 	      %calculate hour & minutes for each period (time recorded at the
               %end)
+	      
+    %write progress indicator	      
+    fprintf(1, '.');
+    
     n = i;
     hr(i) = floor((i-1)/2);
     min_end(i) = (((i)/2)-hr(i))*60;
@@ -218,7 +222,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
     
     if size(this_half_hour, 1) > 0 % half-hours with data
       % assign timestamp (end of period)
-      datev_30(i,1:6) = datev(max(this_half_hour), :); 
+      datev_30(i,1:6) = datev(max(this_half_hour), :);
       
       % sonic measurements:
       u = uin(this_half_hour);
@@ -287,7 +291,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 		       
       elseif strcmp(rotation, 'planar') % planar rotation
 	UVW2 = uvw2; %in this case, UVW2 !! is not !! rotated
-	uvwmeanrot(i,1:3) = NaN*ones(3,1); 
+	uvwmeanrot(i,1:3) = NaN*ones(3,1);
       end
       
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -417,6 +421,8 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
     end % end if-then for enough data or not enough data
   end  % end 48 half-hour for-loop
 
+  fprintf('\n');  %finish the ASCII progress bar
+  
   timestamp = datestr(datev_30);
   datenumber = datenum(datev_30);
   ioko = iokout(:,2);
@@ -430,11 +436,11 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
     draw_plots2(datenumber, uvwt_mean, theta, uvwtvar, ustar, speed, ...
 		co2out, h2oout, fco2out, fh2oout, hsout_flux, hlout, ...
 		tdryout, hbuoyantout, transportout, ioko, date, ...
-		outfolder)
+		outfolder);
   end
   if plots3
     draw_plots3(datenumber, tdryout, fco2out, fh2oout, hsout_flux, ...
-		hlout, outfolder)
+		hlout, outfolder);
   end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -517,7 +523,10 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 
   % removed a lot of commented-out code here.  See archived
   % UNM_data_processor.m for that code.
- 
+
+  % update progress to stdout
+  fprintf(1, '--\n');
+  
 %--------------------------------------------------  
 
 function write_daily_files(y, date, outdir, write_xls)
@@ -556,8 +565,7 @@ function write_daily_files(y, date, outdir, write_xls)
 		'u_vector_u','u_vector_v','u_vector_w','w_mean'};
   
   %write data to files
-  disp('writing data to files....');
-  disp(date);
+  fprintf(1, 'writing data to files - ');
 
   %build filename
   if write_xls
@@ -565,12 +573,12 @@ function write_daily_files(y, date, outdir, write_xls)
   else
     outfile_ext = '.csv';
   end 
-  outfile = fullfile(outdir, ...
-			 [datestr(date, 'YYYY_mm_dd'), 'processed_data', outfile_ext]);
+  fname = sprintf('%s_processed_data%s', datestr(date, 'YYYY_mm_dd'), outfile_ext);
+  outfile = fullfile(outdir, fname);
   if write_xls
     %write excel files
     if lag == 0
-      xlswrite(fileout, headertext,int2str(date),'A1');
+      xlswrite(fileout, headertext, int2str(date),'A1');
       xlswrite(fileout, y,int2str(date),'A2');
     elseif lag == 1
       xlswrite(fileout, headertext_lag,int2str(date),'A1');
@@ -579,10 +587,15 @@ function write_daily_files(y, date, outdir, write_xls)
     disp('wrote excel file');
   else
     %write ascii files
-    dlmwrite(outfile, headertext);
-    dlmwrite(outfile, y, '-append');
+    ofid = fopen(outfile, 'w');
+    if ofid ~= -1
+      fprintf(ofid, '%s,', headertext{:});
+      fclose(ofid);
+      dlmwrite(outfile, y, '-append', 'precision', '%.10f');
+      %write progress to stdout
+      fprintf(1, 'wrote %s\n', fname);
+    end
   end
-
 
 %--------------------------------------------------  
 
@@ -595,11 +608,11 @@ function h = draw_plots1(uin, vin, win, co2in, h2oin, Tin, Pin, diagsonin, ...
   subplot(3,3,1); plot(uin); axis tight; xlabel('time'); ylabel('uin');
   subplot(3,3,2); plot(vin); axis tight; xlabel('time'); ylabel('vin');
   subplot(3,3,3); plot(win); axis tight; xlabel('time'); ylabel('win');
-  subplot(3,3,4); plot(co2in); axis tight; xlabel('time'); ylabel('CO2in'); 
-  subplot(3,3,5); plot(h2oin); axis tight; xlabel('time'); ylabel('H2Oin'); 
-  subplot(3,3,6); plot(Tin); axis tight; xlabel('time'); ylabel('Tin'); 
-  subplot(3,3,7); plot(Pin); axis tight; xlabel('time'); ylabel('Pin');   
-  subplot(3,3,8); plot(diagsonin); axis tight; xlabel('time'); ylabel('diagsonin'); 
+  subplot(3,3,4); plot(co2in); axis tight; xlabel('time'); ylabel('CO2in');
+  subplot(3,3,5); plot(h2oin); axis tight; xlabel('time'); ylabel('H2Oin');
+  subplot(3,3,6); plot(Tin); axis tight; xlabel('time'); ylabel('Tin');
+  subplot(3,3,7); plot(Pin); axis tight; xlabel('time'); ylabel('Pin');
+  subplot(3,3,8); plot(diagsonin); axis tight; xlabel('time'); ylabel('diagsonin');
   %subplot(3,3,9); plot(diagirga); axis tight; xlabel('time'); ylabel('diagirga');
   figname= strcat(outfolder, int2str(date), site ,' diagnostic plot');
   print('-dpng', '-r300', figname);
@@ -614,12 +627,12 @@ function [h] = draw_plots2(datenumber, uvwt_mean, theta, uvwtvar, ustar, speed, 
 
   disp ('making plots of processed data....')
   
-  h = figure(2); 
+  h = figure(2);
 
-  subplot (5,3,1);    
-  plot (datenumber,uvwtmean);    
-  axis tight;      
-  ylabel ('u,v,w, Temp');    
+  subplot (5,3,1);
+  plot (datenumber,uvwtmean);
+  axis tight;
+  ylabel ('u,v,w, Temp');
   %legend ('u','v','w','Temp');   
 
   subplot (5,3,3);
