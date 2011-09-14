@@ -8,7 +8,7 @@
 
 function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
       UNM_data_processor(filename, date, site, figures_on, rotation, lag, ...
-			 writefluxall)
+                         writefluxall);
 
   % preliminaries -- calculate day of year, get sitecode, set up input &
   % output directories
@@ -201,7 +201,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
   for i=1:48  %cycle through all 48 (potential) half-hour time periods
 	      %calculate hour & minutes for each period (time recorded at the
               %end)
-	      
+    
     %write progress indicator	      
     fprintf(1, '.');
     
@@ -221,7 +221,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 			  min_ts < min_end(i));
     
     if size(this_half_hour, 1) > 0 % half-hours with data
-      % assign timestamp (end of period)
+                                   % assign timestamp (end of period)
       datev_30(i,1:6) = datev(max(this_half_hour), :);
       
       % sonic measurements:
@@ -288,7 +288,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 		       % ROW 3: sonic w component
         uvwmeanrot(i,1:3) = uvwmeanrot_; %mean values for despiked and 3D
                                          %rotated sonic measurements
-		       
+        
       elseif strcmp(rotation, 'planar') % planar rotation
 	UVW2 = uvw2; %in this case, UVW2 !! is not !! rotated
 	uvwmeanrot(i,1:3) = NaN*ones(3,1);
@@ -359,7 +359,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
       HBUOYANT  = NaN;
       TRANSPORT = NaN;
       hsout = NaN;
-		
+      
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % Hold out periods of known calibration for Texas site
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -415,119 +415,126 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 	  if lag==1;
 	    lagCO2(i,1: 9)=NaN;
 	    lagH2O(i,1:5)=NaN;
-	  end
-	end
+   end
+ end
       end
     end % end if-then for enough data or not enough data
   end  % end 48 half-hour for-loop
 
-  fprintf('\n');  %finish the ASCII progress bar
-  
-  timestamp = datestr(datev_30);
-  datenumber = datenum(datev_30);
-  ioko = iokout(:,2);
-
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % if plots are on, draw them now
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  %make automatic plots using these variables
-  % draw_plots2 and draw_plots3 code below
-  if plots2
-    draw_plots2(datenumber, uvwt_mean, theta, uvwtvar, ustar, speed, ...
-		co2out, h2oout, fco2out, fh2oout, hsout_flux, hlout, ...
-		tdryout, hbuoyantout, transportout, ioko, date, ...
-		outfolder);
-  end
-  if plots3
-    draw_plots3(datenumber, tdryout, fco2out, fh2oout, hsout_flux, ...
-		hlout, outfolder);
-  end
-
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % write output files
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
-  % daily output: "fairly useless, except as source for header"
-  y = [datev_30, numdate, julday, ioko, uvwtmean, tdryout, theta, speed, rH, ...
-       uvwtvar, covuvwt, ustar,co2out,h2oout,fco2out,fh2oout,hsout_flux, ...
-       hlout,rhomout, hbuoyantout,transportout, removed,zoLout,u_vector, ...
-       w_mean];
-  write_xls = false;
-  write_daily_files(y, date, outfolder, write_xls);
-  
-  % %running compilation
-  % ofid = fopen(fullfile(sitefolder,' output'),'a');
-  % for i=1:size(y,1)
-  %   fprintf(ofid,'%f ', y(i,:));
-  %   fprintf(ofid, '\n');
-  % end
-  % fclose(ofid);
-
-  % if writefluxall
-  %   disp('preparing to enter data in FLUX_all file....')
-  %   fluxallfile = fullfile(outfolder, [site, '_FLUX_all.xls']);
-  %   [num text] = xlsread(fluxallfile,'matlab','A1:A65500');
-  %   col='B';    
+    fprintf('\n');  %finish the ASCII progress bar
     
-  %   timestamp2=text(5:size(text,1));
-  %   n=1;
-  %   time_match1=NaN; % time match lag is the row of the excel file for a given date/time (MF)
-  %   for i=1:48
-  %     if isnan(time_match1)==1 & ioko(i)>6000 %have not yet matched up first row
-  % 	timenum=datenum(timestamp2);
-  % 	time_match=find(abs(timenum-datenumber(i)) < 1/(48*3))+4;
-  % 	if time_match >4  % a row with a matching date/time has been found in timestamp2 (MF)
-  % 	  if lag==0
-  % 	    y2(n,:)=y(i,:);
-  % 	  elseif lag==1
-  % 	    y2(n,:)=y_lag(i,:);
-  % 	  end
-  % 	  time_match1=time_match;  % set time match lag equal to time match if matching row found; otherwise leave as NaN (MF)
-  % 	  n=n+1;           
-  % 	end
-  %     elseif isnan(time_match1)==0 & sum(find(ioko(i:48)>0))>0 %already have matched up first row & there is more data that day
-  % 	if lag==0 
-  % 	  y2(n,:)=y(i,:);
-  % 	elseif lag==1
-  % 	  y2(n,:)=y_lag(i,:);
-  % 	end
-  % 	n=n+1;  
-  %     else %no more data
-  %     end  
-  %   end 
+    timestamp = datestr(datev_30);
+    datenumber = datenum(datev_30);
+    ioko = iokout(:,2);
 
-  %   if isnan(time_match1)==0 & size(time_match1,1)==1;
-  %     xlswrite(fluxallfile,y2,'matlab', strcat(col,num2str(time_match1)));
-  %     disp('wrote to FLUX_all')
-  %   else
-  %     %disp('rows that match date/time') % MF Aug 2011
-  %     %disp(time_match1)                 % MF Aug 2011
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % if plots are on, draw them now
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %make automatic plots using these variables
+    % draw_plots2 and draw_plots3 code below
+    if plots2
+      draw_plots2(datenumber, uvwt_mean, theta, uvwtvar, ustar, speed, ...
+                  co2out, h2oout, fco2out, fh2oout, hsout_flux, hlout, ...
+                  tdryout, hbuoyantout, transportout, ioko, date, ...
+                  outfolder);
+    end
+    if plots3
+      draw_plots3(datenumber, tdryout, fco2out, fh2oout, hsout_flux, ...
+                  hlout, outfolder);
+    end
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % write output files
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    % daily output: "fairly useless, except as source for header"
+    y = [datev_30, numdate, julday, ioko, uvwtmean, tdryout, theta, speed, rH, ...
+         uvwtvar, covuvwt, ustar,co2out,h2oout,fco2out,fh2oout,hsout_flux, ...
+         hlout,rhomout, hbuoyantout,transportout, removed,zoLout,u_vector, ...
+         w_mean];
+    write_xls = false;
+    write_daily_files(y, date, outfolder, write_xls);
+    
+    %running compilation
+    ofid = fopen(fullfile(sitefolder,' output'),'a');
+    for i=1:size(y,1)
+      fprintf(ofid,'%f ', y(i,:));
+      fprintf(ofid, '\n');
+    end
+    fclose(ofid);
+
+    if writefluxall
+      disp('preparing to enter data in FLUX_all file....')
+      fluxallfile = fullfile(outfolder, [site, '_FLUX_all.xls']);
+      [num text] = xlsread(fluxallfile,'matlab','A1:A65500');
+      col='B';    
       
-  %     disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')   
-  %     disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
-  %     disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
-  %     disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
-  %     disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')     
-  %   end
-  % end 
+      timestamp2=text(5:size(text,1));
+      n=1;
+      time_match1=NaN; % time match lag is the row of the excel file for a given
+                       % date/time (MF)
+      for i=1:48
+        if isnan(time_match1)==1 & ioko(i)>6000 %have not yet matched up first row
+          timenum=datenum(timestamp2);
+          time_match=find(abs(timenum-datenumber(i)) < 1/(48*3))+4;
+          if time_match >4  % a row with a matching date/time has been
+                            % found in timestamp2 (MF) 
+            if lag==0
+              y2(n,:)=y(i,:);
+            elseif lag==1
+              y2(n,:)=y_lag(i,:);
+            end
+            time_match1=time_match;  % set time match lag equal to time match if
+                                     % matching row found; otherwise leave as NaN
+                                     % (MF)
+            n=n+1;           
+          end
+        elseif isnan(time_match1)==0 & sum(find(ioko(i:48)>0))>0
+          %already have matched up first row & there is more data that day
+          if lag==0 
+            y2(n,:)=y(i,:);
+          elseif lag==1
+            y2(n,:)=y_lag(i,:);
+          end
+          n=n+1;  
+        else %no more data
+        end
+      end
+      
+      if isnan(time_match1)==0 & size(time_match1,1)==1;
+        xlswrite(fluxallfile,y2,'matlab', strcat(col,num2str(time_match1)));
+        disp('wrote to FLUX_all')
+      else
+        %disp('rows that match date/time') % MF Aug 2011
+        %disp(time_match1)                 % MF Aug 2011
+        
+        disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')   
+        disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
+        disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
+        disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
+        disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')     
+      end
+    end 
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % compoutput = [datev_30, numdate,julday, ioko, ustar, fco2out, fh2oout, hsout, hlout];
+    % 
+    % comparison = strcat(sitedir,site,'_lag_test'); %setting up the lag output file
+    % xlswrite(comparison,compoutput);
 
-  % compoutput = [datev_30, numdate,julday, ioko, ustar, fco2out, fh2oout, hsout, hlout];
-  % 
-  % comparison = strcat(sitedir,site,'_lag_test'); %setting up the lag output file
-  % xlswrite(comparison,compoutput);
+    %TWH removedfile = strcat(sitedir,site,'_removed'); %setting up the removed output file
+    %TWH xlswrite(removedfile,removed);
 
-  %TWH removedfile = strcat(sitedir,site,'_removed'); %setting up the removed output file
-  %TWH xlswrite(removedfile,removed);
+    % removed a lot of commented-out code here.  See archived
+    % UNM_data_processor.m for that code.
 
-  % removed a lot of commented-out code here.  See archived
-  % UNM_data_processor.m for that code.
-
-  % update progress to stdout
-  fprintf(1, '--\n');
-  
-%--------------------------------------------------  
+    % update progress to stdout
+    fprintf(1, '--\n');
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% file-writing helper functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function write_daily_files(y, date, outdir, write_xls)
 % WRITE_DAILY_FILES - helper function for UNM_data_processor; writes daily files
@@ -597,11 +604,14 @@ function write_daily_files(y, date, outdir, write_xls)
     end
   end
 
-%--------------------------------------------------  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% plotting helper functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function h = draw_plots1(uin, vin, win, co2in, h2oin, Tin, Pin, diagsonin, ...
 			 outfolder, date, site)
-% DRAW_PLOTS1 - draw_plots1: helper function for UNM_data_processor
+  % DRAW_PLOTS1 - draw_plots1: helper function for UNM_data_processor
   h = figure(1);
   clf;
   disp('creating plots of raw data.....')    
