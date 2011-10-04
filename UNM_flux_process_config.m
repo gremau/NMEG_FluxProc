@@ -19,10 +19,19 @@ function fluxrc =  UNM_flux_process_config()
 		'PJG_test', ...      % 11
 		'New_GLand'};        % 12
   
-  sitefolder = 'C:\Research - Flux Towers\TEST';
-  %outfolder
-  %infolder
+  FLUXROOT = getenv('FLUXROOT');
+  if length(FLUXROOT) == 0
+      error('environment variable fluxroot not defined');
+      % want to change this to prompt for directory instead
+  end
+      
+  sitefolder = fullfile(FLUXROOT);
+  %sitefolder = fullfile(FLUXROOT, 'Flux_Data_By_Site');
+  outfolder = fullfile(FLUXROOT, 'FluxOut');
   
-  fluxrc = struct('site_names', {site_names}, 'sitefolder', sitefolder);
+  fluxrc = struct('site_names', {site_names}, ...
+                  'FLUXROOT', FLUXROOT, ...
+                  'sitefolder', sitefolder, ...
+                  'outfolder', outfolder);
   
   

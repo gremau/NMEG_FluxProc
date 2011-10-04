@@ -89,6 +89,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
         fseek(fid,EOH+BytesCumulative(i),'bof');
         % reads data into matrix (data, col i)
         data(:,i)= fread(fid,24*3600*10,char(MatlabPrec(i)),BytesPerRecord);
+        keyboard()
     end
     
     % assign variable names to columns of data:

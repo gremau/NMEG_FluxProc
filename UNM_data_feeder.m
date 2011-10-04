@@ -12,7 +12,7 @@ function out = UNM_data_feeder(site, varargin)
 % arguments will be ignored.
 %
 % INPUTS (required)
-%    site: string containing the site to process
+%    site: string containing the site to process; must be first argument
 % INPUTS (required parameter-val pairs)
 %    year_start: the year to begin processing
 %    year_end: the year to stop processing
