@@ -468,6 +468,8 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
     write_xls = false;
     write_daily_files(y, date, outfolder, write_xls);
     
+    
+    
     %running compilation
     ofid = fopen(fullfile(sitefolder,' output'),'a');
     for i=1:size(y,1)
@@ -476,9 +478,10 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
     end
     fclose(ofid);
 
+    keyboard()
     if writefluxall
         disp('preparing to enter data in FLUX_all file....')
-        fluxallfile = fullfile(outfolder, [site, '_FLUX_all.xls']);
+        fluxallfile = fullfile(outfolder, sprintf('%s_FLUX_all.csv']);
         [num text] = xlsread(fluxallfile,'matlab','A1:A65500');
         col='B';    
         
@@ -497,8 +500,9 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
                     elseif lag==1
                         y2(n,:)=y_lag(i,:);
                     end
-                    time_match1=time_match;  % set time match lag equal to time match if
-                                             % matching row found; otherwise leave as NaN
+                    time_match1=time_match;  % set time match lag equal to
+                                             % time match if matching row
+                                             % found; otherwise leave as NaN
                                              % (MF)
                     n=n+1;           
                 end
