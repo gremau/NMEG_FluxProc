@@ -7,169 +7,21 @@
 %substantially rewritten by Timothy W. Hilton, Sep 2011
 
 function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
-        UNM_data_processor(filename, date, site, figures_on, rotation, lag, ...
-                           writefluxall);
+        UNM_data_processor(filename, date_start, site, figures_on, rotation, ...
+                           lag, writefluxall);
 
     % preliminaries -- calculate day of year, get sitecode, set up input &
     % output directories
-    jday = date2doy(date);
     sitecode = get_site_code(site);
     outfolder = get_out_directory(sitecode);
     sitefolder = get_site_directory(sitecode);
-
-    CR=13;
-    LF=10;
-    COMMA=44;
-
-    fid=fopen(filename,'r','ieee-le'); % file ID
-    if fid == -1
-        err = MException('UNM_data_processor', ...
-                         'cannot open file %s\n', filename);
-        throw(err);
-    end
-    d=fread(fid,864000,'uchar');
-
-    % find Line Feeds and Carriage Returns
-    icr = find(d==CR);
-    ilf = find(d==LF);
-
-    % find the end of the header
-    EOH = ilf(5);
-
-    % read last line of header to get the file structure
-    HLine2 = d(ilf(1)+1:ilf(2)-1)';
-    HLine5 = d(ilf(4)+1:ilf(5)-1)';
-
-    begfields = [1 find(HLine5==COMMA)+1];
-    endfields = [find(HLine5==COMMA)-1 length(HLine5)-1];
-
-    begfields2 = [1 find(HLine2==COMMA)+1];
-    endfields2 = [find(HLine2==COMMA)-1 length(HLine2)-1];
-
-    Nfields = length(begfields);
-
-    % don't read the quotes at beginning and end of each field
-    for i=1:Nfields
-        FieldName{i} = char(HLine2(begfields2(i)+1:endfields2(i)-1));
-        Field{i} = char(HLine5(begfields(i)+1: endfields(i)-1));
-    end
-
-    % Calculate the number of bytes in a record and get the
-    % corresponding matlab precision
-    for i=1:size(Field,2)
-        if strcmp(char(Field(i)),'ULONG')
-            NBytes(i) = 4;
-            MatlabPrec{i}='uint32';
-        elseif  strcmp(char(Field(i)),'IEEE4')
-            NBytes(i) = 4;
-            MatlabPrec{i}='float32';
-        elseif strcmp(char(Field(i)),'IEEE4L')
-            NBytes(i) = 4;
-            MatlabPrec{i}='float32';
-        elseif strcmp(char(Field(i)),'SecNano')
-            NBytes(i) = 4;
-            MatlabPrec{i}='uint32';
-        end       
-    end
-
-    %%% Start reading the channels
-    fprintf(1, 'reading data: %s\n', datestr(date, 'dd mmm YYYY'));
-    % first position pointer at the end of the header
-    fseek(fid,EOH,'bof');   %fseek repositions file position indicator (doc
-                            %fseek). 'bof' = beginning of file
-    ftell(fid);  %position = ftell(fid) returns the location of the file position
-                 %indicator for the file specified by fid
-
-    BytesPerRecord=sum(NBytes)*ones(size(NBytes)) - NBytes ;
-    BytesCumulative = [0 cumsum(NBytes(1:length(NBytes)-1))];
-
-    % read each column into data matrix:
-    for i=1:Nfields
-        % fseek repositions file position indicator (doc fseek). problem here
-        fseek(fid,EOH+BytesCumulative(i),'bof');
-        % reads data into matrix (data, col i)
-        data(:,i)= fread(fid,24*3600*10,char(MatlabPrec(i)),BytesPerRecord);
-        keyboard()
-    end
     
-    % assign variable names to columns of data:
-    if (Nfields==14) % TX_forest & TX_grassland
-        time1=(data(:,1));
-        uin=(data(:,7));
-        vin=(data(:,8));
-        win=(data(:,9));
-        Tin=(data(:,10)+273.15);
-        co2in=(data(:,11))/44;
-        h2oin=(data(:,12))/.018;
-        Pin=(data(:,13));
-        diagcsat=(data(:,14));
-        diagsonin = zeros(length(diagcsat),1);
-    elseif (Nfields==11); % JSAV, PPINE, TX_savanna ....
-        time1=(data(:,1)); % seconds since 1990(?)
-        time2=(data(:,2)); % nanoseconds
-        uin=(data(:,3));
-        vin=(data(:,4));
-        win=(data(:,5));
-        co2in=(data(:,6))/44;
-        h2oin=(data(:,7));
-        %h2oin(h2oin<0)=0.01*ones(size(find(h2oin<0)));
-        h2oin=h2oin/.018;
-        Tin=(data(:,8)+273.15);
-        Pin=(data(:,9));
-        diagsonin=(data(:,10));
-    elseif (Nfields==12 & (sitecode==1 | sitecode==2 | sitecode==10));  
-        %GLand, SLand. %Sev sites have their columns mixed up. There is no irga
-        %diagnositc!
-        time1=(data(:,1)); % seconds since 
-        time2=(data(:,2)); % nanoseconds 
-        uin=(data(:,3));
-        vin=(data(:,4));
-        win=(data(:,5));
-        co2in=(data(:,6))/44;
-        h2oin=(data(:,7));
-        %h2oin(h2oin<0)=0.01*ones(size(find(h2oin<0)));
-        h2oin=h2oin/.018;
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Correction for dodgy IRGA calibration, September 2009 - 17 March 2010
-        %      if sitecode==10
-        %         h2oin=(h2oin.*0.8881)-133.65;
-        %      end
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        Tin=(data(:,8)+273.15);
-        Pin=(data(:,9));
-        diagsonin=(data(:,10));
-    elseif (Nfields==12 & ~(sitecode==1 | sitecode==2));
-        time1=(data(:,1));  %seconds since 
-        time2=(data(:,2));   % nanoseconds
-        rn=(data(:,3));
-        uin=(data(:,4));
-        vin=(data(:,5));
-        win=(data(:,6));
-        co2in=(data(:,7))/44;
-        h2oin=(data(:,8));
-        %h2oin(h2oin<0)=0.01*ones(size(find(h2oin<0)));
-        h2oin=h2oin/.018;
-        Tin=(data(:,9)+273.15);
-        Pin=(data(:,10));
-        diagsonin=(data(:,11));
-    elseif (Nfields==9);
-        uin=(data(:,1));
-        vin=(data(:,2));
-        win=(data(:,3));
-        co2in=(data(:,4))/44;
-        h2oin=(data(:,5));
-        %h2oin(h2oin<0)=0.01*ones(size(find(h2oin<0)));
-        h2oin=h2oin/.018;
-        Tin=(data(:,6)+273.15);
-        Pin=(data(:,7));
-        diagsonin=(data(:,8));
-    end
-
-    %convert seconds since 1990 to date vector [year ...]
-    datev = datevec((time1./(60.*60.*24))+726834);
-    %msec=time2/100000000;  %10 readings/ second-- this gives the number (1-10)
+    tob1 = read_TOB1_file(filename);
+    
+    % campbell datalogger records time as seconds since 1 Jan 1990 00:00:00.
+    % convert campbell timestamp to Matlab datenum (mdn)
+    secs_per_day = 60 * 60 * 24;
+    mdn = datenum(1990, 1, 1) + (tob1.SECONDS / secs_per_day);
 
     %decide whether to make plots
     plots = 0;
@@ -178,25 +30,19 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 
     % Moved call to figure(1); clf; to inside if statement; MF Feb 17, 2011
     % MAKE PLOTS OF RAW DATA
-    if (plots);
-        fig1_h = draw_plots1(uin, vin, win, co2in, h2oin, Tin, Pin, diagsonin, ...
-                             outfolder, date, site);
-    end
+    % if (plots);
+    %     fig1_h = draw_plots1(uin, vin, win, co2in, h2oin, Tin, Pin, diagsonin, ...
+    %                          outfolder, date, site);
+    % end
 
-    [m,n] = size(data);
-    hfhrs = m/18000;
-    hfhr1 = floor(hfhrs);
-    hfhr2 = round(hfhrs);
+    hfhrs = floor(date_start) + ((0:0.5:24.0) / 24.0);
+    [hfhr_obs_count, hfhr_obs_idx] = histc(mdn, hfhrs);
 
-    %%%calculate half-hourly values
-    fprintf(1, 'calculating half-hourly vectors');
-    year_ts=datev(:,1);
-    month_ts=datev(:,2);
-    day_ts=datev(:,3);
-    hr_ts=datev(:,4);
-    min_ts=datev(:,5);
-    day=day_ts(1);
-
+    % create a dataset initialized to NaN to contain output data
+    out_headers = define_fluxall_headers();
+    out_data = dataset({repmat(NaN, 48, length(out_headers)), ...
+                        out_headers{:, 1}});
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Start for-loop for 48 half-hour periods  
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -207,68 +53,66 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
         
         %write progress indicator	      
         fprintf(1, '.');
-        
-        n = i;
-        hr(i) = floor((i-1)/2);
-        min_end(i) = (((i)/2)-hr(i))*60;
-        if min_end(i) == 0;
-            min_end(i) = 60;
-        end
-        min_beg(i) = min_end(i)-30;
-        decimal_day = jday + hr(i)/24 + min_beg(i)/1440;
-        
-        %find indices for each half hour period
-        this_half_hour = find(day_ts == day & ...
-                              hr_ts == hr(i) & ...
-                              min_ts >= min_beg(i) & ...
-                              min_ts < min_end(i));
-        
-        if size(this_half_hour, 1) > 0 % half-hours with data
-                                       % assign timestamp (end of period)
-            datev_30(i,1:6) = datev(max(this_half_hour), :);
+    
+        if hfhr_obs_count(i) == 0
+            % no data for this half hour -- create an output line of NaNs
             
-            % sonic measurements:
-            u = uin(this_half_hour);
-            v = vin(this_half_hour);
-            w = win(this_half_hour);
-            T = Tin(this_half_hour);
-            diagson = diagsonin(this_half_hour);
-            uvwt = [u v w T];
-            % irga measurments - step set to 0 because it appears to be max for now
-            co2 = co2in(this_half_hour);
-            h2o = h2oin(this_half_hour);
-            P = Pin(this_half_hour);
-            % switch this line below to agc 
+        else 
+            % there are data for this half hour
+            this_hfhr = tob1(hfhr_obs_idx == i, :);
+            [year_ts, month_ts, day_ts, hour_ts, min_ts, sec_ts] = datevec(hfhrs(i));
             
-            num = size(this_half_hour);
-
+            % initialize some intermediate variables
+            % by setting to NaN, the arrays aren't backfilled with zeros if a
+            % partial day is processed
+            theta = repmat(NaN, 48, 1);
+            speed = repmat(NaN, 48, 1);
+            uvwtmean = repmat(NaN, 48, 4);
+            uvwmeanrot = repmat(NaN, 48, 3);
+            uvwmean = repmat(NaN, 48, 3);
+            lagCO2= repmat(NaN, 48, 7);
+            lagH2O = repmat(NaN, 48, 5);
+            
+            
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % CALL UNM_dry_air_conversions  
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
             [CO2,H2O,PWATER,TD,RHO,IRGADIAG,IRGAP,P,removedco2] = ...
-                UNM_dry_air_conversions(co2,h2o,P,T,num,sitecode);
+                UNM_dry_air_conversions(this_hfhr.co2,...
+                                        this_hfhr.h2o,...
+                                        this_hfhr.press,...
+                                        this_hfhr.Ts,...
+                                        hfhr_obs_count(i),...
+                                        sitecode);
 
             removed(i,1:5) = removedco2;
-
+            
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Call UNM_csat3 for despiking sonic variables, calculating mean winds,
             % and calculating theta.
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+            % if the TOB1 file for this site does not 
+            % include a sonic diagnostic field, fill in zeros
+            if not(any(strcmp(this_hfhr.Properties.VarNames, 'diagson')))
+                this_hfhr.diagson = zeros(length(this_hfhr), 1);
+            end
+
             %uvwt is transposed here because fluxcat3freemanKA was written for data in
             %rows....
-            [uvwt2,SONDIAG,THETA,uvwtmean_,speed_] = ...
-                UNM_csat3(uvwt',diagson',sitecode);
+            uvwt = [this_hfhr.Ux, this_hfhr.Uy, this_hfhr.Uz, this_hfhr.Ts];
+            [uvwt2, SONDIAG, THETA, uvwtmean_, speed_] = ...
+                UNM_csat3(uvwt', this_hfhr.diagson', sitecode);
             
             % uvwt2 is despiked wind and temperature matrix
-            % SONDIAG is sonic diagnostic variable combining both original diagson and
-            %     despike (1 for good, 0 for bad)
+            % SONDIAG is sonic diagnostic variable combining both original
+            %     diagson and despike (1 for good, 0 for bad)
             
-            uvw2 = uvwt2(1:3,:); % pair down to just winds
-            uvwtmean(i,1:4) = uvwtmean_; %mean values for (despiked) sonic
-                                         %measurements
-            uvwmean = uvwtmean(i,1:3); % pair means down to just winds
+            uvw2 = uvwt2(1:3,:); % pare down to just winds
+            uvwtmean(i,:) = uvwtmean_; %mean values for (despiked) sonic
+                                       %measurements
+            uvwmean = uvwtmean(i,1:3); % pare means down to just winds
             theta(i,1) = THETA;  %meteorological mean wind angle - it is the compass
                                  %angle in degrees that the wind is blowing FROM (0 =
                                  %North, 90 = east, etc)
@@ -290,12 +134,12 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
                                %   rotated into the mean wind direction 
                                % ROW 2: sonic cross-wind component 
                                % ROW 3: sonic w component
-                uvwmeanrot(i,1:3) = uvwmeanrot_; %mean values for despiked and 3D
+                uvwmeanrot(i,:) = uvwmeanrot_; %mean values for despiked and 3D
                                                  %rotated sonic measurements
                 
             elseif strcmp(rotation, 'planar') % planar rotation
                 UVW2 = uvw2; %in this case, UVW2 !! is not !! rotated
-                uvwmeanrot(i,1:3) = NaN*ones(3,1);
+                uvwmeanrot(i,:) = NaN*ones(3,1);
             end
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -309,22 +153,19 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
                                                      UVW2, uvwmean, SONDIAG, ...
                                                      CO2', H2O', TD', RHO', ...
                                                      IRGADIAG', rotation, site, ...
-                                                     sitecode, num, PWATER, ...
+                                                     sitecode, hfhr_obs_count,...
+                                                     PWATER, ...
                                                      uvwmeanrot(i, :), IRGAP, ...
                                                      speed(i), temp2, ...
                                                      theta(i));
                 
             elseif lag==1
-                [CO2_,H2O_,FCO2_,FH2O_,HSENSIBLE_,HLATENT_,RHOM_,TDRY_,IOKNUM_, ...
-                 LAGCO2, LAGH2O,zoL] = flux7500freeman_lag(UVW2,uvwmean, ...
-                                                           USTAR_,SONDIAG, ...
-                                                           CO2',H2O',TD', ...
-                                                           RHO',IRGADIAG',rotation, ...
-                                                           sitecode,num, ...
-                                                           PWATER, ...
-                                                           uvwmeanrot(i,1:3), ...
-                                                           hsout,IRGAP, ...
-                                                           theta(i));
+                [CO2_, H2O_, FCO2_, FH2O_, HSENSIBLE_, HLATENT_, RHOM_, TDRY_, ...
+                 IOKNUM_, LAGCO2, LAGH2O, zoL] = ...
+                    flux7500freeman_lag(UVW2, uvwmean, USTAR_, SONDIAG,  ...
+                                        CO2', H2O', TD',  RHO', IRGADIAG', ...
+                                        rotation, sitecode, num, PWATER,  ...
+                                        uvwmeanrot(i, 1:3), hsout, IRGAP, theta(i));
                 lagCO2(i,1:7)=LAGCO2;
                 lagH2O(i,1:5)=LAGH2O;
             end
@@ -361,8 +202,10 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
             w_mean(i,1) = w_mean_; %this is rotated from planar fit
             rH(i,1) = rH_;
 
-            julday(i,1) = jday;
-            numdate(i,1) = date;
+            % calculate day of year (DOY) for this half hour; 1 Jan is DOY 1
+            decimal_day = hfhrs(i) - datenum(year_ts, 1, 1, 0, 0 ,0) + 1;
+            julday(i,1) = floor(decimal_day);
+            numdate(i,1) = month_ts * 1e4 + day_ts * 1e2 + mod(year_ts, 100);
             
             UVW2      = NaN*ones(3,size(uvwt,2));
             UVWTVAR   = NaN*ones(4,1);
@@ -377,63 +220,32 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             outputs_on = true;
             if sitecode == 7
-                outputs_on = TX_site_known_calibrations(numdate, decimal_day);
+                outputs_on = TX_site_known_calibrations(hfhrs(i));
             end
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % produce outputs
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-            no_data = size(this_half_hour, 1) == 0;
             
-            if ~outputs_on | no_data
-                julday(i,1)=jday;
-                numdate(i,1)=date;
-                %assign NaN's for missing data:
-                uvwtmean(i,1:4)=NaN;
-                uvwmeanrot(i,1:3)=NaN;
-                theta(i,1)=NaN;
-                uvwtvar(i,1:4)=NaN;
-                covuvwt(i,1:6)=NaN;
-                ustar(i,1)=NaN;
-                speed(i,1)=NaN;
-                hbuoyantout(i,1)=NaN;
-                transportout(i,1)=NaN;
-                co2out(i,1:5)=NaN;
-                h2oout(i,1:5)=NaN;
-                fco2out(i,1:5)=NaN;
-                fh2oout(i,1:6)=NaN;
-                hsout_flux(i,1:4)=NaN;
-                hlout(i,1:3)=NaN;
-                rhomout(i,1:3)=NaN;
-                tdryout(i,1)=  NaN;
-                iokout(i,1:2)=NaN;
-                removed(i,1:5) = NaN;
-                zoLout(i,1) = NaN;
-                if ~outputs_on
-                    uvwtvar(i,1:4)=UVWTVAR_;   %variances of ROTATED wind
-                                               %components and the sonic
-                                               %temperature
-                    covuvwt(i,1:6)=COVUVWT_;   %covariances of ROTATED wind
-                                               %components and the sonic temperature
-                    hbuoyantout(i,1)=HBUOYANT_;  %bouyancy flux (W m-2)
-                    ustar(i,1)=USTAR_;  % NX1 friction velocity (m/s)
-                    transportout(i,1)=TRANSPORT_;  %turblent transport
-                    u_vector(i,1:3) = u_vector_;
-                    w_mean(i,1) = w_mean_; %this is rotated from planar fit
-                elseif no_data
-                    rH(i,1)=NaN;
-                    u_vector(i,1) = NaN;
-                    w_mean(i,1) = NaN;
-                    if lag==1;
-                        lagCO2(i,1: 9)=NaN;
-                        lagH2O(i,1:5)=NaN;
-                    end
-                end
+            keyboard()
+            out_data.julday(i)=dayofyear(year_ts, month_ts, day_ts, ...
+                                         hour_ts, min_ts, sec_ts);
+            out_data.numdate(i)=month_ts * 1e4 + day_ts * 1e2 + mod(year_ts, 100);
+            if ~outputs_on
+                out_data.uvwtvar(i,1:4)=UVWTVAR_;   %variances of ROTATED wind
+                                                    %components and the sonic
+                                                    %temperature
+                covuvwt(i,1:6)=COVUVWT_;   %covariances of ROTATED wind
+                                           %components and the sonic temperature
+                hbuoyantout(i,1)=HBUOYANT_;  %bouyancy flux (W m-2)
+                ustar(i,1)=USTAR_;  % NX1 friction velocity (m/s)
+                transportout(i,1)=TRANSPORT_;  %turblent transport
+                u_vector(i,1:3) = u_vector_;
+                w_mean(i,1) = w_mean_; %this is rotated from planar fit
             end
-        end % end if-then for enough data or not enough data
-    end  % end 48 half-hour for-loop
-
+        end
+    end
+    
     fprintf('\n');  %finish the ASCII progress bar
         
     timestamp = datestr(datev_30);
@@ -461,6 +273,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % daily output: "fairly useless, except as source for header"
+    keyboard()
     y = [datev_30, numdate, julday, ioko, uvwtmean, tdryout, theta, speed, rH, ...
          uvwtvar, covuvwt, ustar,co2out,h2oout,fco2out,fh2oout,hsout_flux, ...
          hlout,rhomout, hbuoyantout,transportout, removed,zoLout,u_vector, ...
@@ -563,7 +376,7 @@ function write_daily_files(y, date, outdir, write_xls)
     headertext = {'year', 'month', 'day', 'hour', 'min', 'second', 'date', ...
                   'jday', 'iok', 'u_mean', 'v_mean', 'w_mean',...
                   'temp_mean','tdry', 'wind direction (theta)', 'speed','rH',...
-                  'along-wind velocity variance','cross-wind velocity variance', ...
+                  'a4long-wind velocity variance','cross-wind velocity variance', ...
                   'vertical-wind velocity variance',...
                   'sonic temperature variance','uw co-variance','vw co-variance',...
                   'uv co-variance','ut co-variance','vt co-variance','wt co-variance',...
