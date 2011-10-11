@@ -1,4 +1,4 @@
-function success = thirty_min_2_TOA5(site, raw_data_dir)
+function [success, toa5_fname] = thirty_min_2_TOA5(site, raw_data_dir)
 % THIRTY_MIN_2_TOA5 - convert the thirty minute file (*.flux.dat) to a TOA5
 % file
 
@@ -87,5 +87,5 @@ function success = thirty_min_2_TOA5(site, raw_data_dir)
         success = rm_success & success;
         %remove the ccf file
         delete(toa5_ccf_file);  %delete seems not to return an output status
-        keyboard()
     end
+    toa5_fname = newname_fullpath;
