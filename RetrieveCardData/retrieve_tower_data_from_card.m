@@ -1,4 +1,4 @@
-function [result, mod_date] = retrieve_tower_data_from_card(site)
+function [result, dest_dir] = retrieve_tower_data_from_card(site)
 % RETRIEVE_TOWER_DATA_FROM_CARD - retrieves tower data from card, processes to
 %   TOA5 and TOB1 files, puts data into appropriate storage locations
 
