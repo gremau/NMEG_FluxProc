@@ -294,7 +294,7 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
     keyboard()
     if writefluxall
         disp('preparing to enter data in FLUX_all file....')
-        fluxallfile = fullfile(outfolder, sprintf('%s_FLUX_all.csv']);
+        fluxallfile = fullfile(outfolder, sprintf('%s_FLUX_all.csv'));
         [num text] = xlsread(fluxallfile,'matlab','A1:A65500');
         col='B';    
         
