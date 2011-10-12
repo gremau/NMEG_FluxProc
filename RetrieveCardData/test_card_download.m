@@ -1,4 +1,4 @@
-this_site = 'PJ_girdle';
+this_site = 'New_GLand';
 site_dir = get_site_directory(get_site_code(this_site));
 
 % % copy the data from the card to the computer's hard drive
@@ -24,16 +24,15 @@ raw_data_dir = get_local_raw_data_dir(this_site, mod_date);
 % copy_uncompressed_TOB_files(this_site, ts_data_fnames);
 % fprintf(1, 'Done copying uncompressed TOB1 data to mybook\n');
 
-% %compress the raw data on the local drive
-% fprintf(1, '\n----------\n');
-% fprintf(1, 'COMPRESSING RAW DATA ON INTERNAL DRIVE...\n');
-% compress_raw_data_directory(raw_data_dir);
-% fprintf(1, 'Done compressing');
-
-
-% transfer the compressed raw data to edac
+%compress the raw data on the local drive
 fprintf(1, '\n----------\n');
-fprintf(1, 'transfering compressed raw data to edac...\n');
-transfer_2_edac(this_site, sprintf('%s.7z', raw_data_dir))
-fprintf(1, 'Done transferring.\n');
+fprintf(1, 'COMPRESSING RAW DATA ON INTERNAL DRIVE...\n');
+compress_raw_data_directory(raw_data_dir);
+fprintf(1, 'Done compressing\n');
+
+% % transfer the compressed raw data to edac
+% fprintf(1, '\n----------\n');
+% fprintf(1, 'transfering compressed raw data to edac...\n');
+% transfer_2_edac(this_site, sprintf('%s.7z', raw_data_dir))
+% fprintf(1, 'Done transferring.\n');
 

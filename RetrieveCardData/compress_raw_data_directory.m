@@ -3,11 +3,14 @@ function success = compress_raw_data_directory(raw_data_dir)
 % data
     
     seven_zip = 'C:\Program Files (X86)\7-Zip\7z.exe';
-    cmd = sprintf('"%s" a "%s" "%s" &', seven_zip, raw_data_dir, raw_data_dir);
-    [result, output] = dos(cmd, '-echo');
+    cmd = sprintf('"%s" a "%s" "%s" &', ...
+                  seven_zip, raw_data_dir, raw_data_dir);
+    %[result, output] = dos(cmd);
+    [result, output] = system(cmd);
     
-    fprintf(1, output);
+    fprintf(1, 'output: %s', output);
     
+    keyboard()
     if (result == 0)
-        delete(raw_data_dir)
+        %delete(raw_data_dir)
     end
