@@ -40,9 +40,12 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
 
     % create a dataset initialized to NaN to contain output data
     out_headers = define_fluxall_headers();
-    out_data = dataset({repmat(NaN, 48, length(out_headers)), ...
-                        out_headers{:, 1}});
+    out_data = dataset({repmat(NaN, ...  %fill in NaNs as placeholders
+                               48, ...   % each line one 30-min period
+                               length(out_headers)), ... %one column per variable
+                        out_headers{:, 1}});  %name variables according to headers
     
+    keyboard()
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Start for-loop for 48 half-hour periods  
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,16 +65,16 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
             this_hfhr = tob1(hfhr_obs_idx == i, :);
             [year_ts, month_ts, day_ts, hour_ts, min_ts, sec_ts] = datevec(hfhrs(i));
             
-            % initialize some intermediate variables
-            % by setting to NaN, the arrays aren't backfilled with zeros if a
-            % partial day is processed
-            theta = repmat(NaN, 48, 1);
-            speed = repmat(NaN, 48, 1);
-            uvwtmean = repmat(NaN, 48, 4);
-            uvwmeanrot = repmat(NaN, 48, 3);
-            uvwmean = repmat(NaN, 48, 3);
-            lagCO2= repmat(NaN, 48, 7);
-            lagH2O = repmat(NaN, 48, 5);
+            % remove this %initialize some intermediate variables
+            % remove this %by setting to NaN, the arrays aren't backfilled with zeros if a
+            % remove this %partial day is processed
+            % remove this theta = repmat(NaN, 48, 1);
+            % remove this speed = repmat(NaN, 48, 1);
+            % remove this uvwtmean = repmat(NaN, 48, 4);
+            % remove this uvwmeanrot = repmat(NaN, 48, 3);
+            % remove this uvwmean = repmat(NaN, 48, 3);
+            % remove this lagCO2= repmat(NaN, 48, 7);
+            % remove this lagH2O = repmat(NaN, 48, 5);
             
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -166,10 +169,12 @@ function [date, hr, fco2out, tdryout, hsout, hlout, iokout] = ...
                                         CO2', H2O', TD',  RHO', IRGADIAG', ...
                                         rotation, sitecode, num, PWATER,  ...
                                         uvwmeanrot(i, 1:3), hsout, IRGAP, theta(i));
-                lagCO2(i,1:7)=LAGCO2;
-                lagH2O(i,1:5)=LAGH2O;
             end
-
+            
+            % out_data.CO2_min[i] = CO2_(1);
+            % out_data.CO2_mean[i] = CO2_(1);
+            % out_data.CO2_mean[i] = CO2_(1);
+            % out_data.CO2_mean[i] = CO2_(1);
             co2out(i,1:5) = CO2_; %CO2 (umol/mol dry air). 
                                   % 1- min, %2-max, 3-median, %4-mean, 5-std
             h2oout(i,1:5) = H2O_; %H20 (mmol/mol dry air) 
