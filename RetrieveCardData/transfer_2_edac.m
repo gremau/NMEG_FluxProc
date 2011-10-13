@@ -28,10 +28,18 @@ function success = transfer_2_edac(site, compressed_data_fname)
                   'jdelong@edacdata1.unm.edu &'], ...
                  script_file_cygpath);
     [s, r] = dos(cmd);
+
+    % need to implement some sort of blocking scheme here to make Matlab wait
+    % until compression is done.  This will work, but requires a click when
+    % compression is complete.
+    h = warndlg('press OK when file transfer is complete');
+    fprintf(1, '\nWAITING FOR FILE TRANSFER...');
+    waitfor(h);
+    fprintf(1, ' DONE\n');
     
     %remove the sftp script
     delete(sftp_script_file);
     
     %change matlab back to the original directory
-    cd(calling_dir)
+    cd(calling_dir);
     

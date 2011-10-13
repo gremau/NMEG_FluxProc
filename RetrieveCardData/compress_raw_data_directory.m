@@ -5,12 +5,20 @@ function success = compress_raw_data_directory(raw_data_dir)
     seven_zip = 'C:\Program Files (X86)\7-Zip\7z.exe';
     cmd = sprintf('"%s" a "%s" "%s" &', ...
                   seven_zip, raw_data_dir, raw_data_dir);
-    %[result, output] = dos(cmd);
-    [result, output] = system(cmd);
+    [result, output] = dos(cmd);
+
+    % need to implement some sort of blocking scheme here to make Matlab wait
+    % until compression is done.  This will work, but requires a click when
+    % compression is complete.
+    h = warndlg('press OK when file compression is complete');
+    fprintf(1, '\nWAITING FOR FILE COMPRESSION...');
+    waitfor(h);
+    fprintf(1, ' DONE\n');
     
     fprintf(1, 'output: %s', output);
     
-    keyboard()
-    if (result == 0)
-        %delete(raw_data_dir)
+    if (result == 0)  %indicates compression successful
+        delete(fullfile(raw_data_dir, '*'));
+        rmdir(raw_data_dir);
+        fprintf(1, 'removed %s\n', raw_data_dir);
     end
