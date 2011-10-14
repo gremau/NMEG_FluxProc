@@ -5,7 +5,8 @@ function result = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
     nvar = length(fluxraw.Properties.VarNames);
     
     psname = fullfile(getenv('PLOTDEPOT'), ...
-                      sprintf('%s_%s_flux_raw.ps', site, mod_date));
+                      sprintf('%s_%s_flux_raw.ps', site, ...
+                              datestr(mod_date, 'YYYY-mm-dd')));
 
     Fc_wpl_idx = find(strcmp(fluxraw.Properties.VarNames, 'Fc_wpl'));
     this_fig = figure();
@@ -36,6 +37,7 @@ function result = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
            'pdffile', pdfname, ...
            'deletepsfile', 1);
     
-    if system('which pdfcrop') == 0
+    [result, msg] = system('which pdfcrop');
+    if result == 0
         system(sprintf('pdfcrop %s %s', pdfname, pdfname));
     end
