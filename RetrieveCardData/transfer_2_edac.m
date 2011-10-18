@@ -33,9 +33,7 @@ function success = transfer_2_edac(site, compressed_data_fname)
     % until compression is done.  This will work, but requires a click when
     % compression is complete.
     h = warndlg('press OK when file transfer is complete');
-    fprintf(1, '\nWAITING FOR FILE TRANSFER...');
     waitfor(h);
-    fprintf(1, ' DONE\n');
     
     %remove the sftp script
     delete(sftp_script_file);

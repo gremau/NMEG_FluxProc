@@ -11,9 +11,7 @@ function success = compress_raw_data_directory(raw_data_dir)
     % until compression is done.  This will work, but requires a click when
     % compression is complete.
     h = warndlg('press OK when file compression is complete');
-    fprintf(1, '\nWAITING FOR FILE COMPRESSION...');
     waitfor(h);
-    fprintf(1, ' DONE\n');
     
     fprintf(1, 'output: %s', output);
     
