@@ -1,30 +1,44 @@
 function ds = toa5_2_dataset(fname)
 % TOA5_2_DATASET - 
 %   
-    % read the header one line at a time
-    fid = fopen(fname);
-    n_header_lines = 4;
-    header_lines = cell(n_header_lines, 1);
-    for i = 1:n_header_lines
-        this_line = fgetl(fid);
-        header_lines{i} = strrep(this_line, '"', '');
-    end
     
-    data_start = ftell(fid);
+    n_header_lines = 4;
+    first_data_line = n_header_lines + 1;
+    
+    % read the header one line at a time
+    fid = fopen(fname, 'rt');
+    file_lines = textscan(fid, '%s', 'delimiter', '\n');
+    fclose(fid);
+    file_lines = file_lines{1,1};
+    
+    %remove quotations from the file text
+    file_lines = strrep(file_lines, '"', '');
     
     % separate out variable names and types
-    var_names = regexp(header_lines{2}, ',', 'split');
-    var_units = regexp(header_lines{3}, ',', 'split');
+    var_names = regexp(file_lines{2}, ',', 'split');
+    var_units = regexp(file_lines{3}, ',', 'split');
 
-    % read the data portion of the file using textread
-    n_numeric_vars = length(var_names) - 1; %all the variables except the timestamp
-    fmt = ['"%d-%d-%d %d:%d:%d"', repmat(',%f', 1, n_numeric_vars), ',%s'];
-    [data, count] = fscanf(fid, fmt, inf); 
-
-    keyboard()
+    %make variable names into valid Matlab variable names -- change '.' (used
+    %in soil water content depths) to 'p'
+    var_names = strrep(var_names, '.', 'p');
     
-    fmt = ['"%d-%d-%d %d:%d:%d"' repmat('%f', 1, n_numeric_vars)];
-    data = cell(1, n_numeric_vars + 6);
-    [data{:}] = textread(fname, fmt, 'delimiter', ',', 'headerlines', 4, ...
-                         'emptyvalue', NaN);
+    % scan the data portion of the matrix into a matlab array
+    n_numeric_vars = length(var_names) - 1; %all the variables except the timestamp
+    fmt = ['%d-%d-%d %d:%d:%d', repmat(',%f', 1, n_numeric_vars)];
+    [data, count] = cellfun(@(x) sscanf(x, fmt), ...
+                            file_lines(first_data_line:end), ...
+                            'UniformOutput', false);
+    data = [data{:}]';
+    timestamps = data(:, 1:6);
+    data = data(:, 7:end);
+    
+    %build matlab datenums from the timestamps (first six columns of data are
+    %year, month, day, hour, minute, second)
+    mdn = datenum(timestamps(:, 1:6));
+    data = [mdn, data];
+    
+    ds = dataset({data, var_names{:}});
+    
+    
+    
     
