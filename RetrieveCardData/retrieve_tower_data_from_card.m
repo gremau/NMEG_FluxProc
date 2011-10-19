@@ -33,14 +33,14 @@ function [result, dest_dir, mod_date] = retrieve_tower_data_from_card(site)
         end
         
         fprintf('%s --> %s...', src, dest_dir);
-        % [copy_success, msgid, msg] = copyfile(src, dest_dir);
-        % result = result & copy_success;
-        % if copy_success
-        %     fprintf('done\n');
-        % else
-        %     fprintf('\n');
-        %     error(msgid, msg);
-        % end
+        [copy_success, msgid, msg] = copyfile(src, dest_dir);
+        result = result & copy_success;
+        if copy_success
+            fprintf('done\n');
+        else
+            fprintf('\n');
+            error(msgid, msg);
+        end
     end
         
     

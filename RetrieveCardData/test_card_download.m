@@ -1,4 +1,4 @@
-this_site = 'MCon';
+this_site = 'PPine';
 
 %--------------------------------------------------------------------------
 site_dir = get_site_directory(get_site_code(this_site));
@@ -8,6 +8,10 @@ fprintf(1, '\n----------\n');
 fprintf(1, 'COPYING FROM CARD TO LOCAL DISK...');
 [card_copy_success, raw_data_dir, mod_date] = retrieve_tower_data_from_card(this_site);
 fprintf(1, 'Done\n');
+
+% use these lines if you need to do a partial transfer or something
+% raw_data_dir = 'C:\Research - Flux Towers\Flux Tower Data By Site\MCon\Raw data from cards\Raw Data 2011\MCon_09-20-11';
+% mod_date = datenum(2011, 9, 20, 10, 22, 00);
 
 % convert the thirty-minute data to TOA5 file
 fprintf(1, '\n----------\n');
@@ -35,7 +39,7 @@ fprintf(1, 'Done copying uncompressed TOB1 data to mybook\n');
 %copy uncompressed raw data to Story
 fprintf(1, '\n----------\n');
 fprintf(1, 'COPYING UNCOMPRESSED RAW CARD DATA TO STORY...\n');
-copy_uncompressed_raw_car_data(this_site, raw_data_dir);
+copy_uncompressed_raw_card_data(this_site, raw_data_dir);
 fprintf(1, 'Done copying uncompressed TOB1 data to mybook\n');
 
 %compress the raw data on the local drive
