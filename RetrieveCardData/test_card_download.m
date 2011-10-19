@@ -5,9 +5,8 @@ site_dir = get_site_directory(get_site_code(this_site));
 
 % % copy the data from the card to the computer's hard drive
 fprintf(1, '\n----------\n');
-fprintf(1, 'COPYING FROM CARD TO LOCAL DISK...');
+fprintf(1, 'COPYING FROM CARD TO LOCAL DISK...\n');
 [card_copy_success, raw_data_dir, mod_date] = retrieve_tower_data_from_card(this_site);
-fprintf(1, 'Done\n');
 
 % use these lines if you need to do a partial transfer or something
 % raw_data_dir = 'C:\Research - Flux Towers\Flux Tower Data By Site\MCon\Raw data from cards\Raw Data 2011\MCon_09-20-11';
