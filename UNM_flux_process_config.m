@@ -25,7 +25,7 @@ function fluxrc =  UNM_flux_process_config()
       % want to change this to prompt for directory instead
   end
       
-  sitefolder = fullfile(FLUXROOT);
+  sitefolder = fullfile(FLUXROOT, 'Flux Tower Data By Site');
   %sitefolder = fullfile(FLUXROOT, 'Flux Tower Data By Site');
   outfolder = fullfile(FLUXROOT, 'FluxOut');
   

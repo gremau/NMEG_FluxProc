@@ -10,7 +10,8 @@ function success = compress_raw_data_directory(raw_data_dir)
     % need to implement some sort of blocking scheme here to make Matlab wait
     % until compression is done.  This will work, but requires a click when
     % compression is complete.
-    h = warndlg('press OK when file compression is complete');
+    h = warndlg('press OK when file compression is complete', ...
+                'compressing data');
     waitfor(h);
     
     fprintf(1, 'output: %s', output);

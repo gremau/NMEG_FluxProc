@@ -7,7 +7,7 @@ function ds = toa5_2_dataset(fname)
     
     % read the header one line at a time
     fid = fopen(fname, 'rt');
-    file_lines = textscan(fid, '%s', 'delimiter', '\n');
+    file_lines = textscan(fid, '%s', 'delimiter', '\n', 'BufSize', 1e6);
     fclose(fid);
     file_lines = file_lines{1,1};
     
@@ -19,9 +19,11 @@ function ds = toa5_2_dataset(fname)
     var_units = regexp(file_lines{3}, ',', 'split');
 
     %make variable names into valid Matlab variable names -- change '.' (used
-    %in soil water content depths) to 'p'
+    %in soil water content depths) to 'p' and (,) to _
     var_names = strrep(var_names, '.', 'p');
-    
+    var_names = strrep(var_names, ')', '_');
+    var_names = strrep(var_names, '(', '_');
+
     % scan the data portion of the matrix into a matlab array
     n_numeric_vars = length(var_names) - 1; %all the variables except the timestamp
     fmt = ['%d-%d-%d %d:%d:%d', repmat(',%f', 1, n_numeric_vars)];
@@ -38,7 +40,7 @@ function ds = toa5_2_dataset(fname)
     data = [mdn, data];
     
     ds = dataset({data, var_names{:}});
-    
+    ds.Properties.Units = var_units;
     
     
     

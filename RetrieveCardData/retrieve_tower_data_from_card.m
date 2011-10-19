@@ -1,4 +1,4 @@
-function [result, dest_dir] = retrieve_tower_data_from_card(site)
+function [result, dest_dir, mod_date] = retrieve_tower_data_from_card(site)
 % RETRIEVE_TOWER_DATA_FROM_CARD - retrieves tower data from card, processes to
 %   TOA5 and TOB1 files, puts data into appropriate storage locations
 
@@ -17,7 +17,7 @@ function [result, dest_dir] = retrieve_tower_data_from_card(site)
                                                  %data file
 
         %create directory for files if it doesn't already exist
-        dest_dir = get_local_raw_data_dir(get_site_code(site), mod_date);
+        dest_dir = get_local_raw_data_dir(site, mod_date);
         if exist(dest_dir) ~= 7
             %     % if directory already exists, throw an error
             %     %error('retrieve_tower_data_from_card:destination error', ...
@@ -33,14 +33,14 @@ function [result, dest_dir] = retrieve_tower_data_from_card(site)
         end
         
         fprintf('%s --> %s...', src, dest_dir);
-        [copy_success, msgid, msg] = copyfile(src, dest_dir);
-        result = result & copy_success;
-        if copy_success
-            fprintf('done\n');
-        else
-            fprintf('\n');
-            error(msgid, msg);
-        end
+        % [copy_success, msgid, msg] = copyfile(src, dest_dir);
+        % result = result & copy_success;
+        % if copy_success
+        %     fprintf('done\n');
+        % else
+        %     fprintf('\n');
+        %     error(msgid, msg);
+        % end
     end
         
     

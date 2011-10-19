@@ -1,4 +1,4 @@
-function result = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
+function [result, pdfname] = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
 % FLUX_RAW_DIAGNOSTIC_PLOT - makes diagnostic plots of each variable from a
 %   Campbell Scientific datalogger *.flux.dat 30-minute file
     
@@ -8,30 +8,39 @@ function result = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
                       sprintf('%s_%s_flux_raw.ps', site, ...
                               datestr(mod_date, 'YYYY-mm-dd')));
 
+    fprintf(1, 'plotting diagnostic plots...');
     Fc_wpl_idx = find(strcmp(fluxraw.Properties.VarNames, 'Fc_wpl'));
     this_fig = figure();
-    plot(fluxraw.record_num, fluxraw.Fc_wpl, '.k');
+    plot(fluxraw.TIMESTAMP, fluxraw.Fc_wpl, '.k');
+    datetick('x', 'ddmmmyyyy');
     ylim([-50, 50]);
-    xlabel('record number');
+    xlabel('timestamp');
     ylabel(sprintf('%s (%s)', 'Fc\_wpl', fluxraw.Properties.Units{Fc_wpl_idx}));
-    title(sprintf('%s %s', strrep(site, '_', '\_'), mod_date));
+    title(sprintf('%s %s', strrep(site, '_', '\_'), datestr(mod_date)));
     print('-dpsc2', psname, sprintf('-f%d', this_fig));
-    waitforbuttonpress;
+    event = waitforbuttonpress();
     
-
-    for i=1:10
+    wait = 1;
+    for i=1:length(fluxraw.Properties.VarNames)
         this_var = fluxraw.Properties.VarNames{i};
         this_units = fluxraw.Properties.Units{i};
-        plot(fluxraw.record_num, ...
+        plot(fluxraw.TIMESTAMP, ...
              fluxraw.(this_var), ...
              '.k');
-        xlabel('record number');
+        datetick('x', 'ddmmmyyyy');
+        xlabel('timestamp');
         ylabel(sprintf('%s (%s)', strrep(this_var, '_', '\_'), this_units));
-        title(sprintf('%s %s', strrep(site, '_', '\_'), mod_date));
+        title(sprintf('%s %s', strrep(site, '_', '\_'), datestr(mod_date)));
         print('-dpsc2', psname, '-append', '-loose', sprintf('-f%d', this_fig));
-        waitforbuttonpress();
+        if wait
+            wait = waitforbuttonpress();
+        else
+            set(this_fig, 'Visible', 'off');
+        end
     end
-
+    close(this_fig);
+    
+    fprintf(1, 'done\nwriting pdf file...');
     pdfname = strrep(psname, '.ps', '.pdf');
     ps2pdf('psfile', psname, ...
            'pdffile', pdfname, ...
@@ -41,3 +50,5 @@ function result = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
     if result == 0
         system(sprintf('pdfcrop %s %s', pdfname, pdfname));
     end
+    
+    fprintf(1, 'done\n');
