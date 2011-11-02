@@ -5,4 +5,5 @@ syntax: glob
 *.pdf
 *.ps
 *.mat
+scratch.m
 test_batch.m
