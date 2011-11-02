@@ -16,8 +16,8 @@ function fluxrc =  UNM_flux_process_config()
 		'TX_forest', ...     % 8
 		'TX_grassland', ...  % 9
 		'PJ_girdle', ...     % 10
-		'PJG_test', ...      % 11
-		'New_GLand'};        % 12
+		'New_GLand', ...      % 11
+		'SevEco'};        % 12
   
   FLUXROOT = getenv('FLUXROOT');
   if length(FLUXROOT) == 0

@@ -9,16 +9,22 @@ function [result, pdfname] = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
                               datestr(mod_date, 'YYYY-mm-dd')));
 
     fprintf(1, 'plotting diagnostic plots...');
-    Fc_wpl_idx = find(strcmp(fluxraw.Properties.VarNames, 'Fc_wpl'));
     this_fig = figure();
-    plot(fluxraw.TIMESTAMP, fluxraw.Fc_wpl, '.k');
-    datetick('x', 'ddmmmyyyy');
-    ylim([-50, 50]);
-    xlabel('timestamp');
-    ylabel(sprintf('%s (%s)', 'Fc\_wpl', fluxraw.Properties.Units{Fc_wpl_idx}));
-    title(sprintf('%s %s', strrep(site, '_', '\_'), datestr(mod_date)));
-    print('-dpsc2', psname, sprintf('-f%d', this_fig));
-    event = waitforbuttonpress();
+
+    %% SevEco doesn't have an Fc_wpl column
+    if (not(strcmp(this_site, 'SevEco')))
+        Fc_wpl_idx = find(strcmp(fluxraw.Properties.VarNames, 'Fc_wpl'));
+        plot(fluxraw.TIMESTAMP, fluxraw.Fc_wpl, '.k');
+        datetick('x', 'ddmmmyyyy');
+        ylim([-50, 50]);
+        xlabel('timestamp');
+        ylabel(sprintf('%s (%s)', ...
+                       'Fc\_wpl', ...
+                       fluxraw.Properties.Units{Fc_wpl_idx}));
+        title(sprintf('%s %s', strrep(site, '_', '\_'), datestr(mod_date)));
+        print('-dpsc2', psname, sprintf('-f%d', this_fig));
+        event = waitforbuttonpress();
+    end
     
     wait = 1;
     for i=1:length(fluxraw.Properties.VarNames)
@@ -51,4 +57,4 @@ function [result, pdfname] = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
         system(sprintf('pdfcrop %s %s', pdfname, pdfname));
     end
     
-    fprintf(1, 'done\n');
+    fprintf(1, ' wrote %s\n', pdfname);

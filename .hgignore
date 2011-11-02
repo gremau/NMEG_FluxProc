@@ -2,4 +2,7 @@ syntax: glob
 
 *~
 *.asv
+*.pdf
+*.ps
+*.mat
 test_batch.m

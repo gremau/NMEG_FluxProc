@@ -1,6 +1,7 @@
 function ds = read_TOB1_file(fname)
 % READ_TOB1_FILE - reads data from a campbell scientific table-oriented binary
-% file (TOB1), returns the data in a matlab dataset written by Timothy
+% file (TOB1), returns the data in a matlab dataset.
+% written by Timothy
 % W. Hilton, October 2011, based on existing code modified by Krista
 % Anderson-Teixeira in January 2008
     
