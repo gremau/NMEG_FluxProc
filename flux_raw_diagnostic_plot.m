@@ -12,7 +12,7 @@ function [result, pdfname] = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
     this_fig = figure();
 
     %% SevEco doesn't have an Fc_wpl column
-    if (not(strcmp(this_site, 'SevEco')))
+    if (not(strcmp(site, 'SevEco')))
         Fc_wpl_idx = find(strcmp(fluxraw.Properties.VarNames, 'Fc_wpl'));
         plot(fluxraw.TIMESTAMP, fluxraw.Fc_wpl, '.k');
         datetick('x', 'ddmmmyyyy');
