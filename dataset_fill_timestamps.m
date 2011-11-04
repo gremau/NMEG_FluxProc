@@ -7,7 +7,11 @@ function ds_filled = dataset_fill_timestamps(ds, t_var, delta_t)
     t_max = max( ds.( t_var ) );
 
     full_ts = ( t_min : delta_t : t_max )';
+    full_ts = cellstr( datestr( full_ts, 'mm/dd/yyyy HH:MM:SS' ) );
     
+    ds.( t_var ) = cellstr( datestr( ds.( t_var ), ...
+                                     'mm/dd/yyyy HH:MM:SS' ) );
+
     %% create a dataset containing the filled timestamps
     ds_filled = dataset( { full_ts,  t_var } );
     
