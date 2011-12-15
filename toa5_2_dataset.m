@@ -1,6 +1,12 @@
 function ds = toa5_2_dataset(fname)
-% TOA5_2_DATASET - 
-%   
+% TOA5_2_DATASET - parse a TOA5 file to a matlab dataset
+% 
+% INPUTS:
+%    fname: full path of file to be parsed
+% OUTPUTS:
+%    ds: matlab dataset
+%
+% Timothy W. Hilton, UNM, Oct 2011
     
     n_header_lines = 4;
     first_data_line = n_header_lines + 1;
