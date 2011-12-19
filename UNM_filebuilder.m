@@ -51,9 +51,15 @@ elseif sitecode == 11
     site = 'New_GLand';
 end
 
-filedir=strcat(drive,'\','Research - Flux Towers\','Flux Tower Data by Site\',site,'\ts_data\');
-outfolder=strcat(drive,'\','Research - Flux Towers\','Flux Tower Data by Site\',site,'\matlab output\');
-sitedir=strcat(drive,'\','Research - Flux Towers\','Flux Tower Data by Site\', site,'\');
+filedir=strcat(drive,'\','Research - Flux Towers\','Flux Tower Data by Site\',...
+               site,'\ts_data\');
+%% special version to read TX 2010 data from external hard drive -- TWH Dec 2011
+filedir = fullfile( 'i:', 'Raw uncompressed data folders', 'TX Data', 'TX2010', ...
+                    'ConvertedCardData' );
+outfolder=strcat(drive,'\','Research - Flux Towers\','Flux Tower Data by Site\',...
+                 site,'\matlab output\');
+sitedir=strcat(drive,'\','Research - Flux Towers\','Flux Tower Data by Site\', ...
+               site,'\');
 fn_beg='TOB1_'; %beginning of filename (before site & date)
 %fn_end='_0000_TOB1_TS_DATA.TOB';    %.DAT needed sometimes  %end of file name. make sure this matches.  (fn_end='_0000_TOB1_TS_data.TOB');
 fn_end='_0000.DAT';
