@@ -58,7 +58,7 @@ outfolder=strcat(drive,'\','Research - Flux Towers\','Flux Tower Data by Site\',
                  site,'\matlab output\');
 sitedir=strcat(drive,'\','Research - Flux Towers\','Flux Tower Data by Site\', ...
                site,'\');
-fn_beg='TOB1_1300.ts_data'; %beginning of filename (before site & date)
+fn_beg='TOB1_1300.ts_data_'; %beginning of filename (before site & date)
 
 fn_end='_0000.DAT'; %end of filename
 
@@ -136,16 +136,16 @@ end
 
 if dircode==0;
     if i==1
-        filename=strcat(fn_beg,site,'_',year_s,'_',month_s,'_',date_s,'_',starttime) %, '.DAT'
+        filename=strcat(fn_beg,'_',year_s,'_',month_s,'_',date_s,'_',starttime) %, '.DAT'
     else
-        filename=strcat(fn_beg,site,'_',year_s,'_',month_s,'_',date_s,fn_end)
+        filename=strcat(fn_beg,'_',year_s,'_',month_s,'_',date_s,fn_end)
     end
 elseif dircode == 1;
     if i == 1
-        filename = strcat(filedir,fn_beg,site,'_',year_s,'_',month_s,'_',date_s,'_',starttime) %, '.DAT'
+        filename = strcat(filedir,fn_beg,'_',year_s,'_',month_s,'_',date_s,'_',starttime) %, '.DAT'
        %  filename=strcat(filedir, fn_beg,year_s,'_',month_s,'_',date_s,'_',starttime) %, '.DAT'
     else
-        filename = strcat(filedir,fn_beg, site,'_', year_s,'_',month_s,'_',date_s,fn_end)
+        filename = strcat(filedir,fn_beg,'_', year_s,'_',month_s,'_',date_s,fn_end)
       %  filename=strcat(filedir,fn_beg, year_s,'_',month_s,'_',date_s,fn_end)
     end
 end
