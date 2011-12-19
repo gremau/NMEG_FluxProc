@@ -60,7 +60,7 @@ outfolder=strcat(drive,'\','Research - Flux Towers\','Flux Tower Data by Site\',
                  site,'\matlab output\');
 sitedir=strcat(drive,'\','Research - Flux Towers\','Flux Tower Data by Site\', ...
                site,'\');
-fn_beg='TOB1_'; %beginning of filename (before site & date)
+fn_beg='TOB1_1300.ts_data'; %beginning of filename (before site & date)
 %fn_end='_0000_TOB1_TS_DATA.TOB';    %.DAT needed sometimes  %end of file name. make sure this matches.  (fn_end='_0000_TOB1_TS_data.TOB');
 fn_end='_0000.DAT';
 
