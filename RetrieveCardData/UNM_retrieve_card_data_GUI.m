@@ -1,0 +1,77 @@
+function UNM_retrieve_card_data_GUI(varargin)
+% UNM_retrieve_card_data -- creates a graphical user interface to select a
+% site and retrieve flux data from its flash card
+%       
+    
+% (Leave a blank line following the help.)
+    
+    %-------------------------
+    % Initialization tasks
+    %--------------------------
+
+    % determine screensize
+    scrsz = get(0,'ScreenSize');
+    
+    % read site names
+    sites_ds = parse_UNM_site_table();
+ 
+    % variable to contain selected site
+    selected_site = 1;
+    
+    % create a figure to contain the GUI
+    fig_hgt = size( sites_ds, 1 ) * 30 + 100;   % figure height
+    fh = figure( 'Name', 'Flux Card Data Retrieval', ...
+                 'Position', [ scrsz(3) * 0.1, scrsz( 4 ) * 0.9, ...
+                        300, fig_hgt ], ...
+                 'NumberTitle', 'off', ...
+                 'ToolBar', 'none', ...
+                 'MenuBar', 'none' );
+                 
+    % array for radio button handles
+    rbh = repmat( NaN, size( sites_ds, 1 ), 1 );
+    
+    %--------------------------
+    % Construct the components
+    %--------------------------
+    % add button group for UNM field sites
+    site_bgh = uibuttongroup( 'Parent', fh,...
+                              'Position', [ 0.1, 0.2, 0.8, 0.79 ] );
+    % populate the button group with radio buttons, one per site
+    rb_y = wrev( 0.00:( 0.9/length( rbh ) ):0.95 );  %vertical positions for buttons
+    for i = 1:size( sites_ds, 1 )
+        rbh( i ) = uicontrol( site_bgh, ...
+                              'Style','radiobutton', ...
+                              'String', sites_ds.SITE_NAME( i ), ...
+                              'Units', 'normalized', ...
+                              'Position', ...
+                              [ 0.05, rb_y( i ), 0.9, 0.9 / length( rbh ) ] );
+    end
+    
+    %add a "retrieve data" button
+    pbh = uicontrol( fh, ...
+                     'Style', 'pushbutton', ...
+                     'String','Retrieve Data', ...
+                     'Position', [ 50 20 200 40], ...
+                     'CallBack', @but_cbk );
+    
+    %--------------------------
+    %  Callbacks for MYGUI
+    %--------------------------
+    
+    function but_cbk( source, eventdata )
+    %% starts the data retrieval main function for the selected site
+        selected_button = get( site_bgh, 'SelectedObject' );
+        % floating point comparison to identify selected radio handle
+        selected_site_num = find( abs( rbh - selected_button ) < 0.0001 );
+        this_site = sites_ds.FILE_NAME{ selected_site_num };
+        
+        % close the GUI figure when button is pressed
+        close( fh );
+        
+        fprintf( 1, '\nProcessing card for %s\n', this_site );
+        %process_card_main( this_site );
+        
+        
+    end
+    
+end
