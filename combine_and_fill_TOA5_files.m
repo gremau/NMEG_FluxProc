@@ -1,4 +1,4 @@
-function combine_and_fill_TOA5_Files()
+function ds = combine_and_fill_TOA5_files()
 
     [filename, pathname, filterindex] = uigetfile( ...
         { 'TOA5*.dat','TOA5 files (TOA5*.dat)' }, ...
@@ -14,4 +14,7 @@ function combine_and_fill_TOA5_Files()
         fprintf( 1, 'reading %s\n', filename( i ) );
         ds_array{ i } = toa5_to_dataset( fullfile( pathname, filename ) );
     end
+    
+    ds = ds_array;
+    
     
