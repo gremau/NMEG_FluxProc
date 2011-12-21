@@ -29,8 +29,9 @@ function ds_filled = dataset_fill_timestamps(ds, t_var, delta_t)
                                       'Type', 'LeftOuter', ...
                                       'MergeKeys', true );
 
+    % timestamps (they're strings now) got sorted lexigrapically -- sort
+    % them now by the actual date
+    dn = datenum(ds_filled.TIMESTAMP, 'mm/dd/yyyy HH:MM:SS');
+    [ discard, idx ] = sort( dn );
+    ds_filled = ds_filled( idx, : );
     
-    
-
-    
-

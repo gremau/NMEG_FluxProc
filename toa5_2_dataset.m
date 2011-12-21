@@ -33,6 +33,7 @@ function ds = toa5_2_dataset(fname)
     % scan the data portion of the matrix into a matlab array
     n_numeric_vars = length(var_names) - 1; % all the variables except
                                             % the timestamp
+
     fmt = ['%d-%d-%d %d:%d:%d', repmat(',%f', 1, n_numeric_vars)];
     [data, count] = cellfun(@(x) sscanf(x, fmt), ...
                             file_lines(first_data_line:end), ...
