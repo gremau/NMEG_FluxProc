@@ -15,18 +15,18 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
     
     switch type
       case 'TOA5'
-        data_dir = 'TOA5';
+        data_subdir = 'TOA5';
       case 'TOB1'
-        data_dir = 'ts_data';
+        data_subdir = 'ts_data';
       otherwise
         err = MException('get_data_file_names:BadDataType', ...
                          'datatype must be either ''TOB1'' or ''TOA5''');
         throw( err );
     end
         
-    dlst = dir( fullfile( get_site_directory( site_code ), ...
-                          data_dir, ...
-                          'TOB1*.dat' ) );
+    data_dir = fullfile( get_site_directory( site_code ), ...
+                         data_subdir );
+    dlst = dir( fullfile( data_dir, '*.dat' ) );
     % assign the file names from struct array dlst to a cell array
     fnames = cell( numel( dlst ), 1 );
     [ fnames{ : } ] = dlst( : ).name;
@@ -37,6 +37,7 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
     % find the files that are within the date range requested
     idx = find( ( dns >= date_start ) & ( dns <= date_end ) );
     fnames = fnames( idx );
+    fnames = strcat( data_dir, fnames );
 
 %------------------------------------------------------------
 function dn = get_TOB1_file_date( fname )
@@ -45,8 +46,9 @@ function dn = get_TOB1_file_date( fname )
     
     %tokenize the filename into the year, month, etc. components
     [ toks, sz, errmsg, nxtidx ] = sscanf( fname, ...
-                                           strcat( 'TOB1_', ...
-                                                   '%*[a-zA-Z]_%d_%d_%d_%2d%2d.dat' ) );
+                                           strcat( '%*[a-zA-Z15]_', ...
+                                                   '%*[a-zA-Z]_', ...
+                                                   '%d_%d_%d_%2d%2d.dat' ) );
     
     % create the matlab datenum, add 0 for seconds
     dn = datenum( [ toks', 0 ] );
