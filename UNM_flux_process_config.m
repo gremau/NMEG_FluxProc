@@ -1,10 +1,25 @@
 function fluxrc =  UNM_flux_process_config()
+% UNM_flux_process_config() -- defines and sets values for number of
+% configuration items for flux processing.  
+% INPUTS: 
+%   none
+% OUTPUTS:
+%   Returns a structure with the following fields:
+%   site_names: acceptable site abbreviation--site code pairs.  This field is
+%      a cell array of strings containing site abbreviations (e.g. 'GLand',
+%      'PJ', etc.)  Abbreviations not in this list cannot be processed.  The
+%      order of abbreviations in the list defines their numeric site codes.
+%   FLUXROOT: path to the directory containing the flux data.  The individual
+%      sites' data directories are assumed to reside here.
+%   sitefolder: The directory within FLUXROOT containing the sites'
+%      directories (e.g. 'Flux Tower Data by Site').
+%   outfolder: directory where processed fluxes will be placed.
+%
+% Timothy W. Hilton, UNM, Aug 2011    
 
-  % defines the allowed site abbreviations and their site codes the order
+  % define the allowed site abbreviations and their site codes the order
   % matters -- each abbreviation's position in the list is its site code
   %  This could be changed in get_site_code.m
-    
-
   %             Site Abbrev          Site Code
   site_names = {'GLand', ...         % 1
 		'SLand', ...         % 2

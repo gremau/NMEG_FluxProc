@@ -1,5 +1,17 @@
-function [sitefolder, result] = get_site_directory(sitecode)
-
+function [sitefolder, result] = get_site_directory( sitecode )
+% get_site_directory(sitecode) -- return full path to a site's data
+% directory.  Looks in $FLUXROOT for a directory named for the site's
+% abbreviation.  If that diretory does not exist, a direcotry named for the
+% site is created in the current working directory.
+% INPUTS:
+%    sitecode: integer; numeric code for the site requested
+% OUTPUTS:
+%    sitefolder: full path to the site's directory
+%    result: 0 if directory found or created successfully, 1 if an error
+%            occured
+%
+% Timothy W. Hilton, UNM, Aug 2011
+    
   %read user-supplied configuration 
   fluxrc = UNM_flux_process_config();
 

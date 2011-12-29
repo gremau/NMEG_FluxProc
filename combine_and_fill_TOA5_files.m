@@ -23,11 +23,11 @@ function ds = combine_and_fill_TOA5_files()
     
     % combine ds_array to single dataset
     ds = vertcat( ds_array{ : } );
-
+    
     fprintf( 1, 'filling missing timestamps\n' );
     thirty_mins = 1 / 48;  %thirty minutes expressed in units of days
     ds = dataset_fill_timestamps( ds, 'TIMESTAMP', thirty_mins );
-
+    
     % remove duplicated timestamps (e.g., in TX 2010)
     fprintf( 1, 'removing duplicate timestamps\n' );
     ts = datenum( ds.TIMESTAMP( : ) );
