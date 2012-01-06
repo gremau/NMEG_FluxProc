@@ -5,14 +5,19 @@ function [result, dest_dir, mod_date] = retrieve_tower_data_from_card(site)
     result = 1;
     
     site_dir = get_site_directory(get_site_code(site));
-    tower_files = dir(fullfile('E:', '*.dat'));
+    compact_flash_drive = locate_drive( 'Removable Disk' );
+    %% would like a more flexible way to 
+    compact_flash_drive = 'g'; 
+    tower_files = dir( fullfile( sprintf( '%c:', compact_flash_drive ), ...
+                                 '*.dat'));
     
     fprintf(1, 'processing tower data files: ');
     fprintf(1, '%s ', tower_files.name);
     fprintf(1, '\n');
 
     for i = 1:length(tower_files)
-        src = fullfile('E:', tower_files(i).name);
+        src = fullfile( sprintf( '%c:', compact_flash_drive ), ...
+                       tower_files( i ).name );
         mod_date = datenum(tower_files(i).date); %modification date for the
                                                  %data file
 

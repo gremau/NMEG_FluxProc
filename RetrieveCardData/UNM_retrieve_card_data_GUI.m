@@ -21,8 +21,10 @@ function UNM_retrieve_card_data_GUI(varargin)
     % create a figure to contain the GUI
     fig_hgt = size( sites_ds, 1 ) * 30 + 100;   % figure height
     fh = figure( 'Name', 'Flux Card Data Retrieval', ...
-                 'Position', [ scrsz(3) * 0.1, scrsz( 4 ) * 0.9, ...
-                        300, fig_hgt ], ...
+                 'Position', [ scrsz(3) * 0.1, ...
+                        ( scrsz( 4 ) * 0.9 ) - fig_hgt, ...
+                        300, ...
+                        fig_hgt ], ...
                  'NumberTitle', 'off', ...
                  'ToolBar', 'none', ...
                  'MenuBar', 'none' );
@@ -55,7 +57,7 @@ function UNM_retrieve_card_data_GUI(varargin)
                      'CallBack', @but_cbk );
     
     %--------------------------
-    %  Callbacks for MYGUI
+    %  Callbacks for GUI
     %--------------------------
     
     function but_cbk( source, eventdata )
@@ -67,9 +69,14 @@ function UNM_retrieve_card_data_GUI(varargin)
         
         % close the GUI figure when button is pressed
         close( fh );
+        % pause for one second -- without this, the GUI doesn't actually
+        % disappear until after card processing completes
+        initial_pause_status = pause( 'on' );
+        pause( 1 );
+        pause( initial_pause_status ); %reset pause state to where it was
         
         fprintf( 1, '\nProcessing card for %s\n', this_site );
-        %process_card_main( this_site );
+        process_card_main( this_site );
         
         
     end
