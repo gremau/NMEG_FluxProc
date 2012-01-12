@@ -35,9 +35,15 @@ function fluxrc =  UNM_flux_process_config()
 		'SevEco'};        % 12
   
   FLUXROOT = getenv('FLUXROOT');
-  if length(FLUXROOT) == 0
-      error('environment variable fluxroot not defined');
-      % want to change this to prompt for directory instead
+  while length(FLUXROOT) == 0
+      %error('environment variable fluxroot not defined');
+      FLUXROOT = input( [ 'environment variable fluxroot not defined; please ' ...
+                          'define FLUXROOT (e.g. C:\Research - Flux Towers): ' ], ...
+                        's' );
+      if ( exist( FLUXROOT ) ~= 7 )
+          disp( sprintf( '%s is not a valid directory.\n', FLUXROOT ) );
+          FLUXROOT = '';
+      end
   end
       
   sitefolder = fullfile(FLUXROOT, 'Flux Tower Data By Site');
