@@ -6,7 +6,8 @@
 %
 % Timothy W. Hilton, University of New Mexico, Jan 2012
 
-function [lastcolumn, filelength_n] = get_FluxAll_File_Properties(sitecode, year)
+function [ lastcolumn, filelength_n ] = ...
+        get_FluxAll_File_Properties( sitecode, year )
     
     switch sitecode
       case 1 % grassland
@@ -18,7 +19,7 @@ function [lastcolumn, filelength_n] = get_FluxAll_File_Properties(sitecode, year
             lastcolumn='HG';
           case 2008
             filelength_n = 17572;
-            lastcolumn='HJ';
+            lastcolumn = 'HJ';
           case 2009
             filelength_n = 17520;
             lastcolumn='IC';
