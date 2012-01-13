@@ -46,8 +46,7 @@ function fluxrc =  UNM_flux_process_config()
       end
   end
       
-  sitefolder = fullfile(FLUXROOT, 'Flux Tower Data By Site');
-  %sitefolder = fullfile(FLUXROOT, 'Flux Tower Data By Site');
+  sitefolder = fullfile(FLUXROOT, 'Flux Tower Data by Site');
   outfolder = fullfile(FLUXROOT, 'FluxOut');
   
   fluxrc = struct('site_names', {site_names}, ...
