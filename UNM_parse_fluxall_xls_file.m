@@ -3,28 +3,28 @@ function [ data, timestamp ]  = UNM_parse_fluxall_xls_file( sitecode, year )
 % file to matlab matrices
 %   
     
-    [ lastcolumn, filelength_n ] = get_FluxAll_File_Properties( sitecode, year ...
-                                                                          );
+    [ lastcolumn, filelength_n ] = get_FluxAll_File_Properties( sitecode, year );
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Set up file name and file path
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     fluxrc = UNM_flux_process_config();
-
+    site = get_site_name( sitecode );
+    
     row1=5;  %first row of data to process - rows 1 - 4 are header
-    fname = sprintf( '%s_flux_all_%d', site, year );
+    fname = sprintf( '%s_FLUX_all_%d.xls', site, year );
     filein = fullfile( get_site_directory( sitecode ), fname );
-
-    range = sprintf( 'B%d:%s%d', row1 ,lastcolumn, filelength );
+    
+    range = sprintf( 'B%d:%s%d', row1 ,lastcolumn, filelength_n );
     headerrange = sprintf( 'B2:%s2',lastcolumn );
-    time_stamp_range = sprintf( 'A5:A%d', filelength );
+    time_stamp_range = sprintf( 'A5:A%d', filelength_n );
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Open file and parse out dates and times
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    disp( sprintf( 'reading %s...', fname );
+    disp( sprintf( 'reading %s...', fname ) );
     
     % read the headertext
     [ num, headertext ] = xlsread( filein, headerrange );

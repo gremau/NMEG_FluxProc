@@ -6,7 +6,7 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
 % soil data and the gap filled and flux partitioned files and generated
 % output in a format for submission to Ameriflux
 
-    site = get_site_name( site_code );
+    site = get_site_name( sitecode );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Specify some details about sites and years
@@ -53,115 +53,26 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
 
     year_s=num2str(year);
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % parse Flux_All and Flux_All_qc
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% parse the annual Flux_All file
     [ data, timestamp ] = UNM_parse_fluxall_xls_file( sitecode, year );
-    
     %% parse the QC file
     qc_num = UNM_parse_QC_xls_file( sitecode, year );
     
-    if sitecode == 7
-        year =qc_num(:,1);
-        month =qc_num(:,2);
-        day =qc_num(:,3);
-        hour=qc_num(:,4);
-        minute=qc_num(:,5);
-        jday=qc_num(:,7);
-        u_star=qc_num(:,10);
-        air_temp_hmp=qc_num(:,32);
-        wnd_dir_compass=qc_num(:,11);
-        wnd_spd=qc_num(:,12);
-        fc_raw_massman_wpl=qc_num(:,21);
-        HSdry_massman=qc_num(:,28);
-        HL_wpl_massman=qc_num(:,30);
-        soil_heat_flux_1=qc_num(:,38);
-        soil_heat_flux_2=qc_num(:,39);
-        soil_heat_flux_3=qc_num(:,40);
-        Tsoil_hfp=qc_num(:,33);
-        Tsoil_5c=qc_num(:,34);
-        Tsoil_10c=qc_num(:,35);
-        Tsoil_5o=qc_num(:,36);
-        Tsoil_10o=qc_num(:,37);
-        precip=qc_num(:,41);
-        rH=qc_num(:,43);
-        atm_press=qc_num(:,42);
-        CO2_mean=qc_num(:,13);
-        NR_tot=qc_num(:,51);
-        Par_Avg=qc_num(:,44);
-        sw_incoming=qc_num(:,45);
-        sw_outgoing=qc_num(:,46);
-        lw_incoming=qc_num(:,47);
-        lw_outgoing=qc_num(:,48);
-        E_wpl_massman=qc_num(:,26);
-        H2O_mean=qc_num(:,15);
-    elseif sitecode == 8    
-        year =qc_num(:,1);
-        month =qc_num(:,2);
-        day =qc_num(:,3);
-        hour=qc_num(:,4);
-        minute=qc_num(:,5);
-        jday=qc_num(:,7);
-        u_star=qc_num(:,9);
-        air_temp_hmp=qc_num(:,31);
-        wnd_dir_compass=qc_num(:,10);
-        wnd_spd=qc_num(:,11);
-        fc_raw_massman_wpl=qc_num(:,20);
-        HSdry_massman=qc_num(:,27);
-        HL_wpl_massman=qc_num(:,29);
-        % soil_heat_flux_1=qc_num(:,38);
-        % soil_heat_flux_2=qc_num(:,39);
-        % soil_heat_flux_3=qc_num(:,40);
-        % Tsoil_hfp=qc_num(:,33);
-        % Tsoil_5c=qc_num(:,34);
-        % Tsoil_10c=qc_num(:,35);
-        % Tsoil_5o=qc_num(:,36);
-        % Tsoil_10o=qc_num(:,37);
-        precip=qc_num(:,32);
-        rH=qc_num(:,34);
-        atm_press=qc_num(:,33);
-        CO2_mean=qc_num(:,12);
-        % NR_tot=qc_num(:,51);
-        % Par_Avg=qc_num(:,44);
-        % sw_incoming=qc_num(:,45);
-        % sw_outgoing=qc_num(:,46);
-        % lw_incoming=qc_num(:,47);
-        % lw_outgoing=qc_num(:,48);
-        E_wpl_massman=qc_num(:,25);
-        H2O_mean=qc_num(:,14);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % place parsed data into matlab dataset
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    ds = fluxallqc_2_dataset( qc_num, sitecode, year );
 
-    else
-        year =qc_num(:,1);
-        month =qc_num(:,2);
-        day =qc_num(:,3);
-        hour=qc_num(:,4);
-        minute=qc_num(:,5);
-        jday=qc_num(:,7);
-        u_star=qc_num(:,10);
-        air_temp_hmp=qc_num(:,32);
-        wnd_dir_compass=qc_num(:,11);
-        wnd_spd=qc_num(:,12);
-        fc_raw_massman_wpl=qc_num(:,21);
-        HSdry_massman=qc_num(:,28);
-        HL_wpl_massman=qc_num(:,30);
-        soil_heat_flux_1=qc_num(:,34);
-        soil_heat_flux_2=qc_num(:,35);
-        Tsoil_hfp=qc_num(:,33);
-        precip=qc_num(:,36);
-        rH=qc_num(:,38);
-        atm_press=qc_num(:,37);
-        CO2_mean=qc_num(:,13);
-        NR_tot=qc_num(:,46);
-        Par_Avg=qc_num(:,39);
-        sw_incoming=qc_num(:,40);
-        sw_outgoing=qc_num(:,41);
-        lw_incoming=qc_num(:,42);
-        lw_outgoing=qc_num(:,43);
-        E_wpl_massman=qc_num(:,26);
-        H2O_mean=qc_num(:,15);
-    end
+    % create a column of -9999s to place in the dataset where a site does not record
+    % a particular variable
+    dummy = repmat( -9999, size( ds, 1 ), 1 );
 
-    dummy(year>0)=-9999;
-    dummy=dummy';
-    intjday=int16(jday);
+    keyboard()
+    
+    intjday=int16(ds.jday);
     intjday=double(intjday);
     jdayout(dummy==-9999)=(1/48);
     jdayout=(cumsum(jdayout)+1)';
@@ -183,12 +94,16 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             x_tc_2nd=(0.526-0.052.*x+0.00136.*(x.*x));
             TS=(20-Tsoil_hfp); TS=repmat(TS,1,size(x_tc_2nd,2));
             x_tc=x+TS.*x_tc_2nd;
-            vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); % temperature corrected
-            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); % not temperature corrected
+            %% temperature corrected
+            vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
+            %% not temperature corrected
+            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
             vwc(vwc>1)=NaN; vwc(vwc<0)=NaN;
             vwc2(vwc2>1)=NaN; vwc2(vwc2<0)=NaN;
-            SWC_1=nanmean(cat(2,vwc(:,1),vwc(:,4),vwc(:,7),vwc(:,10),vwc(:,13),vwc(:,18))'); SWC_1=SWC_1';
-            SWC_2=nanmean(cat(2,vwc2(:,3),vwc2(:,6),vwc2(:,9),vwc2(:,12),vwc2(:,15),vwc2(:,20))'); SWC_2=SWC_2';
+            SWC_1=nanmean(cat(2,vwc(:,1),vwc(:,4),vwc(:,7),...
+                              vwc(:,10),vwc(:,13),vwc(:,18))'); SWC_1=SWC_1';
+            SWC_2=nanmean(cat(2,vwc2(:,3),vwc2(:,6),vwc2(:,9),...
+                              vwc2(:,12),vwc2(:,15),vwc2(:,20))'); SWC_2=SWC_2';
             SWC_3=nanmean(cat(2,vwc2(:,17),vwc2(:,22))'); SWC_3=SWC_3';
             figure;
             aa = gcf
@@ -196,8 +111,10 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             plot(vwc)
             vwc=data(:,188:210);
             vwc(vwc>1)=NaN; vwc(vwc<0)=NaN;
-            SWC_21=nanmean(cat(2,vwc(:,1),vwc(:,4),vwc(:,7),vwc(:,10),vwc(:,13),vwc(:,18))'); SWC_21=SWC_1';
-            SWC_22=nanmean(cat(2,vwc(:,3),vwc(:,6),vwc(:,9),vwc(:,12),vwc(:,15),vwc(:,20))'); SWC_22=SWC_2';
+            SWC_21=nanmean(cat(2,vwc(:,1),vwc(:,4),vwc(:,7),vwc(:,10),...
+                               vwc(:,13),vwc(:,18))'); SWC_21=SWC_1';
+            SWC_22=nanmean(cat(2,vwc(:,3),vwc(:,6),vwc(:,9),vwc(:,12),...
+                               vwc(:,15),vwc(:,20))'); SWC_22=SWC_2';
             SWC_23=nanmean(cat(2,vwc(:,17),vwc(:,22))'); SWC_23=SWC_3';
             figure(aa)
             subplot(2,1,2)
@@ -216,12 +133,16 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             x_tc_2nd=(0.526-0.052.*x+0.00136.*(x.*x));
             TS=(20-Tsoil_hfp); TS=repmat(TS,1,size(x_tc_2nd,2));
             x_tc=x+TS.*x_tc_2nd;
-            vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); % temperature corrected
-            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); % not temperature corrected
+            %% temperature corrected
+            vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
+            %% not temperature corrected
+            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
             vwc(vwc>1)=NaN; vwc(vwc<0)=NaN;
             vwc2(vwc2>1)=NaN; vwc2(vwc2<0)=NaN;
-            SWC_1=nanmean(cat(2,vwc(:,1),vwc(:,4),vwc(:,7),vwc(:,10),vwc(:,13),vwc(:,18))'); SWC_1=SWC_1';
-            SWC_2=nanmean(cat(2,vwc2(:,3),vwc2(:,6),vwc2(:,9),vwc2(:,12),vwc2(:,15),vwc2(:,20))'); SWC_2=SWC_2';
+            SWC_1=nanmean(cat(2,vwc(:,1),vwc(:,4),vwc(:,7),vwc(:,10),...
+                              vwc(:,13),vwc(:,18))'); SWC_1=SWC_1';
+            SWC_2=nanmean(cat(2,vwc2(:,3),vwc2(:,6),vwc2(:,9),vwc2(:,12),...
+                              vwc2(:,15),vwc2(:,20))'); SWC_2=SWC_2';
             SWC_3=nanmean(cat(2,vwc2(:,17),vwc2(:,22))'); SWC_3=SWC_3';
             
             
@@ -231,11 +152,13 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             Tsoil_3=dummy;
             % Soil water content calculations from microsecond period
             x = (data(:,155:177));
-            %         x_tc_2nd=(0.526-0.052.*x+0.00136.*(x.*x));
-            %         TS=(20-Tsoil_hfp); TS=repmat(TS,1,size(x_tc_2nd,2));
-            %         x_tc=x+TS.*x_tc_2nd;
-            %         vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); % temperature corrected
-            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); % not temperature corrected
+            % x_tc_2nd=(0.526-0.052.*x+0.00136.*(x.*x));
+            % TS=(20-Tsoil_hfp); TS=repmat(TS,1,size(x_tc_2nd,2));
+            % x_tc=x+TS.*x_tc_2nd;
+            %%% temperature corrected
+            % vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
+            %%% not temperature corrected
+            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
             vwc2(vwc2>1)=NaN; vwc2(vwc2<0)=NaN;
             
             % gap fill and smooth SWC using filter
@@ -261,9 +184,14 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
                 vwc4(1:(l-(nobs/2))+1,n)=vwc4(nobs/2:l,n);
             end
             
-            SWC_1=nanmean(cat(2,vwc4(:,1),vwc4(:,4),vwc4(:,7),vwc4(:,10),vwc4(:,13),vwc4(:,18))'); SWC_1=SWC_1';
-            SWC_2=nanmean(cat(2,vwc4(:,3),vwc4(:,6),vwc4(:,9),vwc4(:,12),vwc4(:,15),vwc4(:,20))'); SWC_2=SWC_2';
-            SWC_3=nanmean(cat(2,vwc4(:,17),vwc4(:,22))'); SWC_3=SWC_3';     
+            SWC_1=nanmean(cat(2,vwc4(:,1),vwc4(:,4),vwc4(:,7),vwc4(:,10),...
+                              vwc4(:,13),vwc4(:,18))'); 
+            SWC_1=SWC_1';
+            SWC_2=nanmean(cat(2,vwc4(:,3),vwc4(:,6),vwc4(:,9),vwc4(:,12),...
+                              vwc4(:,15),vwc4(:,20))'); 
+            SWC_2=SWC_2';
+            SWC_3=nanmean(cat(2,vwc4(:,17),vwc4(:,22))'); 
+            SWC_3=SWC_3';     
             
             figure;
             plot(SWC_1); hold on
@@ -280,12 +208,15 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             Tsoil_3=dummy;
             % Soil water content calculations from microsecond period
             x = (data(:,155:177));
-            %         x_tc_2nd=(0.526-0.052.*x+0.00136.*(x.*x));
-            %         TS=(20-Tsoil_hfp); TS=repmat(TS,1,size(x_tc_2nd,2));
-            %         x_tc=x+TS.*x_tc_2nd;
-            %         vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); % temperature corrected
-            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); % not temperature corrected
-            vwc2(vwc2>1)=NaN; vwc2(vwc2<0)=NaN;
+            % x_tc_2nd=(0.526-0.052.*x+0.00136.*(x.*x));
+            % TS=(20-Tsoil_hfp); TS=repmat(TS,1,size(x_tc_2nd,2));
+            % x_tc=x+TS.*x_tc_2nd
+            %% temperature corrected
+            vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
+            %% not temperature corrected
+            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
+            vwc2(vwc2>1)=NaN; 
+            vwc2(vwc2<0)=NaN;
             
             % gap fill and smooth SWC using filter
             
@@ -310,8 +241,10 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
                 vwc4(1:(l-(nobs/2))+1,n)=vwc4(nobs/2:l,n);
             end
             
-            SWC_1=nanmean(cat(2,vwc4(:,1),vwc4(:,4),vwc4(:,7),vwc4(:,10),vwc4(:,13),vwc4(:,18))'); SWC_1=SWC_1';
-            SWC_2=nanmean(cat(2,vwc4(:,3),vwc4(:,6),vwc4(:,9),vwc4(:,12),vwc4(:,15),vwc4(:,20))'); SWC_2=SWC_2';
+            SWC_1=nanmean(cat(2,vwc4(:,1),vwc4(:,4),vwc4(:,7),...
+                              vwc4(:,10),vwc4(:,13),vwc4(:,18))'); SWC_1=SWC_1';
+            SWC_2=nanmean(cat(2,vwc4(:,3),vwc4(:,6),vwc4(:,9),...
+                              vwc4(:,12),vwc4(:,15),vwc4(:,20))'); SWC_2=SWC_2';
             SWC_3=nanmean(cat(2,vwc4(:,17),vwc4(:,22))'); SWC_3=SWC_3';
             
             figure;
@@ -327,7 +260,10 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
         
         % Calculate ground heat flux
         deltaT=cat(1,Tsoil_hfp,1)-cat(1,1,Tsoil_hfp); deltaT=deltaT(2:length(deltaT));
-        theta=vwc4(:,23); theta(isnan(theta))=SWC_1(isnan(theta)); theta(isnan(theta))= 0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
+        theta=vwc4(:,23); theta(isnan(theta))=SWC_1(isnan(theta)); 
+        theta(isnan(theta))= 0.05; % Gapfill soil moisture with other shallow
+                                   % measurements; big gap in soil moisture
+                                   % firstpart of 2007 fill with 0.05
         bulk=1398; scap=837; wcap=4.19e6; depth=0.05; % parameter values
         bulk=bulk.*ones(size(dummy,1),1);
         scap=scap.*ones(size(dummy,1),1);
@@ -350,16 +286,28 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             x_tc_2nd=(0.526-0.052.*x+0.00136.*(x.*x));
             TS=(20-Tsoil_hfp); TS=repmat(TS,1,size(x_tc_2nd,2));
             x_tc=x+TS.*x_tc_2nd;
-            vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); % temperature corrected
-            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); % not temperature corrected
+            %% temperature corrected
+            vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
+            %% not temperature corrected
+            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
                                                                       %
-            SWC_1=nanmean(cat(2,vwc(:,1),vwc(:,6),vwc(:,11),vwc(:,16))'); SWC_1=SWC_1';
-            SWC_2=nanmean(cat(2,vwc2(:,3),vwc2(:,8),vwc(:,13),vwc2(:,18))'); SWC_2=SWC_2';
-            SWC_3=nanmean(cat(2,vwc2(:,5),vwc2(:,10),vwc(:,15),vwc2(:,20))'); SWC_3=SWC_3';
+            SWC_1=nanmean(cat(2,vwc(:,1),vwc(:,6),vwc(:,11),vwc(:,16))'); 
+            SWC_1=SWC_1';
+            SWC_2=nanmean(cat(2,vwc2(:,3),vwc2(:,8),vwc(:,13),vwc2(:,18))'); 
+            SWC_2=SWC_2';
+            SWC_3=nanmean(cat(2,vwc2(:,5),vwc2(:,10),vwc(:,15),vwc2(:,20))');
+            SWC_3=SWC_3';
             figure; plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g')
             % Calculate ground heat flux
-            deltaT=cat(1,Tsoil_hfp,1)-cat(1,1,Tsoil_hfp); deltaT=deltaT(2:length(deltaT));
-            theta=vwc(:,21); theta(isnan(theta))=SWC_1(isnan(theta)); theta(isnan(theta))= 0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
+            deltaT=cat(1,Tsoil_hfp,1)-cat(1,1,Tsoil_hfp); 
+            deltaT=deltaT(2:length(deltaT));
+            
+            theta=vwc(:,21);
+            theta(isnan(theta))=SWC_1(isnan(theta));
+            theta(isnan(theta))= 0.05; % Gapfill soil moisture with other
+                                       % shallow measurements; big gap in
+                                       % soil moisture firstpart of 2007 fill
+                                       % with 0.05
             bulk=1327; scap=837; wcap=4.19e6; depth=0.05; % parameter values
             bulk=bulk.*ones(size(dummy,1),1);
             scap=scap.*ones(size(dummy,1),1);
@@ -374,10 +322,16 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             
         elseif year(1) == 2009 || year(1)==2010 || year(1) == 2011 
             
-            %         tsoil=data(:,216:235);
-            %         Tsoil_1=nanmean(cat(2,tsoil(:,1),tsoil(:,6),tsoil(:,11),tsoil(:,16))'); Tsoil_1=Tsoil_1';
-            %         Tsoil_2=nanmean(cat(2,tsoil(:,3),tsoil(:,8),tsoil(:,13),tsoil(:,18))'); Tsoil_2=Tsoil_2';
-            %         Tsoil_3=nanmean(cat(2,tsoil(:,5),tsoil(:,10),tsoil(:,15),tsoil(:,20))'); Tsoil_3=Tsoil_3';
+            % tsoil=data(:,216:235);
+            % Tsoil_1=nanmean(cat(2,tsoil(:,1),tsoil(:,6),tsoil(:,11),...
+            %                     tsoil(:,16))');
+            % Tsoil_1=Tsoil_1';
+            % Tsoil_2=nanmean(cat(2,tsoil(:,3),tsoil(:,8),tsoil(:,13),...
+            %                     tsoil(:,18))');
+            % Tsoil_2=Tsoil_2';
+            % Tsoil_3=nanmean(cat(2,tsoil(:,5),tsoil(:,10),tsoil(:,15),...
+            %                     tsoil(:,20))'); 
+            % Tsoil_3=Tsoil_3';
             %
             % Soil water content calculations from microsecond period
             
@@ -386,8 +340,10 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             x_tc_2nd=(0.526-0.052.*x+0.00136.*(x.*x));
             % TS=(20-Tsoil_hfp); TS=repmat(TS,1,size(x_tc_2nd,2));
             % x_tc=x+TS.*x_tc_2nd;
-            % vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); % temperature corrected NOT USED
-            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); % not temperature corrected
+            %% temperature corrected NOT USED
+            % vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
+            %% not temperature corrected
+            vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
                                                                       %
             
             %% gap fill and smooth SWC using filter
@@ -413,40 +369,55 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
                 vwc4(1:(l-(nobs/2))+1,n)=vwc4(nobs/2:l,n);
             end
             
-            SWC_1=nanmean(cat(2,vwc2(:,1),vwc2(:,6),vwc2(:,11),vwc2(:,16))'); SWC_1=SWC_1';
-            SWC_2=nanmean(cat(2,vwc2(:,3),vwc2(:,8),vwc2(:,13),vwc2(:,18))'); SWC_2=SWC_2';
-            SWC_3=nanmean(cat(2,vwc2(:,5),vwc2(:,10),vwc2(:,15),vwc2(:,20))'); SWC_3=SWC_3';
+            SWC_1=nanmean(cat(2,vwc2(:,1),vwc2(:,6),vwc2(:,11),vwc2(:,16))');
+            SWC_1=SWC_1';
+            SWC_2=nanmean(cat(2,vwc2(:,3),vwc2(:,8),vwc2(:,13),vwc2(:,18))');
+            SWC_2=SWC_2';
+            SWC_3=nanmean(cat(2,vwc2(:,5),vwc2(:,10),vwc2(:,15),vwc2(:,20))');
+            SWC_3=SWC_3';
             
             figure;
             subplot(2,1,1)
             plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g')
             
-            SWC_1=nanmean(cat(2,vwc4(:,1),vwc4(:,6),vwc4(:,11),vwc4(:,16))'); SWC_1=SWC_1';
-            SWC_2=nanmean(cat(2,vwc4(:,3),vwc4(:,8),vwc4(:,13),vwc4(:,18))'); SWC_2=SWC_2';
-            SWC_3=nanmean(cat(2,vwc4(:,5),vwc4(:,10),vwc4(:,15),vwc4(:,20))'); SWC_3=SWC_3';
+            SWC_1=nanmean(cat(2,vwc4(:,1),vwc4(:,6),vwc4(:,11),vwc4(:,16))');
+            SWC_1=SWC_1';
+            SWC_2=nanmean(cat(2,vwc4(:,3),vwc4(:,8),vwc4(:,13),vwc4(:,18))');
+            SWC_2=SWC_2';
+            SWC_3=nanmean(cat(2,vwc4(:,5),vwc4(:,10),vwc4(:,15),vwc4(:,20))');
+            SWC_3=SWC_3';
             subplot(2,1,2)
             plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g')
             %%
             %
-            %         % Calculate ground heat flux
-            %         soil_heat_flux_1=data(:,209);
-            %         soil_heat_flux_2=data(:,210);
-            %         soil_heat_flux_3=data(:,211);
-            %         soil_heat_flux_4=data(:,212);
-            %         soil_heat_flux_5=data(:,213);
-            %         soil_heat_flux_6=data(:,214);
-            %
-            %         deltaT=cat(1,Tsoil_hfp,1)-cat(1,1,Tsoil_hfp); deltaT=deltaT(2:length(deltaT));
-            %         theta=vwc(:,21); theta(isnan(theta))=SWC_1(isnan(theta)); theta(isnan(theta))= 0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
-            %         bulk=1327; scap=837; wcap=4.19e6; depth=0.05; % parameter values
-            %         bulk=bulk.*ones(size(dummy,1),1);
-            %         scap=scap.*ones(size(dummy,1),1);
-            %         wcap=wcap.*ones(size(dummy,1),1);
-            %         depth=depth.*ones(size(dummy,1),1);
-            %         cv=(bulk.*scap)+(wcap.*theta);
-            %         storage=cv.*deltaT.*depth; % in Joules
-            %         storage=storage/(60*30); % in Wm-2
-            %         shf=nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2,soil_heat_flux_3,soil_heat_flux_4,soil_heat_flux_5,soil_heat_flux_6)'); shf=shf';
+            % Calculate ground heat flux
+            % soil_heat_flux_1=data(:,209);
+            % soil_heat_flux_2=data(:,210);
+            % soil_heat_flux_3=data(:,211);
+            % soil_heat_flux_4=data(:,212);
+            % soil_heat_flux_5=data(:,213);
+            % soil_heat_flux_6=data(:,214);
+            
+            % deltaT=cat(1,Tsoil_hfp,1)-cat(1,1,Tsoil_hfp); 
+            % deltaT=deltaT(2:length(deltaT));
+            % theta=vwc(:,21); 
+            % theta(isnan(theta))=SWC_1(isnan(theta)); 
+            % theta(isnan(theta))= 0.05; % Gapfill soil moisture with other shallow
+            %                            % measurements; big gap in soil moisture
+            %                            % firstpart of 2007 fill with 0.05
+            % %set parameter values
+            % bulk=1327; scap=837; wcap=4.19e6; depth=0.05; 
+            % bulk=bulk.*ones(size(dummy,1),1);
+            % scap=scap.*ones(size(dummy,1),1);
+            % wcap=wcap.*ones(size(dummy,1),1);
+            % depth=depth.*ones(size(dummy,1),1);
+            % cv=(bulk.*scap)+(wcap.*theta);
+            % storage=cv.*deltaT.*depth; % in Joules
+            % storage=storage/(60*30); % in Wm-2
+            % shf=nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2,...
+            %                 soil_heat_flux_3,soil_heat_flux_4,...
+            %                 soil_heat_flux_5,soil_heat_flux_6)'); 
+            % shf=shf';
             %         ground=shf+storage;
             %         figure; plot(ground);
             
@@ -1243,7 +1214,8 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             jt=tsoil(:,7); jt(isnan(jt))=Tsoil_1(isnan(jt));
             
             deltaT=cat(1,ot,1)-cat(1,1,ot); deltaT=deltaT(2:length(deltaT));
-            theta=SWC_1; theta(isnan(theta))= 0.1; % Gapfill soil moisture with other shallow measurements;
+            theta=SWC_1; theta(isnan(theta))= 0.1; % Gapfill soil moisture with other
+                                                   % shallow measurements;
             bulk=1114; scap=837; wcap=4.19e6; depth=0.05; % parameter values
             bulk=bulk.*ones(size(dummy,1),1);
             scap=scap.*ones(size(dummy,1),1);
@@ -1254,7 +1226,8 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             storage1=storage/(60*30); % in Wm-2
             
             deltaT=cat(1,mt,1)-cat(1,1,mt); deltaT=deltaT(2:length(deltaT));
-            theta=SWC_1; theta(isnan(theta))= 0.1; % Gapfill soil moisture with other shallow measurements;
+            theta=SWC_1; theta(isnan(theta))= 0.1; % Gapfill soil moisture with other
+                                                   % shallow measurements;
             bulk=1114; scap=837; wcap=4.19e6; depth=0.05; % parameter values
             bulk=bulk.*ones(size(dummy,1),1);
             scap=scap.*ones(size(dummy,1),1);
@@ -1265,7 +1238,8 @@ function result = UNM_Ameriflux_file_maker_TWH(sitecode, year)
             storage2=storage/(60*30); % in Wm-2
             
             deltaT=cat(1,jt,1)-cat(1,1,jt); deltaT=deltaT(2:length(deltaT));
-            theta=SWC_1; theta(isnan(theta))= 0.1; % Gapfill soil moisture with other shallow measurements;
+            theta=SWC_1; theta(isnan(theta))= 0.1; % Gapfill soil moisture with other
+                                                   % shallow measurements;
             bulk=1114; scap=837; wcap=4.19e6; depth=0.05; % parameter values
             bulk=bulk.*ones(size(dummy,1),1);
         scap=scap.*ones(size(dummy,1),1);
@@ -1358,9 +1332,12 @@ elseif sitecode == 11
         
         tsoil=data(:,177:196);
         tsoil(tsoil==0)=nan; % some suspicous looking zero values here
-        Tsoil_1=nanmean(cat(2,tsoil(:,1),tsoil(:,6),tsoil(:,11),tsoil(:,16))'); Tsoil_1=Tsoil_1';
-        Tsoil_2=nanmean(cat(2,tsoil(:,3),tsoil(:,8),tsoil(:,13),tsoil(:,18))'); Tsoil_2=Tsoil_2';
-        Tsoil_3=nanmean(cat(2,tsoil(:,5),tsoil(:,10),tsoil(:,15),tsoil(:,20))'); Tsoil_3=Tsoil_3';
+        Tsoil_1=nanmean(cat(2,tsoil(:,1),tsoil(:,6),tsoil(:,11),...
+                            tsoil(:,16))'); Tsoil_1=Tsoil_1';
+        Tsoil_2=nanmean(cat(2,tsoil(:,3),tsoil(:,8),tsoil(:,13),...
+                            tsoil(:,18))'); Tsoil_2=Tsoil_2';
+        Tsoil_3=nanmean(cat(2,tsoil(:,5),tsoil(:,10),tsoil(:,15),...
+                            tsoil(:,20))'); Tsoil_3=Tsoil_3';
         figure;
         subplot(2,1,1)
         plot(tsoil)
@@ -1368,11 +1345,12 @@ elseif sitecode == 11
         plot(Tsoil_1); hold on; plot(Tsoil_2,'r'); hold on; plot(Tsoil_3,'g')
         
         
-        % Soil water content calculations from microsecond period
+        %% Soil water content calculations from microsecond period
         x = (data(:,157:176));
         x(x==0)=nan; % some suspicous looking zero values here
         
-        x_tc_2nd = (0.526 - 0.052.* x + 0.00136.* (x.* x) ); % x_tc_2nd is same size as x
+        %% x_tc_2nd is same size as x
+        x_tc_2nd = (0.526 - 0.052.* x + 0.00136.* (x.* x) ); 
         
         TS=(20-Tsoil_hfp); 
         
@@ -1380,8 +1358,10 @@ elseif sitecode == 11
         
         x_tc = x + TS.* x_tc_2nd;
         
-        vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); % temperature corrected
-        vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); % not temperature corrected
+        %% temperature corrected
+        vwc=repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
+        %% not temperature corrected
+        vwc2=repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
         
          % gap fill and smooth SWC using filter 
          % (copied from GLand and edited with existing SWC data)
@@ -1730,19 +1710,27 @@ ylabel('atm press')
 %     pause
 %%
 header1 = {'YEAR','DOY','HRMIN','DTIME','UST','TA','WD','WS','NEE','FC' ...
-    'SFC','H','SSA','LE','SLE','G1',char(ts_depth(sitecode)),'PRECIP','RH','PA','CO2' ...
-    'VPD',char(sw_depth(sitecode)),'RNET','PAR','PAR_DIFF','PAR_out','Rg','Rg_DIFF','Rg_out',...
-    'Rlong_in','Rlong_out','FH2O','H20','RE','GPP','APAR'};
+           'SFC','H','SSA','LE','SLE','G1',char(ts_depth(sitecode)),...
+           'PRECIP','RH','PA','CO2' ...
+           'VPD',char(sw_depth(sitecode)),'RNET','PAR','PAR_DIFF',...
+           'PAR_out','Rg','Rg_DIFF','Rg_out',...
+           'Rlong_in','Rlong_out','FH2O','H20','RE','GPP','APAR'};
 
 units1 = {'-','-','-','-','m/s','deg C','deg','m/s','mumol/m2/s','mumol/m2/s',...
-    'mumol/m2/s','W/m2','W/m2','W/m2','W/m2','W/m2','deg C','mm','%','kPA','mumol/mol',...
-    'kPA','m3/m3','W/m2','mumol/m2/s','mumol/m2/s','mumol/m2/s','W/m2','W/m2','W/m2',...
-    'W/m2','W/m2','mg/m2/s','mmol/mol','mumol/m2/s','mumol/m2/s','mumol/m2/s'};
+          'mumol/m2/s','W/m2','W/m2','W/m2','W/m2','W/m2','deg C','mm',...
+          '%','kPA','mumol/mol',...
+          'kPA','m3/m3','W/m2','mumol/m2/s','mumol/m2/s','mumol/m2/s',...
+          'W/m2','W/m2','W/m2',...
+          'W/m2','W/m2','mg/m2/s','mmol/mol','mumol/m2/s','mumol/m2/s',...
+          'mumol/m2/s'};
 
-datamatrix1 = [year,intjday,(hour.*100)+minute,jdayout,u_star,air_temp_hmp,wnd_dir_compass,wnd_spd,...
-    dummy,NEE_obs,dummy,H_obs,dummy,LE_obs,dummy,ground,...
-    Tsoil_1,precip,rH.*100,atm_press,CO2_mean,VPD_g,SWC_1,NR_tot,Par_Avg,dummy,dummy,sw_incoming,...
-    dummy,sw_outgoing,lw_incoming,lw_outgoing,E_wpl_massman.*18,H2O_mean,RE_obs,GPP_obs,dummy]; % E_wpl_massman.*18 = water flux in mg/m2/s
+datamatrix1 = [year,intjday,(hour.*100)+minute,jdayout,u_star,air_temp_hmp, ...
+               wnd_dir_compass,wnd_spd, dummy,NEE_obs,dummy,H_obs,dummy, ...
+               LE_obs,dummy,ground, Tsoil_1,precip,rH.*100,atm_press, ...
+               CO2_mean,VPD_g,SWC_1,NR_tot,Par_Avg,dummy,dummy,sw_incoming, ...
+               dummy,sw_outgoing,lw_incoming,lw_outgoing,E_wpl_massman.*18, ...
+               H2O_mean,RE_obs,GPP_obs,dummy]; % E_wpl_massman.*18 = water
+                                               % flux in mg/m2/s
 
 %create a dataset from the non-gapfilled data
 vnames = genvarname(header1);
@@ -1771,21 +1759,32 @@ txt(end)='';
 dlmwrite(filename,txt,'-append','delimiter','');
 dlmwrite(filename,datamatrix1,'-append','delimiter','\t');
 
-header2 = {'YEAR','DOY','HRMIN','DTIME','UST','TA','TA_flag','WD','WS','NEE','FC','FC_flag',...
-    'SFC','H','H_flag','SSA','LE','LE_flag','SLE','G1',char(ts_depth(sitecode)),'PRECIP','RH','PA','CO2',...
-    'VPD','VPD_flag',char(sw_depth(sitecode)),'RNET','PAR','PAR_DIFF','PAR_out','Rg','Rg_flag','Rg_DIFF','Rg_out',...
-    'Rlong_in','Rlong_out','FH2O','H20','RE','RE_flag','GPP','GPP_flag','APAR','SWC_2','SWC_3'};
+header2 = {'YEAR','DOY','HRMIN','DTIME','UST','TA','TA_flag','WD','WS',...
+           'NEE','FC','FC_flag',...
+           'SFC','H','H_flag','SSA','LE','LE_flag','SLE','G1',...
+           char(ts_depth(sitecode)),'PRECIP','RH','PA','CO2',...
+           'VPD','VPD_flag',char(sw_depth(sitecode)),'RNET','PAR',...
+           'PAR_DIFF','PAR_out','Rg','Rg_flag','Rg_DIFF','Rg_out',...
+           'Rlong_in','Rlong_out','FH2O','H20','RE','RE_flag','GPP','GPP_flag',...
+           'APAR','SWC_2','SWC_3'};
 
-units2 = {'-','-','-','-','m/s','deg C','-','deg','m/s','mumol/m2/s','mumol/m2/s','-',...
-    'mumol/m2/s','W/m2','-','W/m2','W/m2','-','W/m2','W/m2','deg C','mm','%','kPA','mumol/mol',...
-    'kPA','-','m3/m3','W/m2','mumol/m2/s','mumol/m2/s','mumol/m2/s','W/m2','-','W/m2','W/m2',...
-    'W/m2','W/m2','mg/m2/s','mmol/mol','mumol/m2/s','-','mumol/m2/s','-','mumol/m2/s','m3/m3','m3/m3'};
+units2 = {'-','-','-','-','m/s','deg C','-','deg','m/s','mumol/m2/s',...
+          'mumol/m2/s','-',...
+          'mumol/m2/s','W/m2','-','W/m2','W/m2','-','W/m2','W/m2','deg C',...
+          'mm','%','kPA','mumol/mol',...
+          'kPA','-','m3/m3','W/m2','mumol/m2/s','mumol/m2/s','mumol/m2/s',...
+          'W/m2','-','W/m2','W/m2',...
+          'W/m2','W/m2','mg/m2/s','mmol/mol','mumol/m2/s','-','mumol/m2/s',...
+          '-','mumol/m2/s','m3/m3','m3/m3'};
 
 
-datamatrix2 = [year,intjday,(hour.*100)+minute,jdayout,u_star,Tair_f,TA_flag,wnd_dir_compass,wnd_spd,...
-    dummy,NEE_2,NEE_flag,dummy,H_2,H_flag,dummy,LE_2,LE_flag,dummy,ground,...
-    Tsoil_1,precip,rH.*100,atm_press,CO2_mean,VPD_f,VPD_flag,SWC_1,NR_tot,Par_Avg,dummy,dummy,Rg_f,Rg_flag,...
-    dummy,sw_outgoing,lw_incoming,lw_outgoing,E_wpl_massman.*18,H2O_mean,RE_2,NEE_flag,GPP_2,NEE_flag,dummy,SWC_2,SWC_3];
+datamatrix2 = [year,intjday,(hour.*100)+minute,jdayout,u_star,Tair_f,TA_flag, ...
+               wnd_dir_compass,wnd_spd, dummy,NEE_2,NEE_flag,dummy,H_2, ...
+               H_flag,dummy,LE_2,LE_flag,dummy,ground, Tsoil_1,precip,rH.* ...
+               100,atm_press,CO2_mean,VPD_f,VPD_flag,SWC_1,NR_tot,Par_Avg, ...
+               dummy,dummy,Rg_f,Rg_flag, dummy,sw_outgoing,lw_incoming, ...
+               lw_outgoing,E_wpl_massman.*18,H2O_mean,RE_2,NEE_flag,GPP_2, ...
+               NEE_flag,dummy,SWC_2,SWC_3];
 
 
 vnames = genvarname(header2);
