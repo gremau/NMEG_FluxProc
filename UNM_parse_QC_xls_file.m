@@ -8,9 +8,5 @@ function qc_num = UNM_parse_QC_xls_file( sitecode, year )
                        'processed flux', ...
                        sprintf( '%s_flux_all_%d_qc.xls', site, year ) );
 
-    [ qc_num, discard ] = xlsread(qcfile,'data');
+    [ qc_num, discard ] = xlsread( qcfile, 'data' );
     
-    %% discard the first column -- these are dates as strings, and Matlab
-    %% doesn't read them correctly
-    
-    qc_num = qc_num( :, 2:end );

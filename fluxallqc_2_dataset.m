@@ -3,6 +3,7 @@ function ds = fluxallqc_2_dataset(qc_num, sitecode, year)
 %   
     
     ds = dataset( { qc_num( :, 1 ), 'year' } );
+
     ds.month = qc_num( :, 2 );
     ds.day = qc_num( :, 3 );
     ds.hour= qc_num( :, 4 );
@@ -96,3 +97,5 @@ function ds = fluxallqc_2_dataset(qc_num, sitecode, year)
         ds.H2O_mean=qc_num( :, 15 );
     end
 
+    %% convert excel serial dates to matlab datenums
+    ds.timestamp = excel_date_2_matlab_datenum( qc_num( :, 1 ) );
