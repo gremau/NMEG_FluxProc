@@ -1,6 +1,6 @@
-function ds_out =  UNM_Ameriflux_get_soil_met_properties( sitecode, year, ...
-                                                      data, ds_qc )
-% UNM_AMERIFLUX_GET_SOIL_MET_PROPERTIES - 
+function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
+                                                   data, ds_qc )
+% UNM_AMERIFLUX_PREPARE_SOIL_MET - 
 %   
 % contains the section of UNM_Ameriflux_file_maker.m as of 15 Aug 2011 that
 % gathers/calculates all the soil met properties.  By modularizing it here it
