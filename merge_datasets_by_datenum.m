@@ -31,5 +31,8 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
     ds_out2 = dataset_fill_timestamps( ds_in2, tvar2, days_per_30mins, ...
                                        min( ts_all ), max( ts_all ) );
     
+    % convert timestamps from strings back to matlab datenums
+    ds_out1.( tvar1 ) = datenum( ds_out1.( tvar1 ) );
+    ds_out2.( tvar2 ) = datenum( ds_out2.( tvar2 ) );
     
 

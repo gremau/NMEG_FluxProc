@@ -61,20 +61,33 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     year_s=num2str(year);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % parse Flux_All and Flux_All_qc
+    % parse Flux_All, Flux_All_qc, gapfilled fluxes, and partitioned fluxes
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % %% parse the annual Flux_All file
-    % data = UNM_parse_fluxall_xls_file( sitecode, year );
-    % %% parse the QC file
-    % qc_num = UNM_parse_QC_xls_file( sitecode, year );
 
-    %% parsing the excel files is slow -- this loads parsed data for testing
-    load( '/media/OS/Users/Tim/DataSandbox/GLand_2010_fluxall.mat' );
+    %% parse the annual Flux_All file
+    data = UNM_parse_fluxall_xls_file( sitecode, year );
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % place parsed data into matlab dataset2
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% parse the QC file
+    qc_num = UNM_parse_QC_xls_file( sitecode, year );
     ds_qc = fluxallqc_2_dataset( qc_num, sitecode, year );
+    
+    %% parse gapfilled and partitioned fluxes
+    [ ds_gf, ds_pt ] = UNM_parse_gapfilled_partitioned_output( sitecode, year );
+    
+    % make sure that QC, FluxAll, gapfilled, and partitioned have identical,
+    % complete 30 minute timeseries
+    [ ds_qc, data ] = merge_datasets_by_datenum( ds_qc, data, ...
+                                                 'timestamp', 'timestamp', 3 );
+    [ ds_gf, data ] = merge_datasets_by_datenum( ds_gf, data, ...
+                                                 'timestamp', 'timestamp', 3 );
+    [ ds_pt, data ] = merge_datasets_by_datenum( ds_pt, data, ...
+                                                 'timestamp', 'timestamp', 3 );
+    %% parsing the excel files is slow -- this loads parsed data for testing
+    %%load( '/media/OS/Users/Tim/DataSandbox/GLand_2010_fluxall.mat' );
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % do some bookkeeping
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % create a column of -9999s to place in the dataset where a site does not record
     % a particular variable
@@ -89,26 +102,11 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     ds_qc.precip = fix_incorrect_precip_factors( sitecode, year, ...
                                                  ds_qc.fjday, ds_qc.precip );
 
-    %% make sure that QC data and FluxAll data have identical, complete 30
-    %% minute timeseries
-    [ ds_qc, data ] = merge_datasets_by_datenum( ds_qc, data, ...
-                                                 'timestamp', 'timestamp', 3 );
-
     % create dataset of soil properties.
-    ds_soil = UNM_Ameriflux_get_soil_met_properties( sitecode, year, ...
-                                                     data, ds_qc );
-
+    ds_soil = UNM_Ameriflux_get_soil_met_properties( sitecode, year, data, ...
+                                                     ds_qc );
+    
     keyboard()
-    years=num2str(year(1,1));
-    gf_file=strcat(outfolder,'DataSetafterGapfill_',years,'.txt');
-    % exception handling added by MF, modified by TWH
-    try
-        %gf_in=dlmread(gf_file,'',1,0);
-        gf_in = double( parse_gapfilled_partitioned_output( gf_file ) );
-    catch err
-        %error('Did you remember to delete first row and col of gap-filled files?');
-        error(sprintf('error parsing %s', gf_in));
-    end
     
     [aq, b]=size(gf_in);
     gf_in=cat(1,ones(1,b).*NaN,gf_in); % Add an extra row on top as for some reason gf file starts at 1am.
@@ -118,14 +116,6 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     %     [aq, b]=size(pt1_in);
     %     pt1_in=cat(1,ones(1,b).*NaN,pt1_in); % Add an extra row on top as for some reason gf file starts at 1am.
 
-    pt_file=strcat(outfolder,'DataSetafterFluxpartGL2010_',years,'.txt');
-    % exception handling added by MF, modified by TWH
-    try
-        %pt_in=dlmread(pt_file,'',1,0);
-        pt_in = double( parse_gapfilled_partitioned_output( pt_file ) );
-    catch err
-        error(sprintf('error parsing %s', gf_in));
-    end
     [aq, b]=size(pt_in);
     pt_in=cat(1,ones(1,b).*NaN,pt_in); % Add an extra row on top as for some reason gf file starts at 1am.
     pt_in=cat(1,pt_in,ones(1,b).*NaN);

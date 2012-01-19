@@ -1,4 +1,5 @@
-function ds_out = UNM_Ameriflux_get_soil_met_properties( sitecode, year, data, ds_qc )
+function ds_out =  UNM_Ameriflux_get_soil_met_properties( sitecode, year, ...
+                                                      data, ds_qc )
 % UNM_AMERIFLUX_GET_SOIL_MET_PROPERTIES - 
 %   
 % contains the section of UNM_Ameriflux_file_maker.m as of 15 Aug 2011 that
@@ -8,10 +9,17 @@ function ds_out = UNM_Ameriflux_get_soil_met_properties( sitecode, year, data, d
 % fluxallqc_2_dataset.m
 %   
 %
-
+    t0 = now();
+    fprintf( 1, 'Begin soil met properties...' );
+    
     %% create a column of -9999s to place in the dataset where a site does not record
     %% a particular variable
     dummy = repmat( -9999, size( data, 1 ), 1 );
+
+    %% data is now a dataset -- convert it to a matrix of doubles for
+    %% back-compatibilty
+    data_timestamp = data.timestamp;
+    data = double( data( :, 2:end ) );
     
     if sitecode == 1 % Grassland
         if year == 2007
@@ -188,7 +196,8 @@ function ds_out = UNM_Ameriflux_get_soil_met_properties( sitecode, year, data, d
         end
         
         % Calculate ground heat flux
-        deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); deltaT = deltaT(2:length(deltaT));
+        deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
+        deltaT = deltaT(2:length(deltaT));
         theta = vwc4(:,23); theta(isnan(theta)) = SWC_1(isnan(theta)); 
         theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow
                                    % measurements; big gap in soil moisture
@@ -198,12 +207,13 @@ function ds_out = UNM_Ameriflux_get_soil_met_properties( sitecode, year, data, d
         scap = scap.*ones(size(dummy,1),1);
         wcap = wcap.*ones(size(dummy,1),1);
         depth = depth.*ones(size(dummy,1),1);
-        cv = (bulk.*scap)+(wcap.*theta);
-        storage = cv.*deltaT.*depth; % in Joules
-        storage = storage/(60*30); % in Wm-2
-        shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2)'); shf = shf';
-        ground = shf+storage;
-        figure; plot(ground);
+        %% commented out, TWH 17 Jan 2012 -- soil heat flux now calculated separately
+        % cv = (bulk.*scap)+(wcap.*theta);
+        % storage = cv.*deltaT.*depth; % in Joules
+        % storage = storage/(60*30); % in Wm-2
+        % shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2)'); shf = shf';
+        % ground = shf+storage;
+        % figure; plot(ground);
         
     elseif sitecode  ==  2 % Shrubland
         if year < 2009
@@ -1447,7 +1457,7 @@ function ds_out = UNM_Ameriflux_get_soil_met_properties( sitecode, year, data, d
     %% the caller
     %%======================================================================
     
-    var_names = { 'TS', 'Tsoil_1', 'Tsoil_2', 'Tsoil_3', ...
+    var_names = { 'Tsoil_1', 'Tsoil_2', 'Tsoil_3', ...
                   'SWC_1', 'SWC_2', 'SWC_3', ...
                   'SWC_21', 'SWC_22', 'SWC_23', ...
                   'par_down_Avg', ...
@@ -1455,25 +1465,45 @@ function ds_out = UNM_Ameriflux_get_soil_met_properties( sitecode, year, data, d
     
     %% initialize the datset to NaNs
     ds_vals = repmat( NaN, size( data, 1 ), numel( var_names ) );
-    ds_out = dataset( { ds_vals, var_names } );
+    ds_out = dataset( { ds_vals, var_names{:} } );
                   
     %% assign values to the dataset
     %% soil temperature
     ds_out.Tsoil_1 = Tsoil_1;
     ds_out.Tsoil_2 = Tsoil_2;
     ds_out.Tsoil_3 = Tsoil_3;
-    ds_out.TS = TS;
     
     %% soil water content
     ds_out.SWC_1 = SWC_1;
     ds_out.SWC_2 = SWC_2;
     ds_out.SWC_3 = SWC_3;
     
-    ds_out.SWC_21 = SWC_21;
-    ds_out.out.SWC_22 = SWC_22;
-    ds_outout.SWC_23 = SWC_23;
+    %% the following variables only exist at some sites, so check before
+    %% assigning them
+    vars = who();
+    if exist( 'SWC_21' ) == 1
+        ds_out.SWC_21 = SWC_21;
+    end
+    if exist( 'SWC_22' ) == 1
+        ds_out.out.SWC_22 = SWC_22;
+    end
+    if exist( 'SWC_23' ) == 1
+        ds_outout.SWC_23 = SWC_23;
+    end
     
+    %% soil heat flux arguments
+    ds_out.bulk = bulk;
+    ds_out.scap = scap;
+    ds_out.wcap = wcap;
+    ds_out.depth = depth;
     
+    %% add timestamp
+    
+    ds_out.timestamp = data_timestamp;
+    
+    %% calculate execution time and write status message
+    t_tot = ( now() - t0 ) * 24 * 60 * 60;
+    fprintf( 1, ' Done (%.0f secs)\n', t_tot );
     
     
     
