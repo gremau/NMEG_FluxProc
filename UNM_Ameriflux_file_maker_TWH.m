@@ -34,30 +34,6 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     afnames(10,:)='US-Mpg'; % 4-PJ
     afnames(11,:)='US-Sen'; % 11-N4611 Montbel Place New_GLand
 
-    ts_depth(1)={'TS_2.5cm'};
-    ts_depth(2)={'TS_2.5cm'};
-    ts_depth(3)={'TS_5cm'};
-    ts_depth(4)={'TS_5cm'};
-    ts_depth(5)={'TS_5cm'};
-    ts_depth(6)={'TS_5cm'};
-    ts_depth(7)={'TS_2cm'};
-    ts_depth(8)={'TS_2cm'};
-    ts_depth(9)={'TS_2cm'};
-    ts_depth(10)={'TS_5cm'};
-    ts_depth(11)={'TS_2cm'};
-
-    sw_depth(1)={'SWC_2.5cm'};
-    sw_depth(2)={'SWC_2.5cm'};
-    sw_depth(3)={'SWC_5cm'};
-    sw_depth(4)={'SWC_5cm'};
-    sw_depth(5)={'SWC_5cm'};
-    sw_depth(6)={'SWC_5cm'};
-    sw_depth(7)={'SWC_2cm'};
-    sw_depth(8)={'SWC_2cm'};
-    sw_depth(9)={'SWC_2cm'};
-    sw_depth(10)={'SWC_5cm'};
-    sw_depth(11)={'SWC_2cm'};
-
     year_s=num2str(year);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -103,57 +79,45 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
                                                  ds_qc.fjday, ds_qc.precip );
 
     % create dataset of soil properties.
-    ds_soil = UNM_Ameriflux_get_soil_met_properties( sitecode, year, data, ...
-                                                     ds_qc );
+    ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
     
+    % create a dataset for Ameriflux output variables
+    
+        
+        
     keyboard()
     
-    [aq, b]=size(gf_in);
-    gf_in=cat(1,ones(1,b).*NaN,gf_in); % Add an extra row on top as for some reason gf file starts at 1am.
-    gf_in=cat(1,gf_in,ones(1,b).*NaN);
-    %     pt1_file=strcat(outfolder,'DataSetafterFluxpart_',years,'.txt');
-    %     pt1_in=dlmread(pt1_file,'',1,0);
-    %     [aq, b]=size(pt1_in);
-    %     pt1_in=cat(1,ones(1,b).*NaN,pt1_in); % Add an extra row on top as for some reason gf file starts at 1am.
-
-    [aq, b]=size(pt_in);
-    pt_in=cat(1,ones(1,b).*NaN,pt_in); % Add an extra row on top as for some reason gf file starts at 1am.
-    pt_in=cat(1,pt_in,ones(1,b).*NaN);
-
     % use new partitioning
     stop = length(dummy); 
-    %stop = size(gf_in, 1); 
 
-    f_flag=dummy+10000;
+    f_flag = repmat( 1, size( data, 1 ), 1 );
 
-    VPD_f=gf_in(1:stop,18); 
-    VPD_f=VPD_f./10; % To get it into kPa
-    VPD_g=dummy;
-    VPD_g(~isnan(rH))=VPD_f(~isnan(rH));
-    Tair_f=gf_in(1:stop,42); 
-    Rg_f=gf_in(1:stop,49); 
+    VPD_f = gf_in.VPD ./ 10; % convert to kPa
+    VPD_g( ~isnan( ds_qc.rH ) ) = VPD_f( ~isnan( ds_qc.rH ) );
+    Tair_f = gf_in.Tair_f
+    Rg_f = gf_in.Rg_f
 
-    TA_flag=f_flag;
-    TA_flag(~isnan(air_temp_hmp))=0;
+    TA_flag = f_flag;
+    TA_flag( ~isnan( ds_qc.air_temp_hmp ) ) = 0;
     Rg_flag=f_flag;
-    Rg_flag(~isnan(sw_incoming))=0;
-    VPD_flag=f_flag;
-    VPD_flag(~isnan(rH))=0;
+    Rg_flag( ~isnan( ds_qc.sw_incoming ) ) = 0;
+    VPD_flag = f_flag;
+    VPD_flag( ~isnan( ds_qc.rH ) ) = 0;
 
     NEE_obs = dummy;
     LE_obs = dummy;
     H_obs = dummy;
     % Take out some extra uptake values at Grassland premonsoon.
     if sitecode ==1
-        to_remove=find(fc_raw_massman_wpl(1:7000)<-1.5);
-        fc_raw_massman_wpl(to_remove)=nan;
-        to_remove=find(fc_raw_massman_wpl(1:5000)<-0.75);
-        fc_raw_massman_wpl(to_remove)=nan;
+        to_remove = find( ds_qc.fc_raw_massman_wpl( 1:7000 ) <= 1.5 );
+        fc_raw_massman_wpl( to_remove ) = NaN;
+        to_remove = find( ds_qc.fc_raw_massman_wpl( 1:5000 ) <= 0.75 );
+        fc_raw_massman_wpl( to_remove ) = NaN;
     end
     % Take out some extra uptake values at Ponderosa respiration.
-    if sitecode ==5
-        to_remove=find(fc_raw_massman_wpl>8);
-        fc_raw_massman_wpl(to_remove)=nan;
+    if sitecode == 5
+        to_remove= find( ds_qc.fc_raw_massman_wpl > 8 );
+        ds_qc.fc_raw_massman_wpl( to_remove ) = NaN;
     end
 
 
@@ -360,20 +324,7 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     %
     %     pause
     %%
-    header1 = {'YEAR','DOY','HRMIN','DTIME','UST','TA','WD','WS','NEE','FC' ...
-               'SFC','H','SSA','LE','SLE','G1',char(ts_depth(sitecode)),...
-               'PRECIP','RH','PA','CO2' ...
-               'VPD',char(sw_depth(sitecode)),'RNET','PAR','PAR_DIFF',...
-               'PAR_out','Rg','Rg_DIFF','Rg_out',...
-               'Rlong_in','Rlong_out','FH2O','H20','RE','GPP','APAR'};
 
-    units1 = {'-','-','-','-','m/s','deg C','deg','m/s','mumol/m2/s','mumol/m2/s',...
-              'mumol/m2/s','W/m2','W/m2','W/m2','W/m2','W/m2','deg C','mm',...
-              '%','kPA','mumol/mol',...
-              'kPA','m3/m3','W/m2','mumol/m2/s','mumol/m2/s','mumol/m2/s',...
-              'W/m2','W/m2','W/m2',...
-              'W/m2','W/m2','mg/m2/s','mmol/mol','mumol/m2/s','mumol/m2/s',...
-              'mumol/m2/s'};
 
     datamatrix1 = [year,intjday,(hour.*100)+minute, ds.fjdayday,u_star,air_temp_hmp, ...
                    wnd_dir_compass,wnd_spd, dummy,NEE_obs,dummy,H_obs,dummy, ...
@@ -409,24 +360,6 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     txt(end)='';
     dlmwrite(filename,txt,'-append','delimiter','');
     dlmwrite(filename,datamatrix1,'-append','delimiter','\t');
-
-    header2 = {'YEAR','DOY','HRMIN','DTIME','UST','TA','TA_flag','WD','WS',...
-               'NEE','FC','FC_flag',...
-               'SFC','H','H_flag','SSA','LE','LE_flag','SLE','G1',...
-               char(ts_depth(sitecode)),'PRECIP','RH','PA','CO2',...
-               'VPD','VPD_flag',char(sw_depth(sitecode)),'RNET','PAR',...
-               'PAR_DIFF','PAR_out','Rg','Rg_flag','Rg_DIFF','Rg_out',...
-               'Rlong_in','Rlong_out','FH2O','H20','RE','RE_flag','GPP','GPP_flag',...
-               'APAR','SWC_2','SWC_3'};
-
-    units2 = {'-','-','-','-','m/s','deg C','-','deg','m/s','mumol/m2/s',...
-              'mumol/m2/s','-',...
-              'mumol/m2/s','W/m2','-','W/m2','W/m2','-','W/m2','W/m2','deg C',...
-              'mm','%','kPA','mumol/mol',...
-              'kPA','-','m3/m3','W/m2','mumol/m2/s','mumol/m2/s','mumol/m2/s',...
-              'W/m2','-','W/m2','W/m2',...
-              'W/m2','W/m2','mg/m2/s','mmol/mol','mumol/m2/s','-','mumol/m2/s',...
-              '-','mumol/m2/s','m3/m3','m3/m3'};
 
 
     datamatrix2 = [year,intjday,(hour.*100)+minute, ds.fjday,u_star,Tair_f,TA_flag, ...
