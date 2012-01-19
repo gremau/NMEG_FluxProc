@@ -58,6 +58,9 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
                                                  'timestamp', 'timestamp', 3 );
     [ ds_pt, data ] = merge_datasets_by_datenum( ds_pt, data, ...
                                                  'timestamp', 'timestamp', 3 );
+    
+    save test_restart.mat
+    keyboard()
     %% parsing the excel files is slow -- this loads parsed data for testing
     %%load( '/media/OS/Users/Tim/DataSandbox/GLand_2010_fluxall.mat' );
 
@@ -69,10 +72,14 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     % a particular variable
     dummy = repmat( -9999, size( ds_qc, 1 ), 1 );
 
-    %% calculate fractional jday (i.e. 3 Jan at 12:00 would be 3.5)
+    %% calculate fractional day of year (i.e. 3 Jan at 12:00 would be 3.5)
     ds_qc.fjday = ( ds_qc.jday + ...
                     ( ds_qc.hour / 24.0 ) + ...
                     ( ds_qc.minute / ( 24.0 * 60.0) ) );
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % data processing and fixing datalogger & instrument errors 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %% fix incorrect precipitation values
     ds_qc.precip = fix_incorrect_precip_factors( sitecode, year, ...
@@ -81,249 +88,22 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     % create dataset of soil properties.
     ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
     
+    % create dataset of fluxes
+    ds_fluxes = UNM_Ameriflux_prepare_fluxes( sitecode, year, ...
+                                              data, ds_qc, ds_gf, ds_pt );
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % create Ameriflux output dataset and write to ASCII files
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
     % create a dataset for Ameriflux output variables
     
-        
-        
-    keyboard()
     
-    % use new partitioning
-    stop = length(dummy); 
-
-    f_flag = repmat( 1, size( data, 1 ), 1 );
-
-    VPD_f = gf_in.VPD ./ 10; % convert to kPa
-    VPD_g( ~isnan( ds_qc.rH ) ) = VPD_f( ~isnan( ds_qc.rH ) );
-    Tair_f = gf_in.Tair_f
-    Rg_f = gf_in.Rg_f
-
-    TA_flag = f_flag;
-    TA_flag( ~isnan( ds_qc.air_temp_hmp ) ) = 0;
-    Rg_flag=f_flag;
-    Rg_flag( ~isnan( ds_qc.sw_incoming ) ) = 0;
-    VPD_flag = f_flag;
-    VPD_flag( ~isnan( ds_qc.rH ) ) = 0;
-
-    NEE_obs = dummy;
-    LE_obs = dummy;
-    H_obs = dummy;
-    % Take out some extra uptake values at Grassland premonsoon.
-    if sitecode ==1
-        to_remove = find( ds_qc.fc_raw_massman_wpl( 1:7000 ) <= 1.5 );
-        fc_raw_massman_wpl( to_remove ) = NaN;
-        to_remove = find( ds_qc.fc_raw_massman_wpl( 1:5000 ) <= 0.75 );
-        fc_raw_massman_wpl( to_remove ) = NaN;
-    end
-    % Take out some extra uptake values at Ponderosa respiration.
-    if sitecode == 5
-        to_remove= find( ds_qc.fc_raw_massman_wpl > 8 );
-        ds_qc.fc_raw_massman_wpl( to_remove ) = NaN;
-    end
-
-
-    NEE_obs(~isnan(fc_raw_massman_wpl)) = fc_raw_massman_wpl(~isnan(fc_raw_massman_wpl));
-    LE_obs(~isnan(HL_wpl_massman))=HL_wpl_massman(~isnan(HL_wpl_massman));
-    H_obs(~isnan(HSdry_massman))=HSdry_massman(~isnan(HSdry_massman));
-
-    NEE_flag=f_flag;
-    LE_flag=f_flag;
-    H_flag=f_flag;
-
-    NEE_flag(~isnan(fc_raw_massman_wpl))=0;
-    LE_flag(~isnan(E_wpl_massman))=0;
-    H_flag(~isnan(HSdry_massman))=0;
-
-    NEE_f=pt_in(1:stop,9);
-    RE_f =pt_in(1:stop,6);
-    GPP_f=pt_in(1:stop,7);
-    LE_f=gf_in(1:stop,28);
-    H_f=gf_in(1:stop,35);
-
-    % Make sure NEE contain observations where available
-    NEE_2=NEE_f;
-    NEE_2(~isnan(fc_raw_massman_wpl)) = NEE_obs(~isnan(fc_raw_massman_wpl));
-
-    % To ensure carbon balance, calculate GPP as remainder when NEE is
-    % subtracted from RE. This will give negative GPP when NEE exceeds
-    % modelled RE. So set GPP to zero and add difference to RE.
-    GPP_2=RE_f-NEE_2;
-    found=find(GPP_2<0);
-    RE_2=RE_f;
-    RE_2(found)=RE_f(found)-GPP_2(found);
-    GPP_2(found)=0;
-
-    % Make sure LE and H contain observations where available
-    LE_2=LE_f;
-    LE_2(~isnan(HL_wpl_massman))=HL_wpl_massman(~isnan(HL_wpl_massman));
-
-    H_2=H_f;
-    H_2(~isnan(HSdry_massman))=HSdry_massman(~isnan(HSdry_massman));
-
-    % Make GPP and RE "obs" for output to file with gaps using modeled RE
-    % and GPP as remainder
-    GPP_obs=dummy;
-    GPP_obs(~isnan(fc_raw_massman_wpl)) = GPP_2(~isnan(fc_raw_massman_wpl));
-    RE_obs=dummy;
-    RE_obs(~isnan(fc_raw_massman_wpl)) = RE_2(~isnan(fc_raw_massman_wpl));
-
-    HL_wpl_massman(isnan(E_wpl_massman))=NaN;
-
-    % A little cleaning - very basic high/low filtering
-    Tsoil_1(Tsoil_1>50)=nan; Tsoil_1(Tsoil_1<-10)=nan;
-    SWC_1(SWC_1>1)=nan; SWC_1(SWC_1<0)=nan;
-    ground(ground>150)=nan; ground(ground<-150)=nan;
-    lw_incoming(lw_incoming>600)=nan; lw_incoming(lw_incoming<120)=nan;
-    lw_outgoing(lw_outgoing>650)=nan; lw_outgoing(lw_outgoing<120)=nan;
-    E_wpl_massman((E_wpl_massman.*18)<-5)=nan;
-    CO2_mean(CO2_mean<350)=nan;
-    wnd_spd(wnd_spd>25)=nan;
-    atm_press(atm_press>150)=nan; atm_press(atm_press<20)=nan;
-    Par_Avg(Par_Avg>2500)=nan; Par_Avg(Par_Avg<-100)=nan; Par_Avg(Par_Avg<0 & Par_Avg>-100)=0;
-
-    NEE_f(NEE_f>50)=nan;  NEE_f(NEE_f<-50)=nan;
-    RE_f(RE_f>50)=nan;  RE_f(RE_f<-50)=nan;
-    GPP_f(GPP_f>50)=nan;  GPP_f(GPP_f<-50)=nan;
-    NEE_obs(NEE_obs>50)=nan;  NEE_obs(NEE_obs<-50)=nan;
-    RE_obs(RE_obs>50)=nan;  RE_obs(RE_obs<-50)=nan;
-    GPP_obs(GPP_obs>50)=nan;  GPP_obs(GPP_obs<-50)=nan;
-    NEE_2(NEE_2>50)=nan;  NEE_2(NEE_2<-50)=nan;
-    RE_2(RE_2>50)=nan;  RE_2(RE_2<-50)=nan;
-    GPP_2(GPP_2>50)=nan;  GPP_2(GPP_2<-50)=nan;
-
-    if sitecode ==6 && year(1) == 2008
-        lw_incoming(~isnan(lw_incoming))=nan;
-        lw_outgoing(~isnan(lw_outgoing))=nan;
-        NR_tot(~isnan(NR_tot))=nan;
-    end
-
-
-    %%
-
-    close all
-
-    NEE_obs(NEE_obs==-9999)=nan;
-    GPP_obs(GPP_obs==-9999)=nan;
-    RE_obs(RE_obs==-9999)=nan;
-    H_obs(H_obs==-9999)=nan;
-    LE_obs(LE_obs==-9999)=nan;
-    VPD_f(VPD_f==-999.9000)=nan;
-
-    month_divide=linspace(1,17520,13);
-    md=cat(1,month_divide,month_divide);
-    md2=[5 5 5 5 5 5 5 5 5 5 5 5 5];
-    md3=md2.*-1;
-    md4=cat(1,md2,md3);
-
-    figure('Name','Fluxes','NumberTitle','off')
-    subplot(3,1,1)
-    plot(NEE_f,'r.'); hold on
-    plot(NEE_obs,'.'); hold on
-    plot(md,md4,'k'); hold on
-    ylabel('NEE'); %ylim([-20 20])
-    legend('Model','Obs')
-    subplot(3,1,2)
-    plot(GPP_f,'r.'); hold on
-    plot(GPP_obs,'.'); hold on
-    ylabel('GPP'); %ylim([0 50])
-    subplot(3,1,3)
-    plot(RE_f,'r.'); hold on
-    plot(RE_obs,'.'); hold on
-    ylabel('RE'); %ylim([0 50])
-
-    %%
-
-    figure('Name','Cumulative Fluxes','NumberTitle','off')
-    subplot(3,1,1)
-    plot(cumsum(NEE_f(~isnan(NEE_f))).*0.0216,'r'); hold on
-    plot(cumsum(NEE_2(~isnan(NEE_2))).*0.0216,'b'); hold on;
-    ylabel('NEE')
-    legend('Model','Obs')
-    subplot(3,1,2)
-    plot(cumsum(GPP_f(~isnan(GPP_f))).*0.0216,'r'); hold on
-    plot(cumsum(GPP_2(~isnan(GPP_2))).*0.0216,'b'); hold on;
-    ylabel('GPP')
-    subplot(3,1,3)
-    plot(cumsum(RE_f(~isnan(RE_f))).*0.0216,'r'); hold on
-    plot(cumsum(RE_2(~isnan(RE_2))).*0.0216,'b'); hold on;
-    ylabel('RE')
-
-    figure('Name','Energy Fluxes','NumberTitle','off')
-    subplot(3,1,1)
-    plot(H_f,'r.'); hold on
-    plot(H_obs,'.'); hold on;
-    ylabel('H'); %ylim([-200 1000])
-    subplot(3,1,2)
-    plot(LE_f,'r.'); hold on
-    plot(LE_obs,'.'); hold on;
-    ylabel('LE'); %ylim([-200 1000])
-    subplot(3,1,3)
-    plot(Rg_f,'.');
-    ylabel('Rg'); %ylim([0 1500])
-
-    figure('Name','Soil data','NumberTitle','off')
-    subplot(3,1,1)
-    plot(ground); hold on;
-    ylabel('Ground')
-    subplot(3,1,2)
-    plot(Tsoil_1); hold on;
-    ylabel('Soil T')
-    subplot(3,1,3)
-    plot(SWC_1); hold on;
-    ylabel('SWC')
-
-    figure('Name','Met data','NumberTitle','off')
-    subplot(2,3,1)
-    plot(air_temp_hmp,'.'); hold on;
-    ylabel('Air temp')
-    subplot(2,3,2)
-    plot(wnd_spd,'.'); hold on;
-    ylabel('Wnd Spd')
-    subplot(2,3,3)
-    plot(precip); hold on;
-    ylabel('PPT')
-    subplot(2,3,4)
-    plot(VPD_f,'.'); hold on;
-    ylabel('VPD'); %ylim([0 10])
-    subplot(2,3,5)
-    plot(NR_tot,'.'); hold on;
-    ylabel('NR tot')
-    subplot(2,3,6)
-    plot(Par_Avg,'.'); hold on;
-    %    plot(par_down_Avg,'r.');
-    ylabel('Par Avg')
-
-    figure('Name','Radiation components','NumberTitle','off')
-    subplot(2,2,1)
-    plot(sw_incoming,'.'); hold on;
-    ylabel('sw incoming')
-    subplot(2,2,2)
-    plot(sw_outgoing,'.'); hold on;
-    ylabel('sw outgoing')
-    subplot(2,2,3)
-    plot(lw_incoming,'.'); hold on;
-    ylabel('lw incoming')
-    subplot(2,2,4)
-    plot(lw_outgoing,'.'); hold on;
-    ylabel('lw outgoing')
-
-    figure('Name','Concentrations','NumberTitle','off')
-    subplot(2,2,1)
-    plot(CO2_mean,'.'); hold on;
-    ylabel('CO2 Mean')
-    subplot(2,2,2)
-    plot(H2O_mean,'.'); hold on;
-    ylabel('H2O mean')
-    subplot(2,2,3)
-    plot(E_wpl_massman.*18,'.'); hold on;
-    ylabel('Water flux')
-    subplot(2,2,4)
-    plot(atm_press,'.'); hold on;
-    ylabel('atm press')
-
-    %    'Is this looking OK?'
-    %
-    %     pause
-    %%
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % plot the data before writing out to files
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % plot_handles = UNM_Ameriflux_make_plots( aflx1, aflx2 );
 
 
     datamatrix1 = [year,intjday,(hour.*100)+minute, ds.fjdayday,u_star,air_temp_hmp, ...
