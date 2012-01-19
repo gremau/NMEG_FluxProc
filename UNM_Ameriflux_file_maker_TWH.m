@@ -59,8 +59,6 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     [ ds_pt, data ] = merge_datasets_by_datenum( ds_pt, data, ...
                                                  'timestamp', 'timestamp', 3 );
     
-    save test_restart.mat
-    keyboard()
     %% parsing the excel files is slow -- this loads parsed data for testing
     %%load( '/media/OS/Users/Tim/DataSandbox/GLand_2010_fluxall.mat' );
 
@@ -88,16 +86,16 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     % create dataset of soil properties.
     ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
     
-    % create dataset of fluxes
-    ds_fluxes = UNM_Ameriflux_prepare_fluxes( sitecode, year, ...
-                                              data, ds_qc, ds_gf, ds_pt );
-    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % create Ameriflux output dataset and write to ASCII files
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
-    % create a dataset for Ameriflux output variables
+
+    save test_restart.mat
     
+    % create the variables to be written to the output files
+    [ aflx1, aflx2 ] = UNM_Ameriflux_prepare_output_data( sitecode, year, ...
+                                                      data, ds_qc, ...
+                                                      ds_gf, ds_pt, ds_soil );
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

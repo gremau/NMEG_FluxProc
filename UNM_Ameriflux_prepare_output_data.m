@@ -3,7 +3,8 @@ function [ aflx1, aflx2 ] = UNM_Ameriflux_prepare_output_data( sitecode, ...
                                                       data, ...
                                                       ds_qc, ...
                                                       ds_gf, ...
-                                                      ds_pt )
+                                                      ds_pt, ...
+                                                      ds_soil )
     % UNM_AMERIFLUX_PREPARE_FLUXES - prepare observed fluxes for writing to
     %   Ameriflux files.  Mostly creates QC flags and gives various observations the
     %   names they should have for Ameriflux.
@@ -11,7 +12,9 @@ function [ aflx1, aflx2 ] = UNM_Ameriflux_prepare_output_data( sitecode, ...
     %
     % (c) Timothy W. Hilton, UNM, January 2012
 
-    stop = length(dummy); 
+    % create a column of -9999s to place in the dataset where a site does not record
+    % a particular variable
+    dummy = repmat( -9999, size( ds_qc, 1 ), 1 );
 
     % initialize flags to 1
     f_flag = repmat( 1, size( data, 1 ), 1 );
@@ -22,11 +25,11 @@ function [ aflx1, aflx2 ] = UNM_Ameriflux_prepare_output_data( sitecode, ...
     Rg_flag=f_flag;
     VPD_flag = f_flag;
     
-    VPD_f = gf_in.VPD ./ 10; % convert to kPa
+    VPD_f = ds_gf.VPD ./ 10; % convert to kPa
                              % what is "_g"?  "good" values?  --TWH
     VPD_g( ~isnan( ds_qc.rH ) ) = VPD_f( ~isnan( ds_qc.rH ) );
-    Tair_f = gf_in.Tair_f
-    Rg_f = gf_in.Rg_f
+    Tair_f = ds_gf.Tair_f;
+    Rg_f = ds_gf.Rg_f;
 
     % set met flags to zero where data are missing
     TA_flag( ~isnan( ds_qc.air_temp_hmp ) ) = 0;
@@ -59,10 +62,10 @@ function [ aflx1, aflx2 ] = UNM_Ameriflux_prepare_output_data( sitecode, ...
     % LE,
     idx = ~isnan( ds_qc.HL_wpl_massman );
     LE_obs( idx ) = ds_qc.HL_wpl_massman( idx );
-    LE_flag( ~isnan(E_wpl_massman) ) = 0;
+    LE_flag( ~isnan(ds_qc.E_wpl_massman) ) = 0;
     % and H
     idx = ~isnan( ds_qc.HSdry_massman );
-    H_obs() = ds_qc.HSdry_massman( idx );
+    H_obs( idx ) = ds_qc.HSdry_massman( idx );
     H_flag( idx ) = 0;
 
 
@@ -109,26 +112,26 @@ function [ aflx1, aflx2 ] = UNM_Ameriflux_prepare_output_data( sitecode, ...
     % anon function to find values in x outside of [L H]
     HL = @( x, L, H )  (x > L) | (x < H);
 
-    ds_qc.Tsoil_1( HL(ds_qc.Tsoil_1, -10, 50 ) ) = NaN;    
-    ds_qc.SWC_1( HL( ds_qc.SWC_1, 0, 1 ) ) = NaN;
+    ds_soil.Tsoil_1( HL(ds_soil.Tsoil_1, -10, 50 ) ) = NaN;    
+    ds_soil.SWC_1( HL( ds_soil.SWC_1, 0, 1 ) ) = NaN;
     ds_qc.ground( HL( ds_qc.ground, -150, 150 ) ) = NaN;
     ds_qc.lw_incoming( HL( ds_qc.lw_incoming, 120, 600 ) ) = NaN;
     ds_qc.lw_outgoing( HL( ds_qc.lw_outgoing, 120, 650 ) ) = NaN;
     ds_qc.E_wpl_massman( HL( ds_qc.E_wpl_massman .* 18, -5, Inf ) ) = NaN;
     ds_qc.CO2_mean( HL( ds_qc.CO2_mean, 350, Inf ) ) = NaN;
     ds_qc.wnd_spd( HL( ds_qc.wnd_spd, 25, Inf ) ) = NaN;
-    ds_qc.atm_press( HL( ds_qc.atm_press 20, 150 ) ) = NaN;
+    ds_qc.atm_press( HL( ds_qc.atm_press, 20, 150 ) ) = NaN;
     ds_qc.Par_Avg( HL( ds_qc.Par_Avg, -100, 2500 ) ) = NaN;
 
     NEE_f( HL( NEE_f, -50, 50 ) ) = NaN;
     RE_f( HL( RE_f, -50, 50) ) = NaN;
     GPP_f( HL( GPP_f, -50, 50 ) ) = NaN;
-    NEE_obs( HL( NEE_obs, -50, 50 ) = NaN;  
-    RE_obs( HL( RE_obs, -50, 50 ) = NaN;  
-    GPP_obs( HL( GPP_obs, -50, 50 ) = NaN;
-    NEE_2( HL( NEE_2, -50, 50 ) = NaN;  
-    RE_2( HL( RE_2, -50, 50 ) = NaN;  
-    GPP_2( HL( GPP_2, -50, 50 ) = NaN;
+    NEE_obs( HL( NEE_obs, -50, 50 ) ) = NaN;  
+    RE_obs( HL( RE_obs, -50, 50 ) ) = NaN;  
+    GPP_obs( HL( GPP_obs, -50, 50 ) ) = NaN;
+    NEE_2( HL( NEE_2, -50, 50 ) ) = NaN;  
+    RE_2( HL( RE_2, -50, 50 ) ) = NaN;  
+    GPP_2( HL( GPP_2, -50, 50 ) ) = NaN;
 
     if sitecode == 6 && year == 2008
         ds_qc.lw_incoming( ~isnan( ds_qc.lw_incoming ) ) = NaN;
@@ -146,3 +149,4 @@ function [ aflx1, aflx2 ] = UNM_Ameriflux_prepare_output_data( sitecode, ...
     LE_obs = replace_badvals( LE_obs, -9999, fp_tol );
     VPD_f = replace_badvals( VPD_f, -999.9, fp_tol );
 
+    keyboard()

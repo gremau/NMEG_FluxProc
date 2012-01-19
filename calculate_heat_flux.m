@@ -27,16 +27,18 @@ function hf = calculate_heat_flux( TCAV_Avg, ...
 %
 % Timothy W. Hilton, UNM, Dec 2011
 
-delta_T = [ NaN, diff( TCAV_avg ) ];
+delta_T = [ NaN; diff( TCAV_Avg ) ];
 
 % convert soil heat fluxes to W / m2
-shf_wm2 = shf_ds .* repmat( shf_conv_factor, size( shf_ds, 1 ), 1 )
+shf_wm2 = double( shf_ds ) .* repmat( shf_conv_factor, ...
+                                      size( shf_ds, 1 ), ...
+                                      size( shf_ds, 2 ) );
 
-cv = ( bulk_density .* scap ) .+ ( wcap .* swc_25mm );
+cv = ( bulk_density .* scap ) + ( wcap .* swc_25mm );
 storage_J = delta_T .* cv .* depth;  %% storage [ J ]
 storage_wm2 = storage_J / ( 60 * 30 );   %% storage [ W / m2 ]
 
-hf = sfh_wm2 .+ repmat( storage_wm2, size( shf_wm2, 2 ), 1 );
+hf = shf_wm2 + repmat( storage_wm2, size( shf_wm2, 2 ), 1 );
 
 
 
