@@ -24,8 +24,12 @@ function result = UNM_Ameriflux_write_file( sitecode, year, ds_aflx, email, ...
     fprintf( fid, 'Email: %s\n', email );
     fprintf( fid, 'Created: %s\n', datestr( now() ) );
 
+    %% write variables name and unit headers
     fmt = [ '%s', repmat( '\t%s', 1, ncol-1 ), '\n' ];
     var_names = ds_aflx.Properties.VarNames;
+    % '.' was replaced with 'p' to make legal Matlab variable names.  Change
+    % these 'p's back to '.'s -- identify by '.' between two digits
+    var_names = regexprep( var_names, '([0-9])p([0-9])', '$1\.$2');
     fprintf( fid, fmt, var_names{:} );
     units = ds_aflx.Properties.Units;
     fprintf( fid, fmt, units{:} );
