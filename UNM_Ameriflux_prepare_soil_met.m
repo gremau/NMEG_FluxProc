@@ -1499,11 +1499,10 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
     
     % -- calculate soil heat flux --
     % find QC variables containing 'soil_heat_flux'
-    shf_vars = regexp( ds_qc.Properties.VarNames, 'soil_heat_flux.*', 'match' );
-    shf_vars = shf_vars( ~cellfun( 'isempty', shf_vars ) );    
-    shf_vars = cellfun( @cell2mat, shf_vars, 'UniformOutput', false ); 
+    shf_vars = regexp_ds_vars( ds_qc, 'soil_heat_flux.*' );
     
-    keyboard()
+    save hf_restart.mat
+    
     shf = calculate_heat_flux( ds_out.Tsoil_1, ...
                                ds_out.SWC_1, ...
                                ds_out.bulk, ...
@@ -1511,9 +1510,10 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
                                ds_out.wcap, ...
                                ds_out.depth, ...
                                ds_qc( :, shf_vars ), ...
-                               1.0 )   %% need to get the correct conversion factor
-                               
-                               
+                               [ 1.0, 1.0 ] );   % need to get the correct
+                                                 % conversion factor
+    ds_out = [ ds_out, shf ];
+    
     %% add timestamp
     
     ds_out.timestamp = data_timestamp;

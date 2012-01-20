@@ -38,7 +38,8 @@ function ds  = UNM_parse_fluxall_xls_file( sitecode, year )
     end
     
     % read the numeric data (all operating systems)
-    [ data, discard ] = xlsread( filein, range );  
+    %[ data, discard ] = xlsread( filein, range );  
+    [ data, discard ] = xlsread( filein, '', '', 'basic' );  
 
     %% replace -9999s with NaN using floating point test with tolerance of 0.0001.
     data = replace_badvals( data, [ -9999 ], 0.0001 );

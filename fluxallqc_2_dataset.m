@@ -1,8 +1,12 @@
 function ds = fluxallqc_2_dataset(qc_num, sitecode, year)
 % FLUXALLQC_2_DATASET - places Flux_all_QC data into matlab dataset
 %   
+
+    timestamp = excel_date_2_matlab_datenum( qc_num( :, 1 ) );
+    ds = dataset( { timestamp, 'timestamp' } );
     
-    ds = dataset( { qc_num( :, 1 ), 'year' } );
+    qc_num = qc_num( :, 2:end );
+    ds.year = qc_num( :, 1 );
 
     ds.month = qc_num( :, 2 );
     ds.day = qc_num( :, 3 );
@@ -98,4 +102,4 @@ function ds = fluxallqc_2_dataset(qc_num, sitecode, year)
     end
 
     %% convert excel serial dates to matlab datenums
-    ds.timestamp = excel_date_2_matlab_datenum( qc_num( :, 1 ) );
+    

@@ -25,18 +25,34 @@ function hf = calculate_heat_flux( TCAV_Avg, ...
 %    hf: N x M dataset; total heat flux.  Has same column labels and order as
 %        shf input; [ W / m2 ]
 %
-% Timothy W. Hilton, UNM, Dec 2011
+% (c) Timothy W. Hilton, UNM, Dec 2011
 
+% how many timestamps are there (nrow) and how many separate heat flux
+% observations are there (ncol)?
+[ nrow, ncol ] = size( shf_ds );
+
+% heat flux vars are named soil_heat_flux_xyz -- pull off the xyz suffix so
+% we can name the output variables "SHF_xyz"
+shf_vars = shf_ds.Properties.VarNames;
+suf_idx = regexp( shf_vars, 'soil_heat_flux', 'end' );
+suf = cellfun( @(str, idx) str( (idx + 1) : end ), ...
+               shf_vars, suf_idx, ...
+               'UniformOutput', false );
+SHF_out_names = strcat( 'SHF', suf );
+
+% now to the actual heat flux calculation
 delta_T = [ NaN; diff( TCAV_Avg ) ];
 
 % convert soil heat fluxes to W / m2
-shf_wm2 = double( shf_ds ) .* repmat( shf_conv_factor, size( shf_ds, 1 ), 1 );
+shf_wm2 = double( shf_ds ) .* repmat( shf_conv_factor, nrow, 1 );
 
 cv = ( bulk_density .* scap ) + ( wcap .* swc_25mm );
 storage_J = delta_T .* cv .* depth;  %% storage [ J ]
 storage_wm2 = storage_J / ( 60 * 30 );   %% storage [ W / m2 ]
 
-hf = shf_wm2 + repmat( storage_wm2, 1, size( shf_wm2, 2 )  );
+hf = shf_wm2 + repmat( storage_wm2, 1, ncol );
+
+hf = dataset( { hf, SHF_out_names{:} } );
 
 
 
