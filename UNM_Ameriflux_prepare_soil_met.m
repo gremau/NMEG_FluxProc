@@ -16,6 +16,9 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
     %% a particular variable
     dummy = repmat( -9999, size( data, 1 ), 1 );
 
+    % find any soil heat flux columns within QC data
+    shf_vars = regexp_ds_vars( ds_qc, 'soil_heat_flux.*' );
+    n_shf_vars = size( shf_vars, 2 );  % how many SHF columns are there?    
     %% data is now a dataset -- convert it to a matrix of doubles for
     %% back-compatibilty
     data_timestamp = data.timestamp;
@@ -211,7 +214,7 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         % cv = (bulk.*scap)+(wcap.*theta);
         % storage = cv.*deltaT.*depth; % in Joules
         % storage = storage/(60*30); % in Wm-2
-        % shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2)'); shf = shf';
+        % shf = nanmean(cat(2,ds_qc.soil_heat_flux_1,ds_qc.soil_heat_flux_2)'); shf = shf';
         % ground = shf+storage;
         % figure; plot(ground);
         
@@ -255,7 +258,7 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             cv = (bulk.*scap)+(wcap.*theta);
             storage = cv.*deltaT.*depth; % in Joules
             storage = storage/(60*30); % in Wm-2
-            shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2)'); shf = shf';
+            shf = nanmean(cat(2,ds_qc.soil_heat_flux_1,ds_qc.soil_heat_flux_2)'); shf = shf';
             ground = shf+storage;
             figure; plot(ground);
             
@@ -378,9 +381,12 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         if year == 2007
             vwc = data(:,175:190);
             vwc(vwc>1) = NaN; vwc(vwc<0) = NaN;
-            SWC_1 = nanmean(cat(2,vwc(:,1),vwc(:,5),vwc(:,9),vwc(:,13))'); SWC_1 = SWC_1';
-            SWC_2 = nanmean(cat(2,vwc(:,3),vwc(:,7),vwc(:,11),vwc(:,15))'); SWC_2 = SWC_2';
-            SWC_3 = nanmean(cat(2,vwc(:,4),vwc(:,8),vwc(:,12),vwc(:,16))'); SWC_3 = SWC_3';
+            SWC_1 = nanmean(cat(2,vwc(:,1),vwc(:,5),vwc(:,9),vwc(:,13))'); 
+            SWC_1 = SWC_1';
+            SWC_2 = nanmean(cat(2,vwc(:,3),vwc(:,7),vwc(:,11),vwc(:,15))'); 
+            SWC_2 = SWC_2';
+            SWC_3 = nanmean(cat(2,vwc(:,4),vwc(:,8),vwc(:,12),vwc(:,16))'); 
+            SWC_3 = SWC_3';
             
             tt = data(:,191:210);
             Tsoil_1 = nanmean(cat(2,tt(:,1),tt(:,6),tt(:,11),tt(:,16))'); 
@@ -390,57 +396,25 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             Tsoil_3 = nanmean(cat(2,tt(:,4),tt(:,9),tt(:,14),tt(:,19))'); 
             Tsoil_3 = Tsoil_3';
             
-            % Calculate ground heat flux 2 set ups at JSav
-            ds_qc.Tsoil_hfp = data(:,219);
-            soil_heat_flux_1 = data(:,221).*32.27;
-            soil_heat_flux_2 = data(:,222).*33.00;
-            deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
-            deltaT = deltaT(2:length(deltaT));
-            theta = SWC_1; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other
-                                                    % shallow measurements; big
-                                                    % gap in soil moisture
-                                                    % firstpart of 2007 fill
-                                                    % with 0.05
-            bulk = 1720; scap = 837; wcap = 4.19e6; depth = 0.05; % parameter values
-            bulk = bulk.*ones(size(dummy,1),1);
-            scap = scap.*ones(size(dummy,1),1);
-            wcap = wcap.*ones(size(dummy,1),1);
-            depth = depth.*ones(size(dummy,1),1);
-            cv = (bulk.*scap)+(wcap.*theta);
-            storage = cv.*deltaT.*depth; % in Joules
-            storage = storage/(60*30); % in Wm-2
-            shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2)'); shf = shf';
-            ground1 = shf+storage;
-            % And for second set up
-            ds_qc.Tsoil_hfp = data(:,220);
-            soil_heat_flux_1 = data(:,223).*31.60;
-            soil_heat_flux_2 = data(:,224).*32.20;
-            deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
-            deltaT = deltaT(2:length(deltaT));
-            theta = SWC_1; theta(isnan(theta)) =  0.05; % Gapfill soil moisture
-                                                    % with other shallow
-                                                    % measurements; big gap
-                                                    % in soil moisture
-                                                    % firstpart of 2007 fill
-                                                    % with 0.05
-            bulk = 1720; scap = 837; wcap = 4.19e6; depth = 0.05; % parameter values
-            bulk = bulk.*ones(size(dummy,1),1);
-            scap = scap.*ones(size(dummy,1),1);
-            wcap = wcap.*ones(size(dummy,1),1);
-            depth = depth.*ones(size(dummy,1),1);
-            cv = (bulk.*scap)+(wcap.*theta);
-            storage = cv.*deltaT.*depth; % in Joules
-            storage = storage/(60*30); % in Wm-2
-            shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2)'); shf = shf';
-            ground2 = shf+storage;
-            ground = nanmean(cat(2,ground1,ground2)'); ground = ground';
+            % grab ground heat flux data -- 2 set ups at JSav
+            ds_qc.Tsoil_hfp = data(:,219);            
+            new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
+            shf_vars.( new_shf_var ) = data(:,221).*32.27;
+            new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 2 );
+            shf_vars.( new_shf_var ) = data(:,222).*33.00;
+            
+            
+
             
         elseif year == 2008
             vwc = data(:,175:190);
             vwc(vwc>1) = NaN; vwc(vwc<0) = NaN;
-            SWC_1 = nanmean(cat(2,vwc(:,1),vwc(:,5),vwc(:,9),vwc(:,13))'); SWC_1 = SWC_1';
-            SWC_2 = nanmean(cat(2,vwc(:,3),vwc(:,7),vwc(:,11),vwc(:,15))'); SWC_2 = SWC_2';
-            SWC_3 = nanmean(cat(2,vwc(:,4),vwc(:,8),vwc(:,12),vwc(:,16))'); SWC_3 = SWC_3';
+            SWC_1 = nanmean(cat(2,vwc(:,1),vwc(:,5),vwc(:,9),vwc(:,13))'); 
+            SWC_1 = SWC_1';
+            SWC_2 = nanmean(cat(2,vwc(:,3),vwc(:,7),vwc(:,11),vwc(:,15))'); 
+            SWC_2 = SWC_2';
+            SWC_3 = nanmean(cat(2,vwc(:,4),vwc(:,8),vwc(:,12),vwc(:,16))'); 
+            SWC_3 = SWC_3';
             
             tt = data(:,191:210);
             Tsoil_1 = nanmean(cat(2,tt(:,1),tt(:,6),tt(:,11),tt(:,16))'); 
@@ -452,47 +426,10 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             
             % Calculate ground heat flux 2 set ups at JSav
             ds_qc.Tsoil_hfp = data(:,211);
-            soil_heat_flux_1 = data(:,213).*32.27;
-            soil_heat_flux_2 = data(:,214).*33.00;
-            deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
-            deltaT = deltaT(2:length(deltaT));
-            theta = SWC_1; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other
-                                                    % shallow measurements; big
-                                                    % gap in soil moisture
-                                                    % firstpart of 2007 fill
-                                                    % with 0.05
-            bulk = 1720; scap = 837; wcap = 4.19e6; depth = 0.05; % parameter values
-            bulk = bulk.*ones(size(dummy,1),1);
-            scap = scap.*ones(size(dummy,1),1);
-            wcap = wcap.*ones(size(dummy,1),1);
-            depth = depth.*ones(size(dummy,1),1);
-            cv = (bulk.*scap)+(wcap.*theta);
-            storage = cv.*deltaT.*depth; % in Joules
-            storage = storage/(60*30); % in Wm-2
-            shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2)'); shf = shf';
-            ground1 = shf+storage;
-            % And for second set up
-            ds_qc.Tsoil_hfp = data(:,212);
-            soil_heat_flux_1 = data(:,215).*31.60;
-            soil_heat_flux_2 = data(:,216).*32.20;
-            deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
-            deltaT = deltaT(2:length(deltaT));
-            theta = SWC_1; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other
-                                                    % shallow measurements; big
-                                                    % gap in soil moisture
-                                                    % firstpart of 2007 fill
-                                                    % with 0.05
-            bulk = 1720; scap = 837; wcap = 4.19e6; depth = 0.05; % parameter values
-            bulk = bulk.*ones(size(dummy,1),1);
-            scap = scap.*ones(size(dummy,1),1);
-            wcap = wcap.*ones(size(dummy,1),1);
-            depth = depth.*ones(size(dummy,1),1);
-            cv = (bulk.*scap)+(wcap.*theta);
-            storage = cv.*deltaT.*depth; % in Joules
-            storage = storage/(60*30); % in Wm-2
-            shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2)'); shf = shf';
-            ground2 = shf+storage;
-            ground = nanmean(cat(2,ground1,ground2)'); ground = ground';
+            new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
+            shf_vars.( new_shf_var ) = data(:,213).*32.27;
+            new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
+            shf_vars.( new_shf_var ) = data(:,214).*33.00;
             
         elseif year == 2009 || year == 2010 || year  ==  2011
             vwc = data(:,178:195);
@@ -528,17 +465,13 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             SWC_3 = nanmean(cat(2,vwc2(:,4),vwc2(:,8),vwc2(:,12),vwc2(:,16))');
             SWC_3 = SWC_3';
             
-            figure;
-            subplot(2,1,1)
-            plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g')
-            
             SWC_1 = nanmean(cat(2,vwc4(:,1),vwc4(:,5),vwc4(:,9),vwc(:,13))'); 
             SWC_1 = SWC_1';
             SWC_2 = nanmean(cat(2,vwc4(:,3),vwc4(:,7),vwc4(:,11),vwc(:,15))');
             SWC_2 = SWC_2';
             SWC_3 = nanmean(cat(2,vwc4(:,4),vwc4(:,8),vwc4(:,12),vwc(:,16))');
             SWC_3 = SWC_3';
-            subplot(2,1,2)
+
             plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g')
             
             tt = data(:,196:213);
@@ -1041,7 +974,10 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             storage3 = storage/(60*30); % in Wm-2
             
             
-            soil_heat_flux_1 = (soil_heat_flux_1./40).*34.7; % Apply correct calibration factors to hfps, 40 had been used previously
+            soil_heat_flux_1 = (soil_heat_flux_1./40).*34.7; % Apply correct calibration
+                                                             % factors to hfps,
+                                                             % 40 had been used
+                                                             % previously
             soil_heat_flux_2 = (soil_heat_flux_2./40).*35.5;
             soil_heat_flux_3 = (soil_heat_flux_3./40).*38;
             
@@ -1496,10 +1432,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
     ds_out.scap = scap;
     ds_out.wcap = wcap;
     ds_out.depth = depth;
-    
-    % -- calculate soil heat flux --
-    % find QC variables containing 'soil_heat_flux'
-    shf_vars = regexp_ds_vars( ds_qc, 'soil_heat_flux.*' );
     
     save hf_restart.mat
     
