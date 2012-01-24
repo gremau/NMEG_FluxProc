@@ -25,7 +25,14 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
     data = double( data( :, 2:end ) );
     
     if sitecode == 1 % Grassland
-        if year == 2007
+ 
+        % parameter values for soil heat flux
+        bulk = 1398; 
+        scap = 837; 
+        wcap = 4.19e6; 
+        depth = 0.05;
+
+       if year == 2007
             Tsoil_1 = ds_qc.Tsoil_hfp;
             Tsoil_2 = data(:,213); % deep well 10 cm
             Tsoil_3 = dummy;
@@ -45,10 +52,7 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             SWC_2 = nanmean(cat(2,vwc2(:,3),vwc2(:,6),vwc2(:,9),...
                               vwc2(:,12),vwc2(:,15),vwc2(:,20))'); SWC_2 = SWC_2';
             SWC_3 = nanmean(cat(2,vwc2(:,17),vwc2(:,22))'); SWC_3 = SWC_3';
-            figure;
-            aa  =  gcf
-            subplot(2,1,1)
-            plot(vwc)
+
             vwc = data(:,188:210);
             vwc(vwc>1) = NaN; vwc(vwc<0) = NaN;
             SWC_21 = nanmean(cat(2,vwc(:,1),vwc(:,4),vwc(:,7),vwc(:,10),...
@@ -56,10 +60,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             SWC_22 = nanmean(cat(2,vwc(:,3),vwc(:,6),vwc(:,9),vwc(:,12),...
                                vwc(:,15),vwc(:,20))'); SWC_22 = SWC_2';
             SWC_23 = nanmean(cat(2,vwc(:,17),vwc(:,22))'); SWC_23 = SWC_3';
-            figure(aa)
-            subplot(2,1,2)
-            plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g'); hold on
-            plot(SWC_21,'o'); hold on; plot(SWC_22,'ro'); hold on; plot(SWC_23,'go')
             SWC_1(1:8000) = SWC_21(1:8000);
             SWC_2(1:8000) = SWC_22(1:8000);
             SWC_3(1:8000) = SWC_23(1:8000);
@@ -133,11 +133,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             SWC_3 = nanmean(cat(2,vwc4(:,17),vwc4(:,22))'); 
             SWC_3 = SWC_3';     
             
-            figure;
-            plot(SWC_1); hold on
-            plot(SWC_2,'r'); hold on
-            plot(SWC_3,'g'); hold on
-            
             datamatrix22  =  [SWC_1,SWC_2,SWC_3];
             datamatrix22(isnan(datamatrix22)) = -9999;
             dlmwrite('GLand_SWC_09.txt',datamatrix22)
@@ -155,8 +150,8 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             %vwc = repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
             %% not temperature corrected
             vwc2 = repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
-            vwc2(vwc2>1) = NaN; 
-            vwc2(vwc2<0) = NaN;
+            vwc2( vwc2 > 1 ) = NaN; 
+            vwc2( vwc2 < 0 ) = NaN;
             
             % gap fill and smooth SWC using filter
             
@@ -187,36 +182,11 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
                               vwc4(:,12),vwc4(:,15),vwc4(:,20))'); SWC_2 = SWC_2';
             SWC_3 = nanmean(cat(2,vwc4(:,17),vwc4(:,22))'); SWC_3 = SWC_3';
             
-            figure;
-            plot(SWC_1); hold on
-            plot(SWC_2,'r'); hold on
-            plot(SWC_3,'g'); hold on
-            
             datamatrix22  =  [SWC_1,SWC_2,SWC_3];
             datamatrix22(isnan(datamatrix22)) = -9999;
             dlmwrite('GLand_SWC_10.txt',datamatrix22)
             
         end
-        
-        % Calculate ground heat flux
-        deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
-        deltaT = deltaT(2:length(deltaT));
-        theta = vwc4(:,23); theta(isnan(theta)) = SWC_1(isnan(theta)); 
-        theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow
-                                   % measurements; big gap in soil moisture
-                                   % firstpart of 2007 fill with 0.05
-        bulk = 1398; scap = 837; wcap = 4.19e6; depth = 0.05; % parameter values
-        bulk = bulk.*ones(size(dummy,1),1);
-        scap = scap.*ones(size(dummy,1),1);
-        wcap = wcap.*ones(size(dummy,1),1);
-        depth = depth.*ones(size(dummy,1),1);
-        %% commented out, TWH 17 Jan 2012 -- soil heat flux now calculated separately
-        % cv = (bulk.*scap)+(wcap.*theta);
-        % storage = cv.*deltaT.*depth; % in Joules
-        % storage = storage/(60*30); % in Wm-2
-        % shf = nanmean(cat(2,ds_qc.soil_heat_flux_1,ds_qc.soil_heat_flux_2)'); shf = shf';
-        % ground = shf+storage;
-        % figure; plot(ground);
         
     elseif sitecode  ==  2 % Shrubland
         if year < 2009
@@ -239,7 +209,7 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             SWC_2 = SWC_2';
             SWC_3 = nanmean(cat(2,vwc2(:,5),vwc2(:,10),vwc(:,15),vwc2(:,20))');
             SWC_3 = SWC_3';
-            figure; plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g')
+
             % Calculate ground heat flux
             deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
             deltaT = deltaT(2:length(deltaT));
@@ -260,7 +230,7 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             storage = storage/(60*30); % in Wm-2
             shf = nanmean(cat(2,ds_qc.soil_heat_flux_1,ds_qc.soil_heat_flux_2)'); shf = shf';
             ground = shf+storage;
-            figure; plot(ground);
+
             
         elseif year  ==  2009 || year == 2010 || year  ==  2011 
             
@@ -318,18 +288,13 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             SWC_3 = nanmean(cat(2,vwc2(:,5),vwc2(:,10),vwc2(:,15),vwc2(:,20))');
             SWC_3 = SWC_3';
             
-            figure;
-            subplot(2,1,1)
-            plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g')
-            
             SWC_1 = nanmean(cat(2,vwc4(:,1),vwc4(:,6),vwc4(:,11),vwc4(:,16))');
             SWC_1 = SWC_1';
             SWC_2 = nanmean(cat(2,vwc4(:,3),vwc4(:,8),vwc4(:,13),vwc4(:,18))');
             SWC_2 = SWC_2';
             SWC_3 = nanmean(cat(2,vwc4(:,5),vwc4(:,10),vwc4(:,15),vwc4(:,20))');
             SWC_3 = SWC_3';
-            subplot(2,1,2)
-            plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g')
+
             %%
             %
             % Calculate ground heat flux
@@ -361,7 +326,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             %                 soil_heat_flux_5,soil_heat_flux_6)'); 
             % shf = shf';
             %         ground = shf+storage;
-            %         figure; plot(ground);
             
             % SWC_1 = dummy;
             % SWC_2 = dummy;
@@ -472,7 +436,7 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             SWC_3 = nanmean(cat(2,vwc4(:,4),vwc4(:,8),vwc4(:,12),vwc(:,16))');
             SWC_3 = SWC_3';
 
-            plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g')
+
             
             tt = data(:,196:213);
             Tsoil_1 = nanmean(cat(2,tt(:,1),tt(:,4),tt(:,7),...
@@ -487,49 +451,11 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             
             % Calculate ground heat flux 2 set ups at JSav
             ds_qc.Tsoil_hfp = data(:,214);
-            soil_heat_flux_1 = data(:,216).*32.27;
-            soil_heat_flux_2 = data(:,217).*33.00;
-            deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
-            deltaT = deltaT(2:length(deltaT));
-            theta = SWC_1; theta(isnan(theta)) =  0.05; % Gapfill soil moisture
-                                                    % with other shallow
-                                                    % measurements; big gap
-                                                    % in soil moisture
-                                                    % firstpart of 2007 fill
-                                                    % with 0.05
-            bulk = 1720; scap = 837; wcap = 4.19e6; depth = 0.05; % parameter values
-            bulk = bulk.*ones(size(dummy,1),1);
-            scap = scap.*ones(size(dummy,1),1);
-            wcap = wcap.*ones(size(dummy,1),1);
-            depth = depth.*ones(size(dummy,1),1);
-            cv = (bulk.*scap)+(wcap.*theta);
-            storage = cv.*deltaT.*depth; % in Joules
-            storage = storage/(60*30); % in Wm-2
-            shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2)'); shf = shf';
-            ground1 = shf+storage;
-            % And for second set up
-            ds_qc.Tsoil_hfp = data(:,215);
-            soil_heat_flux_1 = data(:,218).*31.60;
-            soil_heat_flux_2 = data(:,219).*32.20;
-            deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
-            deltaT = deltaT(2:length(deltaT));
-            theta = SWC_1; theta(isnan(theta)) =  0.05; % Gapfill soil moisture
-                                                    % with other shallow
-                                                    % measurements; big gap
-                                                    % in soil moisture
-                                                    % firstpart of 2007 fill
-                                                    % with 0.05
-            bulk = 1720; scap = 837; wcap = 4.19e6; depth = 0.05; % parameter values
-            bulk = bulk.*ones(size(dummy,1),1);
-            scap = scap.*ones(size(dummy,1),1);
-            wcap = wcap.*ones(size(dummy,1),1);
-            depth = depth.*ones(size(dummy,1),1);
-            cv = (bulk.*scap)+(wcap.*theta);
-            storage = cv.*deltaT.*depth; % in Joules
-            storage = storage/(60*30); % in Wm-2
-            shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2)'); shf = shf';
-            ground2 = shf+storage;
-            ground = nanmean(cat(2,ground1,ground2)'); ground = ground';
+            new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
+            shf_vars.( new_shf_var ) = data(:,216).*32.27;
+            new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
+            shf_vars.( new_shf_var ) = data(:,217).*33.00;
+
         end
         
     elseif sitecode  ==  4 % Pinon-juniper
@@ -697,10 +623,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
 
             % calculate for volumes 1-3cm, 4-10cm, 11-33cm, 34-62cm (3, 7, 23, 30cm depths)
             
-            figure;
-            asd = gcf;
-            figure;
-            asc = gcf;
             deltaT = cat(1,tsoil_2cm,1)-cat(1,1,tsoil_2cm); deltaT = deltaT(2:length(deltaT));
             theta = vwc; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
             bulk = 1070; scap = 837; wcap = 4.19e6; depth = 0.03; % parameter values
@@ -711,10 +633,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             cv = (bulk.*scap)+(wcap.*theta);
             storage = cv.*deltaT.*depth; % in Joules
             storage1 = storage/(60*30); % in Wm-2
-            figure(asd)
-            plot(theta); hold on
-            figure(asc)
-            plot(deltaT); hold on
             
             deltaT = cat(1,Tsoil_1,1)-cat(1,1,Tsoil_1); deltaT = deltaT(2:length(deltaT));
             theta = SWC_1; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
@@ -726,10 +644,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             cv = (bulk.*scap)+(wcap.*theta);
             storage = cv.*deltaT.*depth; % in Joules
             storage2 = storage/(60*30); % in Wm-2
-            figure(asd)
-            plot(theta,'r'); hold on
-            figure(asc)
-            plot(deltaT,'r'); hold on
             
             deltaT = cat(1,Tsoil_2,1)-cat(1,1,Tsoil_2); deltaT = deltaT(2:length(deltaT));
             theta = SWC_2; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
@@ -741,10 +655,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             cv = (bulk.*scap)+(wcap.*theta);
             storage = cv.*deltaT.*depth; % in Joules
             storage3 = storage/(60*30); % in Wm-2
-            figure(asd)
-            plot(theta,'g'); hold on
-            figure(asc)
-            plot(deltaT,'g'); hold on
             
             deltaT = cat(1,Tsoil_3,1)-cat(1,1,Tsoil_3); deltaT = deltaT(2:length(deltaT));
             theta = SWC_3; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
@@ -756,19 +666,8 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             cv = (bulk.*scap)+(wcap.*theta);
             storage = cv.*deltaT.*depth; % in Joules
             storage4 = storage/(60*30); % in Wm-2
-            figure(asd)
-            plot(theta,'c'); hold on
-            figure(asc)
-            plot(deltaT,'c'); hold on
             
             ground = (storage1+storage2+storage3+storage4);
-            
-            figure;
-            plot(storage1); hold on
-            plot(storage2,'r'); hold on
-            plot(storage3,'g'); hold on
-            plot(storage4,'c'); hold on
-            plot(ground,'m.-'); hold
             
         elseif year == 2009 || year  ==  2010 || year  ==  2011
             tsoil_2cm = ds_qc.Tsoil_hfp;
@@ -804,10 +703,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         % calculate heat storage at 4 depths, 2, 5, 20 and 50 cm
         % calculate for volumes 1-3cm, 4-10cm, 11-33cm, 34-62cm (3, 7, 23, 30cm depths)
         
-        figure;
-        asd = gcf;
-        figure;
-        asc = gcf;
         deltaT = cat(1,tsoil_2cm,1)-cat(1,1,tsoil_2cm); deltaT = deltaT(2:length(deltaT));
         theta = vwc; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
         bulk = 1354; scap = 837; wcap = 4.19e6; depth = 0.03; % parameter values
@@ -818,10 +713,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         cv = (bulk.*scap)+(wcap.*theta);
         storage = cv.*deltaT.*depth; % in Joules
         storage1 = storage/(60*30); % in Wm-2
-        figure(asd)
-        plot(theta); hold on
-        figure(asc)
-        plot(deltaT); hold on
         
         deltaT = cat(1,Tsoil_1,1)-cat(1,1,Tsoil_1); deltaT = deltaT(2:length(deltaT));
         theta = SWC_1; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
@@ -833,11 +724,7 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         cv = (bulk.*scap)+(wcap.*theta);
         storage = cv.*deltaT.*depth; % in Joules
         storage2 = storage/(60*30); % in Wm-2
-        figure(asd)
-        plot(theta,'r'); hold on
-        figure(asc)
-        plot(deltaT,'r'); hold on
-        
+
         deltaT = cat(1,Tsoil_2,1)-cat(1,1,Tsoil_2); deltaT = deltaT(2:length(deltaT));
         theta = SWC_2; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
         bulk = 1343; scap = 837; wcap = 4.19e6; depth = 0.23; % parameter values
@@ -848,10 +735,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         cv = (bulk.*scap)+(wcap.*theta);
         storage = cv.*deltaT.*depth; % in Joules
         storage3 = storage/(60*30); % in Wm-2
-        figure(asd)
-        plot(theta,'g'); hold on
-        figure(asc)
-        plot(deltaT,'g'); hold on
         
         deltaT = cat(1,Tsoil_3,1)-cat(1,1,Tsoil_3); deltaT = deltaT(2:length(deltaT));
         theta = SWC_3; theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow measurements; big gap in soil moisture firstpart of 2007 fill with 0.05
@@ -863,19 +746,8 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         cv = (bulk.*scap)+(wcap.*theta);
         storage = cv.*deltaT.*depth; % in Joules
         storage4 = storage/(60*30); % in Wm-2
-        figure(asd)
-        plot(theta,'c'); hold on
-        figure(asc)
-        plot(deltaT,'c'); hold on
         
         ground = (storage1+storage2+storage3+storage4);
-        
-        figure;
-        plot(storage1); hold on
-        plot(storage2,'r'); hold on
-        plot(storage3,'g'); hold on
-        plot(storage4,'c'); hold on
-        plot(ground,'m.-'); hold
         
         if year  ==  2007 || year  ==  2008 || year  ==  2009 || year  ==  2010 || year  ==  2011
             ground = dummy;
@@ -893,46 +765,14 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             swcsoil(swcsoil<0) = nan;
             swcsoil(swcsoil>1) = nan;
             swcsoil(3000:4500,3) = nan;
-            
-            figure;
-            subplot(3,1,1)
-            plot(tsoil(:,1:3))
-            legend('2','5','10')
-            subplot(3,1,2)
-            plot(tsoil(:,4:6))
-            legend('2','5','10')
-            subplot(3,1,3)
-            plot(tsoil(:,7:9))
-            legend('2','5','10')
-            figure;
-            subplot(3,1,1)
-            plot(swcsoil(:,1:3))
-            legend('2','5','10')
-            subplot(3,1,2)
-            plot(swcsoil(:,4:6))
-            legend('2','5','10')
-            subplot(3,1,3)
-            plot(swcsoil(:,7:9))
-            legend('2','5','10')
-            
+                        
             Tsoil_1 = nanmean(cat(2,tsoil(:,[1 4 7]))')'; %2cm
             Tsoil_2 = nanmean(cat(2,tsoil(:,[2 5 8]))')'; %5cm
             Tsoil_3 = nanmean(cat(2,tsoil(:,[3 6 9]))')'; %10cm
             SWC_1 = nanmean(cat(2,swcsoil(:,[1 4 7]))')'; %2cm
             SWC_2 = nanmean(cat(2,swcsoil(:,[ 5 8]))')'; %5cm
             SWC_3 = nanmean(cat(2,swcsoil(:,[3 6 9]))')'; %10cm
-            
-            figure;
-            subplot(2,1,1)
-            plot(Tsoil_1); hold on
-            plot(Tsoil_2,'r'); hold on
-            plot(Tsoil_3,'g')
-            subplot(2,1,2)
-            plot(SWC_1); hold on
-            plot(SWC_2,'r'); hold on
-            plot(SWC_3,'g')
-            
-            
+
             % Calculate heat flux
             % Use site specific temperatures, but mean SWC as this is very gappy
             % for individual sites
@@ -988,12 +828,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             ground = nanmean(ground');
             ground  =  ground';
             
-            figure;
-            plot(groundo); hold on
-            plot(groundm,'r'); hold on
-            plot(groundj,'g');hold on
-            plot(ground,'k')
-            
         elseif year == 2006
             tsoil = data(:,165:173);
             swcsoil = data(:,178:186);
@@ -1005,27 +839,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             swcsoil(swcsoil>1) = nan;
             swcsoil(3000:4500,3) = nan;
             
-            figure;
-            subplot(3,1,1)
-            plot(tsoil(:,1:3))
-            legend('2','5','10')
-            subplot(3,1,2)
-            plot(tsoil(:,4:6))
-            legend('2','5','10')
-            subplot(3,1,3)
-            plot(tsoil(:,7:9))
-            legend('2','5','10')
-            figure;
-            subplot(3,1,1)
-            plot(swcsoil(:,1:3))
-            legend('2','5','10')
-            subplot(3,1,2)
-            plot(swcsoil(:,4:6))
-            legend('2','5','10')
-            subplot(3,1,3)
-            plot(swcsoil(:,7:9))
-            legend('2','5','10')
-            
             Tsoil_1 = nanmean(cat(2,tsoil(:,[1 4 7]))')'; %2cm
             Tsoil_2 = nanmean(cat(2,tsoil(:,[2 5 8]))')'; %5cm
             Tsoil_3 = nanmean(cat(2,tsoil(:,[3 6 9]))')'; %10cm
@@ -1033,17 +846,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             SWC_1 = swcsoil(:,7); %2cm
             SWC_2 = nanmean(cat(2,swcsoil(:,[2 5 8]))')'; %5cm
             SWC_3 = nanmean(cat(2,swcsoil(:,[3 6 9]))')'; %10cm
-            
-            figure;
-            subplot(2,1,1)
-            plot(Tsoil_1); hold on
-            plot(Tsoil_2,'r'); hold on
-            plot(Tsoil_3,'g')
-            subplot(2,1,2)
-            plot(SWC_1); hold on
-            plot(SWC_2,'r'); hold on
-            plot(SWC_3,'g')
-            
             
             % Calculate heat flux
             % Use site specific temperatures, but mean SWC as this is very gappy
@@ -1096,44 +898,16 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             ground = cat(2,groundo,groundm,groundj);
             ground = nanmean(ground');
             ground  =  ground';
-            
-            figure;
-            plot(groundo); hold on
-            plot(groundm,'r'); hold on
-            plot(groundj,'g');hold on
-            plot(ground,'k')
             
         elseif year == 2007
-            tsoil = data(:,165:173);
-            swcsoil = data(:,178:186);
+            tsoil = data( :, 165:173 );
+            swcsoil = data( :, 178:186 );
             % filter these
-            tsoil(tsoil<-5) = nan;
-            tsoil(tsoil>32) = nan;
-            tsoil(2400:2700,1) = nan;
-            swcsoil(swcsoil<0) = nan;
-            swcsoil(swcsoil>1) = nan;
-            
-            
-            figure;
-            subplot(3,1,1)
-            plot(tsoil(:,1:3))
-            legend('2','5','10')
-            subplot(3,1,2)
-            plot(tsoil(:,4:6))
-            legend('2','5','10')
-            subplot(3,1,3)
-            plot(tsoil(:,7:9))
-            legend('2','5','10')
-            figure;
-            subplot(3,1,1)
-            plot(swcsoil(:,1:3))
-            legend('2','5','10')
-            subplot(3,1,2)
-            plot(swcsoil(:,4:6))
-            legend('2','5','10')
-            subplot(3,1,3)
-            plot(swcsoil(:,7:9))
-            legend('2','5','10')
+            tsoil( tsoil < -5 ) = nan;
+            tsoil( tsoil > 32 ) = nan;
+            tsoil( 2400:2700,1 ) = nan;
+            swcsoil( swcsoil < 0 ) = nan;
+            swcsoil( swcsoil > 1 ) = nan;
             
             Tsoil_1 = nanmean(cat(2,tsoil(:,[1 4 7]))')'; %2cm
             Tsoil_2 = nanmean(cat(2,tsoil(:,[2 5 8]))')'; %5cm
@@ -1142,17 +916,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             SWC_1 = swcsoil(:,7); %2cm
             SWC_2 = nanmean(cat(2,swcsoil(:,[2 5 8]))')'; %5cm
             SWC_3 = nanmean(cat(2,swcsoil(:,[3 6 9]))')'; %10cm
-            
-            figure;
-            subplot(2,1,1)
-            plot(Tsoil_1); hold on
-            plot(Tsoil_2,'r'); hold on
-            plot(Tsoil_3,'g')
-            subplot(2,1,2)
-            plot(SWC_1); hold on
-            plot(SWC_2,'r'); hold on
-            plot(SWC_3,'g')
-            
             
             % Calculate heat flux
             % Use site specific temperatures, but mean SWC as this is very gappy
@@ -1208,13 +971,7 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             ground = cat(2,groundo,groundm,groundj);
             ground = nanmean(ground');
             ground  =  ground';
-            
-            figure;
-            plot(groundo); hold on
-            plot(groundm,'r'); hold on
-            plot(groundj,'g');hold on
-            plot(ground,'k')
-            
+                        
             SWC_1(10000:(length(SWC_1))) = nan;
             
         elseif year >=  2008
@@ -1286,12 +1043,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
                                 tsoil(:,18))'); Tsoil_2 = Tsoil_2';
             Tsoil_3 = nanmean(cat(2,tsoil(:,5),tsoil(:,10),tsoil(:,15),...
                                 tsoil(:,20))'); Tsoil_3 = Tsoil_3';
-            figure;
-            subplot(2,1,1)
-            plot(tsoil)
-            subplot(2,1,2)
-            plot(Tsoil_1); hold on; plot(Tsoil_2,'r'); hold on; plot(Tsoil_3,'g')
-            
             
             %% Soil water content calculations from microsecond period
             x  =  (data(:,157:176));
@@ -1339,11 +1090,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             %         SWC_2 = nanmean(cat(2,vwc4(:,3),vwc4(:,8),vwc(:,13),vwc4(:,18))'); SWC_2 = SWC_2';
             %         SWC_3 = nanmean(cat(2,vwc4(:,5),vwc4(:,10),vwc(:,15),vwc4(:,20))'); SWC_3 = SWC_3';
             %         
-            %         figure;
-            %         plot(SWC_1); hold on
-            %         plot(SWC_2,'r'); hold on
-            %         plot(SWC_3,'g'); hold on
-            %         
             %         datamatrix22  =  [SWC_1,SWC_2,SWC_3];
             %         datamatrix22(isnan(datamatrix22)) = -9999;
             %         dlmwrite('New_GLand_SWC_10.txt',datamatrix22)      
@@ -1354,11 +1100,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             SWC_1 = nanmean(cat(2,vwc2(:,1),vwc2(:,6),vwc2(:,11),vwc2(:,16))'); SWC_1 = SWC_1';
             SWC_2 = nanmean(cat(2,vwc2(:,3),vwc2(:,8),vwc(:,13),vwc2(:,18))'); SWC_2 = SWC_2';
             SWC_3 = nanmean(cat(2,vwc2(:,5),vwc2(:,10),vwc(:,15),vwc2(:,20))'); SWC_3 = SWC_3';
-            figure;
-            subplot(2,1,1)
-            plot(vwc2)
-            subplot(2,1,2)
-            plot(SWC_1); hold on; plot(SWC_2,'r'); hold on; plot(SWC_3,'g')
             
             % Calculate ground heat flux
             soil_heat_flux_1 = data(:,198); soil_heat_flux_1 = soil_heat_flux_1.*34.6;
@@ -1379,10 +1120,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2,...
                               soil_heat_flux_3,soil_heat_flux_4)'); shf = shf';
             ground = shf+storage;
-            figure; plot(ground); hold on; 
-            plot(shf,'r'); hold on; 
-            plot(storage,'g');
-            xlim([8000 8930])
             
         end
         
@@ -1426,21 +1163,15 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
     if exist( 'SWC_23' ) == 1
         ds_outout.SWC_23 = SWC_23;
     end
-    
-    %% soil heat flux arguments
-    ds_out.bulk = bulk;
-    ds_out.scap = scap;
-    ds_out.wcap = wcap;
-    ds_out.depth = depth;
-    
+        
     save hf_restart.mat
     
     shf = calculate_heat_flux( ds_out.Tsoil_1, ...
                                ds_out.SWC_1, ...
-                               ds_out.bulk, ...
-                               ds_out.scap, ...
-                               ds_out.wcap, ...
-                               ds_out.depth, ...
+                               bulk, ...
+                               scap, ...
+                               wcap, ...
+                               depth, ...
                                ds_qc( :, shf_vars ), ...
                                [ 1.0, 1.0 ] );   % need to get the correct
                                                  % conversion factor
