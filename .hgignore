@@ -9,3 +9,8 @@ syntax: glob
 #*#
 scratch.m
 test_batch.m
+
+syntax: regexp
+
+^#.*#
+hs_err_pid.*log
