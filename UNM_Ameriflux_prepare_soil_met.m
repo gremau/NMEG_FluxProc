@@ -1170,7 +1170,6 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         
     save hf_restart.mat
     
-    keyboard()
     ds_out = [ ds_out, ds_shf ];
     
     %% add timestamp
