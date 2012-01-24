@@ -26,6 +26,8 @@ function hf_out = calculate_heat_flux( TCAV_Avg, ...
 %
 % (c) Timothy W. Hilton, UNM, Dec 2011
 
+nrow = size( TCAV_Avg, 1 );
+
 % now to the actual heat flux calculation
 delta_T = [ NaN; diff( TCAV_Avg ) ];
 
@@ -36,7 +38,7 @@ cv = ( bulk_density .* scap ) + ( wcap .* swc_25mm );
 storage_J = delta_T .* cv .* depth;  %% storage [ J ]
 storage_wm2 = storage_J / ( 60 * 30 );   %% storage [ W / m2 ]
 
-hf_out = shf_wm2 + repmat( storage_wm2, 1, ncol );
+hf_out = shf_wm2 + storage_wm2;
 
 
 
