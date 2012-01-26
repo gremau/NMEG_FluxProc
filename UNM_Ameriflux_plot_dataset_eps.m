@@ -8,10 +8,10 @@ function result = UNM_Ameriflux_plot_dataset_eps(ds, fname, year)
     
     for i = 5:length( ds.Properties.VarNames )
         h = UNM_Ameriflux_plot_field( ds, ds.Properties.VarNames{ i }, year );
-        set( h, 'PaperUnits', 'inches' );
-        set( h, 'PaperSize', [ 4.1, 5.8 ] ); % A6 paper size
-        set( h, 'PaperPosition', [ 0, 0, 4.1, 5.8 ] );
-        set( h, 'PaperOrientation', 'landscape' );
+        %set( h, 'PaperSize', [ 4.1, 5.8 ] ); % A6 paper size
+        set( h, 'PaperType', 'A5' );
+        orient( h, 'landscape' );
+        %set( h, 'PaperPosition', [ 3, 2, 5.8, 4.1 ] );
         print( fname,'-append','-dpsc' ); 
         close( h );
         fprintf( 1, '.' );
@@ -21,6 +21,6 @@ function result = UNM_Ameriflux_plot_dataset_eps(ds, fname, year)
 
     ps2pdf( 'psfile', fname, ...
             'pdffile', strrep( fname, '.ps', '.pdf' ), ... 
-            'gspapersize', 'a6' );
-    %            'deletepsfile', 1 );
+            'gspapersize', 'a5', ...
+            'deletepsfile', 1 );
     

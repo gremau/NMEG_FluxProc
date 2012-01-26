@@ -83,9 +83,9 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
 
     t0 = now();
     fname = fullfile( get_out_directory( sitecode ), ...
-                      sprintf( '%s_%d_gapfilled.pdf', ...
+                      sprintf( '%s_%d_gapfilled.ps', ...
                                get_site_name(sitecode), year ) );
-    UNM_Ameriflux_plot_dataset_png( amflux_gf, fname, year );
+    UNM_Ameriflux_plot_dataset_eps( amflux_gf, fname, year );
     fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
 
     t0 = now();
