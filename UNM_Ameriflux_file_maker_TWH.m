@@ -75,12 +75,27 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
                                            data, ds_qc, ...
                                            ds_gf, ds_pt, ds_soil );
 
-    save test_restart.mat
+    %save( 'test_restart.mat', 'amflux_gf', 'amflux_gaps' );
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % plot the data before writing out to files
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % plot_handles = UNM_Ameriflux_make_plots( aflx1, aflx2 );
+
+    t0 = now();
+    fname = fullfile sprintf( '%s_%d_gapfilled.pdf', ...
+                     get_site_name(sitecode), year );
+    UNM_Ameriflux_plot_dataset_png( amflux_gf, fname, year );
+    fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
+
+    t0 = now();
+    fname = sprintf( '%s_%d_with_gaps.pdf', ...
+                     get_site_name(sitecode), year );
+    UNM_Ameriflux_plot_dataset_png( amflux_gaps, fname, year );
+    fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % write Ameriflux files
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     UNM_Ameriflux_write_file( sitecode, year, amflux_gf, ...
                               'mlitvak@unm.edu', 'gapfilled' );

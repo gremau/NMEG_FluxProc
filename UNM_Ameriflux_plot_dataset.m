@@ -1,4 +1,4 @@
-function result = UNM_Ameriflux_plot_dataset(ds, fname, year, pdf)
+function result = UNM_Ameriflux_plot_dataset(ds, fname, year)
 % UNM_AMERIFLUX_PLOT_DATASET - 
 %   
     
@@ -6,9 +6,9 @@ function result = UNM_Ameriflux_plot_dataset(ds, fname, year, pdf)
         delete( fname );
     end
     
-    for i = 5:10 %length( ds.Properties.VarNames )
+    for i = 5:length( ds.Properties.VarNames )
         h = UNM_Ameriflux_plot_field( ds, ds.Properties.VarNames{ i }, year );
-        export_fig( fname, '-png', '-append', h );
+        export_fig( fname, '-pdf', '-append', h );
         close( h );
         fprintf( 1, '.' );
     end
