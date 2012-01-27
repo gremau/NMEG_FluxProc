@@ -75,7 +75,8 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
                                            data, ds_qc, ...
                                            ds_gf, ds_pt, ds_soil );
     
-    save( 'test_restart.mat', 'amflux_gf', 'amflux_gaps' );
+    save( 'amflux_datasets_only.mat');
+    save( 'test_restart.mat' );
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % plot the data before writing out to files

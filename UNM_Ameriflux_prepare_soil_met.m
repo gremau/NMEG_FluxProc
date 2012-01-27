@@ -192,7 +192,7 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         % ------------------------------
         % calculate GLand soil heat flux, with storage
         init_vals = repmat( NaN, size( ds_qc, 1 ), n_shf_vars );
-        shf_names = arrayfun( @(x) sprintf('SHF_%d', x), 1:3, ...
+        shf_names = arrayfun( @(x) sprintf('SHF_%d', x), 1:n_shf_vars, ...
                               'UniformOutput', false);
         ds_shf = dataset( {init_vals, shf_names{:} } );
         
@@ -239,16 +239,8 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
                                        % shallow measurements; big gap in
                                        % soil moisture firstpart of 2007 fill
                                        % with 0.05
-            bulk = 1327; scap = 837; wcap = 4.19e6; depth = 0.05; % parameter values
-            bulk = bulk.*ones(size(dummy,1),1);
-            scap = scap.*ones(size(dummy,1),1);
-            wcap = wcap.*ones(size(dummy,1),1);
-            depth = depth.*ones(size(dummy,1),1);
-            cv = (bulk.*scap)+(wcap.*theta);
-            storage = cv.*deltaT.*depth; % in Joules
-            storage = storage/(60*30); % in Wm-2
-            shf = nanmean(cat(2,ds_qc.soil_heat_flux_1,ds_qc.soil_heat_flux_2)'); shf = shf';
-            ground = shf+storage;
+            % parameter values
+            bulk = 1327; scap = 837; wcap = 4.19e6; depth = 0.05; 
 
             
         elseif year  ==  2009 || year == 2010 || year  ==  2011 
@@ -317,34 +309,15 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             %%
             %
             % Calculate ground heat flux
-            % soil_heat_flux_1 = data(:,209);
-            % soil_heat_flux_2 = data(:,210);
-            % soil_heat_flux_3 = data(:,211);
-            % soil_heat_flux_4 = data(:,212);
-            % soil_heat_flux_5 = data(:,213);
-            % soil_heat_flux_6 = data(:,214);
-            
-            % deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
-            % deltaT = deltaT(2:length(deltaT));
-            % theta = vwc(:,21); 
-            % theta(isnan(theta)) = SWC_1(isnan(theta)); 
-            % theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other shallow
-            %                            % measurements; big gap in soil moisture
+            soil_heat_flux_1 = data(:,209);
+            soil_heat_flux_2 = data(:,210);
+            soil_heat_flux_3 = data(:,211);
+            soil_heat_flux_4 = data(:,212);
+            soil_heat_flux_5 = data(:,213);
+            soil_heat_flux_6 = data(:,214);
             %                            % firstpart of 2007 fill with 0.05
             % %set parameter values
-            % bulk = 1327; scap = 837; wcap = 4.19e6; depth = 0.05; 
-            % bulk = bulk.*ones(size(dummy,1),1);
-            % scap = scap.*ones(size(dummy,1),1);
-            % wcap = wcap.*ones(size(dummy,1),1);
-            % depth = depth.*ones(size(dummy,1),1);
-            % cv = (bulk.*scap)+(wcap.*theta);
-            % storage = cv.*deltaT.*depth; % in Joules
-            % storage = storage/(60*30); % in Wm-2
-            % shf = nanmean(cat(2,soil_heat_flux_1,soil_heat_flux_2,...
-            %                 soil_heat_flux_3,soil_heat_flux_4,...
-            %                 soil_heat_flux_5,soil_heat_flux_6)'); 
-            % shf = shf';
-            %         ground = shf+storage;
+            bulk = 1327; scap = 837; wcap = 4.19e6; depth = 0.05; 
             
             % SWC_1 = dummy;
             % SWC_2 = dummy;
@@ -359,7 +332,28 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             par_down_Avg  =  par_down_Avg.*1000./(6.94*0.604);
             
         end
+
+        init_vals = repmat( NaN, size( ds_qc, 1 ), n_shf_vars );
+        shf_names = cell( arrayfun( @(n) sprintf('SHF_%d', n), ...
+                                    1:n_shf_vars, ...
+                                    'UniformOutput', false ) );
+        ds_shf = dataset( {init_vals, shf_names{:} } );
         
+        % need to get the correct conversion factor
+        shf_conv_factor = 1.0;
+        ds_shf.SHF_1 = calculate_heat_flux( Tsoil_1,  SWC_1, ...
+                                            bulk, scap, wcap, depth, ...
+                                            soil_heat_flux_1, ...
+                                            shf_conv_factor );
+        ds_shf.SHF_2 = calculate_heat_flux( Tsoil_2,  SWC_2, ...
+                                            bulk, scap, wcap, depth, ...
+                                            soil_heat_flux_2, ...
+                                            shf_conv_factor );
+        ds_shf.SHF_3 = calculate_heat_flux( Tsoil_3,  SWC_3, ...
+                                            bulk, scap, wcap, depth, ...
+                                            soil_heat_flux_3, ...
+                                            shf_conv_factor );
+
     elseif sitecode  ==  3 % Juniper savannah
         if year == 2007
             vwc = data(:,175:190);
