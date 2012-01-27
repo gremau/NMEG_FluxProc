@@ -126,12 +126,12 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
                               'mlitvak@unm.edu', 'SHF' );
     
     % plot the soil heat flux variables
-    ds_shf.DTIME = amflux_shf.DTIME;
+    ds_shf = [ amflux_shf( :, 'DTIME' ), ds_shf ];
     t0 = now();
     fname = fullfile( get_out_directory( sitecode ), ...
                       sprintf( '%s_%d_SHF.ps', ...
                                get_site_name(sitecode), year ) );
-    UNM_Ameriflux_plot_dataset_eps( ds_shf, fname, year, 1 );
+    UNM_Ameriflux_plot_dataset_eps( ds_shf, fname, year, 2 );
     fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
 
     result = 1;
