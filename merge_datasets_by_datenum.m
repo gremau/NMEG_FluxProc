@@ -18,11 +18,14 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
     ts1 = datenum_2_round30min( ds_in1, tvar1, tol, t0 );
     ts2 = datenum_2_round30min( ds_in2, tvar2, tol, t0 );
 
+    % replace both datasets' timestamps with the "round" values
+    ds_in1.( tvar1 ) = ( double( ts1 ) / mins_per_day ) + t0;
+    ds_in2.( tvar2 ) = ( double( ts2 ) / mins_per_day ) + t0;
+
     %% combine timestamps & remove duplicates 
     ts_all = union( ts1, ts2 );
     
-    ts_all = ( ts_all / mins_per_day ) + t0;
-    ts_all = double( ts_all );
+    ts_all = ( double( ts_all ) / mins_per_day ) + t0;
     
     %% fill both datasets so that they contain complete 30-minute timeseries
     %% for the entire range of ts_all
