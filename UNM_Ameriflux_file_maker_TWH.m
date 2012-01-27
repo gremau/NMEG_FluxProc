@@ -82,22 +82,23 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     % plot the data before writing out to files
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    start_col = 5; %skip plotting for first 4 columns (time variables)
     t0 = now();
     fname = fullfile( get_out_directory( sitecode ), ...
                       sprintf( '%s_%d_gapfilled.ps', ...
                                get_site_name(sitecode), year ) );
-    UNM_Ameriflux_plot_dataset_eps( amflux_gf, fname, year );
+    UNM_Ameriflux_plot_dataset_eps( amflux_gf, fname, year, start_col );
     fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
 
     t0 = now();
     fname = fullfile( get_out_directory( sitecode ), ...
                       sprintf( '%s_%d_with_gaps.ps', ...
                                get_site_name(sitecode), year ) );
-    UNM_Ameriflux_plot_dataset_eps( amflux_gaps, fname, year );
+    UNM_Ameriflux_plot_dataset_eps( amflux_gaps, fname, year, start_col );
     fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % write Ameriflux files
+    % write gapfilled and with_gaps Ameriflux files
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     UNM_Ameriflux_write_file( sitecode, year, amflux_gf, ...
@@ -106,4 +107,31 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     UNM_Ameriflux_write_file( sitecode, year, amflux_gaps, ...
                               'mlitvak@unm.edu', 'with_gaps' );
     
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % write another Ameriflux files with soil heat flux for internal use
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    shf_vars = regexp_ds_vars( ds_qc, 'soil_heat_flux.*' );
+    shf_idx = find( ismember( ds_qc.Properties.VarNames, shf_vars ) );
+    ds_shf = ds_qc( :, shf_idx );
+    units = cell( 1, numel( shf_idx ) );
+    for i = 1:numel( shf_idx )
+        units{i} = 'W / m2';
+    end
+    ds_shf.Properties.Units = units;
+
+    amflux_shf = [ amflux_gaps, ds_shf ];
+    UNM_Ameriflux_write_file( sitecode, year, amflux_shf, ...
+                              'mlitvak@unm.edu', 'SHF' );
+    
+    % plot the soil heat flux variables
+    ds_shf.DTIME = amflux_shf.DTIME;
+    t0 = now();
+    fname = fullfile( get_out_directory( sitecode ), ...
+                      sprintf( '%s_%d_SHF.ps', ...
+                               get_site_name(sitecode), year ) );
+    UNM_Ameriflux_plot_dataset_eps( ds_shf, fname, year, 1 );
+    fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
+
     result = 1;

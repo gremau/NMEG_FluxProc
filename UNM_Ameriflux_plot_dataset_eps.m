@@ -1,4 +1,4 @@
-function result = UNM_Ameriflux_plot_dataset_eps(ds, fname, year)
+function result = UNM_Ameriflux_plot_dataset_eps(ds, fname, year, start_col)
 % UNM_AMERIFLUX_PLOT_DATASET - 
 %   
     
@@ -6,7 +6,7 @@ function result = UNM_Ameriflux_plot_dataset_eps(ds, fname, year)
         delete( fname );
     end
     
-    for i = 5:length( ds.Properties.VarNames )
+    for i = start_col:length( ds.Properties.VarNames )
         h = UNM_Ameriflux_plot_field( ds, ds.Properties.VarNames{ i }, year );
         %set( h, 'PaperSize', [ 4.1, 5.8 ] ); % A6 paper size
         set( h, 'PaperType', 'A5' );
