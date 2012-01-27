@@ -70,11 +70,11 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % create the variables to be written to the output files
-    [ amflux_gf, amflux_gaps ] = ...
+    [ amflux_gaps, amflux_gf ] = ...
         UNM_Ameriflux_prepare_output_data( sitecode, year, ...
                                            data, ds_qc, ...
                                            ds_gf, ds_pt, ds_soil );
-
+    
     save( 'test_restart.mat', 'amflux_gf', 'amflux_gaps' );
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

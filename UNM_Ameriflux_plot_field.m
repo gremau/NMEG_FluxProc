@@ -16,9 +16,10 @@ function h = UNM_Ameriflux_plot_field( ds, field, year )
     h = figure( 'Visible', 'off' );
     var_idx = find( strcmp( ds.Properties.VarNames, field ) );
     
-    % draw the Greek character mu where 'me' appears in the units
+    % draw the Greek character mu where 'mu' appears in the units
     this_units = ds.Properties.Units{ var_idx };
     this_units = strrep( this_units, 'mu', '\mu' );
+    this_units = strrep( this_units, 'm2', 'm^2' );
     field_label = regexprep( field , '([0-9])p([0-9])', '$1\.$2');
     field_label = strrep( field_label, '_', '\_' );
     

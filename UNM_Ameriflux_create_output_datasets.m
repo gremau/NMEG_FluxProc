@@ -1,4 +1,5 @@
-function [aflx1, aflx2] = UNM_Ameriflux_create_output_datasets( sitecode, nrow)
+function [amflux_gaps, amflux_gf] = ...
+        UNM_Ameriflux_create_output_datasets( sitecode, nrow)
 % UNM_AMERIFLUX_CREATE_OUTPUT_DATASETS - 
 %   
     
@@ -62,11 +63,11 @@ function [aflx1, aflx2] = UNM_Ameriflux_create_output_datasets( sitecode, nrow)
     
     % Ameriflux output dataset
     dummy_data = repmat( NaN, nrow, numel( header1 ) );
-    aflx1 = dataset( { dummy_data, header1{ : } } );
-    aflx1.Properties.Units = units1;
+    amflux_gaps = dataset( { dummy_data, header1{ : } } );
+    amflux_gaps.Properties.Units = units1;
 
     dummy_data = repmat( NaN, nrow, numel( header2 ) );
-    aflx2 = dataset( { dummy_data, header2{ : } } );
-    aflx2.Properties.Units = units2;
+    amflux_gf = dataset( { dummy_data, header2{ : } } );
+    amflux_gf.Properties.Units = units2;
     
 

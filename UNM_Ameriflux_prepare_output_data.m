@@ -1,10 +1,11 @@
-function [ aflx1, aflx2 ] = UNM_Ameriflux_prepare_output_data( sitecode, ...
-                                                      year, ...
-                                                      data, ...
-                                                      ds_qc, ...
-                                                      ds_gf, ...
-                                                      ds_pt, ...
-                                                      ds_soil )
+function [ amflux_gaps, amflux_gf ] = ...
+        UNM_Ameriflux_prepare_output_data( sitecode, ...
+                                           year, ...
+                                           data, ...
+                                           ds_qc, ...
+                                           ds_gf, ...
+                                           ds_pt, ...
+                                           ds_soil )
     % UNM_AMERIFLUX_PREPARE_FLUXES - prepare observed fluxes for writing to
     %   Ameriflux files.  Mostly creates QC flags and gives various observations the
     %   names they should have for Ameriflux.
@@ -166,93 +167,93 @@ function [ aflx1, aflx2 ] = UNM_Ameriflux_prepare_output_data( sitecode, ...
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % initialize variable names, units, etc.
-    [aflx1, aflx2] = UNM_Ameriflux_create_output_datasets( sitecode, ...
-                                                      size( ds_qc, 1 ) );
+    [amflux_gaps, amflux_gf] = ...
+        UNM_Ameriflux_create_output_datasets( sitecode, size( ds_qc, 1 ) );
     
     % assign values to aflx1
-    aflx1.YEAR = str2num( datestr( ds_qc.timestamp, 'YYYY' ) );
-    aflx1.DTIME = ds_qc.timestamp - datenum( aflx1.YEAR, 1, 1 ) + 1;
-    aflx1.DOY = floor( aflx1.DTIME );
-    aflx1.HRMIN = str2num( datestr( ds_qc.timestamp, 'HHMM' ) ); 
-    aflx1.UST = ds_qc.u_star;
-    aflx1.TA = ds_qc.air_temp_hmp;
-    aflx1.WD = ds_qc.wnd_dir_compass;
-    aflx1.WS = ds_qc.wnd_spd;
-    aflx1.NEE = dummy;
-    aflx1.FC = NEE_obs;
-    aflx1.SFC = dummy;
-    aflx1.H = H_obs;
-    aflx1.SSA = dummy;
-    aflx1.LE = LE_obs;
-    aflx1.SLE = dummy;
-    aflx1.G1 = SHF_mean;
-    aflx1.TS_2p5cm = ds_soil.Tsoil_1;
-    aflx1.PRECIP = ds_qc.precip;
-    aflx1.RH = ds_qc.rH .* 100;
-    aflx1.PA = ds_qc.atm_press;
-    aflx1.CO2 = ds_qc.CO2_mean;
-    aflx1.VPD = VPD_g;
-    aflx1.SWC_2p5cm = ds_soil.SWC_1;
-    aflx1.RNET = ds_qc.NR_tot;
-    aflx1.PAR = ds_qc.Par_Avg;
-    aflx1.PAR_DIFF = dummy;
-    aflx1.PAR_out = dummy;
-    aflx1.Rg = ds_qc.sw_incoming;
-    aflx1.Rg_DIFF = dummy;
-    aflx1.Rg_out = ds_qc.sw_outgoing;
-    aflx1.Rlong_in = ds_qc.lw_incoming;
-    aflx1.Rlong_out = ds_qc.lw_outgoing;
-    aflx1.FH2O = ds_qc.E_wpl_massman .* 18;
-    aflx1.H20 = ds_qc.H2O_mean;
-    aflx1.RE = RE_obs;
-    aflx1.GPP = GPP_obs;
-    aflx1.APAR = dummy;
+    amflux_gaps.YEAR = str2num( datestr( ds_qc.timestamp, 'YYYY' ) );
+    amflux_gaps.DTIME = ds_qc.timestamp - datenum( amflux_gaps.YEAR, 1, 1 ) + 1;
+    amflux_gaps.DOY = floor( amflux_gaps.DTIME );
+    amflux_gaps.HRMIN = str2num( datestr( ds_qc.timestamp, 'HHMM' ) ); 
+    amflux_gaps.UST = ds_qc.u_star;
+    amflux_gaps.TA = ds_qc.air_temp_hmp;
+    amflux_gaps.WD = ds_qc.wnd_dir_compass;
+    amflux_gaps.WS = ds_qc.wnd_spd;
+    amflux_gaps.NEE = dummy;
+    amflux_gaps.FC = NEE_obs;
+    amflux_gaps.SFC = dummy;
+    amflux_gaps.H = H_obs;
+    amflux_gaps.SSA = dummy;
+    amflux_gaps.LE = LE_obs;
+    amflux_gaps.SLE = dummy;
+    amflux_gaps.G1 = SHF_mean;
+    amflux_gaps.TS_2p5cm = ds_soil.Tsoil_1;
+    amflux_gaps.PRECIP = ds_qc.precip;
+    amflux_gaps.RH = ds_qc.rH .* 100;
+    amflux_gaps.PA = ds_qc.atm_press;
+    amflux_gaps.CO2 = ds_qc.CO2_mean;
+    amflux_gaps.VPD = VPD_g;
+    amflux_gaps.SWC_2p5cm = ds_soil.SWC_1;
+    amflux_gaps.RNET = ds_qc.NR_tot;
+    amflux_gaps.PAR = ds_qc.Par_Avg;
+    amflux_gaps.PAR_DIFF = dummy;
+    amflux_gaps.PAR_out = dummy;
+    amflux_gaps.Rg = ds_qc.sw_incoming;
+    amflux_gaps.Rg_DIFF = dummy;
+    amflux_gaps.Rg_out = ds_qc.sw_outgoing;
+    amflux_gaps.Rlong_in = ds_qc.lw_incoming;
+    amflux_gaps.Rlong_out = ds_qc.lw_outgoing;
+    amflux_gaps.FH2O = ds_qc.E_wpl_massman .* 18;
+    amflux_gaps.H20 = ds_qc.H2O_mean;
+    amflux_gaps.RE = RE_obs;
+    amflux_gaps.GPP = GPP_obs;
+    amflux_gaps.APAR = dummy;
     
-    % assign values to aflx1
-    aflx2.YEAR = aflx1.YEAR;
-    aflx2.DOY = aflx1.DOY;
-    aflx2.HRMIN = aflx1.HRMIN;
-    aflx2.DTIME = aflx1.DTIME;
-    aflx2.UST = ds_qc.u_star;
-    aflx2.TA = Tair_f;
-    aflx2.TA_flag = TA_flag;
-    aflx2.WD = ds_qc.wnd_dir_compass;
-    aflx2.WS = ds_qc.wnd_spd;
-    aflx2.NEE = dummy;
-    aflx2.FC = NEE_2;
-    aflx2.FC_flag = NEE_flag;
-    aflx2.SFC = dummy;
-    aflx2.H = H_2;
-    aflx2.H_flag = H_flag;
-    aflx2.SSA = dummy;
-    aflx2.LE = LE_2;
-    aflx2.LE_flag = LE_flag;
-    aflx2.SLE = dummy;
-    aflx2.G1 = SHF_mean;
-    aflx2.TS_2p5cm = ds_soil.Tsoil_1;
-    aflx2.PRECIP = ds_qc.precip;
-    aflx2.RH = ds_qc.rH .* 100;
-    aflx2.PA = ds_qc.atm_press;
-    aflx2.CO2 = ds_qc.CO2_mean;
-    aflx2.VPD = VPD_f;
-    aflx2.VPD_flag = VPD_flag;
-    aflx2.SWC_2p5cm = ds_soil.SWC_1;
-    aflx2.RNET = ds_qc.NR_tot;
-    aflx2.PAR = ds_qc.Par_Avg;
-    aflx2.PAR_DIFF = dummy;
-    aflx2.PAR_out = dummy;
-    aflx2.Rg = Rg_f;
-    aflx2.Rg_flag = Rg_flag;
-    aflx2.Rg_DIFF = dummy;
-    aflx2.Rg_out = ds_qc.sw_outgoing;
-    aflx2.Rlong_in = ds_qc.lw_incoming;
-    aflx2.Rlong_out = ds_qc.lw_outgoing;
-    aflx2.FH2O = ds_qc.E_wpl_massman .* 18;
-    aflx2.H20 = ds_qc.H2O_mean;
-    aflx2.RE = RE_2;
-    aflx2.RE_flag = NEE_flag;
-    aflx2.GPP = GPP_2;
-    aflx2.GPP_flag = NEE_flag;
-    aflx2.APAR = dummy;
-    aflx2.SWC_2 = ds_soil.SWC_2;
-    aflx2.SWC_3 = ds_soil.SWC_3;
+    % assign values to amflux_gaps
+    amflux_gf.YEAR = amflux_gaps.YEAR;
+    amflux_gf.DOY = amflux_gaps.DOY;
+    amflux_gf.HRMIN = amflux_gaps.HRMIN;
+    amflux_gf.DTIME = amflux_gaps.DTIME;
+    amflux_gf.UST = ds_qc.u_star;
+    amflux_gf.TA = Tair_f;
+    amflux_gf.TA_flag = TA_flag;
+    amflux_gf.WD = ds_qc.wnd_dir_compass;
+    amflux_gf.WS = ds_qc.wnd_spd;
+    amflux_gf.NEE = dummy;
+    amflux_gf.FC = NEE_2;
+    amflux_gf.FC_flag = NEE_flag;
+    amflux_gf.SFC = dummy;
+    amflux_gf.H = H_2;
+    amflux_gf.H_flag = H_flag;
+    amflux_gf.SSA = dummy;
+    amflux_gf.LE = LE_2;
+    amflux_gf.LE_flag = LE_flag;
+    amflux_gf.SLE = dummy;
+    amflux_gf.G1 = SHF_mean;
+    amflux_gf.TS_2p5cm = ds_soil.Tsoil_1;
+    amflux_gf.PRECIP = ds_qc.precip;
+    amflux_gf.RH = ds_qc.rH .* 100;
+    amflux_gf.PA = ds_qc.atm_press;
+    amflux_gf.CO2 = ds_qc.CO2_mean;
+    amflux_gf.VPD = VPD_f;
+    amflux_gf.VPD_flag = VPD_flag;
+    amflux_gf.SWC_2p5cm = ds_soil.SWC_1;
+    amflux_gf.RNET = ds_qc.NR_tot;
+    amflux_gf.PAR = ds_qc.Par_Avg;
+    amflux_gf.PAR_DIFF = dummy;
+    amflux_gf.PAR_out = dummy;
+    amflux_gf.Rg = Rg_f;
+    amflux_gf.Rg_flag = Rg_flag;
+    amflux_gf.Rg_DIFF = dummy;
+    amflux_gf.Rg_out = ds_qc.sw_outgoing;
+    amflux_gf.Rlong_in = ds_qc.lw_incoming;
+    amflux_gf.Rlong_out = ds_qc.lw_outgoing;
+    amflux_gf.FH2O = ds_qc.E_wpl_massman .* 18;
+    amflux_gf.H20 = ds_qc.H2O_mean;
+    amflux_gf.RE = RE_2;
+    amflux_gf.RE_flag = NEE_flag;
+    amflux_gf.GPP = GPP_2;
+    amflux_gf.GPP_flag = NEE_flag;
+    amflux_gf.APAR = dummy;
+    amflux_gf.SWC_2 = ds_soil.SWC_2;
+    amflux_gf.SWC_3 = ds_soil.SWC_3;
