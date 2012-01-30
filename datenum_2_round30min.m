@@ -1,7 +1,5 @@
 function [ ts, t0 ] = datenum_2_round30min(ds_in, time_var, tol, t0)
-% MERGE_DATASETS_BY_DATENUM - fills in two 30-minute timeseries datasets so
-% that both have identical timestamps.  Where a timestamp is present in A but
-% not B, adds the timestamp to B and fills data with NaNs.  Timestamps within
+% datenum_2_round30minn(ds_in, time_var, tol, t0)  -  Timestamps within
 % tol minutes of a "round" half hour (e.g. 00 or 30 minutes past the hour)
 % are rounded to the nearest half hour.  Rows with timestamps not within tol
 % minutes of a "round" half hour are discarded.

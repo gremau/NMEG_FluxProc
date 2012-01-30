@@ -29,15 +29,25 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     %% parse gapfilled and partitioned fluxes
     [ ds_gf, ds_pt ] = UNM_parse_gapfilled_partitioned_output( sitecode, year );
     
+    save( 'test_restart.mat' );
     % make sure that QC, FluxAll, gapfilled, and partitioned have identical,
     % complete 30 minute timeseries
+    t_min = min( [ ds_qc.timestamp; data.timestamp; ...
+                 ds_pt.timestamp; ds_gf.timestamp ] );
+    t_max = max( [ ds_qc.timestamp; data.timestamp; ...
+                 ds_pt.timestamp; ds_gf.timestamp ] );
+
     [ ds_qc, data ] = merge_datasets_by_datenum( ds_qc, data, ...
-                                                 'timestamp', 'timestamp', 3 );
+                                                 'timestamp', 'timestamp', ...
+                                                 3, t_min, t_max );
     [ ds_gf, data ] = merge_datasets_by_datenum( ds_gf, data, ...
-                                                 'timestamp', 'timestamp', 3 );
+                                                 'timestamp', 'timestamp', ...
+                                                 3, t_min, t_max );
     [ ds_pt, data ] = merge_datasets_by_datenum( ds_pt, data, ...
-                                                 'timestamp', 'timestamp', 3 );
-    
+                                                 'timestamp', 'timestamp', ...
+                                                 3, t_min, t_max );
+    save( 'test_restart.mat' );
+
     %% parsing the excel files is slow -- this loads parsed data for testing
     %%load( '/media/OS/Users/Tim/DataSandbox/GLand_2010_fluxall.mat' );
 
@@ -76,7 +86,6 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
                                            ds_gf, ds_pt, ds_soil );
     
     save( 'amflux_datasets_only.mat');
-    save( 'test_restart.mat' );
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % plot the data before writing out to files
