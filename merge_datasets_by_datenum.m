@@ -12,6 +12,13 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
     mins_per_day = 24 * 60;
     days_per_30mins = 1 / 48;  %% 30 mins expressed in days
     
+    %remove duplicate timestamps
+    dup_tol = 0.00000001;  %floating point tolerance
+    dup_idx = find( diff( ds_in1.( tvar1 ) ) < dup_tol ) + 1;
+    ds_in1( dup_idx, : ) = [];
+    dup_idx = find( diff( ds_in2.( tvar2 ) ) < dup_tol ) + 1;
+    ds_in2( dup_idx, : ) = [];
+
     % use 00:00 on the first date in either timeseries as the reference date
     t0 = floor( min( [ double( ds_in1( :, tvar1 ) ); ...
                        double( ds_in2( :, tvar2 ) ); ...
@@ -24,7 +31,6 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
     % round t_end to nearest 30 min value
     t_end_round = datenum_2_round30min( dataset( { t_end, tvar1 } ), ...
                                         tvar1, tol, t0 );
-    %t_end_round = ( double( t_end_round ) / mins_per_day ) + t0;
 
     % replace both datasets' timestamps with the "round" values
     ds_in1.( tvar1 ) = ( double( ts1 ) / mins_per_day ) + t0;
