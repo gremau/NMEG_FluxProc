@@ -37,7 +37,7 @@ iteration = 6;
 write_complete_out_file = 1; %1 to write "[sitename].._qc", -- file with all variables & bad data removed
 data_for_analyses = 0; %1 to output file with data sorted for specific analyses
 ET_gap_filler = 0; %run ET gap-filler program
-write_gap_filling_out_file = 1; %1 to write file for Reichstein's online gap-filling. SET U* LIM (including site- specific ones--comment out) TO 0!!!!!!!!!!
+write_gap_filling_out_file = 0; %1 to write file for Reichstein's online gap-filling. SET U* LIM (including site- specific ones--comment out) TO 0!!!!!!!!!!
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Specify some details about sites and years
@@ -1988,7 +1988,7 @@ if write_complete_out_file == 1;
                        lw_outgoing,NR_sw,NR_lw,NR_tot];
     end
 
-    outfilename = strcat(outfolder,filename,'_qc')
+    outfilename = strcat(outfolder,filename,'_qc_test')
     xlswrite(outfilename,header2,'data','A1');
     xlswrite(outfilename,datamatrix2,'data','B2');
     xlswrite(outfilename,timestamp,'data','A2');

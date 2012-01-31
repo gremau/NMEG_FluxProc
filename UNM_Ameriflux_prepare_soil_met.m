@@ -375,10 +375,10 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             
             % grab ground heat flux data -- 2 set ups at JSav
             ds_qc.Tsoil_hfp = data(:,219);            
-            new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
-            shf_vars.( new_shf_var ) = data(:,221).*32.27;
-            new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 2 );
-            shf_vars.( new_shf_var ) = data(:,222).*33.00;
+            % new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
+            % shf_vars.( new_shf_var ) = data(:,221).*32.27;
+            % new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 2 );
+            % shf_vars.( new_shf_var ) = data(:,222).*33.00;
             
             
 
@@ -403,10 +403,10 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             
             % Calculate ground heat flux 2 set ups at JSav
             ds_qc.Tsoil_hfp = data(:,211);
-            new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
-            shf_vars.( new_shf_var ) = data(:,213).*32.27;
-            new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
-            shf_vars.( new_shf_var ) = data(:,214).*33.00;
+            % new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
+            % shf_vars.( new_shf_var ) = data(:,213).*32.27;
+            % new_shf_var =  sprintf( 'soil_heat_flux_%d', n_shf_vars + 1 );
+            % shf_vars.( new_shf_var ) = data(:,214).*33.00;
             
         elseif year == 2009 || year == 2010 || year  ==  2011
             vwc = data(:,178:195);
@@ -471,6 +471,29 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
 
         end
         
+        % SHF parameter values
+        bulk=1720; 
+        scap=837; 
+        wcap=4.19e6; 
+        depth=0.05; 
+        shf_conv_factor = 1.0;
+
+        init_vals = repmat( NaN, size( ds_qc, 1 ), n_shf_vars );
+        shf_names = arrayfun( @(x) sprintf('SHF_%d', x), 1:n_shf_vars, ...
+                              'UniformOutput', false);
+        ds_shf = dataset( {init_vals, shf_names{:} } );
+
+
+        ds_shf.SHF_1 = calculate_heat_flux( Tsoil_1,  SWC_1, ...
+                                            bulk, scap, wcap, depth, ...
+                                            ds_qc.soil_heat_flux_1, ...
+                                            shf_conv_factor );
+        ds_shf.SHF_2 = calculate_heat_flux( Tsoil_2,  SWC_2, ...
+                                            bulk, scap, wcap, depth, ...
+                                            ds_qc.soil_heat_flux_2, ...
+                                            shf_conv_factor );
+
+
     elseif sitecode  ==  4 % Pinon-juniper
         
         if year  ==  2008

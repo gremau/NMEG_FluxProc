@@ -13,14 +13,18 @@ pcp_fixed = pcp_in;  %initialize pcp_fixed to original values
 % 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) = 0.394.
 if site_code == 1     % Gland
     idx = intersect( year, 2009:2011 );
-    pcp_fixed = pcp_in * 0.394;
+    if not( isempty( idx ) )
+        pcp_fixed( idx ) = pcp_in * 0.394;
+    end
 
 %%-------------------------
 %% fix SLand
 elseif site_code == 2      %SLand
     idx = find( year == 2011 );
-    pcp_fixed( idx ) = -9999;
-    % now fill in precip record from Sevilleta meteo station 49 
+    if not( isempty( idx ) )
+        pcp_fixed( idx ) = -9999;
+        % now fill in precip record from Sevilleta meteo station 49 
+    end
     
 
 %%-------------------------
@@ -29,7 +33,9 @@ elseif site_code == 2      %SLand
 % 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) = 0.394.
 elseif site_code == 3   %JSav
     idx = find( intersect( year, [ 2010, 2011 ] ) );
-    pcp_fixed( idx ) = pcp_in * 0.394;
+    if not( isempty( idx ) )
+        pcp_fixed( idx ) = pcp_in * 0.394;
+    end
 
 %%-------------------------
 %% fix PJ
@@ -39,7 +45,9 @@ elseif site_code == 3   %JSav
 elseif site_code == 4     % PJ
     May12 = datenum( 2010, 5, 12 ) - datenum( 2010, 1, 1 ) + 1;
     idx = find( ( year == 2010 ) & ( doy <= May12 ) );
-    pcp_fixed( idx ) = pcp_fixed( idx ) * 0.394;
+    if not( isempty( idx ) )
+        pcp_fixed( idx ) = pcp_fixed( idx ) * 0.394;
+    end
 end
 
 
