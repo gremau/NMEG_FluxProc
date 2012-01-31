@@ -5,23 +5,28 @@ function pcp_fixed = fix_incorrect_precip_factors(site_code, year, doy, pcp_in)
 %  
 % Timothy W. Hilton, UNM, Nov 2011
 
-pcp_fixed = pcp_in;  %initialize pcp_fixed to original values
+%initialize pcp_fixed to original values
+pcp_fixed = pcp_in;  
+% if year is one element, expand to size of pcp_in
+if numel( year ) == 1
+    year = repmat( year, size( pcp_in ) );
+end
 
 %%-------------------------
 %% fix GLand
 % datalogger used multiplier of 0.254 for 2009 to 2011.  Correct multiplier is
 % 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) = 0.394.
 if site_code == 1     % Gland
-    idx = intersect( year, 2009:2011 );
-    if not( isempty( idx ) )
+    idx = ismember( year, [ 2009:2011 ] );
+    if any( idx ) 
         pcp_fixed( idx ) = pcp_in * 0.394;
     end
 
 %%-------------------------
 %% fix SLand
 elseif site_code == 2      %SLand
-    idx = find( year == 2011 );
-    if not( isempty( idx ) )
+    idx = ( year == 2011 );
+    if any( idx )
         pcp_fixed( idx ) = -9999;
         % now fill in precip record from Sevilleta meteo station 49 
     end
@@ -32,8 +37,8 @@ elseif site_code == 2      %SLand
 % datalogger used multiplier of 0.254 for 2010 and 2011.  Correct multiplier is
 % 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) = 0.394.
 elseif site_code == 3   %JSav
-    idx = find( intersect( year, [ 2010, 2011 ] ) );
-    if not( isempty( idx ) )
+    idx = ismember( year, [ 2010, 2011 ] );
+    if any( idx ) 
         pcp_fixed( idx ) = pcp_in * 0.394;
     end
 

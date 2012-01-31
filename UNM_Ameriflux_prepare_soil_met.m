@@ -680,27 +680,74 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             
             ground = (storage1+storage2+storage3+storage4);
             
-        elseif year == 2009 || year  ==  2010 || year  ==  2011
+        elseif ismember( year, [ 2009, 2010, 2011 ] )
             tsoil_2cm = ds_qc.Tsoil_hfp;
-            tsoil_6cm = soil_heat_flux_1; %Different order than elsewhere
-            vwc = soil_heat_flux_2; % Different order than elsewhere
+            % % these next two lines look suspect...  -TWH, 31 Jan 2012
+            % does this mean that SHF1 and SHF2 in QC actually contain tsoil
+            % and water content?
+            tsoil_6cm = ds_qc.soil_heat_flux_1; %Different order than elsewhere
+            vwc = ds_qc.soil_heat_flux_2; % Different order than elsewhere
             
-            Tsoil_1 = tsoil_2cm;
+            Tsoil_1 = ds_qc.Tsoil_hfp;
+            Tsoil_2 = dummy; % TWH added 31 Jan 2012
+            Tsoil_3 = dummy; % TWH added 31 Jan 2012
             SWC_1 = vwc;
             SWC_2 =  dummy;  %ML added 2/26 to get Ameriflux file made
             SWC_3 =  dummy;   %ML added 2/26 to get Ameriflux file made
-            ground  =  dummy;
         end
         
-        if year  ==  2007 || year  ==  2008 || year  ==  2009 || year  ==  2010
+        if ismember( year, [ 2007:2011 ] )
             ground = dummy;
         end
+
+        % calculate soil heat flux
+        % parameter values
+        bulk = 1405; scap = 837; wcap = 4.19e6; depth = 0.30; 
+        shf_conv_factor = 1.0;
+
+        init_vals = repmat( NaN, size( ds_qc, 1 ), n_shf_vars );
+        shf_names = arrayfun( @(x) sprintf('SHF_%d', x), 1:n_shf_vars, ...
+                              'UniformOutput', false);
+        ds_shf = dataset( {init_vals, shf_names{:} } );
+
+        % ------------
+        % leave SHF as NaNs until the columns are sorted out
+        % ------------
+        % % loop through soil heat flux meaurement pits, calculating SHF with
+        % % storage for each one
+        % for i = 1:n_shf_vars
+        %     % parameter values - pits 1 & 2
+        %     bulk = 1070; 
+        %     scap = 837; 
+        %     wcap = 4.19e6;
+        %     switch i
+        %       case 1
+        %         depth = 0.03; 
+        %       case 2
+        %         depth = 0.07;
+        %     end
+                  
+        %     this_ds_shf = sprintf( 'SHF_%d', i );
+        %     this_T_soil = evalin( 'caller', sprintf( 'Tsoil%d', i ) );
+        %     this_soil_heat_flux = ds_qc.( sprintf( 'soil_heat_flux_%d', i ) );
+        %     this_SWC = evalin( 'caller', sprintf( 'SWC_%d', i ) );
+            
+        %     ds_shf.this_ds_shf = calculate_heat_flux( this_Tsoil, ...
+        %                                               this_SWC, ...
+        %                                               bulk, ...
+        %                                               scap, ...
+        %                                               wcap, ...
+        %                                               depth, ...
+        %                                               this_soil_heat_flux, ...
+        %                                               shf_conv_factor );
+        % end
+
         
     elseif sitecode  ==  6
         %        if year == 2007
         tsoil_2cm = ds_qc.Tsoil_hfp;
-        tsoil_6cm = soil_heat_flux_1; %Different order than elsewhere
-        vwc = soil_heat_flux_2; % Different order than elsewhere
+        tsoil_6cm = ds_qc.soil_heat_flux_1; %Different order than elsewhere
+        vwc = ds_qc.soil_heat_flux_2; % Different order than elsewhere
         
         data(data == -9999) = nan;
         
@@ -760,9 +807,19 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         
         ground = (storage1+storage2+storage3+storage4);
         
-        if year  ==  2007 || year  ==  2008 || year  ==  2009 || year  ==  2010 || year  ==  2011
+        if ismember( year, 2007:2011 )
             ground = dummy;
         end
+        
+        % calculate soil heat flux
+        init_vals = repmat( NaN, size( ds_qc, 1 ), n_shf_vars );
+        shf_names = arrayfun( @(x) sprintf('SHF_%d', x), 1:n_shf_vars, ...
+                              'UniformOutput', false);
+        ds_shf = dataset( {init_vals, shf_names{:} } );
+
+        % ------------
+        % leave SHF as NaNs until the columns are sorted out
+        % ------------
         
     elseif sitecode  ==  7
         
@@ -996,7 +1053,7 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             
         end
 
-    elseif intersect( sitecode, [ 8, 9 ] ) 
+    elseif ismember( sitecode, [ 8, 9 ] ) 
         Tsoil_1 = dummy;
         Tsoil_2 = dummy;
         Tsoil_3 = dummy;
@@ -1143,6 +1200,12 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             ground = shf+storage;
             
         end
+
+        % fill in NaN for soil heat flux
+        init_vals = repmat( NaN, size( ds_qc, 1 ), n_shf_vars );
+        shf_names = arrayfun( @(x) sprintf('SHF_%d', x), 1:n_shf_vars, ...
+                              'UniformOutput', false);
+        ds_shf = dataset( {init_vals, shf_names{:} } );
         
     end
 
