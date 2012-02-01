@@ -59,7 +59,7 @@ for i=1:size(Field,2)
 end
 
 %%% Start reading the channels
-disp('reading data....')
+fprintf( 1, 'reading data (%s)....\n', filename );
 % first position pointer at the end of the header
      fseek(fid,EOH,'bof');   %fseek repositions file position indicator (doc fseek). 'bof' = beginning of file
      ftell(fid);  %position = ftell(fid) returns the location of the file position indicator for the file specified by fid
@@ -507,98 +507,201 @@ end
 %     shg;
 % end
 
+names = { 'year', 'month', 'day', ...
+          'hour', 'min', 'second' };
+y_units = repmat( { '-' }, 1, 6 );
+y = dataset( { datev_30, names{:} } );
+
+y.date = numdate;
+y.jday = julday;
+y.iok = ioko;
+y_units = [ y_units, { '-', '-', '-' } ];
+
+names = { 'u_mean', 'v_mean', 'w_mean', 'temp_mean' };
+y_units = [ y_units, { 'm/s', 'm/s', 'm/s', 'C' } ];
+y = [ y, dataset( { uvwtmean, names{:}  } ) ];
+
+y.tdry = tdryout;
+y.wind_direction = theta;
+y.speed = speed;
+y.rH = rH;
+y_units = [ y_units, { 'K', 'degrees', 'm/s', '%' } ];
+
+names = { 'along_wind_velocity_variance', ...
+          'cross_wind_velocity_variance', ...
+          'vertical_wind_velocity_variance',...
+          'sonic_temperature_variance' } ;
+y_units = [ y_units, repmat( { '-' }, size( names ) ) ];
+y = [ y, dataset( { uvwtvar, names{ : } } ) ];
+
+names = { 'uw_covariance', ...
+          'vw_covariance', ...
+          'uv_covariance', ...
+          'ut_covariance', ...
+          'vt_covariance', ...
+          'wt_covariance' };
+y_units = [ y_units, repmat( { '-' }, 1, 6 ) ];
+y = [y, dataset( { covuvwt, names{ : } } ) ];
+
+y.ustar = ustar;
+y_units = [ y_units, { 'm/s' } ];
+
+names = { 'CO2_min', 'CO2_max','CO2_median', ...
+          'CO2_mean','CO2_std' };
+y_units = [ y_units, repmat( { 'umol/mol dry air' }, 1, 5 ) ];
+y = [ y, dataset( { co2out, names{ : } } ) ];
+
+names = { 'H2O_min','H2O_max','H2O_median', ...
+          'H2O_mean','H2O_std' };
+y_units = [ y_units, repmat( { 'umol/mol dry air' }, 1, 5 ) ];
+y = [ y, dataset( { h2oout, names{ : } } ) ];
+
+names = { 'Fc_raw','Fc_raw_massman','Fc_water_term', ...
+          'Fc_heat_term_massman','Fc_raw_massman_ourwpl' };
+y_units = [ y_units, repmat( { 'umol/m2/s' }, 1, 5 ) ];
+y = [ y, dataset( { fco2out, names{ : } } ) ];
+
+names = { 'E_raw','E_raw_massman','E_water_term', ...
+          'E_heat_term_massman','E_wpl_massman', ...
+          'E_rhov_massman' };
+y_units = [ y_units, repmat( { '-' }, 1, 6 ) ];
+y = [ y, dataset( { fh2oout, names{ : } } ) ];
+
+names = { 'SensibleHeat_dry','SensibleHeat_wet', ...
+          'SensibleHeat_wetwet','HSdry_massman' };
+y_units = [ y_units, repmat( { 'W/m2' }, 1, 4 ) ];
+y = [ y, dataset( { hsout_flux, names{ : } } ) ];
+
+names = { 'LatentHeat_raw', ...
+          'LatentHeat_raw_massman', ...
+          'LatentHeat_wpl_massman' };
+y_units = [ y_units, repmat( { 'W/m2' }, 1, 3 ) ];
+y = [ y, dataset( { hlout, names{ : } } ) ];
+
+names = { 'rhoa_dry_air_molar_density', ...
+          'rhov_dry_air_molar_density', ...
+          'rhoc_dry_air_molar_density' };
+y_units = [ y_units, repmat( { 'g/m3 moist air' }, 1, 3 ) ];
+y = [ y, dataset( { rhomout, names{ : } } ) ];
+
+keyboard()
+
+y.buoyancy_flux = hbuoyantout;
+y.transport = transportout;
+
+names = { 'NaNs','Maxs','Mins','Spikes','Bad_variance' };
+y = [ y, dataset( { removed, names{ : } } ) ];
+
+y.zoL = zoLout;
+
+names = { 'u_vector_u','u_vector_v','u_vector_w' };
+y = [ y, ...
+      dataset( { u_vector, names{ : } } ) ];
+
+y.w_mean = w_mean;
+y_units = [ y_units, repmat( { '-' }, 1, 11 ) ];
+
+keyboard()
+y.Properties.Units = y_units;
+
 % data for output
-y = [datev_30, numdate,julday,ioko,uvwtmean,tdryout,theta,speed,rH,uvwtvar,covuvwt,...
-    ustar,co2out,h2oout,fco2out,fh2oout,hsout_flux,hlout,rhomout,hbuoyantout,transportout,...
-    removed,zoLout,u_vector,w_mean];
-headertext = {'year', 'month', 'day', 'hour', 'min', 'second', 'date', 'jday', 'iok',...
-    'u_mean', 'v_mean', 'w_mean',...
-    'temp_mean','tdry', 'wind direction (theta)', 'speed','rH',...
-    'along-wind velocity variance','cross-wind velocity variance','vertical-wind velocity variance',...
-    'sonic temperature variance','uw co-variance','vw co-variance','uv co-variance','ut co-variance','vt co-variance','wt co-variance',...
-    'ustar (friction velocity; m/s)',...
-    'CO2_min (umol/mol dry air)', 'CO2_max (umol/mol dry air)','CO2_median (umol/mol dry air)', 'CO2_mean (umol/mol dry air)','CO2_std (umol/mol dry air)',...
-    'H2O_min (mmol/mol dry air)','H2O_max (mmol/mol dry air)','H2O_median (mmol/mol dry air)','H2O_mean (mmol/mol dry air)','H2O_std (mmol/mol dry air)',...
-    'Fc_raw','Fc_raw_massman','Fc_water_term','Fc_heat_term_massman','Fc_raw_massman_ourwpl',...
-    'E_raw','E_raw_massman','E_water_term','E_heat_term_massman','E_raw_massman','E_rhov_massman',...
-    'SensibleHeat_dry (W m-2)','SensibleHeat_wet (W m-2)','SensibleHeat_wetwet (W m-2)','HSdry_massman',...
-    'LatentHeat_raw (W m-2)','LatentHeat_raw_massman','LatentHeat_wpl_massman',...
-    'rhoa_dry air molar density (g/m^3 moist air)','rhov_dry air molar density (g/m^3 moist air)','rhoc_dry air molar density (g/m^3 moist air)',...
-    'BouyancyFlux','transport',...
-    'NaNs','Maxs','Mins','Spikes','Bad variance','zoL',...
-    'urot','vrot','wrot',...
-    'u_vector_u','u_vector_v','u_vector_w','w_mean'};
+% y = [datev_30, numdate,julday, ...
+%      ioko, ...
+%      uvwtmean, ...
+%      tdryout,theta,speed,rH,uvwtvar,covuvwt,...
+%      ustar,co2out,h2oout,fco2out,fh2oout,hsout_flux,hlout,rhomout,hbuoyantout,transportout,...
+%      removed,zoLout,u_vector,w_mean];
+% headertext = {'year', 'month', 'day', 'hour', 'min', 'second', 'date', 'jday', ...
+%               'iok',...
+%               'u_mean', 'v_mean', 'w_mean', 'temp_mean', ...
+%               'tdry', 'wind direction (theta)', 'speed','rH',...
+%               'along-wind velocity variance','cross-wind velocity variance','vertical-wind velocity variance',...
+%               'sonic temperature variance','uw co-variance','vw co-variance','uv co-variance','ut co-variance','vt co-variance','wt co-variance',...
+%               'ustar (friction velocity; m/s)',...
+%               'CO2_min (umol/mol dry air)', 'CO2_max (umol/mol dry air)','CO2_median (umol/mol dry air)', 'CO2_mean (umol/mol dry air)','CO2_std (umol/mol dry air)',...
+%               'H2O_min (mmol/mol dry air)','H2O_max (mmol/mol dry air)','H2O_median (mmol/mol dry air)','H2O_mean (mmol/mol dry air)','H2O_std (mmol/mol dry air)',...
+%               'Fc_raw','Fc_raw_massman','Fc_water_term','Fc_heat_term_massman','Fc_raw_massman_ourwpl',...
+%               'E_raw','E_raw_massman','E_water_term','E_heat_term_massman','E_raw_massman','E_rhov_massman',...
+%               'SensibleHeat_dry (W m-2)','SensibleHeat_wet (W m-2)','SensibleHeat_wetwet (W m-2)','HSdry_massman',...
+%               'LatentHeat_raw (W m-2)','LatentHeat_raw_massman','LatentHeat_wpl_massman',...
+%               'rhoa_dry air molar density (g/m^3 moist air)','rhov_dry air molar density (g/m^3 moist air)','rhoc_dry air molar density (g/m^3 moist air)',...
+%               'BouyancyFlux','transport',...
+%               'NaNs','Maxs','Mins','Spikes','Bad variance','zoL',...
+%               'urot','vrot','wrot',...
+%               'u_vector_u','u_vector_v','u_vector_w','w_mean'};
 
-%write data to files
-disp('writing data to files....')
-date
+keyboard
 
-%excel daily files-- fairly useless, except as source for header
-fileout = strcat(outfolder, site,' processed data.xls');
-if lag == 0
-    xlswrite(fileout, headertext,int2str(date),'A1');
-    xlswrite(fileout, y,int2str(date),'A2');
-elseif lag == 1
-    xlswrite(fileout, headertext_lag,int2str(date),'A1');
-    xlswrite(fileout, y_lag,int2str(date),'A2');
-end
-disp('wrote excel file');
+% %write data to files
+% disp('writing data to files....')
+% date
 
-%running compilation
-ofid = fopen(strcat(outfolder,site,' output'),'a');
-for i=1:size(y,1)
-   fprintf(ofid,'%f ',y(i,:));
-   fprintf(ofid, '\n');
-end
-fclose(ofid);
+% %excel daily files-- fairly useless, except as source for header
+% fileout = strcat(outfolder, site,' processed data.xls');
+% if lag == 0
+%     xlswrite(fileout, headertext,int2str(date),'A1');
+%     xlswrite(fileout, y,int2str(date),'A2');
+% elseif lag == 1
+%     xlswrite(fileout, headertext_lag,int2str(date),'A1');
+%     xlswrite(fileout, y_lag,int2str(date),'A2');
+% end
+% disp('wrote excel file');
 
-if writefluxall==1
-    disp('preparing to enter data in FLUX_all file....')
-    fluxallfile = strcat(sitedir, site,'_FLUX_all.xls');
-    [num text] = xlsread(fluxallfile,'matlab','A1:A65500');
-    col='B';
+% %running compilation
+% ofid = fopen(strcat(outfolder,site,' output'),'a');
+% for i=1:size(y,1)
+%    fprintf(ofid,'%f ',y(i,:));
+%    fprintf(ofid, '\n');
+% end
+% fclose(ofid);
+
+% if writefluxall==1
+%     disp('preparing to enter data in FLUX_all file....')
+%     fluxallfile = strcat(sitedir, site,'_FLUX_all.xls');
+%     [num text] = xlsread(fluxallfile,'matlab','A1:A65500');
+%     col='B';
     
-    timestamp2=text(5:size(text,1));
-    n=1;
-    time_match1=NaN; % time match lag is the row of the excel file for a given date/time (MF)
-    for i=1:48
-        if isnan(time_match1)==1 & ioko(i)>6000 %have not yet matched up first row
-            timenum=datenum(timestamp2);
-            time_match=find(abs(timenum-datenumber(i)) < 1/(48*3))+4;
-            if time_match >4  % a row with a matching date/time has been found in timestamp2 (MF)
-                if lag==0
-                    y2(n,:)=y(i,:);
-                elseif lag==1
-                    y2(n,:)=y_lag(i,:);
-                end
-                time_match1=time_match;  % set time match lag equal to time match if matching row found; otherwise leave as NaN (MF)
-                n=n+1;
-            end
-        elseif isnan(time_match1)==0 & sum(find(ioko(i:48)>0))>0 %already have matched up first row & there is more data that day
-            if lag==0 
-                y2(n,:)=y(i,:);
-            elseif lag==1
-                y2(n,:)=y_lag(i,:);
-            end
-             n=n+1;
-        else %no more data
-        end  
-    end 
+%     timestamp2=text(5:size(text,1));
+%     n=1;
+%     time_match1=NaN; % time match lag is the row of the excel file for a given date/time (MF)
+%     for i=1:48
+%         if isnan(time_match1)==1 & ioko(i)>6000 %have not yet matched up first row
+%             timenum=datenum(timestamp2);
+%             time_match=find(abs(timenum-datenumber(i)) < 1/(48*3))+4;
+%             if time_match >4  % a row with a matching date/time has been found in timestamp2 (MF)
+%                 if lag==0
+%                     y2(n,:)=y(i,:);
+%                 elseif lag==1
+%                     y2(n,:)=y_lag(i,:);
+%                 end
+%                 time_match1=time_match;  % set time match lag equal to time match if matching row found; otherwise leave as NaN (MF)
+%                 n=n+1;
+%             end
+%         elseif isnan(time_match1)==0 & sum(find(ioko(i:48)>0))>0 %already have matched up first row & there is more data that day
+%             if lag==0 
+%                 y2(n,:)=y(i,:);
+%             elseif lag==1
+%                 y2(n,:)=y_lag(i,:);
+%             end
+%              n=n+1;
+%         else %no more data
+%         end  
+%     end 
 
-    if isnan(time_match1)==0 & size(time_match1,1)==1;
-        xlswrite(fluxallfile,y2,'matlab', strcat(col,num2str(time_match1)));
-        disp('wrote to FLUX_all')
-    else
-         %disp('rows that match date/time') % MF Aug 2011
-         %disp(time_match1)                 % MF Aug 2011
+%     if isnan(time_match1)==0 & size(time_match1,1)==1;
+%         xlswrite(fluxallfile,y2,'matlab', strcat(col,num2str(time_match1)));
+%         disp('wrote to FLUX_all')
+%     else
+%          %disp('rows that match date/time') % MF Aug 2011
+%          %disp(time_match1)                 % MF Aug 2011
          
-         disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')   
-         disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
-         disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
-         disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
-         disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')     
-    end
-end 
+%          disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')   
+%          disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
+%          disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
+%          disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')
+%          disp('ERROR: FAILED TO WRITE TO FLUX_ALL!!!!!!!!!')     
+%     end
+% end 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

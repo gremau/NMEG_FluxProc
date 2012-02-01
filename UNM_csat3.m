@@ -96,6 +96,7 @@ if length(find(SONDIAG))>3000
     THETA(find(THETA > 360))= THETA(find(THETA > 360)) - 360;
     THETA(find(THETA < 0))= THETA(find(THETA < 0))+360;
     speed = sqrt((UVWTMEAN(1).^2) + (UVWTMEAN(2).^2) + (UVWTMEAN(3).^2));
+
     
 else % case of not enough good points
     UVWTMEAN = NaN*ones(4,1);

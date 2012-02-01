@@ -1,5 +1,6 @@
-function ds = fluxallqc_2_dataset(qc_num, sitecode, year)
-% FLUXALLQC_2_DATASET - places Flux_all_QC data into matlab dataset
+function ds = fluxallqc_2_dataset( qc_num, sitecode, year )
+% FLUXALLQC_2_DATASET( qc_num, sitecode, year ) - places Flux_all_QC data into
+% matlab dataset
 %   
 
     timestamp = excel_date_2_matlab_datenum( qc_num( :, 1 ) );
