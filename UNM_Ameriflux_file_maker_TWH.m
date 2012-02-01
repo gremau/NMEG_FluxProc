@@ -21,6 +21,9 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
 
     %% parse the annual Flux_All file
     data = UNM_parse_fluxall_xls_file( sitecode, year );
+    % seems to be parsing header of NewGland_2011 to bogus dates -- temporary
+    % fix until I get the front end of processing away from excel files
+    data( data.timestamp < datenum( 2000, 1, 1 ), : ) = [];
 
     %% parse the QC file
     qc_num = UNM_parse_QC_xls_file( sitecode, year );
