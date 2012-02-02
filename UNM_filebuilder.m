@@ -177,6 +177,16 @@ function[filename,date,jday,site,sitecode,outfolder,ds_out]=UNM_filebuilder(driv
                                       floor( min( ds_out.timestamp ) ), ...
                                       ceil( max( ds_out.timestamp ) ) );
     
+    % rows that were removed by datenum_2_round30min and/or added by
+    % fill_timestamps now have NaNs for the time variables -- fill these in
+    % with the actual values
+    time_vars = { 'year', 'month', 'day', 'hour', 'min', 'second' };
+    [ r, c ] = find( isnan( double( ds_out( :, time_vars ) ) ) );
+    r = unique( r );
+    ds_out( r, time_vars ) = ...
+        replacedata( ds_out( r, time_vars ), ...
+                      datevec( ds_out.timestamp( r ) ) );
+
     % export( ds_out, 'file', ...
     %         fullfile( get_out_directory, 'test_export.txt' ) );
 
