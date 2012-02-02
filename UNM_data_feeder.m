@@ -4,6 +4,8 @@ clear;
 
 clf;
 
+t_start = now();
+
 drive = 'c:';
 filein = strcat( drive, '\Research - Flux Towers', '\data to run' );
 matrix = xlsread( filein, 'current', 'A1:I100' );
@@ -34,4 +36,9 @@ for i=1:n
 
 end
 
-disp('DONE!!!')
+all_data = vertcat( parsed_ts_data{:} );
+export( all_data, 'file', ...
+        fullfile( get_out_directory( requested_sitecodes( 1 ) ), ...
+                  'test_export2.txt' ) );
+
+fprintf( 'DONE (%d minutes)\n', ( now() - t_start ) * 24 * 60 );

@@ -187,7 +187,6 @@ function[filename,date,jday,site,sitecode,outfolder,ds_out]=UNM_filebuilder(driv
         replacedata( ds_out( r, time_vars ), ...
                       datevec( ds_out.timestamp( r ) ) );
 
-    % export( ds_out, 'file', ...
-    %         fullfile( get_out_directory, 'test_export.txt' ) );
+
 
     
