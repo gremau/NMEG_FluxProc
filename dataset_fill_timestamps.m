@@ -8,8 +8,12 @@ function ds_filled = dataset_fill_timestamps( ds, t_var, delta_t, ...
     %   t_var: string containing the name of the time variable (e.g. 'TIMESTAMP')
     %   delta_t: interval of the time series, in days.  e.g., 30 mins should have
     %            delta_t value of 1/48.
+    %   t_min: timestamp at which to begin filling.  If NaN, defaults to the
+    %          earliest timestamp in the dataset.
+    %   t_max: timestamp at which to end filling.  If NaN, defaults to the
+    %          latest timestamp in the dataset.
     %
-    % Timothy W. Hilton, UNM, Dec. 2011
+    % (c) Timothy W. Hilton, UNM, Dec. 2011
 
     if isnan( t_min )
         t_min = min( ds.( t_var ) );

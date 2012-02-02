@@ -10,6 +10,7 @@ function ds = toa5_2_dataset(fname)
     
     n_header_lines = 4;
     first_data_line = n_header_lines + 1;
+    delim = detect_delimiter( fname );
     
     % read the header one line at a time
     fid = fopen(fname, 'rt');
@@ -21,8 +22,8 @@ function ds = toa5_2_dataset(fname)
     file_lines = strrep(file_lines, '"', '');
     
     % separate out variable names and types
-    var_names = regexp(file_lines{2}, ',', 'split');
-    var_units = regexp(file_lines{3}, ',', 'split');
+    var_names = regexp(file_lines{2}, delim, 'split');
+    var_units = regexp(file_lines{3}, delim, 'split');
 
     %make variable names into valid Matlab variable names -- change '.' (used
     %in soil water content depths) to 'p' and (,) to _
@@ -34,7 +35,7 @@ function ds = toa5_2_dataset(fname)
     n_numeric_vars = length(var_names) - 1; % all the variables except
                                             % the timestamp
 
-    fmt = ['%d-%d-%d %d:%d:%d', repmat(',%f', 1, n_numeric_vars)];
+    fmt = ['%d-%d-%d %d:%d:%d', repmat(' %f', 1, n_numeric_vars)];
     [data, count] = cellfun(@(x) sscanf(x, fmt), ...
                             file_lines(first_data_line:end), ...
                             'UniformOutput', false);
