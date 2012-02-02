@@ -25,16 +25,18 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
                        t_start; ...
                        t_end ] ) );
     
-    ts1 = datenum_2_round30min( ds_in1, tvar1, tol, t0 );
-    ts2 = datenum_2_round30min( ds_in2, tvar2, tol, t0 );
+    [ ts1, keep_idx1 ] = datenum_2_round30min( ds_in1, tvar1, tol, t0 );
+    [ ts2, keep_idx2 ] = datenum_2_round30min( ds_in2, tvar2, tol, t0 );
 
     % round t_end to nearest 30 min value
-    t_end_round = datenum_2_round30min( dataset( { t_end, tvar1 } ), ...
-                                        tvar1, tol, t0 );
+    [ t_end_round, keep_idx_end ] = ...
+        datenum_2_round30min( dataset( { t_end, tvar1 } ), tvar1, tol, t0 );
 
     % replace both datasets' timestamps with the "round" values
-    ds_in1.( tvar1 ) = ( double( ts1 ) / mins_per_day ) + t0;
-    ds_in2.( tvar2 ) = ( double( ts2 ) / mins_per_day ) + t0;
+    ds_in1 = ds_in1( keep_idx2, : );
+    ds_in1.( tvar1 ) = ts1;
+    ds_in2 = ds_in2( keep_idx2, : );
+    ds_in2.( tvar2 ) = ts2;
 
     %% combine timestamps & remove duplicates 
     ts_all = union( ts1, ts2 );

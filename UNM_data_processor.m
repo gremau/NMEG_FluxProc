@@ -5,7 +5,11 @@
 
 %modified by Krista Anderson-Teixeira 1/08
  
-function[date,hr,fco2out,tdryout,hsout,hlout,iokout]=UNM_data_processor(year,filename,date,jday,site,sitecode,outfolder,sitedir,figures,rotation,lag,writefluxall)
+function [ date, hr, fco2out, tdryout, hsout, hlout, iokout, y ] = ...
+        UNM_data_processor( year, filename, date, jday, site, sitecode, ...
+                            outfolder, sitedir, figures, rotation, lag, ...
+                            writefluxall )
+
 file=filename;
 
 CR=13;
@@ -584,8 +588,6 @@ names = { 'rhoa_dry_air_molar_density', ...
 y_units = [ y_units, repmat( { 'g/m3 moist air' }, 1, 3 ) ];
 y = [ y, dataset( { rhomout, names{ : } } ) ];
 
-keyboard()
-
 y.buoyancy_flux = hbuoyantout;
 y.transport = transportout;
 
@@ -601,7 +603,6 @@ y = [ y, ...
 y.w_mean = w_mean;
 y_units = [ y_units, repmat( { '-' }, 1, 11 ) ];
 
-keyboard()
 y.Properties.Units = y_units;
 
 % data for output
@@ -630,7 +631,7 @@ y.Properties.Units = y_units;
 %               'urot','vrot','wrot',...
 %               'u_vector_u','u_vector_v','u_vector_w','w_mean'};
 
-keyboard
+
 
 % %write data to files
 % disp('writing data to files....')
@@ -710,80 +711,7 @@ keyboard
 % comparison = strcat(sitedir,site,'_lag_test'); %setting up the lag output file
 % xlswrite(comparison,compoutput);
 
-removedfile = strcat(sitedir,site,'_removed'); %setting up the removed output file
-xlswrite(removedfile,removed);
+% removedfile = strcat(sitedir,site,'_removed'); %setting up the removed output file
+% xlswrite(removedfile,removed);
 
 
-% figure(8); clf;
-% hold on;
-% subplot(2,3,1);
-% hold on; box on;
-% title('co2 flux rawwpl v massmanwpl');
-% plot(datenumber,fco2out(:,2),'-r');
-% plot(datenumber,fco2out(:,9),':b');
-% legend('Fc-corr','Fc-corr-mass-ourwpl','location', 'SouthOutside');
-% 
-% subplot(2,3,2);
-% hold on; box on;
-% title('Correction factors');
-% co2_massman_correction = fco2out(:,7)./fco2out(:,3);
-% plot(datenumber,co2_massman_correction,'-r');
-% h2o_massman_correction = fh2oout(:,7)./fh2oout(:,3);
-% plot(datenumber,h2o_massman_correction,'--g');
-% sh_massman_correction = hsout_flux(:,4)./hsout_flux(:,1);
-% plot(datenumber,sh_massman_correction,':b');
-% plot(datenumber,zoLout,'*g');
-% legend('co2','h2o','sh','zoL','location', 'SouthOutside');
-% 
-% subplot(2,3,3);
-% hold on; box on;
-% title('co2 flux raw versus raw massman');
-% plot(datenumber,fco2out(:,7),'-b');
-% plot(datenumber,fco2out(:,3),'--r');
-% legend('raw mass','raw','location', 'SouthOutside');
-% 
-% subplot(2,3,4);
-% hold on; box on;
-% title('Sens heat dry v massman');
-% plot(datenumber,hsout_flux(:,1),'-g');
-% plot(datenumber,hsout_flux(:,4),':r');
-% legend('hsdry','hsdry-mass','location', 'SouthOutside');
-% 
-% subplot(2,3,5);
-% hold on; box on;
-% title('LH wpl v LH wpl massman');
-% plot(datenumber,hlout(:,2),'-g');
-% plot(datenumber,hlout(:,4),':c');
-% plot(datenumber,hlout(:,1),'-r');
-% plot(datenumber,hlout(:,5),':b');
-% legend('HLuncorr','HLuncorr-mass','HLcorr','HLcorr-mass','location', 'SouthOutside');
-% 
-% subplot(2,3,6);
-% hold on; box on;
-% title('E corr and uncorr raw v massman');
-% plot(datenumber,fh2oout(:,2),'-b');
-% plot(datenumber,fh2oout(:,9),':r');
-% plot(datenumber,fh2oout(:,3),'-k');
-% plot(datenumber,fh2oout(:,7),':g');
-% legend('E-corr','E-corr-mass','E-uncorr','Euncorr-mass','location', 'SouthOutside');
-% 
-% figname8= [outfolder,int2str(date) site ' massmancomps'];
-% print ('-dpng', '-r300', figname8);
-% 
-% shg;
-
-% fluxlag=strcat(sitedir,site,'_lag_test'); %setting up the lag output file
-% xlswrite(fluxlag,origfluxlag);
-% 
-% figure(4);
-%     hold on; box on;
-%     lagvalue = [-5 -4 -3 -2 -1 0 1 2 3 4 5];
-%     plot(lagvalue,origfluxlag(:,1:11));
-%     plot(lagCO2(:,2),lagCO2(:,1),'ok');
-%     shg;
-    
-% figure(6);
-%     hold on; box on;
-%     plot(datenumber(iokout(:,2)),fco2out(iokout(:,2)),'or');
-%     
-%     shg; 

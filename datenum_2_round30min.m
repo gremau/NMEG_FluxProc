@@ -1,16 +1,14 @@
-function [ ts, t0 ] = datenum_2_round30min(ds_in, time_var, tol, t0)
-% datenum_2_round30minn(ds_in, time_var, tol, t0)  -  Timestamps within
+function [ ts, keep_idx ] = datenum_2_round30min(ts_in, tol, t0)
+% datenum_2_round30minn(ts_in, tol, t0)  -  Timestamps within
 % tol minutes of a "round" half hour (e.g. 00 or 30 minutes past the hour)
 % are rounded to the nearest half hour.  Rows with timestamps not within tol
 % minutes of a "round" half hour are discarded.
 
-%% pull out the timestamp column
-ts = double( ds_in( :, time_var ) );
-
 %% convert matlab datenums to seconds since 00:00 of the day of the first
 %% timestamp in the series 
 secs_per_day = 24 * 60 * 60;
-ts = ( ts - t0 ) * secs_per_day;
+mins_per_day = 24 * 60;
+ts = ( ts_in - t0 ) * secs_per_day;
 ts = int32( ts );
 
 %% express 30 minutes as seconds
@@ -25,7 +23,6 @@ secs_from_prev_half_hour = mod( ts, secs_per_30min );
 keep_idx = ( secs_from_prev_half_hour <= tol_secs | ...
              secs_from_prev_half_hour >= ( secs_per_30min - tol_secs ) );
 ts = ts( keep_idx );
-ds_in = ds_in( keep_idx, : );
 
 %% convert timestamps from seconds past t0 to thirty-minute intervals past
 %% t0; seconds now expressed as fractions 
@@ -36,4 +33,7 @@ ts = int32( round( ts ) );
 
 %% convert back to minutes past t0
 ts = ts * 30;
+
+%% convert ts from minutes past t0 back to matlab datenums
+ts = ( double( ts ) / mins_per_day ) + t0;
 
