@@ -6,76 +6,10 @@
 %modified by Krista Anderson-Teixeira 1/08
  
 function [ date, hr, fco2out, tdryout, hsout, hlout, iokout, y ] = ...
-        UNM_data_processor( year, filename, date, jday, site, sitecode, ...
-                            outfolder, sitedir, figures, rotation, lag, ...
-                            writefluxall )
+        UNM_data_processor( sitecode, filename, rotation, lag, writefluxall )
 
-file=filename;
-
-CR=13;
-LF=10;
-COMMA=44;
-
-fid=fopen(file,'r','ieee-le'); % file ID
-d=fread(fid,864000,'uchar');
-
-% find Line Feeds and Carriage Returns
-icr = find(d==CR);
-ilf = find(d==LF);
-
-% find the end of the header
-EOH = ilf(5);
-
-% read last line of header to get the file structure
-HLine2 = d(ilf(1)+1:ilf(2)-1)';
-HLine5 = d(ilf(4)+1:ilf(5)-1)';
-
-begfields = [1 find(HLine5==COMMA)+1];
-endfields = [find(HLine5==COMMA)-1 length(HLine5)-1];
-
-begfields2 = [1 find(HLine2==COMMA)+1];
-endfields2 = [find(HLine2==COMMA)-1 length(HLine2)-1];
-
-Nfields = length(begfields);
-
-% don't read the quotes at beginning and end of each field
-for i=1:Nfields
-    FieldName{i} = char(HLine2(begfields2(i)+1:endfields2(i)-1));
-    Field{i} = char(HLine5(begfields(i)+1: endfields(i)-1));
-end
-
-% Calculate the number of bytes in a record and get the
-% corresponding matlab precision
-for i=1:size(Field,2)
-    if strcmp(char(Field(i)),'ULONG')
-        NBytes(i) = 4;
-        MatlabPrec{i}='uint32';
-    elseif  strcmp(char(Field(i)),'IEEE4')
-        NBytes(i) = 4;
-        MatlabPrec{i}='float32';
-    elseif strcmp(char(Field(i)),'IEEE4L')
-        NBytes(i) = 4;
-        MatlabPrec{i}='float32';
-    elseif strcmp(char(Field(i)),'SecNano')
-        NBytes(i) = 4;
-        MatlabPrec{i}='uint32';
-    end       
-end
-
-%%% Start reading the channels
-fprintf( 1, 'reading data (%s)....\n', filename );
-% first position pointer at the end of the header
-     fseek(fid,EOH,'bof');   %fseek repositions file position indicator (doc fseek). 'bof' = beginning of file
-     ftell(fid);  %position = ftell(fid) returns the location of the file position indicator for the file specified by fid
-
-     BytesPerRecord=sum(NBytes)*ones(size(NBytes)) - NBytes ;
-     BytesCumulative = [0 cumsum(NBytes(1:length(NBytes)-1))];
-
-% read each column into data matrix:
-     for i=1:Nfields
-     fseek(fid,EOH+BytesCumulative(i),'bof'); % fseek repositions file position indicator (doc fseek). problem here
-     data(:,i)= fread(fid,24*3600*10,char(MatlabPrec(i)),BytesPerRecord); % reads data into matrix (data, col i)
-     end
+ds = read_TOB1_file( filename );
+data = double( ds );
      
 % assign variable names to columns of data:
 if (Nfields==14) % TX_forest & TX_grassland
@@ -150,95 +84,26 @@ elseif (Nfields==9);
      diagsonin=(data(:,8));
 end
 
-%convert seconds since 1990 to date vector [year ...]
-datev = datevec((time1./(60.*60.*24))+726834);
-%msec=time2/100000000;  %10 readings/ second-- this gives the number (1-10)
-
-%decide whether to make plots (based on command in data_feeder)
-if figures==1
-    plots=0;
-    plots2=1;
-    plots3=1;
-else
-    plots=0;
-    plots2=0;
-    plots3=0;
-end
-
-% Moved call to figure(1); clf; to inside if statement; MF Feb 17, 2011
-%MAKE PLOTS OF RAW DATA
-if (plots==1);
-    figure(1);clf;
-    disp('creating plots of raw data.....')    
-    subplot (3,3,1);    plot (uin);    axis tight;    xlabel ('time');    ylabel ('uin');
-    subplot (3,3,2);    plot (vin);    axis tight;    xlabel ('time');    ylabel ('vin');
-    subplot (3,3,3);    plot (win);    axis tight;    xlabel ('time');    ylabel ('win');
-    subplot (3,3,4);    plot (co2in);    axis tight;    xlabel ('time');    ylabel ('CO2in');
-    subplot (3,3,5);    plot (h2oin);    axis tight;    xlabel ('time');    ylabel ('H2Oin');
-    subplot (3,3,6);    plot (Tin);    axis tight;    xlabel ('time');    ylabel ('Tin');
-    subplot (3,3,7);    plot (Pin);    axis tight;    xlabel ('time');    ylabel ('Pin');
-    subplot (3,3,8);    plot (diagsonin);    axis tight;    xlabel ('time');    ylabel ('diagsonin');
-    %subplot (3,3,9);    plot (diagirga);    axis tight;    xlabel ('time');    ylabel ('diagirga');
-    figname= strcat(outfolder, int2str(date), site ,' diagnostic plot');
-    print ('-dpng', '-r300', figname);
-    shg;
-else
-end
-
-[m,n] = size(data);
-hfhrs = m/18000;
-hfhr1 = floor(hfhrs);
-hfhr2 = round(hfhrs);
-
-%%%calculate half-hourly values
-disp('calculating half-hourly vectors....')
-year_ts=datev(:,1);
-month_ts=datev(:,2);
-day_ts=datev(:,3);
-hr_ts=datev(:,4);
-min_ts=datev(:,5);
-day=day_ts(1);
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Start for-loop for 48 half-hour periods  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for i=1:48  %cycle through all 48 (potential) half-hour time periods
-    %calculate hour & minutes for each period (time recorded at the end)
-    n = i;
-    hr(i) = floor((i-1)/2);
-    min_end(i) = (((i)/2)-hr(i))*60;
-    if min_end(i) == 0;
-        min_end(i) = 60;
-    end
-    min_beg(i) = min_end(i)-30;
-    decimal_day = jday + hr(i)/24 + min_beg(i)/1440;
+function [ ds ] = process_thirty_minute_chunk( sitecode, timestamp, ...
+                                               lag, rotation ...
+                                               u, v, w, T, ...
+                                               diagson, uvwt, co2, h2o, P )
     
-    %find indices for each half hour period   find((hr_ts==hr(i) & min_beg(i)<=min_ts<=(min_end(i)+1)))
-    if size(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<min_end(i))),1) > 0 % half-hours with data
-        datev_30(i,1:6) = datev(max(find(day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i)))),:); % assign timestamp (end of period)
-            
-            % sonic measurements:
-            u = uin(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i)))));
-            v = vin(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i)))));
-            w = win(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i)))));
-            T = Tin(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i)))));
-            diagson = diagsonin(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i)))));
-            uvwt = [u v w T];
-            % irga measurments - step set to 0 because it appears to be max for now
-            co2 = co2in(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i))))+0);
-            h2o = h2oin(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i))))+0);
-            P = Pin(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i))))+0);
-            % switch this line below to agc 
-            % idiag = diagirga(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i))))+0);
+    n_obs = numel( timestamp );
 
-        num = size(find((day_ts==day & hr_ts==hr(i) & min_ts>=min_beg(i) & min_ts<(min_end(i)))),1);
+    [ year_ts, month_ts, day_ts, ...
+      hour_ts, min_ts, second_ts ] = datevec( timestamp );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CALL UNM_dry_air_conversions  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
 
-        [CO2,H2O,PWATER,TD,RHO,IRGADIAG,IRGAP,P,removedco2] = UNM_dry_air_conversions(co2,h2o,P,T,num,sitecode);
+        [CO2,H2O,PWATER,TD,RHO,IRGADIAG,IRGAP,P,removedco2] = ...
+            UNM_dry_air_conversions(co2,h2o,P,T,n_obs,sitecode);
         removed(i,1:5) = removedco2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -470,46 +335,7 @@ ioko = iokout(:,2);
 
 %make automatic plots using these variables
 
-% Moved call to disp for plots to inside of if statement; MF Feb 17, 2011
-if (plots2==1);
-    disp ('making plots of processed data....')
-    figure(2); clf;
-    subplot (5,3,1);    plot (datenumber,uvwtmean);    axis tight;      ylabel ('u,v,w, Temp');    %legend ('u','v','w','Temp');   
-    subplot (5,3,3);    plot (datenumber,theta);    axis tight;        ylabel ('theta (wd)');
-    subplot (5,3,2);    plot (datenumber,uvwtvar);     axis tight;      ylabel ('uvwT variance');    %legend ('along-wind','cross-wind','vertical wind','sonic temp');    %%variances of ROTATED wind components and the sonic temperature
-    subplot (5,3,4);    plot (datenumber,ustar, datenumber, speed);    axis tight;    ylabel ('ustar (bl), speed (gr)');    %legend ('ustar', 'speed');    
-    subplot (5,3,5);    plot (datenumber,co2out);    axis tight;  ylabel ('CO_2 (umol/mol)');      %legend ('min', 'max', 'median', 'mean', 'std');    
-    subplot (5,3,6);    plot (datenumber,h2oout);    axis tight;   ylabel ('H_20 (mmol/mol)');      %legend ('min', 'max', 'median', 'mean', 'std');
-    subplot (5,3,7);    plot (datenumber,fco2out(:,1:5));    axis tight;  ylabel ('CO_2 flux');    %legend ('Fco2','corrected','raw','heat term', 'water term', 'advection');   
-    subplot (5,3,8);    plot (datenumber,fh2oout);    axis tight;   ylabel ('H_2O flux');    %legend ('Ecorr', 'corrected', 'uncorrected', 'heat term', 'water term','advection');
-    subplot (5,3,9);    plot (datenumber,hsout_flux);    axis tight;   ylabel ('sensible heat (W m^-^2)');    %legend ('dry', 'wet', 'wetwet');
-    subplot (5,3,10);   plot (datenumber,hlout);    axis tight;ylabel ('latent heat (W m^-^2)');       %legend('corrected', 'uncorrected', 'advection');
-    subplot (5,3,11);   plot (datenumber,rhomout);    axis tight;   ylabel ('dry air molar density');    %legend('rhoa', 'rhov','rhoc');
-    subplot (5,3,12);   plot (datenumber,tdryout);    axis tight;   ylabel ('T_d_r_y');
-    subplot (5,3,13);   plot (datenumber,hbuoyantout);    axis tight;    xlabel ('time hours)');    ylabel ('buoyancy flux');
-    subplot (5,3,14);   plot (datenumber,transportout);    axis tight;    xlabel ('time (hours)');    ylabel ('transport');
-    subplot (5,3,15);   plot (datenumber,ioko);    axis tight;    xlabel ('time (hours)');    ylabel ('ioko');
- 
-    figname2 = [outfolder,int2str(date) site ' summary plots'];
-    print ('-dpng', '-r300', figname2);
-    shg;
-end
 
-%plots3=1;  %1 makes plots, 0 skips
-% if (plots3==1);
-%     figure(3); clf;
-%     subplot (2,2,1);    plot (datenumber,tdryout-273.15);    axis tight;    ylabel ('T_d_r_y (C)');    
-%     subplot (2,2,2);    plot (datenumber, fco2out(:,1:5));    axis tight;      ylabel ('CO_2 flux');
-%         legend ('Fco2','corrected','raw','heat term', 'water term', 'advection', 'location', 'Bestoutside');   
-%     subplot (2,2,3);    plot (datenumber,fh2oout(:,1:5));    axis tight;ylabel ('H_2O flux');
-%         legend ('Ecorr', 'corrected', 'uncorrected', 'heat term', 'water term','location', 'Bestoutside');
-%     subplot (2,2,4);    plot (datenumber,hsout_flux, datenumber, hlout);    axis tight; ylabel ('Sensible Heat ,Latent Heat (W m^-^2)');
-%         legend ('H dry', 'H wet', 'H wetwet', 'LE corrected', 'LE uncorrected', 'LE advection', 'location', 'Bestoutside');
-%     
-%     figname3= [outfolder,int2str(date) site ' key plots'];
-%     print ('-dpng', '-r300', figname3);
-%     shg;
-% end
 
 names = { 'year', 'month', 'day', ...
           'hour', 'min', 'second' };
