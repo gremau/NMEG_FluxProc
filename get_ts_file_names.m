@@ -12,7 +12,8 @@ function fnames = get_ts_file_names(site, date_start, date_end)
     end
     
     %read the time stamps from the file names into matlab datenums
-    tstamp_strings = strrep({fnames.name}, 'TOB1_TX_', '');
+    prefix = sprintf( 'TOB1_%s_', site );
+    tstamp_strings = strrep({fnames.name}, prefix, '');
     tstamp_strings = strrep(tstamp_strings, '.DAT', '');
     dn = datenum(tstamp_strings, 'yyyy_mm_dd_HHMM');
     
