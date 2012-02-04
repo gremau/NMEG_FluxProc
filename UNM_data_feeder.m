@@ -39,6 +39,6 @@ end
 all_data = vertcat( parsed_ts_data{:} );
 export( all_data, 'file', ...
         fullfile( get_out_directory( requested_sitecodes( 1 ) ), ...
-                  'test_export2.txt' ) );
+                  '2009_GLand_processed_TS_data.txt' ) );
 
 fprintf( 'DONE (%d minutes)\n', ( now() - t_start ) * 24 * 60 );
