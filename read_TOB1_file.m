@@ -91,3 +91,8 @@ function ds = read_TOB1_file( fname )
     ds.h2o = ds.h2o / 0.018;
     ds.Properties.Units{ strcmp( ds.Properties.VarNames, 'h2o' ) } = 'mmol/m^3';
 
+    % remove unneeded columns
+    keep = intersect( ds.Properties.VarNames, ...
+                      { 'SECONDS', 'NANOSECONDS', 'Ux', 'Uy', 'Uz', 'co2', ...
+                        'h2o', 'Ts', 'press', 'diag_csat' } );
+    ds = ds( :, keep );

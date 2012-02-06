@@ -12,10 +12,16 @@ function fnames = get_ts_file_names(site, date_start, date_end)
     end
     
     %read the time stamps from the file names into matlab datenums
-    prefix = sprintf( 'TOB1_%s_', site );
-    tstamp_strings = strrep({fnames.name}, prefix, '');
-    tstamp_strings = strrep(tstamp_strings, '.DAT', '');
-    dn = datenum(tstamp_strings, 'yyyy_mm_dd_HHMM');
+    % prefix = sprintf( 'TOB1_%s_', site );
+    % tstamp_strings = strrep({fnames.name}, prefix, '');
+    % tstamp_strings = regexprep(tstamp_strings, '\.DAT', '', 'ignorecase');
+    tstamp_strings = regexp( { fnames.name }, ...
+                             '\d\d\d\d_\d\d_\d\d_\d\d\d\d', ...
+                             'match' );
+    dn = cellfun( @( x ) datenum(x, 'yyyy_mm_dd_HHMM'), ...
+                  tstamp_strings, ...
+                  'UniformOutput', false );
+    dn = [ dn{:} ];
     
     % find and return file names from the requested date range
     idx = find(dn >= date_start & dn <= date_end);
