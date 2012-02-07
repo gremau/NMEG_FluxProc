@@ -1,7 +1,7 @@
 function known = TX_site_known_calibrations( date )
 % returns true if numdate and decimal day correspond to a known calibration at
 % the TX site, false otherwise
-% Timothy W. Hilton, UNM, Sep 2011
+% (c) Timothy W. Hilton, UNM, Sep 2011
     
 %each comment corresponds to the previous line
     known = false | ...          
