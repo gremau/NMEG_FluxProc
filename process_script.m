@@ -1,12 +1,15 @@
 t0 = now();
 
+sitecode = 1;
+lag = 0;
+rotation = 1;
+
 t_start = datenum( 2009, 1, 1 );
-t_end = datenum( 2009, 1, 15 );
-file_list = get_ts_file_names( 'GLand', t_start, t_end );
+t_end = datenum( 2009, 12, 31 );
+file_list = get_ts_file_names( get_site_name( sitecode ), t_start, t_end );
 
 
 data = cellfun( @read_TOB1_file, file_list, 'UniformOutput', false );
-
 all_data = vertcat( data{ : } );
 
 % define some constants
@@ -25,6 +28,8 @@ outside = find( idx30min == 0 );
 all_data( outside, : ) = [];
 idx30min( outside ) = [];
 
+fprintf( 1, 'done (%d seconds)\nmaking 30-min chunks... ', int32( ( now() - t0 ) * 86400 ) );
+
 % split all_data into a cell array, each cell containing data from a
 % 30-minute window
 row_idx = 1:size( all_data, 1 );
@@ -34,6 +39,21 @@ chunks_30_min = accumarray( idx30min, ...
                             [ n_chunks, 1 ], ...
                             @( i ) { all_data( i, : ) } );
 
+fprintf( 1, 'done (%d seconds)\ncalculating 30-min avgs... ', int32( ( now() - t0 ) * 86400 ) );
+
 %process each 30-minute chunk into averages
+avg_30min_cell = cell( size( chunks_30_min ) );
+for i = 1:numel( edges )
+    avg_30min_cell{ i } = UNM_30min_TS_averager( sitecode, edges( i ), ...
+                                                 lag, rotation, ...
+                                                 chunks_30_min{ i } );
+    if ( mod( i, 100 ) == 0 )
+        fprintf( 'iteration %d\n', i );
+    end
+end
+
+avg_30min = vertcat( avg_30min_cell{ : } );
+save( 'foo.mat', 'avg_30min' );
+
 
 fprintf( 1, 'done (%d seconds)\n', int32( ( now() - t0 ) * 86400 ) );
