@@ -9,14 +9,14 @@ function fnames = get_ts_file_names(site, date_start, date_end)
               'the requested data directory does not exist');
     else
         fnames = list_files( fullfile( data_dir, 'ts_data' ), ...
-                             'TOB1.*(\.DAT$|\.dat$') );
+                             'TOB1.*(\.DAT$|\.dat$)');
     end
     
     %read the time stamps from the file names into matlab datenums
     % prefix = sprintf( 'TOB1_%s_', site );
     % tstamp_strings = strrep({fnames.name}, prefix, '');
     % tstamp_strings = regexprep(tstamp_strings, '\.DAT', '', 'ignorecase');
-    tstamp_strings = regexp( { fnames.name }, ...
+    tstamp_strings = regexp( fnames, ...
                              '\d\d\d\d_\d\d_\d\d_\d\d\d\d', ...
                              'match' );
     dn = cellfun( @( x ) datenum(x, 'yyyy_mm_dd_HHMM'), ...
@@ -26,9 +26,5 @@ function fnames = get_ts_file_names(site, date_start, date_end)
     
     % find and return file names from the requested date range
     idx = find(dn >= date_start & dn <= date_end);
-    fnames = arrayfun(@(x) getfield(x, 'name'), fnames(idx), 'UniformOutput', false);
-    % append the full path to the beginning of each filename
-    fnames = cellfun(@(this_f, data_dir) fullfile(data_dir, 'ts_data', this_f), ...
-                  fnames, ...
-                  repmat({data_dir}, [length(idx), 1]),...
-                  'UniformOutput', false);
+    fnames = fnames( idx );
+
