@@ -8,7 +8,8 @@ function fnames = get_ts_file_names(site, date_start, date_end)
         error('get_ts_file_names:dir_not_found',...
               'the requested data directory does not exist');
     else
-        fnames = dir(fullfile(data_dir, 'ts_data', 'TOB1*.DAT'));
+        fnames = list_files( fullfile( data_dir, 'ts_data' ), ...
+                             'TOB1.*(\.DAT$|\.dat$') );
     end
     
     %read the time stamps from the file names into matlab datenums
