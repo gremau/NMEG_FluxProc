@@ -35,6 +35,9 @@ function ds = toa5_2_dataset( fname )
     n_numeric_vars = length(var_names) - 1; % all the variables except
                                             % the timestamp
 
+    % done with header now
+    file_lines = file_lines( first_data_line:end );
+    
     % ---------
     % parse timestamps into matlab datenums
     %
@@ -53,12 +56,14 @@ function ds = toa5_2_dataset( fname )
     tstamp_re = [ date_re, '\s*', time_re ];
     
     % find timestamps
-    tstamps = regexp( file_lines( first_data_line:end ), tstamp_re, 'tokens' );
-
+    [ tstamps, data_idx ] = regexp( file_lines, ...
+                                    tstamp_re, 'tokens', 'end' );
+    
     % reject lines with no valid timestamp
     has_valid_tstamp = not( cellfun( @isempty, tstamps ) );
     file_lines = file_lines( has_valid_tstamp );
     tstamps = tstamps( has_valid_tstamp );
+    data_idx = data_idx( has_valid_tstamp );
     
     % reformulate tstamps to Nx6 array of doubles
     t_num = cell( size( tstamps, 1 ), 6 );
@@ -86,21 +91,18 @@ function ds = toa5_2_dataset( fname )
 
     dn = datenum( t_num( :, [ year_col, month_col, day_col, 4, 5, 6 ] ) );
     
-    fmt = ['%d-%d-%d %d:%d:%d', repmat(' %f', 1, n_numeric_vars)];
-    [data, count] = cellfun(@(x) sscanf(x, fmt), ...
-                            file_lines(first_data_line:end), ...
+    fmt = repmat( ' %f', 1, n_numeric_vars );
+    [ data, count ] = cellfun( @( x, idx ) sscanf( x( idx:end ), fmt ), ...
+                            file_lines, ...
+                            data_idx, ...
                             'UniformOutput', false);
-    data = [data{:}]';
-    timestamps = data(:, 1:6);
-    data = data(:, 7:end);
-    
-    %build matlab datenums from the timestamps (first six columns of data are
-    %year, month, day, hour, minute, second)
-    mdn = datenum(timestamps(:, 1:6));
-    data = [mdn, data];
-    
-    ds = dataset({data, var_names{:}});
-    ds.Properties.Units = var_units;
+    data = [ data{ : } ]';
+
+    var_names = genvarname( var_names( 2:end ) );
+    ds = dataset( { data, var_names{ : } } );
+    ds.Properties.Units = var_units( 2:end );
+    % add timestamp
+    ds.timestamp = dn;
     
     
     
