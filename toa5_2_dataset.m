@@ -18,12 +18,20 @@ function ds = toa5_2_dataset( fname )
     fclose(fid);
     file_lines = file_lines{1,1};
     
-    %remove quotations from the file text
-    file_lines = strrep(file_lines, '"', '');
-    
-    % separate out variable names and types
-    var_names = regexp(file_lines{2}, delim, 'split');
-    var_units = regexp(file_lines{3}, delim, 'split');
+    % if quotes are present in the header line, use them to separate variable names
+    % and units.  Some TOA5 files contain quoted variable names that contain the
+    % delimiter (!) (e.g. "soil_water_T(8,1)" in a comma-delimited file).
+    if isempty( strfind( file_lines{2}, '"' ) )
+        % separate out variable names and units using delimiter
+        var_names = regexp(file_lines{2}, delim, 'split');
+        var_units = regexp(file_lines{3}, delim, 'split');
+    else
+        % separate out variable names and units using quotes
+        var_names = regexp(file_lines{2}, '"(.*?)"', 'tokens');
+        var_names = [ var_names{ : } ];  % 'unnest' the cell array
+        var_units = regexp(file_lines{3}, '"(.*?)"', 'tokens');
+        var_units = [ var_units{ : } ];  % 'unnest' the cell array
+    end
 
     %make variable names into valid Matlab variable names -- change '.' (used
     %in soil water content depths) to 'p' and (,) to _
@@ -37,6 +45,9 @@ function ds = toa5_2_dataset( fname )
 
     % done with header now
     file_lines = file_lines( first_data_line:end );
+
+    %remove quotations from the file text (some NaNs are quoted)
+    file_lines = strrep(file_lines, '"', '');
     
     % ---------
     % parse timestamps into matlab datenums
