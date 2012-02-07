@@ -23,7 +23,7 @@ function list = list_files( path, pat )
     
     % append full path to beginning of file names
     list = cellfun( @(x) fullfile( path, x ), list, ...
-                    'UniformOutput', false )
+                    'UniformOutput', false );
         
         
     
