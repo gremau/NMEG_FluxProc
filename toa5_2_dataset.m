@@ -71,7 +71,7 @@ function ds = toa5_2_dataset( fname )
         t_num( i, : ) = tstamps{ i }{ 1 };
         t_num{ i, 6 }  = strrep( t_num{ i, 6 }, ':', '' );
         if isempty( t_num{ i, 6 } )
-            t_num{ i, 6 } = '00'
+            t_num{ i, 6 } = '00';
         end
     end
     t_num = cellfun( @str2num, t_num );
@@ -91,8 +91,8 @@ function ds = toa5_2_dataset( fname )
 
     dn = datenum( t_num( :, [ year_col, month_col, day_col, 4, 5, 6 ] ) );
     
-    fmt = repmat( ' %f', 1, n_numeric_vars );
-    [ data, count ] = cellfun( @( x, idx ) sscanf( x( idx:end ), fmt ), ...
+    fmt = repmat( sprintf( '%s%%f', delim ), 1, n_numeric_vars );
+    [ data, count ] = cellfun( @( x, idx ) sscanf( x( (idx+1):end ), fmt ), ...
                             file_lines, ...
                             data_idx, ...
                             'UniformOutput', false);
