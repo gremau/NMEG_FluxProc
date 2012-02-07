@@ -21,5 +21,8 @@ function [n, flines] = parse_file_lines(fpath)
         end
         
         fclose(fid);
+    
+    else
+        error( msg );
     end
     
