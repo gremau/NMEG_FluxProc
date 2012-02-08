@@ -19,27 +19,21 @@ function ds = toa5_2_dataset( fname )
     file_lines = file_lines{1,1};
     
     % if quotes are present in the header line, use them to separate variable names
-    % and units.  Some TOA5 files contain quoted variable names that contain the
-    % delimiter (!) (e.g. "soil_water_T(8,1)" in a comma-delimited file).
-
+    % and units.  Some TOA5 files contain both quoted variable names that contain the
+    % delimiter (!) (e.g. "soil_water_T(8,1)" in a comma-delimited file) as
+    % well as unquoted variable names.  so, need a regular expression that
+    % ferrets out tokens by "stuff between quotes" or "stuff between commas
+    % but not quotes"
+    
     re = sprintf( '(?:^|%s)(\"(?:[^\"]+|\"\")*\"|[^%s]*)', delim, delim );
     var_names = regexp( file_lines{ 2 }, re, 'tokens' );
     var_names = [ var_names{ : } ];  % 'unnest' the cell array
     var_units = regexp( file_lines{ 3 }, re, 'tokens' );
     var_units = [ var_units{ : } ];  % 'unnest' the cell array
+    not_empty = not( cellfun( @isempty, var_names ) );
+    var_names = var_names( not_empty );
+    var_units = var_names( not_empty );
     
-    % if isempty( strfind( file_lines{2}, '"' ) )
-    %     % separate out variable names and units using delimiter
-    %     var_names = regexp(file_lines{2}, delim, 'split');
-    %     var_units = regexp(file_lines{3}, delim, 'split');
-    % else
-    %     % separate out variable names and units using quotes
-    %     var_names = regexp(file_lines{2}, '"(.*?)"', 'tokens');
-    %     var_names = [ var_names{ : } ];  % 'unnest' the cell array
-    %     var_units = regexp(file_lines{3}, '"(.*?)"', 'tokens');
-    %     var_units = [ var_units{ : } ];  % 'unnest' the cell array
-    % end
-
     %make variable names into valid Matlab variable names -- change '.' (used
     %in soil water content depths) to 'p' and (,) to _
     var_names = strrep(var_names, '.', 'p');
