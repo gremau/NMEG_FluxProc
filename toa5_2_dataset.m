@@ -21,23 +21,31 @@ function ds = toa5_2_dataset( fname )
     % if quotes are present in the header line, use them to separate variable names
     % and units.  Some TOA5 files contain quoted variable names that contain the
     % delimiter (!) (e.g. "soil_water_T(8,1)" in a comma-delimited file).
-    if isempty( strfind( file_lines{2}, '"' ) )
-        % separate out variable names and units using delimiter
-        var_names = regexp(file_lines{2}, delim, 'split');
-        var_units = regexp(file_lines{3}, delim, 'split');
-    else
-        % separate out variable names and units using quotes
-        var_names = regexp(file_lines{2}, '"(.*?)"', 'tokens');
-        var_names = [ var_names{ : } ];  % 'unnest' the cell array
-        var_units = regexp(file_lines{3}, '"(.*?)"', 'tokens');
-        var_units = [ var_units{ : } ];  % 'unnest' the cell array
-    end
+
+    re = sprintf( '(?:^|%s)(\"(?:[^\"]+|\"\")*\"|[^%s]*)', delim, delim );
+    var_names = regexp( file_lines{ 2 }, re, 'tokens' );
+    var_names = [ var_names{ : } ];  % 'unnest' the cell array
+    var_units = regexp( file_lines{ 3 }, re, 'tokens' );
+    var_units = [ var_units{ : } ];  % 'unnest' the cell array
+    
+    % if isempty( strfind( file_lines{2}, '"' ) )
+    %     % separate out variable names and units using delimiter
+    %     var_names = regexp(file_lines{2}, delim, 'split');
+    %     var_units = regexp(file_lines{3}, delim, 'split');
+    % else
+    %     % separate out variable names and units using quotes
+    %     var_names = regexp(file_lines{2}, '"(.*?)"', 'tokens');
+    %     var_names = [ var_names{ : } ];  % 'unnest' the cell array
+    %     var_units = regexp(file_lines{3}, '"(.*?)"', 'tokens');
+    %     var_units = [ var_units{ : } ];  % 'unnest' the cell array
+    % end
 
     %make variable names into valid Matlab variable names -- change '.' (used
     %in soil water content depths) to 'p' and (,) to _
     var_names = strrep(var_names, '.', 'p');
     var_names = strrep(var_names, ')', '_');
     var_names = strrep(var_names, '(', '_');
+    var_names = strrep(var_names, '"', '');
 
     % scan the data portion of the matrix into a matlab array
     n_numeric_vars = length(var_names) - 1; % all the variables except
