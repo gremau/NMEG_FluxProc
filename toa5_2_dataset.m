@@ -109,7 +109,10 @@ function ds = toa5_2_dataset( fname )
                             file_lines, ...
                             data_idx, ...
                             'UniformOutput', false);
-    data = [ data{ : } ]';
+
+    % reject lines with fewer than n_numeric_vars readable numbers
+    full_line = cellfun( @(x) size( x, 1 ), data ) == n_numeric_vars;
+    data = [ data{ find(full_line) } ]';
 
     var_names = genvarname( var_names( 2:end ) );
     ds = dataset( { data, var_names{ : } } );
