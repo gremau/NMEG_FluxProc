@@ -14,7 +14,7 @@ function [result, pdfname] = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
     %% SevEco doesn't have an Fc_wpl column
     if (not(strcmp(site, 'SevEco')))
         Fc_wpl_idx = find(strcmp(fluxraw.Properties.VarNames, 'Fc_wpl'));
-        plot(fluxraw.TIMESTAMP, fluxraw.Fc_wpl, '.k');
+        plot(fluxraw.timestamp, fluxraw.Fc_wpl, '.k');
         datetick('x', 'ddmmmyyyy');
         ylim([-50, 50]);
         xlabel('timestamp');
@@ -30,7 +30,7 @@ function [result, pdfname] = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
     for i=1:length(fluxraw.Properties.VarNames)
         this_var = fluxraw.Properties.VarNames{i};
         this_units = fluxraw.Properties.Units{i};
-        plot(fluxraw.TIMESTAMP, ...
+        plot(fluxraw.timestamp, ...
              fluxraw.(this_var), ...
              '.k');
         datetick('x', 'ddmmmyyyy');
