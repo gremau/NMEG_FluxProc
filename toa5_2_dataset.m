@@ -40,6 +40,7 @@ function ds = toa5_2_dataset( fname )
     var_names = strrep(var_names, ')', '_');
     var_names = strrep(var_names, '(', '_');
     var_names = strrep(var_names, '"', '');
+    var_names = strrep(var_names, ',', '_');
 
     % scan the data portion of the matrix into a matlab array
     n_numeric_vars = length(var_names) - 1; % all the variables except
