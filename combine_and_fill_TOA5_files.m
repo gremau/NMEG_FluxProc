@@ -9,8 +9,8 @@ function ds = combine_and_fill_TOA5_files()
     [filename, pathname, filterindex] = uigetfile( ...
         { 'TOA5*.dat','TOA5 files (TOA5*.dat)' }, ...
         'select files to merge', ...
-        fullfile( 'I:', 'Raw uncompressed data folders', 'TX Data', ...
-                  'TX2010', 'ConvertedCardData' ), ...
+        fullfile( 'C:', 'Research - Flux Towers', ...
+                  'Flux Tower Data by Site' ), ...
         'MultiSelect', 'on' );
     
     nfiles = length( filename );
@@ -26,11 +26,13 @@ function ds = combine_and_fill_TOA5_files()
     
     fprintf( 1, 'filling missing timestamps\n' );
     thirty_mins = 1 / 48;  %thirty minutes expressed in units of days
-    ds = dataset_fill_timestamps( ds, 'TIMESTAMP', thirty_mins );
+    ds = dataset_fill_timestamps( ds, 'timestamp', thirty_mins, ... 
+                                  min( ds.timestamp ), ...
+                                  datenum( 2012, 1, 1 ) );
     
     % remove duplicated timestamps (e.g., in TX 2010)
     fprintf( 1, 'removing duplicate timestamps\n' );
-    ts = datenum( ds.TIMESTAMP( : ) );
+    ts = datenum( ds.timestamp( : ) );
     one_minute = 1 / ( 60 * 24 ); %one minute expressed in units of days
     non_dup_idx = find( diff( ts ) > one_minute );
     ds = ds( non_dup_idx, : );
@@ -38,5 +40,7 @@ function ds = combine_and_fill_TOA5_files()
     
     % to save to file, use e.g.:
     fprintf( 1, 'saving csv file\n' );
-    idx = min( find( datenum(ds.TIMESTAMP(:))>= datenum( 2010, 1, 1)));
-    export(ds( idx:end, : ), 'FILE', 'test.csv', 'Delimiter', ',');
+    idx = min( find( datenum(ds.timestamp(:))>= datenum( 2010, 1, 1)));
+    export(ds( idx:end, : ), 'FILE', ...
+           fullfile( get_out_directory(), 'combined_TOA5.csv' ), ...
+           'Delimiter', ',');
