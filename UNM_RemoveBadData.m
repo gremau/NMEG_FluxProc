@@ -37,7 +37,7 @@ iteration = 6;
 write_complete_out_file = 1; %1 to write "[sitename].._qc", -- file with all variables & bad data removed
 data_for_analyses = 0; %1 to output file with data sorted for specific analyses
 ET_gap_filler = 0; %run ET gap-filler program
-write_gap_filling_out_file = 0; %1 to write file for Reichstein's online gap-filling. SET U* LIM (including site- specific ones--comment out) TO 0!!!!!!!!!!
+write_gap_filling_out_file = 1; %1 to write file for Reichstein's online gap-filling. SET U* LIM (including site- specific ones--comment out) TO 0!!!!!!!!!!
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Specify some details about sites and years
@@ -62,6 +62,11 @@ if sitecode==1; % grassland
     elseif year == 2009;
         filelength_n = 17520;
         lastcolumn='IC';
+        ustar_lim = 0.06;
+        co2_min = -10; co2_max = 6;
+    elseif year == 2010;
+        filelength_n = 17523;
+        lastcolumn='IL';
         ustar_lim = 0.06;
         co2_min = -10; co2_max = 6;
     elseif year == 2011;
@@ -96,8 +101,13 @@ elseif sitecode==2; % shrubland
         lastcolumn='IL';
         ustar_lim = 0.08;
         co2_min = -10; co2_max = 6;
+    elseif year == 2010
+        filelength_n = 17523;
+        lastcolumn='IE';
+        ustar_lim = 0.08;
+        co2_min = -10; co2_max = 6;
     elseif year == 2011
-        filelength_n = 14576;
+        filelength_n = 17523;
         lastcolumn='IQ';
         ustar_lim = 0.08;
         co2_min = -10; co2_max = 6;
@@ -133,7 +143,7 @@ elseif sitecode==3; % Juniper savanna
         ustar_lim = 0.08;
         co2_min = -10; co2_max = 10;
     elseif year == 2011
-        filelength_n = 14381;
+        filelength_n = 17523;
         lastcolumn='IE';
         ustar_lim = 0.08;
         co2_min = -10; co2_max = 10;
@@ -166,8 +176,8 @@ elseif sitecode == 4; % Pinyon Juniper
         filelength_n = 17524;
         ustar_lim = 0.16; 
     elseif year == 2011  % added this block Mar 21, 2011
-        lastcolumn = 'HA'; 
-        filelength_n = 14674;
+        lastcolumn = 'EZ'; 
+        filelength_n = 17523;
         ustar_lim = 0.16;
     end    
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
@@ -208,7 +218,7 @@ elseif sitecode==5; % Ponderosa Pine
         ustar_lim = 0.08;
         co2_min = -15; co2_max = 15;
     elseif year == 2011;
-        filelength_n = 13705;
+        filelength_n = 17523;
         lastcolumn='FY';
         ustar_lim = 0.08;
         co2_min = -15; co2_max = 15;
@@ -391,7 +401,7 @@ elseif sitecode == 10; % Pinyon Juniper girdle
     elseif year == 2010
         filelength_n = 9678;
     elseif year == 2011
-        filelength_n = 14664;
+        filelength_n = 17523;
     end      
 
 elseif sitecode == 11; % new Grassland
@@ -401,8 +411,8 @@ elseif sitecode == 11; % new Grassland
         lastcolumn = 'HF';
         filelength_n = 17524;
     elseif year == 2011
-        lastcolumn = 'HU';
-        filelength_n = 14573; % updated 10 Nov, 2011
+        lastcolumn = 'HS';
+        filelength_n = 17523; % updated 10 Nov, 2011
         
     end  
     co2_min = -7; co2_max = 6;
@@ -581,7 +591,8 @@ for i=1:ncol;
             strcmp('par_Avg', headertext(i)) == 1 || ...
             strcmp('par_up_Avg', headertext(i)) == 1 || ...        
             strcmp('par_face_up_Avg', headertext(i)) == 1 || ...
-            strcmp('par_incoming_Avg', headertext(i)) == 1
+            strcmp('par_incoming_Avg', headertext(i)) == 1 || ...
+            strcmp('par_lite_Avg', headertext(i)) == 1
         Par_Avg = data(:,i-1);
     elseif strcmp('t_hmp_mean', headertext(i))==1 || ...
             strcmp('AirTC_Avg', headertext(i))==1 || ...
@@ -1544,40 +1555,45 @@ Tair = Tdry - 273.15;
 
 if write_gap_filling_out_file == 1;
     if (sitecode>7 && sitecode<10) % || 9);
-    disp('writing gap-filling file...')
-    header = {'day' 'month' 'year' 'hour' 'minute' 'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' 'rH' 'precip' 'Ustar'};
-    %sw_incoming=ones(size(qc)).*-999;
-    Tsoil=ones(size(qc)).*-999;
-    datamatrix = [day month year hour minute qc NEE LE H_dry sw_incoming Tair Tsoil rH precip u_star];
-    for n = 1:datalength
-        for k = 1:15;
-            if isnan(datamatrix(n,k)) == 1;
-                datamatrix(n,k) = -9999;
-            else
+        disp('writing gap-filling file...')
+        header = {'day' 'month' 'year' 'hour' 'minute' ...
+                  'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
+                  'rH' 'precip' 'Ustar'};
+        %sw_incoming=ones(size(qc)).*-999;
+        Tsoil=ones(size(qc)).*-999;
+        datamatrix = [day month year hour minute qc NEE LE H_dry sw_incoming Tair Tsoil rH precip u_star];
+        for n = 1:datalength
+            for k = 1:15;
+                if isnan(datamatrix(n,k)) == 1;
+                    datamatrix(n,k) = -9999;
+                else
+                end
             end
         end
-    end
-    outfilename = strcat(outfolder,filename,'_for_gap_filling')
-    xlswrite(outfilename, header, 'data', 'A1');
-    xlswrite(outfilename, datamatrix, 'data', 'A2');
+        outfilename = strcat(outfolder,filename,'_for_gap_filling')
+        xlswrite(outfilename, header, 'data', 'A1');
+        xlswrite(outfilename, datamatrix, 'data', 'A2');
     else    
-    disp('writing gap-filling file...')
-    header = {'day' 'month' 'year' 'hour' 'minute' 'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' 'rH' 'precip' 'Ustar'};
-    if sitecode == 3
-        Tsoil = ones(size(qc)).*-999;
-    end
-    datamatrix = [day month year hour minute qc NEE LE H_dry sw_incoming Tair Tsoil rH precip u_star];
-    for n = 1:datalength
-        for k = 1:15;
-            if isnan(datamatrix(n,k)) == 1;
-                datamatrix(n,k) = -9999;
-            else
+        disp('writing gap-filling file...')
+        header = {'day' 'month' 'year' 'hour' 'minute' ...
+                  'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
+                  'rH' 'precip' 'Ustar'};
+        if sitecode == 3
+            Tsoil = ones(size(qc)).*-999;
+        end
+        datamatrix = [day month year hour minute qc NEE ...
+                      LE H_dry sw_incoming Tair Tsoil rH precip u_star];
+        for n = 1:datalength
+            for k = 1:15;
+                if isnan(datamatrix(n,k)) == 1;
+                    datamatrix(n,k) = -9999;
+                else
+                end
             end
         end
-    end
-    outfilename = strcat(outfolder,filename,'_for_gap_filling')
-    xlswrite(outfilename, header, 'data', 'A1');
-    xlswrite(outfilename, datamatrix, 'data', 'A2');
+        outfilename = strcat(outfolder,filename,'_for_gap_filling')
+        xlswrite(outfilename, header, 'data', 'A1');
+        xlswrite(outfilename, datamatrix, 'data', 'A2');
     end
 end
 
