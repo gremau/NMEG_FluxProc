@@ -13,7 +13,7 @@ function out = parse_jena_output(fname)
 % OUTPUTS
 % out: matlab dataset; the data in the file
 
-    fid = fopen(fname, 'r+');
+    fid = fopen(fname, 'r');
     line1 = fgetl(fid);
 
     % split line1 by consecutive whitespace
