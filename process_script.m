@@ -1,5 +1,5 @@
-sites = [ 1, 2, 3, 4, 5, 6, 10, 11 ];
-years = 2010:2011;
+sites = [ 1, 3, 4, 5, 6, 10, 11 ];
+years = [ 2010:2011 ];
 
 for s = 1:numel( sites )
     for y = 1:numel( years )
