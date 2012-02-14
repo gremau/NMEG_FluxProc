@@ -34,7 +34,7 @@ function [ var_names, var_units, file_lines, first_data_line, delim ] = ...
     var_units = [ var_units{ : } ];  % 'unnest' the cell array
     not_empty = not( cellfun( @isempty, var_names ) );
     var_names = var_names( not_empty );
-    var_units = var_names( not_empty );
+    var_units = var_units( not_empty );
 
     % remove remaining quotation marks
     var_names = strrep( var_names, '"', '' );
