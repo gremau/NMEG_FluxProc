@@ -8,40 +8,9 @@ function ds = toa5_2_dataset( fname )
 %
 % Timothy W. Hilton, UNM, Oct 2011
     
-    n_header_lines = 4;
-    first_data_line = n_header_lines + 1;
-    delim = detect_delimiter( fname );
+    [ var_names, var_units, file_lines, first_data_line, delim ] = ...
+        parse_TOA5_file_headers( fname );
     
-    % read file one line at a time into a cell array of strings
-    fid = fopen(fname, 'rt');
-    file_lines = textscan(fid, '%s', 'delimiter', '\n', 'BufSize', 1e6);
-    fclose(fid);
-    file_lines = file_lines{1,1};
-    
-    % if quotes are present in the header line, use them to separate variable names
-    % and units.  Some TOA5 files contain both quoted variable names that contain the
-    % delimiter (!) (e.g. "soil_water_T(8,1)" in a comma-delimited file) as
-    % well as unquoted variable names.  so, need a regular expression that
-    % ferrets out tokens by "stuff between quotes" or "stuff between commas
-    % but not quotes"
-    
-    re = sprintf( '(?:^|%s)(\"(?:[^\"]+|\"\")*\"|[^%s]*)', delim, delim );
-    var_names = regexp( file_lines{ 2 }, re, 'tokens' );
-    var_names = [ var_names{ : } ];  % 'unnest' the cell array
-    var_units = regexp( file_lines{ 3 }, re, 'tokens' );
-    var_units = [ var_units{ : } ];  % 'unnest' the cell array
-    not_empty = not( cellfun( @isempty, var_names ) );
-    var_names = var_names( not_empty );
-    var_units = var_names( not_empty );
-    
-    %make variable names into valid Matlab variable names -- change '.' (used
-    %in soil water content depths) to 'p' and (,) to _
-    var_names = strrep(var_names, '.', 'p');
-    var_names = strrep(var_names, ')', '_');
-    var_names = strrep(var_names, '(', '_');
-    var_names = strrep(var_names, '"', '');
-    var_names = strrep(var_names, ',', '_');
-
     % scan the data portion of the matrix into a matlab array
     n_numeric_vars = length(var_names) - 1; % all the variables except
                                             % the timestamp

@@ -1,8 +1,8 @@
-function get_unique_TOB1_var_names = get_unique_TOB1_var_names( )
+% function get_unique_TOB1_var_names = get_unique_TOB1_var_names( )
     
-    infile = fopen( 'scratch.m', 'r' );
-    fnames = textscan( infile, '%s', Inf );
-    keyboard
+%     infile = fopen( 'scratch.m', 'r' );
+%     fnames = textscan( infile, '%s', Inf );
+%     keyboard
 
 
 function var_names = read_TOB1_headers( fname )

@@ -15,7 +15,7 @@ function main_success = process_card_main( this_site )
     %--------------------------------------------------------------------------
     site_dir = get_site_directory(get_site_code(this_site));
 
-    copy the data from the card to the computer's hard drive
+    % copy the data from the card to the computer's hard drive
     fprintf(1, '\n----------\n');
     fprintf(1, 'COPYING FROM CARD TO LOCAL DISK...\n');
     [card_copy_success, raw_data_dir, mod_date] = ...
