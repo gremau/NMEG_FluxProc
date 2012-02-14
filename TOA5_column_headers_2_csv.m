@@ -36,10 +36,10 @@ for i = 1:numel( file_list )
     
     [ infile_path, infile_name, infile_ext ] = fileparts( file_list{ i } );
     
-    fprintf( 1, 'parsing %s\n', infile_name );
+    fprintf( 1, 'parsing %s\n', [ infile_name, infile_ext ] );
 
     % get date for this file
-    file_date = get_TOA5_TOB1_file_date( infile_name );
+    file_date = get_TOA5_TOB1_file_date( [ infile_name, infile_ext ] );
 
     % parse this file
     [ var_names, var_units, file_lines, first_data_line, delim ] = ...
