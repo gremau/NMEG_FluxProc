@@ -16,5 +16,13 @@ function dn = get_TOA5_TOB1_file_date( fname )
                                                    '%*[a-zA-Z]_', ...
                                                    '%d_%d_%d_%2d%2d.dat' ) );
     
-    % create the matlab datenum, add 0 for seconds
-    dn = datenum( [ toks', 0 ] );
+    %tokenize the filename into the year, month, etc. components
+    re = 'TO(A5|B1)_.*_(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)(\d\d).*\.(dat|DAT)$';
+    toks = regexp( fname, re, 'tokens' );
+    % pull out year, month, day, hour, minute tokens
+    ymdhm = str2double( toks{ 1 }( 2:6 ) );
+    seconds = 0;
+    % form a matlab datenum
+    dn = datenum( [ ymdhm, seconds ] );
+    
+

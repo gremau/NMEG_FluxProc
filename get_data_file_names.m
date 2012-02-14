@@ -29,19 +29,14 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
         
     data_dir = fullfile( get_site_directory( site_code ), ...
                          data_subdir );
-    dlst = dir( fullfile( data_dir, '*.dat' ) );
-    % assign the file names from struct array dlst to a cell array
-    fnames = cell( numel( dlst ), 1 );
-    [ fnames{ : } ] = dlst( : ).name;
+    re = '^TO(A5|B1)_.*_(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)(\d\d).*\.(dat|DAT)$';
+    fnames = list_files( data_dir, re );
     
     % make datenums for the dates
-    dns = cellfun( @get_TOA5_TOB1_file_date, fnames );  
+    dns = cellfun( @get_TOA5_TOB1_file_date, fnames );
 
     % find the files that are within the date range requested
     idx = find( ( dns >= date_start ) & ( dns <= date_end ) );
     fnames = fnames( idx );
-    fnames = cellfun( @( this_file ) fullfile( data_dir, this_file ), ...
-                      fnames, ...
-                      'UniformOutput', false );
 
 %------------------------------------------------------------

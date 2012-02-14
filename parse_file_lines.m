@@ -4,7 +4,7 @@ function [n, flines] = parse_file_lines(fpath)
 %fpath='~/UNM/Data/DataSandbox/TOA5_New_GLand_2010_01_28_1500.dat';    
     n = 0;
     
-    [fid, msg] = fopen(fpath);
+    [fid, msg] = fopen( fpath, 'r' );
     if fid >= 0
         while ischar(fgetl(fid))
             n = n + 1;
