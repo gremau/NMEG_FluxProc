@@ -2,6 +2,9 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
 % GET_TOB1_FILE_NAMES - generates a list of filenames containing all TOB1 or
 % TOA5 files within the site's data directory that contain data from between
 % start date and end date
+%
+% USAGE:
+%   fnames = get_data_file_names( date_start, date_end, site_code, type )
 %   
 % INPUTS:
 %   date_start: matlab datenumber; the starting date
@@ -11,7 +14,7 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
 % OUTPUTS:
 %   fnames: cell array of strings; list of complete paths of TOB1 files
 %
-% Timothy W. Hilton, UNM, Dec 2011
+% (c) Timothy W. Hilton, UNM, Dec 2011
     
     switch type
       case 'TOA5'
@@ -32,23 +35,13 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
     [ fnames{ : } ] = dlst( : ).name;
     
     % make datenums for the dates
-    dns = cellfun( @get_TOB1_file_date, fnames );  
+    dns = cellfun( @get_TOA5_TOB1_file_date, fnames );  
 
     % find the files that are within the date range requested
     idx = find( ( dns >= date_start ) & ( dns <= date_end ) );
     fnames = fnames( idx );
-    fnames = strcat( data_dir, fnames );
+    fnames = cellfun( @( this_file ) fullfile( data_dir, this_file ), ...
+                      fnames, ...
+                      'UniformOutput', false );
 
 %------------------------------------------------------------
-function dn = get_TOB1_file_date( fname )
-% returns a matlab datenum for the date contained in a filename of format
-% 'TOB1_site_year_month_day_hrmin.dat'.  Helper function for get_TOB1_file_names
-    
-    %tokenize the filename into the year, month, etc. components
-    [ toks, sz, errmsg, nxtidx ] = sscanf( fname, ...
-                                           strcat( '%*[a-zA-Z15]_', ...
-                                                   '%*[a-zA-Z]_', ...
-                                                   '%d_%d_%d_%2d%2d.dat' ) );
-    
-    % create the matlab datenum, add 0 for seconds
-    dn = datenum( [ toks', 0 ] );
