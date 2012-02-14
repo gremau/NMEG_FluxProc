@@ -3,7 +3,6 @@ function [ amflux_gaps, amflux_gf ] = ...
                                            year, ...
                                            data, ...
                                            ds_qc, ...
-                                           ds_gf, ...
                                            ds_pt, ...
                                            ds_soil )
     % UNM_AMERIFLUX_PREPARE_FLUXES - prepare observed fluxes for writing to
@@ -26,12 +25,12 @@ function [ amflux_gaps, amflux_gf ] = ...
     Rg_flag=f_flag;
     VPD_flag = f_flag;
     
-    VPD_f = ds_gf.VPD ./ 10; % convert to kPa
+    VPD_f = ds_pt.VPD ./ 10; % convert to kPa
                              % what is "_g"?  "good" values?  --TWH
     VPD_g = dummy;
     VPD_g( ~isnan( ds_qc.rH ) ) = VPD_f( ~isnan( ds_qc.rH ) );
-    Tair_f = ds_gf.Tair_f;
-    Rg_f = ds_gf.Rg_f;
+    Tair_f = ds_pt.Tair_f;
+    Rg_f = ds_pt.Rg_f;
 
     % set met flags to zero where data are missing
     TA_flag( ~isnan( ds_qc.air_temp_hmp ) ) = 0;
@@ -74,8 +73,8 @@ function [ amflux_gaps, amflux_gf ] = ...
     NEE_f = ds_pt.NEE_HBLR;
     RE_f  = ds_pt.Reco_HBLR;
     GPP_f = ds_pt.GPP_HBLR;
-    LE_f = ds_gf.LE_f;
-    H_f = ds_gf.H_f;
+    LE_f = ds_pt.LE_f;
+    H_f = ds_pt.H_f;
 
     % Make sure NEE contain observations where available
     NEE_2 = NEE_f;

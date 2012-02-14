@@ -96,9 +96,10 @@ function [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...
                                                   temp2, theta );
         
     elseif lag == 1
+        %% I think this will fail -- USTAR cannot be defined...  TWH Feb 2012
         [CO2, H2O, FCO2, FH2O, HSENSIBLE, HLATENT, RHOM, TDRY, ...
          IOKNUM, lagCO2,  lagH2O, zoL] = flux7500freeman_lag(UVW2, uvwmean, ...
-                                                          USTAR_, SONDIAG, ...
+                                                          USTAR, SONDIAG, ...
                                                           CO2', H2O', TD', ...
                                                           RHO', IRGADIAG', ...
                                                           rotation, sitecode, ...
@@ -110,15 +111,14 @@ function [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...
 
     %------
     % create variables for output
-
     
-    UVW2      = NaN*ones(3,size(uvwt,2));
-    UVWTVAR   = NaN*ones(4,1);
-    COVUVWT   = NaN*ones(6,1);
-    USTAR     = NaN;
-    HBUOYANT  = NaN;
-    TRANSPORT = NaN;
-    hsout = NaN;
+    % UVW2      = NaN*ones(3,size(uvwt,2));
+    % UVWTVAR   = NaN*ones(4,1);
+    % COVUVWT   = NaN*ones(6,1);
+    % USTAR     = NaN;
+    % HBUOYANT  = NaN;
+    % TRANSPORT = NaN;
+    % hsout = NaN;
     
     % done creating output variables
     %-----
