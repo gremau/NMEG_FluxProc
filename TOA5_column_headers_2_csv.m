@@ -47,7 +47,8 @@ for i = 1:numel( file_list )
     clear( 'file_lines', 'first_data_line', 'delim' ); % don't need these
 
     
-    % write date and variable names to output csv file
+    % write filename, date and variable names to output csv file
+    fprintf( outfile, '%s\t', [ infile_name, infile_ext ] );
     fprintf( outfile, '%s\t', datestr( file_date, 'dd mmm YYYY' ) );
     fmt = [ repmat( '%s\t', 1, numel( var_names ) - 1 ), '%s\n' ];
     fprintf( outfile, fmt, var_names{ : } );
