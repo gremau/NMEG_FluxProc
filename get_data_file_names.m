@@ -35,6 +35,10 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
     % make datenums for the dates
     dns = cellfun( @get_TOA5_TOB1_file_date, fnames );
 
+    % sort by date
+    [ dns, idx ] = sort( dns );
+    fnames = fnames( idx );
+
     % find the files that are within the date range requested
     idx = find( ( dns >= date_start ) & ( dns <= date_end ) );
     fnames = fnames( idx );
