@@ -2004,7 +2004,7 @@ if write_complete_out_file == 1;
                        lw_outgoing,NR_sw,NR_lw,NR_tot];
     end
 
-    outfilename = strcat(outfolder,filename,'_qc_test')
+    outfilename = strcat(outfolder,filename,'_qc')
     xlswrite(outfilename,header2,'data','A1');
     xlswrite(outfilename,datamatrix2,'data','B2');
     xlswrite(outfilename,timestamp,'data','A2');
