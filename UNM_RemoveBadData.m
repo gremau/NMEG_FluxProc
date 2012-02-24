@@ -70,7 +70,7 @@ if sitecode==1; % grassland
         ustar_lim = 0.06;
         co2_min = -10; co2_max = 6;
     elseif year == 2011;
-        filelength_n = 14572;
+        filelength_n = 17523;
         lastcolumn='IL';
         ustar_lim = 0.06;
         co2_min = -10; co2_max = 6;
@@ -261,7 +261,7 @@ elseif sitecode==6; % Mixed conifer
         ustar_lim = 0.11;
         co2_min = -12; co2_max = 6;
     elseif year == 2011;
-        filelength_n = 13716;
+        filelength_n = 17523;
         lastcolumn='GI';
         ustar_lim = 0.11;
         co2_min = -12; co2_max = 6;
@@ -1594,6 +1594,14 @@ if write_gap_filling_out_file == 1;
         outfilename = strcat(outfolder,filename,'_for_gap_filling')
         xlswrite(outfilename, header, 'data', 'A1');
         xlswrite(outfilename, datamatrix, 'data', 'A2');
+
+        outfilename = strcat( outfilename, '.txt' ); 
+        fid = fopen( outfilename , 'w' );
+        fmt = repmat('%s\t', 1, numel( header ) - 1 );
+        fmt = [ fmt, '%s\n' ];
+        fprintf( fid, fmt, header{ : } );
+        fclose( fid );
+        dlmwrite( outfilename, datamatrix, '-append', 'delimiter', '\t' );
     end
 end
 
