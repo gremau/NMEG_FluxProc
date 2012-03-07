@@ -25,7 +25,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     Rg_flag=f_flag;
     VPD_flag = f_flag;
     
-    VPD_f = ds_pt.VPD ./ 10; % convert to kPa
+    VPD_f = ds_pt.VPD_f ./ 10; % convert to kPa
                              % what is "_g"?  "good" values?  --TWH
     VPD_g = dummy;
     VPD_g( ~isnan( ds_qc.rH ) ) = VPD_f( ~isnan( ds_qc.rH ) );
@@ -123,7 +123,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     ds_qc.lw_outgoing( HL( ds_qc.lw_outgoing, 120, 650 ) ) = NaN;
     ds_qc.E_wpl_massman( HL( ds_qc.E_wpl_massman .* 18, -5, Inf ) ) = NaN;
     ds_qc.CO2_mean( HL( ds_qc.CO2_mean, 350, Inf ) ) = NaN;
-    ds_qc.wnd_spd( HL( ds_qc.wnd_spd, 25, Inf ) ) = NaN;
+    ds_qc.wnd_spd( HL( ds_qc.wnd_spd, -Inf, 25  ) ) = NaN;
     ds_qc.atm_press( HL( ds_qc.atm_press, 20, 150 ) ) = NaN;
     ds_qc.Par_Avg( HL( ds_qc.Par_Avg, -100, 2500 ) ) = NaN;
     for i = 1:numel( shf_vars )
