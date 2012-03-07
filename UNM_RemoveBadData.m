@@ -213,8 +213,8 @@ elseif sitecode==5; % Ponderosa Pine
         co2_min = -15; co2_max = 15;
 %        co2_min = -30; co2_max = 30;
     elseif year == 2010;
-        filelength_n = 9578;
-        lastcolumn='GG';
+        filelength_n = 17523;
+        lastcolumn='FW';
         ustar_lim = 0.08;
         co2_min = -15; co2_max = 15;
     elseif year == 2011;
@@ -256,8 +256,8 @@ elseif sitecode==6; % Mixed conifer
         ustar_lim = 0.11;
         co2_min = -12; co2_max = 6;
     elseif year == 2010;
-        filelength_n = 8098;
-        lastcolumn='GF';
+        filelength_n = 17523;
+        lastcolumn='GI';
         ustar_lim = 0.11;
         co2_min = -12; co2_max = 6;
     elseif year == 2011;
@@ -399,7 +399,7 @@ elseif sitecode == 10; % Pinyon Juniper girdle
     if year == 2009
         filelength_n = 17523;
     elseif year == 2010
-        filelength_n = 9678;
+        filelength_n = 17523;
     elseif year == 2011
         filelength_n = 17523;
     end      

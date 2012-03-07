@@ -102,20 +102,22 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     % plot the data before writing out to files
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    start_col = 5; %skip plotting for first 4 columns (time variables)
-    t0 = now();
-    fname = fullfile( get_out_directory( sitecode ), ...
-                      sprintf( '%s_%d_gapfilled.ps', ...
-                               get_site_name(sitecode), year ) );
-    UNM_Ameriflux_plot_dataset_eps( amflux_gf, fname, year, start_col );
-    fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
-
-    t0 = now();
-    fname = fullfile( get_out_directory( sitecode ), ...
-                      sprintf( '%s_%d_with_gaps.ps', ...
-                               get_site_name(sitecode), year ) );
-    UNM_Ameriflux_plot_dataset_eps( amflux_gaps, fname, year, start_col );
-    fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
+    if 0
+        start_col = 5; %skip plotting for first 4 columns (time variables)
+        t0 = now();
+        fname = fullfile( get_out_directory( sitecode ), ...
+                          sprintf( '%s_%d_gapfilled.ps', ...
+                                   get_site_name(sitecode), year ) );
+        UNM_Ameriflux_plot_dataset_eps( amflux_gf, fname, year, start_col );
+        fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
+        
+        t0 = now();
+        fname = fullfile( get_out_directory( sitecode ), ...
+                          sprintf( '%s_%d_with_gaps.ps', ...
+                                   get_site_name(sitecode), year ) );
+        UNM_Ameriflux_plot_dataset_eps( amflux_gaps, fname, year, start_col );
+        fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
+    end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % write gapfilled and with_gaps Ameriflux files

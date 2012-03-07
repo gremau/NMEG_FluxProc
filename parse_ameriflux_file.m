@@ -1,6 +1,10 @@
 function amflux_ds = parse_ameriflux_file( fname )
 % PARSE_AMERIFLUX_FILE - parse an ameriflux file to a matlab dataset
 % 
+% USAGE:
+%   amflux_ds = parse_ameriflux_file( fname )
+%
+% (c) Timothy W. Hilton, UNM, Dec 2011
 
 headerlines = 3;
 delim = '\t';
