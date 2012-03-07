@@ -87,6 +87,7 @@ plot( axh_gap, data_gaps.DTIME, data_gaps( :, 5 ), '.k' );
 plot( axh_filled, data_filled.DTIME, data_filled( :, 5 ), '.k' );
 set( axh_gap, 'xlim', [ 0, 366 ] );
 set( axh_filled, 'xlim', [ 0, 366 ] );
+xlabel( axh_gap, 'day of year' );
 title( axh_filled, [ data_filled.Properties.VarNames{ 5 }, ' (gapfilled)' ] );
 
 %--------------------------
@@ -113,6 +114,9 @@ function cur_col = prev_but_cbk( source, eventdata, ...
 
     set( axh_gap, 'xlim', [ 0, 366 ] );
     set( axh_filled, 'xlim', [ 0, 366 ] );
+    
+    % label x axis on lower plot
+    xlabel( axh_gap, 'day of year' );
     
     % title string
     t_str = strrep( vars.var_filled, '_', '\_');
@@ -144,6 +148,9 @@ function cur_col = next_but_cbk( source, eventdata, nfields, ...
     set( axh_gap, 'xlim', [ 0, 366 ] );
     set( axh_filled, 'xlim', [ 0, 366 ] );
 
+    % label x axis on lower plot
+    xlabel( axh_gap, 'day of year' );
+    
     % title string
     t_str = strrep( vars.var_filled, '_', '\_');
     t_str = strrep( t_str, '0x2E', '.');
