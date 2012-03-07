@@ -1069,11 +1069,28 @@ elseif sitecode == 7
         NR_tot = NR_lw + NR_sw;
     end
     
-elseif intersect( sitecode, [ 9, 10, 11 ] )
+elseif intersect( sitecode, [ 9, 10 ] )
         NR_lw = lw_incoming - lw_outgoing; 
         NR_sw = sw_incoming - sw_outgoing;
         NR_tot = NR_lw + NR_sw;    
-    
+
+%%%%%%%%%%%%%%%%% New Grassland
+elseif sitecode == 11 
+        % calibration correction for the li190
+        Par_Avg = Par_Avg.*1000./(5.7*0.604);
+        % calibration and unit conversion into W per m^2 for CNR1 variables
+        % and adjust for program error
+        sw_incoming = sw_incoming./136.99.*(1000./8.49);
+        sw_outgoing = sw_outgoing./136.99.*(1000./8.49);
+        lw_incoming = lw_incoming./136.99.*(1000./8.49); 
+        lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
+        % temperature correction just for long-wave
+        lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4;
+        lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4;
+        % calculate new net radiation values
+        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
+        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
+        NR_tot = NR_lw + NR_sw;        
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
