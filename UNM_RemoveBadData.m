@@ -678,7 +678,7 @@ end
 
 if sitecode == 1 %GLand   added TWH, 27 Oct 2011
     for i=1:ncol;
-        if strcmp('TCAV_grass_2_Avg',headertext(i)) == 1
+        if strcmp('TCAV_grass_Avg',headertext(i)) == 1
             Tsoil = data(:,i-1);
         end
     end

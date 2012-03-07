@@ -1,6 +1,6 @@
 function UNM_Ameriflux_Data_Viewer( sitecode, year )
-% UNM_retrieve_card_data -- creates a graphical user interface to select a
-% site and retrieve flux data from its flash card
+% UNM_Ameriflux_Data_Viewer -- a graphical user interface to view and compare
+% gapfilled and non-gapfilled Ameriflux data
 %       
 % USAGE
 %    UNM_Ameriflux_Data_Viewer( sitecode, year )
