@@ -241,7 +241,7 @@ DATA_IN = num;
 [num text] = xlsread(filein,strcat(timestamp_col,num2str(first_row),':',timestamp_col,num2str(last_row))); % timestamps are text so read them in separately
 timestamp = text; % assign timestamp array
 
-[year2 month day hour minute second] = datevec(timestamp) % ,'dd/mm/yyyy HH:MM:SS'); %break timestamp into usable data and time variables
+[year2 month day hour minute second] = datevec(timestamp); % ,'dd/mm/yyyy HH:MM:SS'); %break timestamp into usable data and time variables
 %[year month day hour minute second] = datevec(timestamp); %break timestamp into usable data and time variables
 
 
