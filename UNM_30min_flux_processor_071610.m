@@ -45,7 +45,7 @@ elseif sitecode == 2
     site = 'SLand';
     z_CSAT = 3.2; sep2 = 0.134; angle = 11.18; h_canopy = 0.8;
     timestamp_col = 'CG';
-    bad_variance_col = 'BP';  
+    bad_variance_col = 'BP';
     data1c1 = 'CH';
     data1c2 = 'IL';
     data2c1 = 'J';
@@ -129,14 +129,14 @@ elseif sitecode == 7
     site = 'TX';
     z_CSAT = 8.75; sep2 = .241; angle = 31.37109; h_canopy = 2.5;
     if year == 2008
-        timestamp_col = 'BV'; 
+        timestamp_col = 'BV';
         bad_variance_col = 'BP';
         data1c1 = 'BW';
         data1c2 = 'FC';
         data2c1 = 'J';
         data2c2 = 'BU';
     elseif year == 2009 || year == 2010 || year == 2011
-        timestamp_col = 'CG'; 
+        timestamp_col = 'CG';
         bad_variance_col = 'BX';
         data1c1 = 'CH';
         data1c2 = 'GP';
@@ -149,14 +149,14 @@ elseif sitecode == 8
     bad_variance_col = 'BP';
     z_CSAT = 15.24; sep2 = .11; angle = 13.79; h_canopy = 7.62;
     if year == 2008
-        timestamp_col = 'CG'; 
+        timestamp_col = 'CG';
         bad_variance_col = 'BX';
         data1c1 = 'CH';
         data1c2 = 'EN';
         data2c1 = 'J';
         data2c2 = 'BQ';
     elseif year == 2009 || year == 2010 || year == 2011
-        timestamp_col = 'CG'; 
+        timestamp_col = 'CG';
         bad_variance_col = 'BX';
         data1c1 = 'CH';
         data1c2 = 'EN';
@@ -170,14 +170,14 @@ elseif sitecode == 9
     timestamp_col = 'BV';
     bad_variance_col = 'BP';
     if year == 2008
-        timestamp_col = 'CG'; 
+        timestamp_col = 'CG';
         bad_variance_col = 'BX';
         data1c1 = 'CH';
         data1c2 = 'ET';
         data2c1 = 'J';
         data2c2 = 'BQ';
     elseif year == 2009 || year == 2010 || year == 2011
-        timestamp_col = 'CG'; 
+        timestamp_col = 'CG';
         bad_variance_col = 'BX';
         data1c1 = 'CH';
         data1c2 = 'EN';
@@ -363,7 +363,7 @@ rhomtotal  = (1e3./8.314).*press_mean./TD;
 h2owet = h2o_Avg./rhomtotal;
 
 % calculate mol fraction of co2 (umol co2/mol moist air) in moist air
-co2wet = 1e3.*co2_mean./rhomtotal; 
+co2wet = 1e3.*co2_mean./rhomtotal;
 
 % Assume wet air and the partial pressure of dry air is the output of the
 % irga minus the vapor pressure
@@ -535,7 +535,7 @@ for i = 1:nrows
         b2 = 0.004444167;
         k(1) = -0.001619988;
         k(2) = -0.004444117;
-        k(3) = 0.999988813;            
+        k(3) = 0.999988813;
 
     elseif sitecode == 7 && year == 2006 % all of 2006 looks pretty consistent, use one set of data
         b0 = 0.064455667;
@@ -552,7 +552,7 @@ for i = 1:nrows
         b2 = 0.004444167;
         k(1) = -0.001619988;
         k(2) = -0.004444117;
-        k(3) = 0.999988813;            
+        k(3) = 0.999988813;
 
     elseif sitecode == 7 && year == 2007 && month(1) == 3 || sitecode == 7 && year == 2007 && month(1) == 4
         % March and April 2007 has their own set of coefficients
@@ -561,7 +561,7 @@ for i = 1:nrows
         b2 = 0.004444167;
         k(1) = -0.001619988;
         k(2) = -0.004444117;
-        k(3) = 0.999988813;       
+        k(3) = 0.999988813;
 
     elseif sitecode == 7 && year == 2007 && month(1) >= 5 %after that, use a new set of
         % coefficients calculated with only the data in the last 6 months of 2007 
@@ -588,28 +588,28 @@ for i = 1:nrows
             b2 = -0.031249502;
             k(1) = -0.046221527;
             k(2) = 0.014738558;
-            k(3) = 0.998206387;  
+            k(3) = 0.998206387;
         elseif wind_direction(i) > 60 && wind_direction(i) <= 210
             b0 = 0.094117303;
             b1 = 0.03882402;
             b2 = 0.011170481;
             k(1) = -0.038792377;
             k(2) = -0.011161377;
-            k(3) = 0.999184955;  
+            k(3) = 0.999184955;
         elseif wind_direction(i) > 210 && wind_direction(i) <= 270
             b0 = 0.070326918;
             b1 = -0.026290012;
             b2 = -0.009114614;
             k(1) = 0.02627984;
             k(2) = 0.009111088;
-            k(3) = 0.999613104;  
+            k(3) = 0.999613104;
         elseif wind_direction(i) > 270 && wind_direction(i) <= 360
             b0 = 0.215938294;
             b1 = 0.123314215;
             b2 = 0.000787889;
             k(1) = -0.122387155;
             k(2) = -0.000781966;
-            k(3) = 0.992482127; 
+            k(3) = 0.992482127;
         end    
 
     elseif sitecode == 9 % TX_grassland
@@ -694,9 +694,9 @@ for i = 1:nrows
    % flux_co2(i) = (flux_co2(i)./1000000)*44*1000; % back to mg
     
     % rotating sensible heat flux
-    cov_Ts_Ux(i)
-    cov_Ts_Uy(i)
-    cov_Ts_Uz(i)
+    cov_Ts_Ux(i);
+    cov_Ts_Uy(i);
+    cov_Ts_Uz(i);
         
     H(i,:) = [cov_Ts_Ux(i) cov_Ts_Uy(i) cov_Ts_Uz(i)];
     uxT_rot(i) = sum(l(i,:).*H(i,:));
@@ -737,10 +737,10 @@ for i = 1:nrows
     L = -((USTAR(i))^3*TD(i))/(0.4 * 9.81 * cov_Ts_Uz(i));
     
     % CALL MASSMAN
-    i
+    i;
     [X_op_C,X_op_H,X_T,zoL]= UNM_massman(z,L,uvwmean(i,:),sep2,angle);
 
-    HSdry_massman(i) = HSdry(i)./X_T; 
+    HSdry_massman(i) = HSdry(i)./X_T;
     flux_h2o_massman(i) = flux_h2o(i)/X_op_H; % flux still in mmol per m^2 per s
     flux_co2_massman(i) = (flux_co2(i)/X_op_C)*1000/44; %flux still in mg per m^2 s converted to umol per m^2 s
 
@@ -840,7 +840,7 @@ elseif year==2009 || sitecode==3 || year == 2010 || year==2008 && sitecode==8 ||
      Fc_raw',flux_co2_massman',Fc_water_term',Fc_heat_term_massman',Fc_corr_massman_ourwpl',...
      flux_h2o',flux_h2o_massman',E_water_term',E_heat_term_massman',E_corr_massman',blank',...
      HSdry',HSwet',HSwetwet',HSdry_massman',...
-     flux_HL',flux_HL_massman',flux_HL_wpl_massman',rhoa_out',rhov_out',rhoc_out'];  
+     flux_HL',flux_HL_massman',flux_HL_wpl_massman',rhoa_out',rhov_out',rhoc_out'];
  
  % MF: the files for sites GLand and SLand lack cols for cov_Ux_Ux, cov_Uy_Uy, and cov_Uz_Uz,
  % therefore, this block is for those two sites, and does not contain the missing data vectors
