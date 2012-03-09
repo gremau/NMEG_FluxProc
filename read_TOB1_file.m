@@ -30,6 +30,11 @@ function ds = read_TOB1_file( fname )
     var_units = regexp( headerlines{ 3 }, ',', 'split' );
     var_types = regexp( headerlines{ 5 }, ',', 'split' );
 
+    % ignore parenthesized portions of variable names
+    var_names = regexp( var_names, '\(', 'split' );
+    var_names = cellfun( @(x) x{1}, var_names, 'UniformOutput', false );
+    var_names = genvarname( var_names );
+
     % ---- process TOB1 file data ----
     
     % file pointer is now at the end of the header / beginning of the data.  record
