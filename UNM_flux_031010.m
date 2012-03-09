@@ -799,7 +799,10 @@ else
     E_heat_term_massman  = (1+mu*sigma)*mean(rhov(iok))/mean(TDlag(2,iok))*Uz_Ts_c*(10^3/18.016);
     E_wpl_massman = E_water_term + E_heat_term_massman;
     
-    HL_wpl_massman = 18.016/1000*Lv*E_raw_massman;
+    % this needs to be fixed to include the E_heat_term_massman!  Right now
+    % (as a bandaid) this correction is in UNM_Remove_Bad_Data.  Make sure to
+    % remove that when you include the correction here!  -TWH, 8 Mar 2012
+    HL_wpl_massman = 18.016/1000*Lv*(E_raw_massman);% + E_heat_term_massman );
 
     if i==0
         HLATENT = [HL_raw; HL_raw_massman; HL_wpl_massman];
