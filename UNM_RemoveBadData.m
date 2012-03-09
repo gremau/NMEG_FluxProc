@@ -673,6 +673,17 @@ for i=1:ncol;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% correction for incorrectly-calculated latent heat flux pointed out by Jim
+% Heilman 8 Mar 2012.  E_heat_term_massman should have been added to the
+% latent heat flux.  To do the job right, this fix should happen in
+% UNM_flux_DATE.m.  Doing the correction here is a temporary fix in order to
+% get Ameriflux files created soon.
+% -TWH 9 Mar 2012
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+HL_wpl_massman = ( 18.016 / 1000 * Lv ) * ...
+    ( E_raw_massman + E_heat_term_massman );
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Site-specific steps for soil temperature
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
