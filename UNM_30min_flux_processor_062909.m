@@ -14,7 +14,7 @@ if sitecode == 1
     bad_variance_col = 'BP';
 elseif sitecode == 2
     timestamp_col = 'CG';
-    bad_variance_col = 'BP';  
+    bad_variance_col = 'BP';
     site = 'SLand';
     z_CSAT = 3.2; sep2 = 0.134; angle = 11.18; h_canopy = 0.8;
 elseif sitecode == 3
@@ -198,7 +198,7 @@ rhomtotal  = (1e3./8.314).*press_mean./TD;
 h2owet = h2o_Avg./rhomtotal;
 
 % calculate mol fraction of co2 (umol co2/mol moist air) in moist air
-co2wet = 1e3.*co2_mean./rhomtotal; 
+co2wet = 1e3.*co2_mean./rhomtotal;
 
 % Assume wet air and the partial pressure of dry air is the output of the
 % irga minus the vapor pressure
@@ -417,28 +417,28 @@ for i = 1:nrows
             b2 = -0.031249502;
             k(1) = -0.046221527;
             k(2) = 0.014738558;
-            k(3) = 0.998206387;  
+            k(3) = 0.998206387;
         elseif wind_direction(i) > 60 && wind_direction(i) <= 210
             b0 = 0.094117303;
             b1 = 0.03882402;
             b2 = 0.011170481;
             k(1) = -0.038792377;
             k(2) = -0.011161377;
-            k(3) = 0.999184955;  
+            k(3) = 0.999184955;
         elseif wind_direction(i) > 210 && wind_direction(i) <= 270
             b0 = 0.070326918;
             b1 = -0.026290012;
             b2 = -0.009114614;
             k(1) = 0.02627984;
             k(2) = 0.009111088;
-            k(3) = 0.999613104;  
+            k(3) = 0.999613104;
         elseif wind_direction(i) > 270 && wind_direction(i) <= 360
             b0 = 0.215938294;
             b1 = 0.123314215;
             b2 = 0.000787889;
             k(1) = -0.122387155;
             k(2) = -0.000781966;
-            k(3) = 0.992482127; 
+            k(3) = 0.992482127;
         end    
 
     elseif sitecode == 9 % TX_grassland
@@ -510,10 +510,10 @@ for i = 1:nrows
     L = -((USTAR(i))^3*TD(i))/(0.4 * 9.81 * cov_Ts_Uz(i));
     
     % CALL MASSMAN
-    i
+    i;
     [X_op_C,X_op_H,X_T,zoL]= UNM_massman(z,L,uvwmean(i,:),sep2,angle);
 
-    HSdry_massman(i) = HSdry(i)./X_T; 
+    HSdry_massman(i) = HSdry(i)./X_T;
     flux_h2o_massman(i) = flux_h2o(i)/X_op_H; % flux still in mmol per m^2 per s
     flux_co2_massman(i) = (flux_co2(i)/X_op_C)*1000/44; %flux still in mg per m^2 s converted to umol per m^2 s
 

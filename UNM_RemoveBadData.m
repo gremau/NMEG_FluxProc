@@ -133,8 +133,8 @@ elseif sitecode==3; % Juniper savanna
         ustar_lim = 0.08;
         co2_min = -10; co2_max = 10;
     elseif year == 2009
-        filelength_n = 4639;
-        lastcolumn='HN';
+        filelength_n = 17523;
+        lastcolumn='IN';
         ustar_lim = 0.08;
         co2_min = -10; co2_max = 10;
     elseif year == 2010
@@ -208,7 +208,7 @@ elseif sitecode==5; % Ponderosa Pine
 %        co2_min = -30; co2_max = 30;
     elseif year == 2009;
         filelength_n = 17524;
-        lastcolumn='GF';
+        lastcolumn='FY';
         ustar_lim = 0.08;
         co2_min = -15; co2_max = 15;
 %        co2_min = -30; co2_max = 30;
@@ -572,6 +572,7 @@ year2 = year(2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for i=1:ncol;
+    fprintf( 1, 'header %d: %s\n', i, headertext{ i } );
     if strcmp('agc_Avg',headertext(i)) == 1
         agc_Avg = data(:,i-1);
     elseif  strcmp('5point_precip', headertext(i)) == 1 || ...
@@ -680,7 +681,9 @@ end
 % get Ameriflux files created soon.
 % -TWH 9 Mar 2012
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-HL_wpl_massman = ( 18.016 / 1000 * Lv ) * ...
+Lv = ( repmat( 2.501, size( E_raw_massman ) ) - ...
+       0.00237 * ( Tdry - 273.15 ) )  * 10^3;
+HL_wpl_massman = ( 18.016 / 1000 * Lv ) .* ...
     ( E_raw_massman + E_heat_term_massman );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
