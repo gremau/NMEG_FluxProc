@@ -601,10 +601,6 @@ else
     covs = cov(cht);
     COVCHT = [covs(1,2); covs(1,3); covs(2,3)];
     
-    meanTinC = mean(TDlag(2))-273.15;
-    es = 0.611 * exp(17.502*meanTinC/(meanTinC + 240.97));
-    rH = mean(PWATER(iok))/es;
-    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % LATENT HEAT OF VAPORIZATION
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

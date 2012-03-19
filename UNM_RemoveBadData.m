@@ -527,7 +527,6 @@ iok=data(:,9);
 Tdry=data(:,14);
 wnd_dir_compass=data(:,15);
 wnd_spd=data(:,16);
-rH = data(:,17);
 u_star=data(:,28);
 CO2_mean=data(:,32);
 CO2_std=data(:,33);
