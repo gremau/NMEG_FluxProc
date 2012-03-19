@@ -517,8 +517,6 @@ for i=1:ncol;
     end
 end
 
-rH=rH./100;
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else
     
@@ -527,7 +525,6 @@ iok=data(:,9);
 Tdry=data(:,14);
 wnd_dir_compass=data(:,15);
 wnd_spd=data(:,16);
-rH = data(:,17);
 u_star=data(:,28);
 CO2_mean=data(:,32);
 CO2_std=data(:,33);
@@ -566,15 +563,22 @@ year2 = year(2);
 
  end
 
+%initialize RH to NaN
+rH = repmat( NaN, size( data, 1), 1 );
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Read in 30-min data, variable order and names in flux_all files are not  
 % consistent so match headertext
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for i=1:ncol;
-    fprintf( 1, 'header %d: %s\n', i, headertext{ i } );
     if strcmp('agc_Avg',headertext(i)) == 1
         agc_Avg = data(:,i-1);
+    elseif strcmp('RH',headertext(i)) == 1 || ...
+            strcmp('rh_hmp', headertext(i)) == 1 || ...
+            strcmp('rh_hmp_4_Avg', headertext(i)) == 1 || ...
+            strcmp('RH_Avg', headertext(i)) == 1
+        rH = data(:,i-1) / 100.0;
     elseif  strcmp('5point_precip', headertext(i)) == 1 || ...
             strcmp('rain_Tot', headertext(i)) == 1 || ...
             strcmp('precip', headertext(i)) == 1 || ...

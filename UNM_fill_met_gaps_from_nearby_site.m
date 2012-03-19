@@ -14,14 +14,16 @@ function result = UNM_fill_met_gaps_from_nearby_site( site_code, year, draw_plot
 %
 % (c) Timothy W. Hilton, UNM, March 2012
     
+% initialize
+result = -1;
     
-% assign each site a paired site to fill gaps from
+% assign each site a paired site to fill gaps from ( destination -- source )
 nearby_site = [ 2, ...   % GLand -- SLand
                 1, ...   % SLand -- GLand
-                1, ...   % JSav -- GLand (check this one!)
+                4, ...   % JSav -- GLand (use the met station, then PJ)
                 9, ...   % PJ -- PJ girdle
-                6, ...   % PPine -- MCon
-                5, ...   % MCon -- PPine
+                6, ...   % PPine -- MCon  (use met station)
+                5, ...   % MCon -- PPine  (use met station)
                 NaN, ... % TX -- ?
                 NaN, ... % TX -- ?
                 NaN, ... % TX -- ?
