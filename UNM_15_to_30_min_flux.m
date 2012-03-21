@@ -4,8 +4,8 @@ clear all; clc;
 
 % TX_forest
 
-% data = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\TX_grassland\flux\GrasslandFluxAll115FilescombinedAndGapChecked2005.xls','combined115','G2:AX34496');
-data = dlmread('c:\Research - Flux Towers\Flux Tower Data by Site\TX_forest\ForestFluxAll115FilescombinedAndGapChecked2005.txt');
+% data = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\TX_grassland\flux\GrasslandFluxAll115FilescombinedAndGapChecked2005.xls','combined115','G2:AX34496');
+data = dlmread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\TX_forest\ForestFluxAll115FilescombinedAndGapChecked2005.txt');
 
 filelength_n = size(data,1);
 
@@ -26,7 +26,7 @@ for i = 1:num_bins
     %new_values(i,1) = b(1);
 end
 
-dlmwrite('c:\Research - Flux Towers\Flux Tower Data by Site\TX_forest\2005_half_hour.dat',new_values)
+dlmwrite('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\TX_forest\2005_half_hour.dat',new_values)
 
 
-% xlswrite('c:\Research - Flux Towers\Flux Tower Data by Site\TX_grassland\TX_grassland_FLUX_all_2005.xls',new_values,'flux','A2:AW33567');
+% xlswrite('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\TX_grassland\TX_grassland_FLUX_all_2005.xls',new_values,'flux','A2:AW33567');

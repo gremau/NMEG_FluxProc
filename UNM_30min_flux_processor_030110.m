@@ -73,8 +73,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 filename = strcat(site,'_flux_all_v3_',num2str(year))
-%filein = strcat('C:\transfer\Flux Tower Data by Site\',site,'\',filename); % assemble path to file
-filein = strcat('F:\Work_machine\Research - Flux Towers\Flux Tower Data by Site\',site,'\',filename); % assemble path to file
+%filein = strcat('C:\transfer\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
+filein = strcat('F:\Work_machine\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
 datarange = strcat('BW',num2str(first_row),':','FC',num2str(last_row)); % specify what portion of spreadsheet to read in
 headerrange = strcat('BW2:FC2'); % specify portion of spreadsheet that is headers
 

@@ -2,7 +2,7 @@
 
 clear all; clc;
 
-data = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\PPine\PPine_FLUX_all_2007','lter met data','I2:I64329');
+data = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\PPine\PPine_FLUX_all_2007','lter met data','I2:I64329');
 filelength_n = 64328;
 
 new_value = [];
@@ -21,4 +21,4 @@ for i = 1:num_bins
     
 end
 
-xlswrite('c:\Research - Flux Towers\Flux Tower Data by Site\PPine\PPine_FLUX_all_2007',new_value','master','FZ5:FZ17524');
+xlswrite('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\PPine\PPine_FLUX_all_2007',new_value','master','FZ5:FZ17524');

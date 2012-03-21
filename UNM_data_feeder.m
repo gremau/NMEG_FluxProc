@@ -7,7 +7,7 @@ clf;
 t_start = now();
 
 drive = 'c:';
-filein = strcat( drive, '\Research - Flux Towers', '\data to run' );
+filein = strcat( drive, '\Research_Flux_Towers', '\data to run' );
 matrix = xlsread( filein, 'current', 'A1:I100' );
 requested_sitecodes = matrix( :, 1 );
 year = matrix( :, 2 );

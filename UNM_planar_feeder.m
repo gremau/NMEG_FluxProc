@@ -3,7 +3,7 @@ clc;
 clear;
 
 drive='c:'
-filein=strcat(drive,'\Research - Flux Towers','\data to run')
+filein=strcat(drive,'\Research_Flux_Towers','\data to run')
 matrix=xlsread(filein,'current','A1:I100');
 site=matrix(:,1);
 year=matrix(:,2);

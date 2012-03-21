@@ -1,7 +1,7 @@
 clc; clear;
 
 root_dir = 'J:\ZippedS05_part3\Documents and Settings\Jim Kjelgaard\Desktop\S2005\';
-out_dir = 'C:\Research - Flux Towers\Flux Tower Data by Site\TX_grassland\2005';
+out_dir = 'C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\TX_grassland\2005';
 s_folders = dir([root_dir 'S05*']);
 
 for i=1:length(s_folders)  

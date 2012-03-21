@@ -11,10 +11,10 @@ clear; clc;
 year = 2007
 
 % if year == 2008
-%     temp_1 = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\GLand_FLUX_all_2008','Deep well met data','N2:N6133');
-%     temp_10 = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\GLand_FLUX_all_2008','Deep well met data','O2:O6133');
-%     moist_10 = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\GLand_FLUX_all_2008','Deep well met data','R2:R6133');
-%     moist_30 = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\GLand_FLUX_all_2008','Deep well met data','S2:S6133');
+%     temp_1 = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\GLand_FLUX_all_2008','Deep well met data','N2:N6133');
+%     temp_10 = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\GLand_FLUX_all_2008','Deep well met data','O2:O6133');
+%     moist_10 = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\GLand_FLUX_all_2008','Deep well met data','R2:R6133');
+%     moist_30 = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\GLand_FLUX_all_2008','Deep well met data','S2:S6133');
 %     
 %     half_hour_temp_1 = temp_1./2;
 %     half_hour_temp_10 = temp_10./2;
@@ -29,15 +29,15 @@ year = 2007
 %     end
 % 
 %     data_out = [new_temp_1' new_temp_10' new_moist_10' new_moist_30']
-%     xlswrite('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\for_sara',data_out,'data','A2:D12265');
+%     xlswrite('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\for_sara',data_out,'data','A2:D12265');
 % end
 % 
 % if year == 2007
-%     jday = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\GLand_FLUX_all_2007','Deep well met data','C2:C8189');
-%     temp_1 = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\GLand_FLUX_all_2007','Deep well met data','O2:O8189');
-%     temp_10 = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\GLand_FLUX_all_2007','Deep well met data','P2:P8189');
-%     moist_10 = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\GLand_FLUX_all_2007','Deep well met data','S2:S8189');
-%     moist_30 = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\GLand_FLUX_all_2007','Deep well met data','T2:T8189');
+%     jday = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\GLand_FLUX_all_2007','Deep well met data','C2:C8189');
+%     temp_1 = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\GLand_FLUX_all_2007','Deep well met data','O2:O8189');
+%     temp_10 = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\GLand_FLUX_all_2007','Deep well met data','P2:P8189');
+%     moist_10 = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\GLand_FLUX_all_2007','Deep well met data','S2:S8189');
+%     moist_30 = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\GLand_FLUX_all_2007','Deep well met data','T2:T8189');
 %     
 %     half_hour_temp_1 = temp_1./2;
 %     half_hour_temp_10 = temp_10./2;
@@ -53,7 +53,7 @@ year = 2007
 %     end
 % 
 %     data_out = [new_temp_1' new_temp_10' new_moist_10' new_moist_30'];
-%     xlswrite('c:\Research - Flux Towers\Flux Tower Data by Site\GLand\for_sara',data_out,'data','B2:E16375');
+%     xlswrite('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\for_sara',data_out,'data','B2:E16375');
 % end
 
 

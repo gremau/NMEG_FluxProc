@@ -4,7 +4,7 @@ clear all; clc;
 
 % TX_forest
 
-data = xlsread('c:\Research - Flux Towers\Flux Tower Data by Site\TX_forest\TX_forest_2007_flux','TX_forest_2007_flux','A3:AW33568');
+data = xlsread('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\TX_forest\TX_forest_2007_flux','TX_forest_2007_flux','A3:AW33568');
 filelength_n = 33566;
 
 new_value = [];
@@ -23,4 +23,4 @@ for i = 1:num_bins
     
 end
 
-xlswrite('c:\Research - Flux Towers\Flux Tower Data by Site\TX_forest\TX_forest_2007_flux',new_value','master','A2:AW33567');
+xlswrite('c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\TX_forest\TX_forest_2007_flux',new_value','master','A2:AW33567');

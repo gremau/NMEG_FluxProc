@@ -23,7 +23,7 @@ year = 2010;
 %8-TX_forest
 %9-TX_grassland
 
-drive = 'c:\Research - Flux Towers\Flux Tower Data by Site\';
+drive = 'c:\Research_Flux_Towers\Flux_Tower_Data_by_Site\';
 
 if sitecode==1;
     filelength_n=17521-1; %for 2007 use 10052
