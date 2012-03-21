@@ -167,7 +167,19 @@ if draw_plots
 
 end
 
-result = this_data;
+% replace NaNs with -999
+temp = double( this_data );
+temp( isnan( temp ) ) = -999.0;
+this_data = replacedata( this_data, temp );
+
+% write filled data to file
+outfile = fullfile( get_out_directory( sitecode ), ...
+                    sprintf( '%s_flux_all_%d_for_gap_filling_filled.txt', ...
+                             get_site_name( sitecode ), year ) );
+fprintf( 'writing %s\n', outfile );
+export( this_data, 'file', outfile );
+
+result = 0;
 
 %===========================================================================
 
