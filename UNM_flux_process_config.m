@@ -12,7 +12,7 @@ function fluxrc =  UNM_flux_process_config()
 %   FLUXROOT: path to the directory containing the flux data.  The individual
 %      sites' data directories are assumed to reside here.
 %   sitefolder: The directory within FLUXROOT containing the sites'
-%      directories (e.g. 'Flux Tower Data by Site').
+%      directories (e.g. 'Flux_Tower_Data_by_Site').
 %   outfolder: directory where processed fluxes will be placed.
 %
 % Timothy W. Hilton, UNM, Aug 2011    
@@ -38,7 +38,7 @@ function fluxrc =  UNM_flux_process_config()
   while length(FLUXROOT) == 0
       %error('environment variable fluxroot not defined');
       FLUXROOT = input( [ 'environment variable fluxroot not defined; please ' ...
-                          'define FLUXROOT (e.g. C:\Research - Flux Towers): ' ], ...
+                          'define FLUXROOT (e.g. C:\Research_Flux_Towers): ' ], ...
                         's' );
       if ( exist( FLUXROOT ) ~= 7 )
           disp( sprintf( '%s is not a valid directory.\n', FLUXROOT ) );
@@ -46,7 +46,7 @@ function fluxrc =  UNM_flux_process_config()
       end
   end
       
-  sitefolder = fullfile(FLUXROOT, 'Flux Tower Data by Site');
+  sitefolder = fullfile(FLUXROOT, 'Flux_Tower_Data_by_Site');
   outfolder = fullfile(FLUXROOT, 'FluxOut');
   
   fluxrc = struct('site_names', {site_names}, ...

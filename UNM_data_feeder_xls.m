@@ -4,7 +4,7 @@
 
 function [args] = UNM_data_feeder_xls()
   
-  filein = 'C:\Research - Flux Towers\data to run.xls';
+  filein = 'C:\Research_Flux_Towers\data to run.xls';
 % $$$   if exist(filein != 2)
 % $$$     filein = uigetfile()
 % $$$   end

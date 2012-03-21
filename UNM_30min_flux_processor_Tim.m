@@ -253,7 +253,7 @@ function [] = UNM_30min_flux_processor_Tim(sitecode,year,first_row,last_row)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 filename = strcat(site,'_flux_all_',num2str(year))
-filein = strcat('C:\Research - Flux Towers\Flux Tower Data by Site\',site,'\',filename); % assemble path to file
+filein = strcat('C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
 datarange = strcat(data1c1,num2str(first_row),':',data1c2,num2str(last_row)); % specify what portion of spreadsheet to read in
 headerrange = strcat(data1c1,'2:',data1c2,'2'); % specify portion of spreadsheet that is headers
 

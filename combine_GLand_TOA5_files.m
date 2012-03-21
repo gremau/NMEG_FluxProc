@@ -1,5 +1,5 @@
 %% define file locations
-path = 'C:\Research - Flux Towers\Flux Tower Data by Site\GLand\toa5\';
+path = 'C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\GLand\toa5\';
 
 files = ...
     { 'TOA5_GLand_2010_12_21_1600.DAT', ...
