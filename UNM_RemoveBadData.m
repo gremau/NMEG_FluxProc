@@ -15,7 +15,7 @@
 %
 % UNM_RemoveBadData_080310(sitecode,year)
 
-function [] = UNM_RemoveBadData_current(sitecode,year)
+function [] = UNM_RemoveBadData(sitecode,year)
 %clear all
 %close all
 
@@ -226,7 +226,7 @@ elseif sitecode==5; % Ponderosa Pine
 %    co2_max_by_month = [4 4 4 4 5 12 12 12 12 12 4 4];
     co2_max_by_month = [4 4 4 5 8 8 8 8 8 8 5 4];
     wind_min = 119; wind_max = 179; % these are given a sonic_orient = 329;
-    Tdry_min = 240; Tdry_max = 300;
+    Tdry_min = 240; Tdry_max = 310;
     HS_min = -200; HS_max = 800;
     HSmass_min = -200; HSmass_max = 800;
     LH_min = -50; LH_max = 550;
