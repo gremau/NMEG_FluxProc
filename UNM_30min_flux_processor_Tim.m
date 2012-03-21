@@ -5,7 +5,17 @@
 
 %Written by John DeLong summer 2008
 
-%UNM_30min_flux_processor_v2
+% Edited by Mike Fuller, July 2011
+% This version was edited to add the 'New GLand' site to the list of sites,
+% fix a faulty block of 'if-else' statements that used incorrect logical
+% flow and unecessary comparison statements (i.e. '==1'), and to add 
+% exception handling for a incorrectly formed input file (xls file)and when 
+% NANs are encountered for date/time.
+
+% Further updated by Timothy W. Hilton, Sep 2011 to add updated angles and
+% instrument height for PJ girdle site.
+
+%UNM_30min_flux_processor_v2.1
 
 function [] = UNM_30min_flux_processor_Tim(sitecode,year,first_row,last_row)
 
@@ -14,215 +24,228 @@ function [] = UNM_30min_flux_processor_Tim(sitecode,year,first_row,last_row)
 % first_row=10228;
 % last_row=10707;
 
-if sitecode == 1
+% MF:
+% Flux-All File Columns used to index the input data range.
+% data1c1-data1c2 = TOA5 Data Section of Flux_All file
+% data2c1-data2c2 = MATLAB Processed Section of Flux_All file
+% (the index of these columns in the flux-all file differs among sites and
+% years):
+%
+%   timestamp_col = "TOA5 Timestamp" column
+%   bad_variance_col = "Bad Variance" column 
+%   data1c1 = "Fc_wpl" column (corrected carbon flux)
+%   data1c2 = "rain_Tot" (total rain precipitation)
+%   data2c1 = "jday" (Julian day)
+%   data2c2 = "w_mean" (last column of "MATLAB processed" section)
+
+  if sitecode == 1
     site = 'GLand';
     z_CSAT = 3.2; sep2 = 0.191; angle = 28.94; h_canopy = 0.25;
     timestamp_col = 'CG';
     bad_variance_col = 'BP';
     if year == 2007
-        timestamp_col = 'CG';
-        bad_variance_col = 'BP';
-        data1c1 = 'CH';
-        data1c2 = 'IL';
-        data2c1 = 'J';
-        data2c2 = 'BQ';
-        cov_Ux_Ux = -9999;          % next three lines added by MF
-        cov_Uy_Uy = -9999;
-        cov_Uz_Uz = -9999;
-    else                            % this else block added by MF
-        timestamp_col = 'BW';
-        bad_variance_col = 'BP';
-        data1c1 = 'BX';
-        data1c2 = 'IC';
-        data2c1 = 'J';
-        data2c2 = 'BU';
-        cov_Ux_Ux = -9999;
-        cov_Uy_Uy = -9999;
-        cov_Uz_Uz = -9999;
-    end  
-
-elseif sitecode == 2
+      timestamp_col = 'CG';
+      bad_variance_col = 'BP';
+      data1c1 = 'CH';
+      data1c2 = 'IL';
+      data2c1 = 'J';
+      data2c2 = 'BQ';
+      cov_Ux_Ux = -9999;          % next three lines added by MF
+      cov_Uy_Uy = -9999;
+      cov_Uz_Uz = -9999;
+    else                            % added by MF
+      timestamp_col = 'BW';
+      bad_variance_col = 'BP';
+      data1c1 = 'BX';
+      data1c2 = 'IC';
+      data2c1 = 'J';
+      data2c2 = 'BU';
+      cov_Ux_Ux = -9999;
+      cov_Uy_Uy = -9999;
+      cov_Uz_Uz = -9999;
+    end
+    
+  elseif sitecode == 2
     site = 'SLand';
     z_CSAT = 3.2; sep2 = 0.134; angle = 11.18; h_canopy = 0.8;
     timestamp_col = 'CG';
-    bad_variance_col = 'BP';  
+    bad_variance_col = 'BP';
     data1c1 = 'CH';
     data1c2 = 'IL';
     data2c1 = 'J';
     data2c2 = 'BQ';
     cov_Ux_Ux = -9999;  % this line added by MF
     
-elseif sitecode == 3
+  elseif sitecode == 3
     site = 'JSav';
     z_CSAT = 10.35; sep2 = .2; angle = 25; h_canopy = 3;
-    if year == 2009 || year == 2010 || year == 2011  % 2011 added by MF
-        timestamp_col = 'BW';
-        bad_variance_col = 'BP';
-        data1c1 = 'BX';
-        data1c2 = 'IE';
-        data2c1 = 'J';
-        data2c2 = 'BU';
+    if year == 2009 || year == 2010
+      timestamp_col = 'BW';
+      bad_variance_col = 'BP';
+      data1c1 = 'BX';
+      data1c2 = 'IE';
+      data2c1 = 'J';
+      data2c2 = 'BU';
     end
     
-elseif sitecode == 4
+  elseif sitecode == 4
     site = 'PJ';
     z_CSAT = 8.2; sep2 = .143; angle = 19.3; h_canopy = 4;
     if year == 2009
-        timestamp_col = 'CG';
-        bad_variance_col = 'BX';
-    elseif year == 2010 || year == 2011
-        timestamp_col = 'BW';
-        bad_variance_col = 'BP';
-        data1c1 = 'BX';
-        data1c2 = 'EZ';
-        data2c1 = 'J';
-        data2c2 = 'BU';
+      timestamp_col = 'CG';
+      bad_variance_col = 'BX';
+    elseif year == 2010
+      timestamp_col = 'BW';
+      bad_variance_col = 'BP';
+      data1c1 = 'BX';
+      data1c2 = 'EZ';
+      data2c1 = 'J';
+      data2c2 = 'BU';
     end
-elseif sitecode == 5
+  elseif sitecode == 5
     z_CSAT = 24.02; sep2 = 0.15; angle = 15.266; h_canopy = 17.428;
     site = 'PPine';
     if year == 2009
-        timestamp_col = 'CG';
-        bad_variance_col = 'BP';
-        data1c1 = 'CH';
-        data1c2 = 'GF';
-        data2c1 = 'J';
-        data2c2 = 'BU';
-    elseif year == 2010 
-        timestamp_col = 'CG';
-        bad_variance_col = 'BP';
-        data1c1 = 'CH';
-        data1c2 = 'GG';
-        data2c1 = 'J';
-        data2c2 = 'BU';
+      timestamp_col = 'CG';
+      bad_variance_col = 'BP';
+      data1c1 = 'CH';
+      data1c2 = 'GF';
+      data2c1 = 'J';
+      data2c2 = 'BU';
+    elseif year == 2010
+      timestamp_col = 'CG';
+      bad_variance_col = 'BP';
+      data1c1 = 'CH';
+      data1c2 = 'GG';
+      data2c1 = 'J';
+      data2c2 = 'BU';
     elseif year == 2011
-        timestamp_col = 'BW';
-        bad_variance_col = 'BP';
-        data1c1 = 'BX';
-        data1c2 = 'FW';
-        data2c1 = 'J';
-        data2c2 = 'BU';
+      timestamp_col = 'BW';
+      bad_variance_col = 'BP';
+      data1c1 = 'BX';
+      data1c2 = 'FW';
+      data2c1 = 'J';
+      data2c2 = 'BU';
     end
-        
-elseif sitecode == 6
+    
+  elseif sitecode == 6
     site = 'MCon';
     z_CSAT = 23.9; sep2 = 0.375; angle = 71.66; h_canopy = 16.56;
-        if year == 2009
-        timestamp_col = 'CG';
-        bad_variance_col = 'BP';
-        data1c1 = 'CH';
-        data1c2 = 'GF';
-        data2c1 = 'J';
-        data2c2 = 'BU';
-        end
-        if year == 2010 || year == 2011
-        timestamp_col = 'CG';
-        bad_variance_col = 'BP';
-        data1c1 = 'CH';
-        data1c2 = 'GI';
-        data2c1 = 'J';
-        data2c2 = 'BU';
-        end
-        
-        
-elseif sitecode == 7
+    if year == 2009
+      timestamp_col = 'CG';
+      bad_variance_col = 'BP';
+      data1c1 = 'CH';
+      data1c2 = 'GF';
+      data2c1 = 'J';
+      data2c2 = 'BU';
+    end
+    if year == 2010
+      timestamp_col = 'CG';
+      bad_variance_col = 'BP';
+      data1c1 = 'CH';
+      data1c2 = 'GI';
+      data2c1 = 'J';
+      data2c2 = 'BU';
+    end
+    
+  elseif sitecode == 7
     site = 'TX';
     z_CSAT = 8.75; sep2 = .2; angle = 25; h_canopy = 2.5;
     if year == 2008
-        timestamp_col = 'BV'; 
-        bad_variance_col = 'BP';
-        data1c1 = 'BW';
-        data1c2 = 'FC';
-        data2c1 = 'J';
-        data2c2 = 'BU';
-    elseif year == 2009 || year == 2010 || year == 2011
-        timestamp_col = 'CG'; 
-        bad_variance_col = 'BX';
-        data1c1 = 'CH';
-        data1c2 = 'GP';
-        data2c1 = 'J';
-        data2c2 = 'BQ';
+      timestamp_col = 'BV';
+      bad_variance_col = 'BP';
+      data1c1 = 'BW';
+      data1c2 = 'FC';
+      data2c1 = 'J';
+      data2c2 = 'BU';
+    elseif year == 2009
+      timestamp_col = 'CG';
+      bad_variance_col = 'BX';
+      data1c1 = 'CH';
+      data1c2 = 'GP';
+      data2c1 = 'J';
+      data2c2 = 'BQ';
     end
-elseif sitecode == 8
+    
+  elseif sitecode == 8
     site = 'TX_forest';
     timestamp_col = 'BV';
     bad_variance_col = 'BP';
     z_CSAT = 15.24; sep2 = .11; angle = 13.79; h_canopy = 7.62;
     if year == 2008
-        timestamp_col = 'CG'; 
-        bad_variance_col = 'BX';
-        data1c1 = 'CH';
-        data1c2 = 'EN';
-        data2c1 = 'J';
-        data2c2 = 'BQ';
-    elseif year == 2009 || year == 2010 || year == 2011
-        timestamp_col = 'CG'; 
-        bad_variance_col = 'BX';
-        data1c1 = 'CH';
-        data1c2 = 'EN';
-        data2c1 = 'J';
-        data2c2 = 'BQ';
+      timestamp_col = 'CG';
+      bad_variance_col = 'BX';
+      data1c1 = 'CH';
+      data1c2 = 'EN';
+      data2c1 = 'J';
+      data2c2 = 'BQ';
+    elseif year == 2009
+      timestamp_col = 'CG';
+      bad_variance_col = 'BX';
+      data1c1 = 'CH';
+      data1c2 = 'EN';
+      data2c1 = 'J';
+      data2c2 = 'BQ';
     end
     
-elseif sitecode == 9
+  elseif sitecode == 9
     site = 'TX_grassland';
     z_CSAT = 4; sep2 = .19; angle = 31.59; h_canopy = 1;
     timestamp_col = 'BV';
     bad_variance_col = 'BP';
     if year == 2008
-        timestamp_col = 'CG'; 
-        bad_variance_col = 'BX';
-        data1c1 = 'CH';
-        data1c2 = 'ET';
-        data2c1 = 'J';
-        data2c2 = 'BQ';
-    elseif year == 2009 || year == 2010 || year == 2011
-        timestamp_col = 'CG'; 
-        bad_variance_col = 'BX';
-        data1c1 = 'CH';
-        data1c2 = 'EN';
-        data2c1 = 'J';
-        data2c2 = 'BQ';
+      timestamp_col = 'CG';
+      bad_variance_col = 'BX';
+      data1c1 = 'CH';
+      data1c2 = 'ET';
+      data2c1 = 'J';
+      data2c2 = 'BQ';
+    elseif year == 2009
+      timestamp_col = 'CG';
+      bad_variance_col = 'BX';
+      data1c1 = 'CH';
+      data1c2 = 'EN';
+      data2c1 = 'J';
+      data2c2 = 'BQ';
     end
     
-    
-elseif sitecode == 10
+  elseif sitecode == 10
+    % 5 Sep 2011 - changed z_CSAT from 5.5 to 6.5 (as per Marcy's instruction)
     site = 'PJ_girdle';
-     z_CSAT = 5.5; sep2 = 0.194; angle = 13.3; h_canopy = 4;
-     if year == 2009
-         timestamp_col = 'BV';
-         bad_variance_col = 'BP';
-     elseif year == 2010 || year == 2011
-         timestamp_col = 'BW';
-         bad_variance_col = 'BP';
-        data1c1 = 'BX';
-        data1c2 = 'FE';
-        data2c1 = 'J';
-        data2c2 = 'BU';
-     elseif year == 2011
-       if first_row < 10660 & last_row >= 10660
-	 ME = MException('UNM_30min_flux_processor', 'PJgirdle instrument height and angles changed on 11 Aug 2011.  Please do not call UNM_30min_flux_processor for dates spanning 11 Aug 2011.');
-	 throw(ME);
-       end
-       if first_row >= 10660
-	 z_CSAT = 6.5; sep2 = 0.194; angle = 16.71; h_canopy = 4;
-       end
-     end
-
-     
-elseif sitecode == 11 % added July 2011 by MF
+    z_CSAT = 5.5; sep2 = 0.194; angle = 13.3; h_canopy = 4;
+    if year == 2009
+      timestamp_col = 'BV';
+      bad_variance_col = 'BP';
+    elseif year == 2010
+      timestamp_col = 'BW';
+      bad_variance_col = 'BP';
+      data1c1 = 'BX';
+      data1c2 = 'FE';
+      data2c1 = 'J';
+    elseif year == 2011
+      if first_row < 10660 & last_row >= 10660
+	ME = MException('UNM_30min_flux_processor', 'PJgirdle instrument height and angles changed on 11 Aug 2011.  Please do not call UNM_30min_flux_processor for dates spanning 11 Aug 2011.');
+	throw(ME);
+      end
+      if first_row >= 10660
+	z_CSAT = 6.5; sep2 = 0.194; angle = 16.71; h_canopy = 4;
+      end
+    end
+    
+  elseif sitecode == 11 % added July 2011 by MF
     site = 'New_GLand';
-     z_CSAT = 3.2; sep2 = 0.142; angle = 21.67; h_canopy = 0.25;
-     if year == 2010 || year == 2011
-        timestamp_col = 'BW';
-        bad_variance_col = 'BP';
-        data1c1 = 'BX';
-        data1c2 = 'HF';
-        data2c1 = 'J';
-        data2c2 = 'BU';
-     end                 
-   
-end
+    z_CSAT = 3.2; sep2 = 0.142; angle = 21.67; h_canopy = 0.25;
+    if year == 2010 || year == 2011
+      timestamp_col = 'BW';
+      bad_variance_col = 'BP';
+      data1c1 = 'BX';
+      data1c2 = 'HF';
+      data2c1 = 'J';
+      data2c2 = 'BU';
+      
+    end
+    
+  end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -230,7 +253,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 filename = strcat(site,'_flux_all_',num2str(year))
-filein = strcat('C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
+filein = strcat('C:\Research - Flux Towers\Flux Tower Data by Site\',site,'\',filename); % assemble path to file
 datarange = strcat(data1c1,num2str(first_row),':',data1c2,num2str(last_row)); % specify what portion of spreadsheet to read in
 headerrange = strcat(data1c1,'2:',data1c2,'2'); % specify portion of spreadsheet that is headers
 
@@ -246,13 +269,17 @@ datarange2 = strcat(data2c1,num2str(first_row),':',data2c2,num2str(last_row));
 [num text]=xlsread(filein,datarange2);
 DATA_IN = num;
 
-% 
-[num text] = xlsread(filein,strcat(timestamp_col,num2str(first_row),':',timestamp_col,num2str(last_row))); % timestamps are text so read them in separately
+% timestamps are text so read them in separately
+[num text] = xlsread(filein,strcat(timestamp_col,num2str(first_row),':',timestamp_col,num2str(last_row))); 
 timestamp = text; % assign timestamp array
 
-[year2 month day hour minute second] = datevec(timestamp) % ,'dd/mm/yyyy HH:MM:SS'); %break timestamp into usable data and time variables
-%[year month day hour minute second] = datevec(timestamp); %break timestamp into usable data and time variables
-
+% added by MF
+try
+    [year2 month day hour minute second] = datevec(timestamp) % ,'dd/mm/yyyy HH:MM:SS'); %break timestamp into usable data and time variables
+    %[year month day hour minute second] = datevec(timestamp); %break timestamp into usable data and time variables
+catch err
+    error('timestamp value found does not seem to be a date; check that correct column is being used for this input file');
+end
 
 bad_v = NaN(nrows);
 [num text] = xlsread(filein,strcat(bad_variance_col,num2str(first_row),':',bad_variance_col,num2str(last_row))); % 
@@ -280,62 +307,97 @@ jday(find(month == 12)) = day(find(month == 12)) + 334; % add nov days (30)
 % so we are using this string comparison function to locate data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Edited from original if-else block (MF)
+% Note: this block should also contain 'else' statements for the FALSE case
+% of each evaluation
+
 for i=1:ncol;
-    if strcmp('Ts_Avg',headertext(i)) == 1 || strcmp('Ts_mean',headertext(i)) == 1 || strcmp('Ts_a',headertext(i)) == 1
+      
+    if strcmp('Ts_Avg',headertext(i)) || strcmp('Ts_mean',headertext(i)) || strcmp('Ts_a',headertext(i))
         Ts_meanC = data(:,i); % read in in C 
         Ts_meanK = data(:,i) + 273.15; % converted to K
-    elseif strcmp('wnd_dir_compass',headertext(i)) == 1 || strcmp('cmpss_dir',headertext(i)) == 1
+    end
+    if strcmp('wnd_dir_compass',headertext(i)) || strcmp('cmpss_dir',headertext(i))
         wind_direction = data(:,i); % read in in degrees and just written back out
-    elseif strcmp('rslt_wnd_spd',headertext(i)) == 1 || strcmp('wnd_spd_a',headertext(i)) == 1
+    end
+    if strcmp('rslt_wnd_spd',headertext(i)) || strcmp('wnd_spd_a',headertext(i))
         wind_speed = data(:,i); % read in in m per s and just written back out
-    elseif strcmp('cov_Ux_Ts',headertext(i)) == 1 || strcmp('cov_Ts_Ux',headertext(i)) == 1 || strcmp('Ux_Ts',headertext(i)) == 1
+    end
+    if strcmp('cov_Ux_Ts',headertext(i)) || strcmp('cov_Ts_Ux',headertext(i)) || strcmp('Ux_Ts',headertext(i))
         cov_Ts_Ux = data(:,i); % this is cov b/w t and u
-    elseif strcmp('cov_Uy_Ts',headertext(i)) == 1 || strcmp('cov_Ts_Uy',headertext(i)) == 1 || strcmp('Uy_Ts',headertext(i)) == 1
+    end
+    if strcmp('cov_Uy_Ts',headertext(i)) || strcmp('cov_Ts_Uy',headertext(i)) || strcmp('Uy_Ts',headertext(i))
         cov_Ts_Uy = data(:,i); % this is cov b/w t and y
-    elseif strcmp('cov_Uz_Ts',headertext(i)) == 1 || strcmp('cov_Ts_Uz',headertext(i)) == 1 || strcmp('Uz_Ts',headertext(i)) == 1
+    end
+    if strcmp('cov_Uz_Ts',headertext(i)) || strcmp('cov_Ts_Uz',headertext(i)) || strcmp('Uz_Ts',headertext(i))
         cov_Ts_Uz = data(:,i); % this is cov b/w t and w
-    elseif strcmp('cov_Uz_Uz',headertext(i)) == 1
-        cov_Uz_Uz = data(:,i); % this is vertical wind variance
-    elseif strcmp('cov_Ux_Ux',headertext(i)) == 1
+    end
+    if strcmp('cov_Uz_Uz',headertext(i))
+        cov_Uz_Uz = data(:,i); % this is vertical wind varianc
+    end
+    if strcmp('cov_Ux_Ux',headertext(i))
         cov_Ux_Ux = data(:,i); % this is along wind variance
-    elseif strcmp('cov_Uy_Uy',headertext(i)) == 1
+    end
+    if strcmp('cov_Uy_Uy',headertext(i))
         cov_Uy_Uy = data(:,i); % this is across wind variance
-    elseif strcmp('co2_Avg',headertext(i)) == 1 || strcmp('co2_mean',headertext(i)) == 1 || strcmp('co2_a',headertext(i)) == 1
+    end
+    if strcmp('co2_Avg',headertext(i)) || strcmp('co2_mean',headertext(i)) || strcmp('co2_a',headertext(i))
         co2_mean = (data(:,i))./44; % read in in mg per m^3 but converted to mmol per m^3
-    elseif strcmp('cov_Ux_co2',headertext(i)) == 1 || strcmp('cov_co2_Ux',headertext(i)) == 1 || strcmp('Ux_co2',headertext(i)) == 1
+    end
+    if strcmp('cov_Ux_co2',headertext(i)) || strcmp('cov_co2_Ux',headertext(i)) || strcmp('Ux_co2',headertext(i))
         cov_co2_Ux = data(:,i); % read in in mg per m^2 per s
-    elseif strcmp('cov_Uy_co2',headertext(i)) == 1 || strcmp('cov_co2_Uy',headertext(i)) == 1 || strcmp('Uy_co2',headertext(i)) == 1
+    end
+    if strcmp('cov_Uy_co2',headertext(i)) || strcmp('cov_co2_Uy',headertext(i)) || strcmp('Uy_co2',headertext(i))
         cov_co2_Uy = data(:,i); % read in in mg per m^2 per s
-    elseif strcmp('cov_Uz_co2',headertext(i)) == 1 || strcmp('cov_co2_Uz',headertext(i)) == 1 || strcmp('Uz_co2',headertext(i)) == 1
+    end
+    if strcmp('cov_Uz_co2',headertext(i)) || strcmp('cov_co2_Uz',headertext(i)) || strcmp('Uz_co2',headertext(i))
         cov_co2_Uz = data(:,i); % read in in mg per m^2 per s
-    elseif strcmp('h2o_Avg',headertext(i)) == 1 || strcmp('h2o_mean',headertext(i)) == 1 || strcmp('h2o_a',headertext(i)) == 1
+    end
+    if strcmp('h2o_Avg',headertext(i)) || strcmp('h2o_mean',headertext(i)) || strcmp('h2o_a',headertext(i))
         h2o_Avg = data(:,i)./0.018; % read in in g per m^3 and converted to mmol per m^3
-    elseif strcmp('cov_Ux_h2o',headertext(i)) == 1 || strcmp('cov_h2o_Ux',headertext(i)) == 1 || strcmp('Ux_h2o',headertext(i)) == 1
+    end
+    if strcmp('cov_Ux_h2o',headertext(i)) || strcmp('cov_h2o_Ux',headertext(i)) || strcmp('Ux_h2o',headertext(i))
         cov_h2o_Ux = data(:,i)./0.018; % read in in g per m^2 per s and converted to mmol per m^2 per s
-    elseif strcmp('cov_Uy_h2o',headertext(i)) == 1 || strcmp('cov_h2o_Uy',headertext(i)) == 1 || strcmp('Uy_h2o',headertext(i)) == 1
+    end
+    if strcmp('cov_Uy_h2o',headertext(i)) || strcmp('cov_h2o_Uy',headertext(i)) || strcmp('Uy_h2o',headertext(i))
         cov_h2o_Uy = data(:,i)./0.018; % read in in g per m^2 per s and converted to mmol per m^2 per s
-    elseif strcmp('cov_Uz_h2o',headertext(i)) == 1 || strcmp('cov_h2o_Uz',headertext(i)) == 1 || strcmp('Uz_h2o',headertext(i)) == 1
+    end
+    if strcmp('cov_Uz_h2o',headertext(i)) || strcmp('cov_h2o_Uz',headertext(i)) || strcmp('Uz_h2o',headertext(i))
         cov_h2o_Uz = data(:,i)./0.018; % read in in g per m^2 per s and converted to mmol per m^2 per s
-    elseif strcmp('Ux_Avg',headertext(i)) == 1 || strcmp('Ux_a',headertext(i)) == 1
+    end
+    if strcmp('Ux_Avg',headertext(i)) || strcmp('Ux_a',headertext(i))
         umean = data(:,i);
-    elseif strcmp('Uy_Avg',headertext(i)) == 1 || strcmp('Uy_a',headertext(i)) == 1
+        disp('INITIALIZED UMEAN');
+    end
+    if strcmp('Uy_Avg',headertext(i)) || strcmp('Uy_a',headertext(i))
         vmean = data(:,i);
-    elseif strcmp('Uz_Avg',headertext(i)) == 1 || strcmp('Uz_a',headertext(i)) == 1
+    end
+    if strcmp('Uz_Avg',headertext(i)) || strcmp('Uz_a',headertext(i))
         wmean = data(:,i);
-    elseif strcmp('cov_Ux_Uy',headertext(i)) == 1 || strcmp('Ux_Uy',headertext(i)) == 1 
+    end
+    if strcmp('cov_Ux_Uy',headertext(i)) || strcmp('Ux_Uy',headertext(i)) 
         uv = data(:,i); %cov_Ux_Uy aka 12 , 21, aka uv,vu
-    elseif strcmp('cov_Uz_Ux',headertext(i)) == 1 || strcmp('cov_Ux_Uz',headertext(i)) == 1 || strcmp('Uz_Ux',headertext(i)) == 1
+    end
+    if strcmp('cov_Uz_Ux',headertext(i)) || strcmp('cov_Ux_Uz',headertext(i)) || strcmp('Uz_Ux',headertext(i))
         uw = data(:,i); %cov_Ux_Uz aka 13 , 31, aka uw,wu
-    elseif strcmp('cov_Uz_Uy',headertext(i)) == 1 || strcmp('cov_Uy_Uz',headertext(i)) == 1 || strcmp('Uz_Uy',headertext(i)) == 1
+    end
+    if strcmp('cov_Uz_Uy',headertext(i)) || strcmp('cov_Uy_Uz',headertext(i)) || strcmp('Uz_Uy',headertext(i))
         vw = data(:,i); %cov_Uy_Uz aka 23 , 32, aka vw,wv
-    elseif strcmp('press_Avg',headertext(i)) == 1 || strcmp('press_mean',headertext(i)) == 1 || strcmp('press_a',headertext(i)) == 1
+    end
+    if strcmp('press_Avg',headertext(i)) || strcmp('press_mean',headertext(i)) || strcmp('press_a',headertext(i))
         press_mean = data(:,i); % read in in kPa
-    elseif strcmp('RH',headertext(i)) == 1
+    end
+    if strcmp('RH',headertext(i))
         rH = 0.01.*data(:,i); % read in in kPa    
     end
 end
 
-uvwmean = [umean vmean wmean]; % pool winds for use below
+% exception handling statement added by MF
+try
+    uvwmean = [umean vmean wmean]; % pool winds for use below
+catch err
+    error('Could not initialize wind parameters; check TOA5 Timestamp column of excel file for missing date values');
+end
 
 h2o_Avg = h2o_Avg - 195;
 
@@ -629,7 +691,7 @@ for i = 1:nrows
         k(2) = -0.017892246;
         k(3) = 0.999822687;
 
-            elseif sitecode == 10  % pinyon juniper - girdled
+     elseif sitecode == 10  % pinyon juniper - girdled
 %             if speed >= 5
 %                 b0 = -0.01340991;
 %                 b1 = -0.01848391;
@@ -677,7 +739,10 @@ for i = 1:nrows
             k(2) = 0.0335881;
             k(3) = 0.9988199;
         end
-    end   
+            
+    end
+
+    
     
     % determine unit vectors i,j (parallel to new coordinate x and y axes)
     j(i,:) = cross(k,uvwmean(i,:));
@@ -843,31 +908,40 @@ if year==2008 && sitecode==7
  
  % MF: this next block's selection criteria applies to two sites
  % simultaneously (8 and 9) and therefore doesn't apply to any site!
-elseif year==2009 || sitecode==3 || year == 2010 || year==2008 && sitecode==8 || year==2008 && sitecode==9
+elseif year==2009 || sitecode==3 || year == 2010 || year==2008 && sitecode == 8 || year==2008 && sitecode==9 % 
  DATAOUT = [jday,blank',umean,vmean,wmean,Ts_meanC,TD,wind_direction,wind_speed,rH,blank',blank',blank',blank',blank',...
      blank',blank',cov_Ts_Ux,cov_Ts_Uy,cov_Ts_Uz,USTAR',blank',blank',blank',co2_mean_out,blank',blank',blank',blank',h2o_Avg_out,blank',...
      Fc_raw',flux_co2_massman',Fc_water_term',Fc_heat_term_massman',Fc_corr_massman_ourwpl',...
      flux_h2o',flux_h2o_massman',E_water_term',E_heat_term_massman',E_corr_massman',blank',...
      HSdry',HSwet',HSwetwet',HSdry_massman',...
-     flux_HL',flux_HL_massman',flux_HL_wpl_massman',rhoa_out',rhov_out',rhoc_out'];  
+     flux_HL',flux_HL_massman',flux_HL_wpl_massman',rhoa_out',rhov_out',rhoc_out'];   
  
- % MF: the files for sites GLand and SLand lack cols for cov_Ux_Ux, cov_Uy_Uy, and cov_Uz_Uz,
- % therefore, this block is for those two sites, and does not contain the missing data vectors
+  % MF: the files for sites GLand and SLand lack cols for cov_Ux_Ux, cov_Uy_Uy, and cov_Uz_Uz,
+  % therefore, this block is for those two sites, and does not contain the missing data vectors
 elseif sitecode==1 || sitecode==2
-  DATAOUT = [jday,blank',umean,vmean,wmean,Ts_meanC,TD,wind_direction,wind_speed,blank',blank',...
+  DATAOUT = [jday,blank',umean,vmean,wmean,Ts_meanC,TD,wind_direction,wind_speed,blank, blank',...
      blank',blank',cov_Ts_Ux,cov_Ts_Uy,cov_Ts_Uz,USTAR',blank',blank',blank',co2_mean_out,blank',blank',blank',blank',...
      h2o_Avg_out,blank',blank',blank',Fc_raw',blank',Fc_water_term',blank',flux_co2_massman',Fc_heat_term_massman',...
      Fc_corr_massman_ourwpl',blank',blank',flux_h2o',blank',E_water_term',blank',flux_h2o_massman',E_heat_term_massman',...
      E_corr_massman',HSdry',HSwet',HSwetwet',HSdry_massman',blank',flux_HL',blank',flux_HL_massman',flux_HL_wpl_massman',...
      rhoa_out',rhov_out',rhoc_out'];
+ 
+elseif sitecode == 11
+    DATAOUT = [jday,blank',umean,vmean,wmean,Ts_meanC,TD,wind_direction,wind_speed,rH,blank',blank',blank',blank',blank',...
+     blank',blank',cov_Ts_Ux,cov_Ts_Uy,cov_Ts_Uz,USTAR',blank',blank',blank',co2_mean_out,blank',blank',blank',blank',h2o_Avg_out,blank',...
+     Fc_raw',flux_co2_massman',Fc_water_term',Fc_heat_term_massman',Fc_corr_massman_ourwpl',...
+     flux_h2o',flux_h2o_massman',E_water_term',E_heat_term_massman',E_corr_massman',blank',...
+     HSdry',HSwet',HSwetwet',HSdry_massman',...
+     flux_HL',flux_HL_massman',flux_HL_wpl_massman',rhoa_out',rhov_out',rhoc_out'];   
  
 else
- DATAOUT = [jday,blank',umean,vmean,wmean,Ts_meanC,TD,wind_direction,wind_speed,cov_Ux_Ux,cov_Uy_Uy,cov_Uz_Uz,blank',blank',...
-     blank',blank',cov_Ts_Ux,cov_Ts_Uy,cov_Ts_Uz,USTAR',blank',blank',blank',co2_mean_out,blank',blank',blank',blank',...
-     h2o_Avg_out,blank',blank',blank',Fc_raw',blank',Fc_water_term',blank',flux_co2_massman',Fc_heat_term_massman',...
-     Fc_corr_massman_ourwpl',blank',blank',flux_h2o',blank',E_water_term',blank',flux_h2o_massman',E_heat_term_massman',...
-     E_corr_massman',HSdry',HSwet',HSwetwet',HSdry_massman',blank',flux_HL',blank',flux_HL_massman',flux_HL_wpl_massman',...
-     rhoa_out',rhov_out',rhoc_out'];
+ DATAOUT = [jday, blank', umean, vmean, wmean, Ts_meanC, TD, wind_direction, wind_speed, cov_Ux_Ux, cov_Uy_Uy, ...
+     cov_Uz_Uz, blank', blank', blank', blank', cov_Ts_Ux, cov_Ts_Uy, cov_Ts_Uz, USTAR', blank', blank', blank', ...
+     co2_mean_out, blank', blank', blank', blank', h2o_Avg_out, blank', blank', blank', Fc_raw', blank', ...
+     Fc_water_term',blank', flux_co2_massman', Fc_heat_term_massman', Fc_corr_massman_ourwpl', blank', blank', ...
+     flux_h2o', blank', E_water_term', blank', flux_h2o_massman', E_heat_term_massman', E_corr_massman', HSdry', ...
+     HSwet', HSwetwet', HSdry_massman', blank', flux_HL', blank', flux_HL_massman', flux_HL_wpl_massman', ...
+     rhoa_out', rhov_out', rhoc_out'];
 end
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
