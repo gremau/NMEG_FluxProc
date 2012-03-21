@@ -142,8 +142,9 @@ if draw_plots
     else
         h_filled_2 = 0;
     end
-    ylabel( 'RH (%)' );
+    ylabel( 'RH (fraction)' );
     xlabel( 'day of year' );
+    title( sprintf( '%s %d', get_site_name( sitecode ), year ) );
     legend( [ h_obs, h_filled_1, h_filled_2 ], ...
             'observed', 'filled 1', 'filled 2' );
 
@@ -162,6 +163,7 @@ if draw_plots
     end
     ylabel( 'Tair (C)' );
     xlabel( 'day of year' );
+    title( sprintf( '%s %d', get_site_name( sitecode ), year ) );
     legend( [ h_obs, h_filled_1, h_filled_2 ], ...
             'observed', 'filled 1', 'filled 2' );
 
