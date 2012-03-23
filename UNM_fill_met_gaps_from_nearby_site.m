@@ -171,7 +171,7 @@ end
 
 % replace NaNs with -999
 temp = double( this_data );
-temp( isnan( temp ) ) = -999.0;
+temp( isnan( temp ) ) = -9999;
 this_data = replacedata( this_data, temp );
 
 % write filled data to file

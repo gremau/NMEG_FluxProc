@@ -39,9 +39,9 @@ function [ amflux_gaps, amflux_gf ] = ...
 
     % Take out some extra uptake values at Grassland premonsoon.
     if sitecode ==1
-        to_remove = find( ds_qc.fc_raw_massman_wpl( 1:7000 ) <= 1.5 );
+        to_remove = find( ds_qc.fc_raw_massman_wpl( 1:7000 ) < -1.5 );
         ds_qc.fc_raw_massman_wpl( to_remove ) = NaN;
-        to_remove = find( ds_qc.fc_raw_massman_wpl( 1:5000 ) <= 0.75 );
+        to_remove = find( ds_qc.fc_raw_massman_wpl( 1:5000 ) < -0.75 );
         ds_qc.fc_raw_massman_wpl( to_remove ) = NaN;
     end
     % Take out some extra uptake values at Ponderosa respiration.

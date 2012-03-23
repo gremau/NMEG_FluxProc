@@ -1480,7 +1480,6 @@ if iteration > 4
     ylim([300 450]);
     xlabel('day of year');
     ylabel('[CO_2], ppm');
-    
 end % close if statement for iterations
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
