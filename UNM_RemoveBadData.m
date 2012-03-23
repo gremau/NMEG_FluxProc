@@ -1192,7 +1192,8 @@ fc_mg_corr = (fc_raw_massman_wpl.*0.044)+dFc;
 found = find(t_mean<0);
 fc_out=fc_mg;
 fc_out(found)=fc_mg_corr(found);
-figure; plot(fc_mg.*22.7273,'-'); hold on; plot(fc_out.*22.7273,'r-'); ylim([-20 20]);
+% not sure what this next line is plotting -- TWH 23 Mar 2012
+%figure; plot(fc_mg.*22.7273,'-'); hold on; plot(fc_out.*22.7273,'r-'); ylim([-20 20]);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set up filters for co2 and make a master flag variable (decimal_day_nan)
@@ -1486,12 +1487,55 @@ end % close if statement for iterations
 % Plot the co2 flux for the whole series
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-figure(2); clf;
-hold on; box on;
-plot(decimal_day,fc_raw_massman_wpl,'or');
-plot(decimal_day(find(~isnan(decimal_day_nan))),fc_raw_massman_wpl(find(~isnan(decimal_day_nan))),'.b');
-xlabel('decimal day'); ylabel('co2 flux');
-hold off; shg;
+h_fig_flux = figure( 'Units', 'Normalized', ...
+                     'Position', [ 0.1, 0.2, 0.85, 0.70 ] );
+ax2 = subplot( 'Position', [ 0.1, 0.1, 0.89, 0.2 ] );
+ax1 = subplot( 'Position', [ 0.1, 0.35, 0.89, 0.64 ] );
+hold on; 
+box on;
+% --------
+% plot NEE in the top panel
+% plot all observations as black circles
+axes( ax1 );
+h_all = plot( decimal_day, fc_raw_massman_wpl, 'ok');
+% plot the "good" observations (that weren't filtered out) as red dots
+idx_good = find( ~isnan( decimal_day_nan ) );
+h_good = plot( decimal_day( idx_good  ), ...
+               fc_raw_massman_wpl( idx_good ), '.r' );
+legend( [ h_all, h_good ], 'all obs', '"good" obs' );
+xlabel('decimal day'); 
+ylabel('CO_2 flux');
+hold off; 
+% -------
+% plot reasons NEE was screened in the bottom panel
+axes( ax2 );
+hold on
+h_ustar = plot( decimal_day( ustarflag ), ...
+                repmat( 1, numel( ustarflag), 1 ), '.k' );
+h_pcp = plot( decimal_day( precipflag ), ...
+                repmat( 2, numel( precipflag), 1 ), '.k' );
+h_nightneg = plot( decimal_day( nightnegflag ), ...
+                repmat( 3, numel( nightnegflag), 1 ), '.k' );
+h_wind = plot( decimal_day( windflag ), ...
+                repmat( 4, numel( windflag), 1 ), '.k' );
+h_maxs_mins = plot( decimal_day( maxminflag ), ...
+                repmat( 5, numel( maxminflag), 1 ), '.k' );
+h_lowco2 = plot( decimal_day( lowco2flag ), ...
+                repmat( 6, numel( lowco2flag), 1 ), '.k' );
+h_highco2 = plot( decimal_day( highco2flag ), ...
+                repmat( 7, numel( highco2flag), 1 ), '.k' );
+h_nan = plot( decimal_day( nanflag ), ...
+                repmat( 8, numel( nanflag), 1 ), '.k' );
+set( ax2, 'YTick', 1:8, ...
+          'YTickLabel', ...
+          { 'ustar', 'precip', 'night neg', 'wind', ...
+            'max min', 'low co2', 'high co2', 'NaN' } );
+ylabel( 'reason screened' );
+xlabel( 'decimal day' );
+
+linkaxes( [ ax1, ax2 ], 'x' );  %make axes zoom together horizontally
+
+shg;  %bring current window to front
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Filter for sensible heat
