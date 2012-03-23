@@ -17,34 +17,35 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, draw_plots
 % initialize
 result = -1;
 nearby_2 = [];
+filled_file_false = false;
 
 %--------------------------------------------------
 % parse unfilled data from requested site
     
 fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("destination")\n', ...
          get_site_name( sitecode ), year );
-this_data = parse_forgapfilling_file( sitecode, year );
+this_data = parse_forgapfilling_file( sitecode, year, filled_file_false );
 
 %--------------------------------------------------
 % parse data with which to fill T & RH
                 
-switch sitecode
+switch sitecode    
   case 1    % fill GLand from SLand, then Sev Deep Well station (# 40)
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 2 ), year );  %
-    nearby_data = parse_forgapfilling_file( 2, year );
+    nearby_data = parse_forgapfilling_file( 2, year, filled_file_false );
     nearby_2 = UNM_parse_sev_met_data( year );
     nearby_2 = prepare_sev_met_data( nearby_2, year, 40 );
   case 2    % fill SLand from GLand, then Sev Five Points station (# 49 )
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
-    nearby_data = parse_forgapfilling_file( 1, year );
+    nearby_data = parse_forgapfilling_file( 1, year, filled_file_false );
     nearby_2 = UNM_parse_sev_met_data( year );
     nearby_2 = prepare_sev_met_data( nearby_2, year, 49 );
   case 4     % fill PJ from PJ girdle    
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 10 ), year );
-    nearby_data = parse_forgapfilling_file( 10, year );
+    nearby_data = parse_forgapfilling_file( 10, year, filled_file_false );
   case 5     % fill PPine from Valles Caldera HQ met station ( station 11 )
     fprintf( 'parsing Valles Caldera headquarters met station ("source")\n' );
     nearby_data = UNM_parse_valles_met_data( year );
@@ -56,11 +57,11 @@ switch sitecode
   case 10    % fill PJ_girdle from PJ
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 4 ), year );
-    nearby_data = parse_forgapfilling_file( 4, year );
+    nearby_data = parse_forgapfilling_file( 4, year, filled_file_false );
   case 11    % fill New_GLand from GLand
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
-    nearby_data = parse_forgapfilling_file( 1, year );
+    nearby_data = parse_forgapfilling_file( 1, year, filled_file_false );
   otherwise
     fprintf( 'filling not yet implemented for %s\n', ...
              get_site_name( sitecode ) );
