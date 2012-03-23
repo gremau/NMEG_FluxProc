@@ -90,89 +90,39 @@ end
 % fill T, RH
 
 % replace missing Tair with nearby site
-n_missing = numel( find( isnan( this_data.Tair ) ) );
-T_filled_1 = find( isnan( this_data.Tair ) & ...
-                   ~isnan( nearby_data.Tair ) );
-this_data.Tair( T_filled_1 ) = nearby_data.Tair( T_filled_1 );
-% if there is a secondary site, fill remaining missing values 
-T_filled_2 = [];  %initialize to empty in case there is no second site
-if not( isempty( nearby_2 ) )
-    T_filled_2 = find( isnan( this_data.Tair ) & ...
-                       isnan( nearby_data.Tair ) & ...
-                       ~isnan( nearby_2.Tair ) );
-    this_data.Tair( T_filled_2 ) = nearby_2.Tair( T_filled_2 );
-end
-n_filled = numel( T_filled_1 ) + numel( T_filled_2 );
-fprintf( 'Tair: replaced %d / %d missing observations\n', ...
-         n_filled, n_missing );
+[ this_data, T_filled_1, T_filled_2 ] = ...
+    fill_variable( this_data, nearby_data, nearby_2, ...
+                   'Tair', 'Tair', 'Tair' );
 
 % replace missing rH with nearby site
-n_missing = numel( find( isnan( this_data.rH ) ) );
-RH_filled_1 = find( isnan( this_data.rH ) & ~isnan( nearby_data.rH ) );
-this_data.rH( RH_filled_1 ) = nearby_data.rH( RH_filled_1 );
-% if there is a secondary site, fill remaining missing values 
-RH_filled_2 = [];
-if not( isempty( nearby_2 ) )
-    RH_filled_2 = find( isnan( this_data.rH ) & ...
-                        isnan( nearby_data.rH ) & ...
-                        ~isnan( nearby_2.rH ) );
-    this_data.rH( RH_filled_2 ) = nearby_2.rH( RH_filled_2 );
-end
-n_filled = numel( RH_filled_1 ) + numel( RH_filled_2 );
-fprintf( 'rH: replaced %d / %d missing observations\n', ...
-         n_filled, n_missing );
+[ this_data, RH_filled_1, RH_filled_2 ] = ...
+    fill_variable( this_data, nearby_data, nearby_2, ...
+                   'rH', 'rH', 'rH' );
+
+% replace missing Rg with nearby site
+[ this_data, Rg_filled_1, Rg_filled_2 ] = ...
+    fill_variable( this_data, nearby_data, nearby_2, ...
+                   'Rg', 'Rg', 'Rg' );
 
 %--------------------------------------------------
-% fill RH, plot if requested
+% plot filled variables if requested
 
 if draw_plots
-    % calculate day of year for 30-minute data
-    doy = ( 1:size( this_data, 1 ) ) / 48.0;
-
-    h_RH_fig = figure();
-    h_obs = plot( doy, this_data.rH, '.k' );
-    hold on;
-    h_filled_1 = plot( doy( RH_filled_1 ), ...
-                       nearby_data.rH( RH_filled_1 ), ...
-                       '.', 'MarkerEdgeColor', [ 27, 158, 119 ] / 255.0 );
-    if not( isempty( RH_filled_2 ) )
-        h_filled_2 = plot( doy( RH_filled_2 ), ...
-                           nearby_2.rH( RH_filled_2 ), ...
-                           '.', 'MarkerEdgeColor', [ 217, 95, 2 ] / 255.0 );
-    else
-        h_filled_2 = 0;
-    end
-    ylabel( 'RH (fraction)' );
-    xlabel( 'day of year' );
-    title( sprintf( '%s %d', get_site_name( sitecode ), year ) );
-    legend( [ h_obs, h_filled_1, h_filled_2 ], ...
-            'observed', 'filled 1', 'filled 2' );
-
-    h_T_fig = figure();
-    h_obs = plot( doy, this_data.Tair, '.k' );
-    hold on;
-    h_filled_1 = plot( doy( T_filled_1 ), ...
-                       nearby_data.Tair( T_filled_1 ), ...
-                       '.', 'MarkerEdgeColor', [ 27, 158, 119 ] / 255.0 );
-    if not( isempty( T_filled_2 ) )
-        h_filled_2 = plot( doy( T_filled_2 ), ...
-                           nearby_2.Tair( T_filled_2 ), ...
-                           '.', 'MarkerEdgeColor', [ 217, 95, 2 ] / 255.0 );
-    else
-        h_filled_2 = 0;
-    end
-    ylabel( 'Tair (C)' );
-    xlabel( 'day of year' );
-    title( sprintf( '%s %d', get_site_name( sitecode ), year ) );
-    legend( [ h_obs, h_filled_1, h_filled_2 ], ...
-            'observed', 'filled 1', 'filled 2' );
-
+    h_fig_T = plot_filled_variable( this_data, nearby_data, nearby_2, ...
+                                    'Tair', T_filled_1, T_filled_2, ...
+                                    sitecode, year );
+    h_fig_RH = plot_filled_variable( this_data, nearby_data, nearby_2, ...
+                                     'rH', RH_filled_1, RH_filled_2, ...
+                                     sitecode, year );
+    h_fig_Rg = plot_filled_variable( this_data, nearby_data, nearby_2, ...
+                                     'Rg', Rg_filled_1, Rg_filled_2, ...
+                                     sitecode, year );
 end
 
 % replace NaNs with -999
-temp = double( this_data );
-temp( isnan( temp ) ) = -9999;
-this_data = replacedata( this_data, temp );
+foo = double( this_data );
+foo( isnan( foo ) ) = -9999;
+this_data = replacedata( this_data, foo );
 
 % write filled data to file
 outfile = fullfile( get_out_directory( sitecode ), ...
@@ -183,6 +133,65 @@ export( this_data, 'file', outfile );
 
 result = 0;
 
+%===========================================================================
+    
+function [ ds_dest, idx1, idx2 ] = fill_variable( ds_dest, ...
+                                                  ds_source1, ds_source2, ...
+                                                  var_dest, ...
+                                                  var_source1, var_source2 )
+    % replace missing values in on variable of dataset ds_dest with
+    % corresponding values from dataset ds_source1.  Where ds_source1 also
+    % has missing values, fall back to ds_source2 if provided.
+    
+    % replace missing values with nearby site
+    n_missing = numel( find( isnan( ds_dest.( var_dest ) ) ) );
+    idx1 = find( isnan( ds_dest.( var_dest ) ) & ...
+                 ~isnan( ds_source1.( var_source1 ) ) );
+    ds_dest.( var_dest )( idx1 ) = ds_source1.( var_source1 )( idx1 );
+    % if there is a secondary site, fill remaining missing values 
+    idx2 = [];  %initialize to empty in case no second site provided
+    if not( isempty( ds_source2 ) )
+        idx2 = find( isnan( ds_dest.( var_dest ) ) & ...
+                     isnan( ds_source1.( var_source1 ) ) & ...
+                     ~isnan( ds_source2.( var_source2 ) ) );
+        ds_dest.( var_dest )( idx2 ) = ds_source2.( var_source2 )( idx2 );
+    end
+    n_filled = numel( idx1 ) + numel( idx2 );
+    fprintf( '%s: replaced %d / %d missing observations\n', ...
+             var_dest, n_filled, n_missing );
+
+%===========================================================================
+    
+function h_fig = plot_filled_variable( ds, ds_source1, ds_source2, ...
+                                       var, filled_idx1, filled_idx2, ...
+                                       sitecode, year )
+    
+    seconds = repmat( 0.0, size( ds, 1 ), 1 );
+    ts = datenum( ds.year, ds.month, ds.day, ...
+                  ds.hour, ds.minute, seconds );
+    nobs = size( ds, 1 );
+    jan1 = datenum( ds.year, repmat( 1, nobs, 1 ), repmat( 1, nobs, 1 ) );
+    doy = ts - jan1 + 1;
+    
+    h_fig = figure();
+    h_obs = plot( doy, ds.( var ), '.k' );
+    hold on;
+    h_filled_1 = plot( doy( filled_idx1 ), ...
+                       ds_source1.( var )( filled_idx1 ), ...
+                       '.', 'MarkerEdgeColor', [ 27, 158, 119 ] / 255.0 );
+    if not( isempty( filled_idx2 ) )
+        h_filled_2 = plot( doy( filled_idx2 ), ...
+                           ds_source2.( var )( filled_idx2 ), ...
+                           '.', 'MarkerEdgeColor', [ 217, 95, 2 ] / 255.0 );
+    else
+        h_filled_2 = 0;
+    end
+    ylabel( var );
+    xlabel( 'day of year' );
+    title( sprintf( '%s %d', get_site_name( sitecode ), year ) );
+    legend( [ h_obs, h_filled_1, h_filled_2 ], ...
+            'observed', 'filled 1', 'filled 2' );
+    
 %===========================================================================
 
 function ds = prepare_valles_met_data( ds, year, station )
@@ -216,7 +225,7 @@ function ds = prepare_valles_met_data( ds, year, station )
     % sort by timestamp
     [ discard, idx ] = sort( ds.timestamp );
     ds = ds( idx, : );
-    
+        
 %===========================================================================
 
 function ds = prepare_sev_met_data( ds, year, station )
@@ -226,8 +235,8 @@ function ds = prepare_sev_met_data( ds, year, station )
     ts = datenum( time_ds.Year, 1, 1 ) + ...
          ( time_ds.Jul_Day - 1 ) + ...
          ( time_ds.Hour / 24.0 );
-    ds = ds( :, { 'Temp_C', 'RH' } );
-    ds.Properties.VarNames = { 'Tair', 'rH' };
+    ds = ds( :, { 'Temp_C', 'RH', 'Solar_Rad' } );
+    ds.Properties.VarNames = { 'Tair', 'rH', 'Rg' };
     ds.rH = ds.rH / 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
     ds.timestamp = ts;
     
@@ -236,9 +245,10 @@ function ds = prepare_sev_met_data( ds, year, station )
     ts_30 = ts + thirty_mins;
     rh_interp = interp1( ts, ds.rH, ts_30 );
     T_interp = interp1( ts, ds.Tair, ts_30 );
+    Rg_interp = interp1( ts, ds.Rg, ts_30 );
     
-    ds = vertcat( ds, dataset( { [ ts_30, rh_interp, T_interp ], ...
-                               'timestamp', 'rH', 'Tair' } ) );
+    ds = vertcat( ds, dataset( { [ ts_30, rh_interp, T_interp, Rg_interp ], ...
+                               'timestamp', 'rH', 'Tair', 'Rg' } ) );
 
     % filter out nonsensical values
     ds.Tair( abs( ds.Tair ) > 100 ) = NaN;
