@@ -23,6 +23,7 @@ end
 fname = fullfile( get_site_directory( site_code ), ...
                   'processed_flux', ...
                    sprintf( fmt, get_site_name( site_code ), year ) );
+fprintf( 'parsing %s\n', fname );
 
 infile = fopen( fname, 'r' );
 headers = fgetl( infile );

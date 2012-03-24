@@ -125,13 +125,14 @@ foo = double( this_data );
 foo( isnan( foo ) ) = -9999;
 this_data = replacedata( this_data, foo );
 
-% write filled data to file
+% write filled data to file except for matlab datenum timestamp column
 outfile = fullfile( get_site_directory( sitecode ), ...
                     'processed_flux', ...
                     sprintf( '%s_flux_all_%d_for_gap_filling_filled.txt', ...
                              get_site_name( sitecode ), year ) );
 fprintf( 'writing %s\n', outfile );
-export( this_data, 'file', outfile );
+n_col = size( this_data, 2 );
+export( this_data( :, 1:n_col - 1 ), 'file', outfile );
 
 result = 0;
 
@@ -202,7 +203,7 @@ function ds = prepare_valles_met_data( ds, year, station )
     ts = datenum( time_ds.year, 1, 1 ) + ...
          ( time_ds.day - 1 ) + ...
          ( time_ds.time / 24.0 );
-    ds = ds( ds.sta == station, { 'airt', 'rh' } );
+    ds = ds( ds.sta == station, { 'airt', 'rh', 'sol' } );
     ds.rh = ds.rh / 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
     ds.timestamp = ts;
     
@@ -211,9 +212,10 @@ function ds = prepare_valles_met_data( ds, year, station )
     ts_30 = ts + thirty_mins;
     rh_interp = interp1( ts, ds.rh, ts_30 );
     T_interp = interp1( ts, ds.airt, ts_30 );
+    Rg_interp = interp1( ts, ds.sol, ts_30 );
     
-    ds = vertcat( ds, dataset( { [ ts_30, rh_interp, T_interp ], ...
-                               'timestamp', 'rh', 'airt' } ) );
+    ds = vertcat( ds, dataset( { [ ts_30, rh_interp, T_interp, Rg_interp ], ...
+                               'timestamp', 'rh', 'airt', 'sol' } ) );
 
     % filter out nonsensical values
     ds.airt( abs( ds.airt ) > 100 ) = NaN;
@@ -223,6 +225,7 @@ function ds = prepare_valles_met_data( ds, year, station )
     % make the field names match the "for gapfilling" data
     ds.Properties.VarNames{ strcmp( ds.Properties.VarNames, 'rh' ) } = 'rH';
     ds.Properties.VarNames{ strcmp( ds.Properties.VarNames, 'airt' ) } = 'Tair';
+    ds.Properties.VarNames{ strcmp( ds.Properties.VarNames, 'sol' ) } = 'Rg';
     
     % sort by timestamp
     [ discard, idx ] = sort( ds.timestamp );
