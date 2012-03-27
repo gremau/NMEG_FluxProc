@@ -1373,6 +1373,15 @@ if iteration > 3
     
     % Remove high CO2 concentration points
     highco2flag = find(CO2_mean > 450);
+
+    % exceptions
+    % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
+    % fluxes look OK.  TWH 27 Mar 2012
+    if ( sitecode == 1 ) & ( year(1) == 2010 )
+        highco2flag = highco2flag( ( highco2flag < 5084 ) | ...
+                                   ( highco2flag > 5764 ) );
+    end
+
     removed_highco2 = length(highco2flag);
     decimal_day_nan(highco2flag) = NaN;
     record(highco2flag) = NaN;
@@ -1386,6 +1395,15 @@ if iteration > 3
     else
         lowco2flag = find(CO2_mean <350);
     end
+
+    % exceptions
+    % keep index 4128 to 5084 in 2010 - these CO2 obs are bogus but the
+    % datalogger 30-min fluxes look OK.  TWH 27 Mar 2012
+    if ( sitecode == 1 ) & ( year(1) == 2010 )
+        lowco2flag = lowco2flag( ( lowco2flag < 4218 ) | ...
+                                 ( lowco2flag > 5084 ) );
+    end
+
     removed_lowco2 = length(lowco2flag);
     decimal_day_nan(lowco2flag) = NaN;
     record(lowco2flag) = NaN;
