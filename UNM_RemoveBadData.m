@@ -579,6 +579,8 @@ for i=1:ncol;
             strcmp('rh_hmp_4_Avg', headertext(i)) == 1 || ...
             strcmp('RH_Avg', headertext(i)) == 1
         rH = data(:,i-1) / 100.0;
+    elseif strcmp( 'Ts_mean', headertext( i ) )
+        Tair_TOA5 = data(:,i-1);    
     elseif  strcmp('5point_precip', headertext(i)) == 1 || ...
             strcmp('rain_Tot', headertext(i)) == 1 || ...
             strcmp('precip', headertext(i)) == 1 || ...
@@ -1377,9 +1379,9 @@ if iteration > 3
     % exceptions
     % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
     % fluxes look OK.  TWH 27 Mar 2012
+    co2_conc_filter_exceptions = repmat( 0, size( CO2_mean ) );
     if ( sitecode == 1 ) & ( year(1) == 2010 )
-        highco2flag = highco2flag( ( highco2flag < 5084 ) | ...
-                                   ( highco2flag > 5764 ) );
+        co2_conc_filter_exceptions( 5084:5764 ) = 1;
     end
 
     removed_highco2 = length(highco2flag);
@@ -1396,12 +1398,13 @@ if iteration > 3
         lowco2flag = find(CO2_mean <350);
     end
 
-    % exceptions
-    % keep index 4128 to 5084 in 2010 - these CO2 obs are bogus but the
-    % datalogger 30-min fluxes look OK.  TWH 27 Mar 2012
+    % exceptions 
+    % keep index 4128 to 5084, 15360 to 15744 (day 320-327) in 2010 -
+    % these CO2 obs are bogus but the datalogger 30-min fluxes look OK.  TWH 27
+    % Mar 2012
     if ( sitecode == 1 ) & ( year(1) == 2010 )
-        lowco2flag = lowco2flag( ( lowco2flag < 4218 ) | ...
-                                 ( lowco2flag > 5084 ) );
+        co2_conc_filter_exceptions( 4128:5084 ) = 1;
+        co2_conc_filter_exceptions( 7296:8064 ) = 1;
     end
 
     removed_lowco2 = length(lowco2flag);
@@ -1517,7 +1520,7 @@ box on;
 axes( ax1 );
 h_all = plot( decimal_day, fc_raw_massman_wpl, 'ok');
 % plot the "good" observations (that weren't filtered out) as red dots
-idx_good = find( ~isnan( decimal_day_nan ) );
+idx_good = find( ~isnan( decimal_day_nan ) | co2_conc_filter_exceptions );
 h_good = plot( decimal_day( idx_good  ), ...
                fc_raw_massman_wpl( idx_good ), '.r' );
 legend( [ h_all, h_good ], 'all obs', '"good" obs' );
@@ -1656,13 +1659,18 @@ disp(sprintf('    number of atm press values removed = %d',removed_press));
 %WRITE FILE FOR ONLINE GAP-FILLING PROGRAM (REICHSTEIN)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+dd_idx = isnan(decimal_day_nan);
 qc = ones(datalength,1);
-qc(find(isnan(decimal_day_nan))) = 2;
-NEE = fc_raw_massman_wpl; NEE(find(isnan(decimal_day_nan))) = -9999;
-LE = HL_wpl_massman; LE(find(isnan(decimal_day_nan))) = -9999;
-H_dry = HSdry_massman; H_dry(find(isnan(decimal_day_nan))) = -9999;
+qc(dd_idx) = 2;
+NEE = fc_raw_massman_wpl; 
+NEE(dd_idx & ~co2_conc_filter_exceptions) = -9999;
+LE = HL_wpl_massman; LE(dd_idx) = -9999;
+H_dry = HSdry_massman; H_dry(dd_idx) = -9999;
 Tair = Tdry - 273.15;
 
+if sitecode == 1 & year == 2010
+    Tair( 12993:end ) = Tair_TOA5(  12993:end );
+end
 
 if write_gap_filling_out_file == 1;
     if (sitecode>7 && sitecode<10) % || 9);
