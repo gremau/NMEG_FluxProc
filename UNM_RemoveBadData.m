@@ -508,7 +508,9 @@ HL_wpl_massman(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un))=HL_wpl_massman_u
 
 rhoa_dry = data(:,65);
 
-decimal_day = jday + hour./24 + (minute + 1)./1440;
+decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
+                datenum( year, 1, 1 ) + 1 );
+              
 year2 = year(2);
 
 for i=1:ncol;
@@ -558,7 +560,8 @@ HL_wpl_massman(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un))=HL_wpl_massman_u
 
 rhoa_dry = data(:,57);
 
-decimal_day = jday + hour./24 + (minute + 1)./1440;
+decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
+                datenum( year, 1, 1 ) + 1 );
 year2 = year(2);
 
  end
@@ -1379,9 +1382,9 @@ if iteration > 3
     % exceptions
     % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
     % fluxes look OK.  TWH 27 Mar 2012
-    co2_conc_filter_exceptions = repmat( 0, size( CO2_mean ) );
+    co2_conc_filter_exceptions = repmat( false, size( CO2_mean ) );
     if ( sitecode == 1 ) & ( year(1) == 2010 )
-        co2_conc_filter_exceptions( 5084:5764 ) = 1;
+        co2_conc_filter_exceptions( 5084:5764 ) = true;
     end
 
     removed_highco2 = length(highco2flag);
@@ -1399,12 +1402,12 @@ if iteration > 3
     end
 
     % exceptions 
-    % keep index 4128 to 5084, 15360 to 15744 (day 320-327) in 2010 -
+    % keep index 4128 to 5084, 7296-8064 (days 152:168) in 2010 -
     % these CO2 obs are bogus but the datalogger 30-min fluxes look OK.  TWH 27
     % Mar 2012
     if ( sitecode == 1 ) & ( year(1) == 2010 )
-        co2_conc_filter_exceptions( 4128:5084 ) = 1;
-        co2_conc_filter_exceptions( 7296:8064 ) = 1;
+        co2_conc_filter_exceptions( 4128:5084 ) = true;
+        co2_conc_filter_exceptions( 7296:8064 ) = true;
     end
 
     removed_lowco2 = length(lowco2flag);
@@ -1423,30 +1426,76 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if iteration > 4
-%     figure;
-%     element = gcf;
+    %     figure;
+    %     element = gcf;
     % Remove values outside of a running standard deviation
-    std_bin = zeros(1,24);
-    bin_length = round(length(fc_raw_massman_wpl)/24);
-    for i = 1:24
+    n_bins = 24;
+    std_bin = zeros( 1, n_bins );
+    bin_length = round(length(fc_raw_massman_wpl)/ n_bins);
+    n_SDs_filter = 3; % how many std devs away from the mean to allow
+
+    % count up what's been filtered out already
+    good_co2 = repmat( true, size( decimal_day ) );
+    good_co2( highco2flag ) = false;
+    good_co2( lowco2flag ) = false;
+    good_co2( co2_conc_filter_exceptions ) = true;
+
+    idx_NEE_good = repmat( true, size( decimal_day ) );
+    idx_NEE_good( ustarflag ) = false;
+    idx_NEE_good( precipflag ) = false;
+    idx_NEE_good( nightnegflag ) = false;
+    idx_NEE_good( windflag ) = false;
+    idx_NEE_good( maxminflag ) = false;
+    idx_NEE_good( nanflag ) = false;
+    idx_NEE_good( ~good_co2 ) = false;
+    %    idx_NEE_good( idx_std_removed ) = false;
+    stdflag = repmat( false, size( idx_NEE_good ) );
+
+    % figure();
+    % idx_ax = axes();
+    % plot( decimal_day, idx_std_removed, '.' );
+
+    for i = 1:n_bins
         if i == 1
-            startbin = 1;
+            startbin( i ) = 1;
         elseif i >= 2
-            startbin = ((i-1) * bin_length);
+            startbin( i ) = ((i-1) * bin_length);
         end    
-        endbin = bin_length + startbin;
-        elementstouse = find(record > startbin & record <= endbin & isnan(record) == 0);
-        std_bin(i) = std(fc_raw_massman_wpl(elementstouse));
-        mean_flux(i) = mean(fc_raw_massman_wpl(elementstouse));
-        bin_index = find(abs(fc_raw_massman_wpl(elementstouse)) > ...
-            (5*std_bin(i) + mean_flux(i)));
-        outofstdnan = elementstouse(bin_index);
-        decimal_day_nan(outofstdnan) = NaN;
-        record(outofstdnan) = NaN;
-        running_nans(i) = length(outofstdnan);
-        removed_outofstdnan = sum(running_nans);
+        endbin( i ) = min( bin_length + startbin( i ), numel( idx_NEE_good) );
+
+        % make logical indices for elements that are (1) in this bin and (2)
+        % not already filtered for something else
+        this_bin = repmat( false, size( idx_NEE_good ) );
+        this_bin( startbin( i ):endbin( i ) ) = true;
         
-        elementstouse_c = find(conc_record > startbin & conc_record <= endbin & isnan(conc_record) == 0);
+        std_bin(i) = nanstd( fc_raw_massman_wpl( this_bin & idx_NEE_good ) );
+        mean_flux(i) = nanmean( fc_raw_massman_wpl( this_bin & idx_NEE_good ) );
+        bin_ceil = mean_flux( i ) + ( n_SDs_filter * std_bin( i ) );
+        bin_floor = mean_flux( i ) - ( n_SDs_filter * std_bin( i ) );
+        stdflag_thisbin_hi = ( this_bin & ...
+                               fc_raw_massman_wpl > bin_ceil );
+        stdflag_thisbin_low = ( this_bin & ...
+                                fc_raw_massman_wpl < bin_floor );
+        stdflag = stdflag | stdflag_thisbin_hi | stdflag_thisbin_low;
+
+        % %plot each SD window and its mean and SD
+        % figure()
+        % h_all = plot( decimal_day( this_bin ),...
+        %               fc_raw_massman_wpl( this_bin ), 'ok' );
+        % hold on
+        % if any( stdflag_thisbin_low | stdflag_thisbin_hi )
+        %     h_out = plot( decimal_day( stdflag_thisbin_low | ...
+        %                                stdflag_thisbin_hi ), ...
+        %                   fc_raw_massman_wpl( stdflag_thisbin_low | ...
+        %                                       stdflag_thisbin_hi ), ...
+        %                   'r.' );
+        %     refline( 0, bin_ceil );
+        %     refline( 0, bin_floor );
+        %     legend( [ h_all, h_out ], 'all NEE', 'filtered for SD' );
+        % end
+        % title( sprintf( 'SD filter, window %d/%d', i, n_bins ) );
+
+        elementstouse_c = find(conc_record > startbin( i ) & conc_record <= endbin( i ) & isnan(conc_record) == 0);
         conc_std_bin(i) = std(CO2_mean(elementstouse_c));
         mean_conc(i) = mean(CO2_mean(elementstouse_c));
         if sitecode == 7
@@ -1474,8 +1523,8 @@ if iteration > 4
 %         plot(elementstouse_c,1+mean_conc(i),'m'); hold on
 %         plot(elementstouse_c,10+mean_conc(i),'m'); hold on
         
-        xx((i*2)-1)=startbin;
-        xx(i*2)=endbin;
+        xx((i*2)-1)=startbin( i );
+        xx(i*2)=endbin( i );
         yy((i*2)-1)=mean_conc(i);
         yy(i*2)=mean_conc(i);
         yyl((i*2)-1)=(mean_conc(i)-(2.*conc_std_bin(i)));
@@ -1484,8 +1533,12 @@ if iteration > 4
         yyu(i*2)=(mean_conc(i)+(2.*conc_std_bin(i)));
         
     end   
-    
-    disp(sprintf('    above or below 5X running standard deviation = %d',removed_outofstdnan));
+    idx_NEE_good( stdflag ) = false;
+    decimal_day_nan(stdflag) = NaN;
+    record(stdflag) = NaN;
+    removed_outofstdnan = numel( find (stdflag ) );
+    disp(sprintf('    above or below %dX running standard deviation = %d', ...
+                 n_SDs_filter, removed_outofstdnan ));
 
     if xx( end ) > length( decimal_day )
         xx(end) = length(decimal_day);
@@ -1508,25 +1561,51 @@ end % close if statement for iterations
 % Plot the co2 flux for the whole series
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+pal = brewer_palettes( 'Dark2' );
+
 h_fig_flux = figure( 'Units', 'Normalized', ...
                      'Position', [ 0.1, 0.2, 0.85, 0.70 ] );
-ax2 = subplot( 'Position', [ 0.1, 0.1, 0.89, 0.2 ] );
-ax1 = subplot( 'Position', [ 0.1, 0.35, 0.89, 0.64 ] );
+ax2 = subplot( 'Position', [ 0.1, 0.05, 0.89, 0.2 ] );
+ax1 = subplot( 'Position', [ 0.1, 0.30, 0.89, 0.64 ] );
 hold on; 
 box on;
 % --------
 % plot NEE in the top panel
 % plot all observations as black circles
 axes( ax1 );
-h_all = plot( decimal_day, fc_raw_massman_wpl, 'ok');
+h_all = plot( decimal_day, fc_raw_massman_wpl, 'ok' );
 % plot the "good" observations (that weren't filtered out) as red dots
-idx_good = find( ~isnan( decimal_day_nan ) | co2_conc_filter_exceptions );
-h_good = plot( decimal_day( idx_good  ), ...
-               fc_raw_massman_wpl( idx_good ), '.r' );
-legend( [ h_all, h_good ], 'all obs', '"good" obs' );
+% find [CO2] observations that are (1) good or (2) excepted
+
+h_good = plot( decimal_day( idx_NEE_good  ), ...
+               fc_raw_massman_wpl( idx_NEE_good ), ...
+               'LineStyle', 'none', ...
+               'Marker', '.', ...
+               'Color', pal( 1, : ) );
+
+%plot std dev windows
+endbin( end ) = numel( decimal_day );
+for i = 1:n_bins
+    bin_x = [ decimal_day( startbin( i ) ), decimal_day( endbin( i ) ) ];
+    bin_y = repmat( mean_flux( i ) + n_SDs_filter * std_bin( i ), 1, 2 );
+    h_SD = plot( bin_x, bin_y, ...
+                 'Color', pal( 2, : ), 'LineStyle', '-', 'LineWidth', 2 );
+    bin_y = repmat( mean_flux( i ) - n_SDs_filter * std_bin( i ), 1, 2 );
+    h_SD = plot( bin_x, bin_y, ...
+                 'Color', pal( 2, : ), 'LineStyle', '-', 'LineWidth', 2 );
+    bin_y = [ mean_flux( i ), mean_flux( i ) ];
+    h_mean = plot( bin_x, bin_y, ...
+                   'Color', pal( 2, : ), 'LineStyle', '--', 'LineWidth', 2 );
+           
+end
+
+legend( [ h_all, h_good, h_SD ], 'all obs', '"good" obs', ...
+        sprintf( '%d x sigma', n_SDs_filter ) );
 xlabel('decimal day'); 
 ylabel('CO_2 flux');
+ylim( [ -15, 15 ] );
 hold off; 
+
 % -------
 % plot reasons NEE was screened in the bottom panel
 axes( ax2 );
@@ -1547,17 +1626,20 @@ h_highco2 = plot( decimal_day( highco2flag ), ...
                 repmat( 7, numel( highco2flag), 1 ), '.k' );
 h_nan = plot( decimal_day( nanflag ), ...
                 repmat( 8, numel( nanflag), 1 ), '.k' );
-set( ax2, 'YTick', 1:8, ...
+h_std = plot( decimal_day( stdflag ), ...
+              repmat( 9, numel( find( stdflag ) ), 1 ), '.k' );
+set( ax2, 'YLim', [0, 10 ], ...
+          'YTick', 1:9, ...
           'YTickLabel', ...
           { 'ustar', 'precip', 'night neg', 'wind', ...
-            'max min', 'low co2', 'high co2', 'NaN' } );
+            'max min', 'low co2', 'high co2', 'NaN', 'std dev' } );
 ylabel( 'reason screened' );
 xlabel( 'decimal day' );
 
 linkaxes( [ ax1, ax2 ], 'x' );  %make axes zoom together horizontally
 
 shg;  %bring current window to front
-
+save;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Filter for sensible heat
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1661,9 +1743,10 @@ disp(sprintf('    number of atm press values removed = %d',removed_press));
 
 dd_idx = isnan(decimal_day_nan);
 qc = ones(datalength,1);
-qc(dd_idx) = 2;
+%qc(dd_idx) = 2;
+qc( not( idx_NEE_good ) ) = 2;
 NEE = fc_raw_massman_wpl; 
-NEE(dd_idx & ~co2_conc_filter_exceptions) = -9999;
+NEE( not( idx_NEE_good ) ) = -9999;
 LE = HL_wpl_massman; LE(dd_idx) = -9999;
 H_dry = HSdry_massman; H_dry(dd_idx) = -9999;
 Tair = Tdry - 273.15;
