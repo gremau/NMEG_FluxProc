@@ -70,7 +70,8 @@ function [ amflux_gaps, amflux_gf ] = ...
     H_flag( idx ) = 0;
 
 
-    NEE_f = ds_pt.NEE_HBLR;
+    % NEE_f = ds_pt.NEE_HBLR;  %Lasslop filled NEE
+    NEE_f = ds_pt.NEE_f;  % Reichstein filled NEE
     RE_f  = ds_pt.Reco_HBLR;
     GPP_f = ds_pt.GPP_HBLR;
     LE_f = ds_pt.LE_f;
