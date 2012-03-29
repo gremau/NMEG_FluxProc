@@ -1243,8 +1243,8 @@ record(windflag) = NaN;
 disp(sprintf('    wind direction = %d',removed_wind));
 
 % Remove night-time negative fluxes
-% change flag here TWH
-nightnegflag = find( Par_Avg < 20.0 & fc_raw_massman_wpl < 0);
+% changed NEE cutoff from 0 to -0.2 as per conversation with Marcy 29 Mar 2012
+nightnegflag = find( Par_Avg < 20.0 & fc_raw_massman_wpl < -0.2);
 removed_nightneg = length(nightnegflag);
 decimal_day_nan(nightnegflag) = NaN;
 record(nightnegflag) = NaN;
@@ -1674,9 +1674,15 @@ removed_LH = length(LH_flag);
 HL_raw(LH_flag) = NaN;
 
 % QC for HL_wpl_massman
-LH_flag = find(HL_wpl_massman > LH_max | HL_wpl_massman < LH_min);
-removed_LH_wpl_mass = length(LH_flag);
-HL_wpl_massman(LH_flag) = NaN;
+LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
+LH_night_flag = ( Par_Avg < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
+LH_day_flag = ( Par_Avg >= 20.0 ) & ( HL_wpl_massman < 0.0 );
+removed_LH_wpl_mass = length( find( LH_maxmin_flag | ...
+                                    LH_night_flag | ...
+                                    LH_day_flag ) );
+HL_wpl_massman( LH_maxmin_flag | ...
+                LH_night_flag | ...
+                LH_day_flag ) ) = NaN;
 
 % QC for sw_incoming
 
