@@ -684,6 +684,10 @@ for i=1:ncol;
     end
 end
 
+if ismember( sitecode, [ 1, 2 ] ) & year(2) == 2009
+    Par_Avg = combine_PARavg_PARlite( headertext, data );
+end
+
 if ismember( sitecode, [ 3, 4 ] )
     % use "RH" at JSav, PJ
     rh_col = find( strcmp( 'RH', headertext ) ) - 1;
