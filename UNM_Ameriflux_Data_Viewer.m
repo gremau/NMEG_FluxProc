@@ -61,6 +61,9 @@ function UNM_Ameriflux_Data_Viewer( sitecode, year )
                        'HandleVisibility','callback', ...
                        'Position',[ 0.1, 0.55, 0.8, 0.4 ] );
     
+    % "link" horizontal axes so they zoom together
+    linkaxes( [ axh_gap, axh_filled ], 'x' );
+    
     %add a "previous" button
     pbh_prev = uicontrol( fh, ...
                           'Style', 'pushbutton', ...

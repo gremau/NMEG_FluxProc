@@ -169,11 +169,11 @@ elseif sitecode == 4; % Pinyon Juniper
         ustar_lim = 0.16;
     elseif year == 2009
         lastcolumn = 'HJ';
-        filelength_n = 17524;
+        filelength_n = 17523;
         ustar_lim = 0.16;
     elseif year == 2010
         lastcolumn = 'HA';
-        filelength_n = 17524;
+        filelength_n = 17523;
         ustar_lim = 0.16;
     elseif year == 2011  % added this block Mar 21, 2011
         lastcolumn = 'EZ';
@@ -207,7 +207,7 @@ elseif sitecode==5; % Ponderosa Pine
         co2_min = -15; co2_max = 15;
 %        co2_min = -30; co2_max = 30;
     elseif year == 2009;
-        filelength_n = 17524;
+        filelength_n = 17523;
         lastcolumn='FY';
         ustar_lim = 0.08;
         co2_min = -15; co2_max = 15;
@@ -251,7 +251,7 @@ elseif sitecode==6; % Mixed conifer
         ustar_lim = 0.11;
         co2_min = -12; co2_max = 6;
     elseif year == 2009;
-        filelength_n = 17524;
+        filelength_n = 17523;
         lastcolumn='GF';
         ustar_lim = 0.11;
         co2_min = -12; co2_max = 6;
@@ -458,6 +458,8 @@ timestamp = text;
 [year month day hour minute second] = datevec(timestamp);
 datenumber = datenum(timestamp);
 disp('file read');
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Read in Matlab processed ts data (these are in the same columns for all
@@ -1185,7 +1187,8 @@ pd = 44.6.*28.97.*atm_press./101.3.*273.16./t_meanK;
 dFc = (Si_top+Si_bot+Sip_spar) ./ RhoCp.*CO2_mg ./ t_meanK .* ...
       (1+1.6077.*H2O_g./pd);
 
-figure; plot(dFc,'.'); ylim([-1 1]);
+h_burba_fig = figure; 
+plot(dFc,'.'); ylim([-1 1]);
 ylabel('Burba cold temp correction');
 xlabel('time');
 
@@ -1543,7 +1546,7 @@ if iteration > 4
     if xx( end ) > length( decimal_day )
         xx(end) = length(decimal_day);
     end
-    figure;
+    h_co2_fig = figure();
     CO2_mean_clean=CO2_mean;
     CO2_mean_clean(find(isnan(conc_record)))=-9999;
     plot(decimal_day, CO2_mean,'.'); hold on;
@@ -1603,6 +1606,7 @@ legend( [ h_all, h_good, h_SD ], 'all obs', '"good" obs', ...
         sprintf( '%d x sigma', n_SDs_filter ) );
 xlabel('decimal day'); 
 ylabel('CO_2 flux');
+title( sprintf( '%s %d', get_site_name( sitecode ), year( 2 ) ) );
 ylim( [ -15, 15 ] );
 hold off; 
 
@@ -1674,6 +1678,7 @@ removed_LH = length(LH_flag);
 HL_raw(LH_flag) = NaN;
 
 % QC for HL_wpl_massman
+LH_min = -20;  %as per Jim Heilman, 28 Mar 2012
 LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
 LH_night_flag = ( Par_Avg < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
 LH_day_flag = ( Par_Avg >= 20.0 ) & ( HL_wpl_massman < 0.0 );
@@ -1752,6 +1757,7 @@ qc( not( idx_NEE_good ) ) = 2;
 NEE = fc_raw_massman_wpl; 
 NEE( not( idx_NEE_good ) ) = -9999;
 LE = HL_wpl_massman; LE(dd_idx) = -9999;
+
 H_dry = HSdry_massman; H_dry(dd_idx) = -9999;
 Tair = Tdry - 273.15;
 
@@ -2327,3 +2333,5 @@ timeo={'Created: ',time_out};
     xlswrite(outfilename,header2,'data','A6');
     end
 end
+
+close( h_burba_fig, h_co2_fig );
