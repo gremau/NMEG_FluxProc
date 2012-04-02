@@ -1352,13 +1352,19 @@ if iteration > 2
                 decimal_day_nan(maxminflag) = NaN;
                 record(maxminflag) = NaN;
         end
-    elseif sitecode == 5
-        removed_maxs_mins=0;
+    elseif sitecode == 5   %% PPine has month-to-month NEE max filter
+        removed_maxs_mins = 0;
+        maxminflag = [];
         for i = 1:12
-                maxminflag = find((month==i & fc_raw_massman_wpl> co2_max_by_month(i)) | (month ==i & fc_raw_massman_wpl < co2_min) | fc_raw_massman_wpl == 0);
-                removed_maxs_mins = removed_maxs_mins+length(maxminflag);
-                decimal_day_nan(maxminflag) = NaN;
-                record(maxminflag) = NaN;
+            maxminflag = [ maxminflag; ...
+                           find( ( month == i & ...
+                                   fc_raw_massman_wpl > ...
+                                   co2_max_by_month( i ) ) | ...
+                                 ( fc_raw_massman_wpl < co2_min ) | ...
+                                 fc_raw_massman_wpl == 0 ) ];
+            removed_maxs_mins = removed_maxs_mins + length( maxminflag );
+            decimal_day_nan( maxminflag ) = NaN;
+            record( maxminflag ) = NaN;
         end
     else
     % Pull out maxs and mins
@@ -1435,7 +1441,8 @@ if iteration > 4
     n_bins = 24;
     std_bin = zeros( 1, n_bins );
     bin_length = round(length(fc_raw_massman_wpl)/ n_bins);
-    n_SDs_filter = 3; % how many std devs away from the mean to allow
+    n_SDs_filter_hi = 2; % how many std devs above the mean to allow
+    n_SDs_filter_lo = 2; % how many std devs below the mean to allow
 
     % count up what's been filtered out already
     good_co2 = repmat( true, size( decimal_day ) );
@@ -1473,12 +1480,12 @@ if iteration > 4
         
         std_bin(i) = nanstd( fc_raw_massman_wpl( this_bin & idx_NEE_good ) );
         mean_flux(i) = nanmean( fc_raw_massman_wpl( this_bin & idx_NEE_good ) );
-        bin_ceil = mean_flux( i ) + ( n_SDs_filter * std_bin( i ) );
-        bin_floor = mean_flux( i ) - ( n_SDs_filter * std_bin( i ) );
+        bin_ceil(i) = mean_flux( i ) + ( n_SDs_filter_hi * std_bin( i ) );
+        bin_floor(i) = mean_flux( i ) - ( n_SDs_filter_lo * std_bin( i ) );
         stdflag_thisbin_hi = ( this_bin & ...
-                               fc_raw_massman_wpl > bin_ceil );
+                               fc_raw_massman_wpl > bin_ceil( i ) );
         stdflag_thisbin_low = ( this_bin & ...
-                                fc_raw_massman_wpl < bin_floor );
+                                fc_raw_massman_wpl < bin_floor( i ) );
         stdflag = stdflag | stdflag_thisbin_hi | stdflag_thisbin_low;
 
         % %plot each SD window and its mean and SD
@@ -1492,8 +1499,8 @@ if iteration > 4
         %                   fc_raw_massman_wpl( stdflag_thisbin_low | ...
         %                                       stdflag_thisbin_hi ), ...
         %                   'r.' );
-        %     refline( 0, bin_ceil );
-        %     refline( 0, bin_floor );
+        %     refline( 0, bin_ceil( i ) );
+        %     refline( 0, bin_floor( i ) );
         %     legend( [ h_all, h_out ], 'all NEE', 'filtered for SD' );
         % end
         % title( sprintf( 'SD filter, window %d/%d', i, n_bins ) );
@@ -1540,8 +1547,8 @@ if iteration > 4
     decimal_day_nan(stdflag) = NaN;
     record(stdflag) = NaN;
     removed_outofstdnan = numel( find (stdflag ) );
-    disp(sprintf('    above or below %dX running standard deviation = %d', ...
-                 n_SDs_filter, removed_outofstdnan ));
+    disp(sprintf('    above %d or below %d running standard deviations = %d', ...
+                 n_SDs_filter_hi, n_SDs_filter_lo, removed_outofstdnan ) );
 
     if xx( end ) > length( decimal_day )
         xx(end) = length(decimal_day);
@@ -1577,6 +1584,7 @@ box on;
 % plot all observations as black circles
 axes( ax1 );
 h_all = plot( decimal_day, fc_raw_massman_wpl, 'ok' );
+xlim( [ 0, 366 ] );
 % plot the "good" observations (that weren't filtered out) as red dots
 % find [CO2] observations that are (1) good or (2) excepted
 
@@ -1590,10 +1598,10 @@ h_good = plot( decimal_day( idx_NEE_good  ), ...
 endbin( end ) = numel( decimal_day );
 for i = 1:n_bins
     bin_x = [ decimal_day( startbin( i ) ), decimal_day( endbin( i ) ) ];
-    bin_y = repmat( mean_flux( i ) + n_SDs_filter * std_bin( i ), 1, 2 );
+    bin_y = repmat( bin_ceil( i ), 1, 2 );
     h_SD = plot( bin_x, bin_y, ...
                  'Color', pal( 2, : ), 'LineStyle', '-', 'LineWidth', 2 );
-    bin_y = repmat( mean_flux( i ) - n_SDs_filter * std_bin( i ), 1, 2 );
+    bin_y = repmat( bin_floor( i ), 1, 2 );
     h_SD = plot( bin_x, bin_y, ...
                  'Color', pal( 2, : ), 'LineStyle', '-', 'LineWidth', 2 );
     bin_y = [ mean_flux( i ), mean_flux( i ) ];
@@ -1602,8 +1610,7 @@ for i = 1:n_bins
            
 end
 
-legend( [ h_all, h_good, h_SD ], 'all obs', '"good" obs', ...
-        sprintf( '%d x sigma', n_SDs_filter ) );
+legend( [ h_all, h_good, h_SD ], 'all obs', '"good" obs', 'Std. Dev. window' );
 xlabel('decimal day'); 
 ylabel('CO_2 flux');
 title( sprintf( '%s %d', get_site_name( sitecode ), year( 2 ) ) );
