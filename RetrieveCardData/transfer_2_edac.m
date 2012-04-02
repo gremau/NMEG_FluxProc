@@ -1,5 +1,20 @@
+
 function success = transfer_2_edac(site, compressed_data_fname)
-% TRANSFER_2_EDAC - 
+% TRANSFER_2_EDAC - transfer compressed tower raw data to EDAC server
+%
+% USAGE
+%    success = transfer_2_edac(site, compressed_data_fname)
+%
+% INPUTS
+%    site: the site name string (e.g. "PJ", "MCon", etc.)
+%    compressed_data_fname: the full *cygwin* path of the compressed data file
+%
+% OUTPUTS
+%    success: 0 on successful transfer, non-zero otherwise
+%
+% (c) Timothy W. Hilton, UNM, Dec 2011
+
+    success = -1; %initialize
     
     edac_path = sprintf('/data/epscor/private/data/Upland_node/%s/Raw/', site);
     
@@ -43,3 +58,4 @@ function success = transfer_2_edac(site, compressed_data_fname)
     %change matlab back to the original directory
     cd(calling_dir);
     
+    success = 0;
