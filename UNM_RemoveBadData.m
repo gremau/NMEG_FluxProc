@@ -102,7 +102,7 @@ elseif sitecode==2; % shrubland
         filelength_n = 17523;
         lastcolumn='IL';
         ustar_lim = 0.08;
-        co2_min = -10; co2_max = 6;
+        co2_min = -4; co2_max = 4;
     elseif year == 2010
         filelength_n = 17523;
         lastcolumn='IE';
@@ -158,7 +158,7 @@ elseif sitecode==3; % Juniper savanna
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
     HSmass_min = -100; HSmass_max = 450;
-    LH_min = -150; LH_max = 450;
+    LH_min = -150; L_max = 450;
     rH_min = 0; rH_max = 1;
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
@@ -1465,7 +1465,7 @@ if iteration > 4
     %     figure;
     %     element = gcf;
     % Remove values outside of a running standard deviation
-    n_bins = 24;
+    n_bins = 48;
     std_bin = zeros( 1, n_bins );
     bin_length = round(length(fc_raw_massman_wpl)/ n_bins);
 
@@ -1599,7 +1599,9 @@ end % close if statement for iterations
 pal = brewer_palettes( 'Dark2' );
 
 h_fig_flux = figure( 'Units', 'Normalized', ...
-                     'Position', [ 0.1, 0.2, 0.85, 0.70 ] );
+                     'Position', [ 0.1, 0.2, 0.85, 0.70 ], ...
+                     'Name', 'NEE & filters', ...
+                     'NumberTitle', 'off' );
 ax2 = subplot( 'Position', [ 0.1, 0.05, 0.89, 0.2 ] );
 ax1 = subplot( 'Position', [ 0.1, 0.30, 0.89, 0.64 ] );
 hold on; 
@@ -1619,6 +1621,19 @@ h_good = plot( decimal_day( idx_NEE_good  ), ...
                'Marker', '.', ...
                'Color', pal( 1, : ) );
 
+% mark points that were filtered for Std deviation and no other reason
+idx_std = repmat( false, size( decimal_day ) );
+idx_std( stdflag ) = true;
+idx_std( unique( [ ustarflag ; precipflag ; nightnegflag ; ...
+                   windflag ; maxminflag ; lowco2flag ; ...
+                   highco2flag ; nanflag ] ) ) = false;
+h_SD_only = plot( decimal_day( idx_std  ), ...
+                  fc_raw_massman_wpl( idx_std ), ...
+                  'LineStyle', 'none', ...
+                  'Marker', 'o', ...
+                  'MarkerEdgeColor', 'k', ...
+                  'MarkerFaceColor', pal( 3, : ) );
+
 %plot std dev windows
 endbin( end ) = numel( decimal_day );
 for i = 1:n_bins
@@ -1635,7 +1650,8 @@ for i = 1:n_bins
            
 end
 
-legend( [ h_all, h_good, h_SD ], 'all obs', '"good" obs', 'Std. Dev. window' );
+legend( [ h_all, h_good, h_SD, h_SD_only ], ...
+        'all obs', '"good" obs', 'Std. Dev. window', 'SD only' );
 xlabel('decimal day'); 
 ylabel('CO_2 flux');
 title( sprintf( '%s %d', get_site_name( sitecode ), year( 2 ) ) );
