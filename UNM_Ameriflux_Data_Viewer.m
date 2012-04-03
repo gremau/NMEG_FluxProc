@@ -35,10 +35,10 @@ function UNM_Ameriflux_Data_Viewer( sitecode, year )
                  'NumberTitle', 'off', ...
                  'ToolBar', 'figure', ...
                  'MenuBar', 'none' );
-    set( fh, 'UserData', struct( 'cur_col', 5 ) ); % start with column 5
-                                                   % (UST); first four
-                                                   % columns are just time
-                                                   % fields
+
+    % start with column 5 (UST); first four columns are just time fields
+    set( fh, 'UserData', struct( 'cur_col', 5, ...
+                                 'FontSize', 20 ) ); 
     
     %--------------------------
     % Construct GUI components
@@ -90,8 +90,11 @@ plot( axh_gap, data_gaps.DTIME, data_gaps( :, 5 ), '.k' );
 plot( axh_filled, data_filled.DTIME, data_filled( :, 5 ), '.k' );
 set( axh_gap, 'xlim', [ 0, 366 ] );
 set( axh_filled, 'xlim', [ 0, 366 ] );
-xlabel( axh_gap, 'day of year' );
-title( axh_filled, [ data_filled.Properties.VarNames{ 5 }, ' (gapfilled)' ] );
+xlabel( axh_gap, 'day of year', ...
+        'FontSize', getfield( get( fh, 'UserData' ), 'FontSize' ) );
+title( axh_filled, ...
+       [ data_filled.Properties.VarNames{ 5 }, ' (gapfilled)' ], ...
+       'FontSize', getfield( get( fh, 'UserData' ), 'FontSize' ) );
 
 %--------------------------
 %  Callbacks for GUI
@@ -123,12 +126,14 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     set( axh_filled, 'xlim', [ 0, 366 ] );
     
     % label x axis on lower plot
-    xlabel( axh_gap, 'day of year' );
+    xlabel( axh_gap, 'day of year', ...
+            'FontSize', getfield( get( fh, 'UserData' ), 'FontSize' ) );
     
     % title string
     t_str = strrep( vars.var_filled, '_', '\_');
     t_str = strrep( t_str, '0x2E', '.');
-    title( axh_filled, [ t_str, ' (gapfilled)' ] );
+    title( axh_filled, [ t_str, ' (gapfilled)' ], ...
+           'FontSize', getfield( get( fh, 'UserData' ), 'FontSize' ) );
 
     
     
@@ -159,12 +164,14 @@ function cur_col = next_but_cbk( source, eventdata, nfields, ...
     set( axh_filled, 'xlim', [ 0, 366 ] );
 
     % label x axis on lower plot
-    xlabel( axh_gap, 'day of year' );
+    xlabel( axh_gap, 'day of year', ...
+            'FontSize', getfield( get( fh, 'UserData' ), 'FontSize' ));
     
     % title string
     t_str = strrep( vars.var_filled, '_', '\_');
     t_str = strrep( t_str, '0x2E', '.');
-    title( axh_filled, [ t_str, ' (gapfilled)' ] );
+    title( axh_filled, [ t_str, ' (gapfilled)' ], ...
+           'FontSize', getfield( get( fh, 'UserData' ), 'FontSize' ) );
     
 
 %------------------------------------------------------------
