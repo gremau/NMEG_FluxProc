@@ -409,7 +409,7 @@ elseif sitecode == 11; % new Grassland
     ustar_lim = 0.06;
     if year == 2010
         lastcolumn = 'HF';
-        filelength_n = 17524;
+        filelength_n = 17523;
     elseif year == 2011
         lastcolumn = 'HS';
         filelength_n = 17523; % updated 10 Nov, 2011
