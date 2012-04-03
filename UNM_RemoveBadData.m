@@ -75,6 +75,8 @@ if sitecode==1; % grassland
         ustar_lim = 0.06;
         co2_min = -10; co2_max = 6;
     end
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
@@ -112,6 +114,8 @@ elseif sitecode==2; % shrubland
         ustar_lim = 0.08;
         co2_min = -10; co2_max = 6;
     end
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
@@ -148,6 +152,8 @@ elseif sitecode==3; % Juniper savanna
         ustar_lim = 0.08;
         co2_min = -10; co2_max = 10;
     end
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
@@ -180,6 +186,8 @@ elseif sitecode == 4; % Pinyon Juniper
         filelength_n = 17523;
         ustar_lim = 0.16;
     end    
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
     co2_min = -10; co2_max = 6;
     Tdry_min = 240; Tdry_max = 310;
@@ -225,6 +233,8 @@ elseif sitecode==5; % Ponderosa Pine
     end
 %    co2_max_by_month = [4 4 4 4 5 12 12 12 12 12 4 4];
     co2_max_by_month = [4 4 4 5 8 8 8 8 8 8 5 4];
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 119; wind_max = 179; % these are given a sonic_orient = 329;
     Tdry_min = 240; Tdry_max = 310;
     HS_min = -200; HS_max = 800;
@@ -266,7 +276,8 @@ elseif sitecode==6; % Mixed conifer
         ustar_lim = 0.11;
         co2_min = -12; co2_max = 6;
     end
-    
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 153; wind_max = 213; % these are given a sonic_orient = 333;
     Tdry_min = 250; Tdry_max = 300;
     HS_min = -200; HS_max = 800;
@@ -308,6 +319,8 @@ elseif sitecode == 7;
         ustar_lim = 0.11;
         co2_min = -16; co2_max = 6;
     end
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 296; wind_max = 356; % these are given a sonic_orient = 146;
     Tdry_min = 265; Tdry_max = 315;
     HS_min = -200; HS_max = 800;
@@ -340,6 +353,8 @@ elseif sitecode == 8;
         lastcolumn='ET';
         ustar_lim = 0.11;
     end
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     co2_min = -26; co2_max = 12;
     wind_min = 300; wind_max = 360; % these are given a sonic_orient = ;
     Tdry_min = 265; Tdry_max = 315;
@@ -373,6 +388,8 @@ elseif sitecode == 9;
         lastcolumn='ET';
         ustar_lim = 0.11;
     end
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     co2_min = -26; co2_max = 12;
     wind_min = 300; wind_max = 360; % these are given a sonic_orient = ;
     Tdry_min = 265; Tdry_max = 315;
@@ -387,6 +404,8 @@ elseif sitecode == 10; % Pinyon Juniper girdle
     site = 'PJ_girdle'
     lastcolumn = 'FE';
     ustar_lim = 0.16;
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
     co2_min = -10; co2_max = 6;
     Tdry_min = 240; Tdry_max = 310;
@@ -415,6 +434,8 @@ elseif sitecode == 11; % new Grassland
         filelength_n = 17523; % updated 10 Nov, 2011
         
     end  
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     co2_min = -7; co2_max = 6;
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
@@ -1317,8 +1338,10 @@ if iteration == 1
 
     startbin;
 
-    figure(1); clf;
+    figure( 1 );
+    clf;
     plot(ustar_bin,co2mean,'.r');
+    title( 'UStar' );
     shg;
 end
 
@@ -1445,8 +1468,6 @@ if iteration > 4
     n_bins = 24;
     std_bin = zeros( 1, n_bins );
     bin_length = round(length(fc_raw_massman_wpl)/ n_bins);
-    n_SDs_filter_hi = 2; % how many std devs above the mean to allow
-    n_SDs_filter_lo = 2; % how many std devs below the mean to allow
 
     % count up what's been filtered out already
     good_co2 = repmat( true, size( decimal_day ) );
@@ -2345,4 +2366,4 @@ timeo={'Created: ',time_out};
     end
 end
 
-close( h_burba_fig, h_co2_fig );
+%close( h_burba_fig, h_co2_fig );
