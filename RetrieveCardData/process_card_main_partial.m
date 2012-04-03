@@ -15,23 +15,33 @@ function main_success = process_card_main( this_site )
     %--------------------------------------------------------------------------
     site_dir = get_site_directory(get_site_code(this_site));
 
-    % copy the data from the card to the computer's hard drive
-    fprintf(1, '\n----------\n');
-    fprintf(1, 'COPYING FROM CARD TO LOCAL DISK...\n');
-    [card_copy_success, raw_data_dir, mod_date] = ...
-        retrieve_tower_data_from_card(this_site);
+    % % copy the data from the card to the computer's hard drive
+    % fprintf(1, '\n----------\n');
+    % fprintf(1, 'COPYING FROM CARD TO LOCAL DISK...\n');
+    % [card_copy_success, raw_data_dir, mod_date] = ...
+    %     retrieve_tower_data_from_card(this_site);
 
-    % convert the thirty-minute data to TOA5 file
-    fprintf(1, '\n----------\n');
-    fprintf(1, 'CONVERTING THIRTY-MINUTE DATA TO TOA5 FORMAT...');
-    [fluxdata_convert_success, toa5_fname] = thirty_min_2_TOA5(this_site, ...
-                                                      raw_data_dir);
-    fprintf(1, ' Done\n');
+    % use these lines if you need to do a partial transfer or something
+    raw_data_dir = fullfile('C:', ...
+                            'Research_Flux_Towers', ...
+                            'Flux_Tower_Data_By_Site',...
+                            this_site, ...
+                            'Raw_data_from_cards', ...
+                            'Raw_Data_2012', ...
+                            'JSav_03-28-12');
+    mod_date = datenum(2012, 03, 28, 17, 08, 00 );
 
-    %make diagnostic plots of the raw flux data from the card
-    fluxraw = toa5_2_dataset(toa5_fname);
-    flux_raw_diagnostic_plot(fluxraw, this_site, mod_date);
-    clear('fluxraw');
+    % % convert the thirty-minute data to TOA5 file
+    % fprintf(1, '\n----------\n');
+    % fprintf(1, 'CONVERTING THIRTY-MINUTE DATA TO TOA5 FORMAT...');
+    % [fluxdata_convert_success, toa5_fname] = thirty_min_2_TOA5(this_site, ...
+    %                                                   raw_data_dir);
+    % fprintf(1, ' Done\n');
+
+    % %make diagnostic plots of the raw flux data from the card
+    % fluxraw = toa5_2_dataset(toa5_fname);
+    % flux_raw_diagnostic_plot(fluxraw, this_site, mod_date);
+    % clear('fluxraw');
 
     %convert the time series (10 hz) data to TOB1 files
     fprintf(1, '\n----------\n');
