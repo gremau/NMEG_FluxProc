@@ -61,8 +61,8 @@ function UNM_Ameriflux_Data_Viewer( sitecode, year )
                        'HandleVisibility','callback', ...
                        'Position',[ 0.1, 0.55, 0.8, 0.4 ] );
     
-    % "link" horizontal axes so they zoom together
-    linkaxes( [ axh_gap, axh_filled ], 'x' );
+    % "link"  axes so they zoom together
+    linkaxes( [ axh_gap, axh_filled ], 'xy' );
     
     %add a "previous" button
     pbh_prev = uicontrol( fh, ...
@@ -122,9 +122,14 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     
     set( fh, 'UserData', ud );
 
+    % set x limits and y limits
     set( axh_gap, 'xlim', [ 0, 366 ] );
     set( axh_filled, 'xlim', [ 0, 366 ] );
     
+    % yrange = [ get( axh_filled, 'YLim' ), get( axh_gap, 'YLim' ) ];
+    % set( axh_filled, 'YLim', [ min( yrange ), max( yrange ) ] );
+    % set( axh_gap, 'YLim', [ min( yrange ), max( yrange ) ] );
+
     % label x axis on lower plot
     xlabel( axh_gap, 'day of year', ...
             'FontSize', getfield( get( fh, 'UserData' ), 'FontSize' ) );
@@ -159,9 +164,13 @@ function cur_col = next_but_cbk( source, eventdata, nfields, ...
 
     set( fh, 'UserData', ud );
     
-    %set axis x limits
+    %set axis x and y limits
     set( axh_gap, 'xlim', [ 0, 366 ] );
     set( axh_filled, 'xlim', [ 0, 366 ] );
+
+    % yrange = [ get( axh_filled, 'YLim' ), get( axh_gap, 'YLim' ) ];
+    % set( axh_filled, 'YLim', [ min( yrange ), max( yrange ) ] );
+    % set( axh_gap, 'YLim', [ min( yrange ), max( yrange ) ] );
 
     % label x axis on lower plot
     xlabel( axh_gap, 'day of year', ...
