@@ -34,10 +34,10 @@ iteration = 6;
 % 8-TX_forest
 % 9-TX_grassland
 
-write_complete_out_file = 1; %1 to write "[sitename].._qc", -- file with all variables & bad data removed
+write_complete_out_file = true; %true to write "[sitename].._qc", -- file with all variables & bad data removed
 data_for_analyses = 0; %1 to output file with data sorted for specific analyses
 ET_gap_filler = 0; %run ET gap-filler program
-write_gap_filling_out_file = 1; %1 to write file for Reichstein's online
+write_gap_filling_out_file = true; %true to write file for Reichstein's online
                                 %gap-filling. SET U* LIM (including site-
                                 %specific ones--comment out) TO 0!!!!!!!!!!
 
@@ -59,27 +59,28 @@ if sitecode==1; % grassland
         co2_max_by_month = [2.5 2.5 2.5 2.5 3.5 3.5 3.5 3.5 3.5 2.5 2.5 2.5];
         co2_min_by_month = [-0.5 -0.5 -1 -3 -3 -4 -4 -4 -4 -1 -0.5 -0.5];
     elseif year == 2008;
-        filelength_n = 17572;
+        filelength_n = 17571;
         lastcolumn='HD';
         ustar_lim = 0.06;
-        co2_min = -10; co2_max = 6;
+        co2_min_by_month = [ -0.4; -0.4; repmat( -10, 9, 1 ); -0.4 ];
+        co2_max_by_month = 6;
     elseif year == 2009;
         filelength_n = 17520;
         lastcolumn='IC';
         ustar_lim = 0.06;
         winter_co2_min = -0.5;
-        co2_min = -10; co2_max = 6;
+        co2_min_by_month = -10; co2_max_by_month = 6;
     elseif year == 2010;
         filelength_n = 17523;
         lastcolumn='IL';
         ustar_lim = 0.06;
         winter_co2_min = -0.5;
-        co2_min = -10; co2_max = 6;
+        co2_min_by_month = -10; co2_max_by_month = 6;
     elseif year == 2011;
         filelength_n = 17523;
         lastcolumn='IL';
         ustar_lim = 0.06;
-        co2_min = -10; co2_max = 6;
+        co2_min_by_month = -10; co2_max_by_month = 6;
     end
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -98,28 +99,29 @@ elseif sitecode==2; % shrubland
         filelength_n = 17523;
         lastcolumn='HA';
         ustar_lim = 0.08;
-        co2_min = -4; co2_max = 3.5;
+        co2_min_by_month = [-0.7, -0.7, repmat( -4, 1, 9 ), -0.7 ]; 
+        co2_max_by_month = 3.5;
     elseif year == 2008
         filelength_n = 17572;
         lastcolumn='GZ';
         ustar_lim = 0.08;
-        co2_min = -10; co2_max = 6;
+        co2_min_by_month = -10; co2_max_by_month = 6;
     elseif year == 2009
         filelength_n = 17523;
         lastcolumn='IL';
         ustar_lim = 0.08;
-        co2_min = -4; co2_max = 4;
+        co2_min_by_month = -4; co2_max_by_month = 4;
     elseif year == 2010
         filelength_n = 17523;
         lastcolumn='IE';
         ustar_lim = 0.08;
-        winter_co2_min = -1;
-        co2_min = -10; co2_max = 6;
+        winter_co2_min_by_month = -1;
+        co2_min_by_month = -10; co2_max_by_month = 6;
     elseif year == 2011
         filelength_n = 17523;
         lastcolumn='IQ';
         ustar_lim = 0.08;
-        co2_min = -10; co2_max = 6;
+        co2_min_by_month = -10; co2_max_by_month = 6;
     end
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -137,27 +139,27 @@ elseif sitecode==3; % Juniper savanna
         filelength_n = 11596;
         lastcolumn='HR';
         ustar_lim = 0.09;
-        co2_min = -11; co2_max = 7;
+        co2_min_by_month = -11; co2_max_by_month = 7;
     elseif year == 2008
         filelength_n = 17572;
         lastcolumn='HJ';
         ustar_lim = 0.08;
-        co2_min = -10; co2_max = 10;
+        co2_min_by_month = -10; co2_max_by_month = 10;
     elseif year == 2009
         filelength_n = 17523;
         lastcolumn='IN';
         ustar_lim = 0.08;
-        co2_min = -10; co2_max = 10;
+        co2_min_by_month = -10; co2_max_by_month = 10;
     elseif year == 2010
         filelength_n = 17523;
         lastcolumn='IE';
         ustar_lim = 0.08;
-        co2_min = -10; co2_max = 10;
+        co2_min_by_month = -10; co2_max_by_month = 10;
     elseif year == 2011
         filelength_n = 17523;
         lastcolumn='IE';
         ustar_lim = 0.08;
-        co2_min = -10; co2_max = 10;
+        co2_min_by_month = -10; co2_max_by_month = 10;
     end
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -196,7 +198,7 @@ elseif sitecode == 4; % Pinyon Juniper
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
-    co2_min = -10; co2_max = 6;
+    co2_min_by_month = -10; co2_max_by_month = 6;
     Tdry_min = 240; Tdry_max = 310;
     HS_min = -100; HS_max = 640;
     HSmass_min = -100; HSmass_max = 640;
@@ -210,35 +212,28 @@ elseif sitecode==5; % Ponderosa Pine
     if year == 2006
         filelength_n = 11594;
     elseif year == 2007
-        filelength_n = 17524;
+        filelength_n = 17523;
         lastcolumn='FV';
         ustar_lim = 0.08;
-        co2_min = -15; co2_max = 15;
-%        co2_min = -30; co2_max = 30;
     elseif year == 2008;
-        filelength_n = 17572;
+        filelength_n = 17571;
         lastcolumn='FU';
         ustar_lim = 0.08;
-        co2_min = -15; co2_max = 15;
-%        co2_min = -30; co2_max = 30;
     elseif year == 2009;
         filelength_n = 17523;
         lastcolumn='FY';
         ustar_lim = 0.08;
-        co2_min = -15; co2_max = 15;
-%        co2_min = -30; co2_max = 30;
     elseif year == 2010;
         filelength_n = 17523;
         lastcolumn='FW';
         ustar_lim = 0.08;
-        co2_min = -15; co2_max = 15;
     elseif year == 2011;
         filelength_n = 17523;
         lastcolumn='FY';
         ustar_lim = 0.08;
-        co2_min = -15; co2_max = 15;
     end
-    co2_min_by_month = [-0.8 -0.8 -15 -15 -15 -15 -15 -15 -15 -15 -15 -1];
+    %co2_min_by_month = [-0.8 -0.8 -15 -15 -15 -15 -15 -15 -15 -15 -15 -1];
+    co2_min_by_month = repmat( -15, 12, 1 );
     co2_max_by_month = [4 4 4 5 8 8 8 8 8 8 5 4];
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -256,38 +251,33 @@ elseif sitecode==6; % Mixed conifer
         filelength_n = 4420;
         lastcolumn='GA';
         ustar_lim = 0.12;
-        co2_min = -12; co2_max = 6;
     elseif year == 2007
         filelength_n = 17524;
         lastcolumn='GB';
         ustar_lim = 0.12;
-        co2_min = -12; co2_max = 6;
     elseif year == 2008;
         filelength_n = 17420;
         lastcolumn='GB';
         ustar_lim = 0.11;
-        co2_min = -12; co2_max = 6;
     elseif year == 2009;
         filelength_n = 17523;
         lastcolumn='GF';
         ustar_lim = 0.11;
-        co2_min = -12; co2_max = 6;
     elseif year == 2010;
         filelength_n = 17523;
         lastcolumn='GI';
         ustar_lim = 0.11;
-        co2_min = -12; co2_max = 6;
     elseif year == 2011;
         filelength_n = 17523;
         lastcolumn='GI';
         ustar_lim = 0.11;
-        co2_min = -12; co2_max = 6;
     end
+    co2_min_by_month = [ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ]; 
+    co2_max_by_month = [ 6, 6, repmat( -12, 1, 9 ), 6 ]; 
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 153; wind_max = 213; % these are given a sonic_orient = 333;
     Tdry_min = 250; Tdry_max = 300;
-    winter_co2_min = -1.5;
     HS_min = -200; HS_max = 800;
     HSmass_min = -200; HSmass_max = 800;
     LH_min = -50; LH_max = 550;
@@ -300,32 +290,32 @@ elseif sitecode == 7;
         filelength_n = 17522;
         lastcolumn='GF';
         ustar_lim = 0.11;
-        co2_min = -26; co2_max = 12;
+        co2_min_by_month = -26; co2_max_by_month = 12;
     elseif year == 2006
         filelength_n = 17524;
         lastcolumn='GF';
         ustar_lim = 0.11;
-        co2_min = -26; co2_max = 12;
+        co2_min_by_month = -26; co2_max_by_month = 12;
     elseif year == 2007
         filelength_n = 17524;
         lastcolumn='FZ';
         ustar_lim = 0.11;
-        co2_min = -26; co2_max = 12;
+        co2_min_by_month = -26; co2_max_by_month = 12;
     elseif year == 2008;
         filelength_n = 17452;
         lastcolumn='GP';
         ustar_lim = 0.11;
-        co2_min = -16; co2_max = 6;
+        co2_min_by_month = -16; co2_max_by_month = 6;
     elseif year == 2009;
         filelength_n = 17282;
         lastcolumn='GP';
         ustar_lim = 0.11;
-        co2_min = -16; co2_max = 6;
+        co2_min_by_month = -16; co2_max_by_month = 6;
     elseif year == 2011;
         filelength_n = 7282;
         lastcolumn='GQ';
         ustar_lim = 0.11;
-        co2_min = -16; co2_max = 6;
+        co2_min_by_month = -16; co2_max_by_month = 6;
     end
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -363,7 +353,7 @@ elseif sitecode == 8;
     end
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-    co2_min = -26; co2_max = 12;
+    co2_min_by_month = -26; co2_max_by_month = 12;
     wind_min = 300; wind_max = 360; % these are given a sonic_orient = ;
     Tdry_min = 265; Tdry_max = 315;
     HS_min = -200; HS_max = 800;
@@ -398,7 +388,7 @@ elseif sitecode == 9;
     end
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-    co2_min = -26; co2_max = 12;
+    co2_min_by_month = -26; co2_max_by_month = 12;
     wind_min = 300; wind_max = 360; % these are given a sonic_orient = ;
     Tdry_min = 265; Tdry_max = 315;
     HS_min = -200; HS_max = 800;
@@ -423,13 +413,13 @@ elseif sitecode == 10; % Pinyon Juniper girdle
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
     if year == 2009
-        co2_min = -10; co2_max = 6;
+        co2_min_by_month = -10; co2_max_by_month = 6;
         filelength_n = 17523;
     elseif year == 2010
-        co2_min = -7; co2_max = 6;
+        co2_min_by_month = -7; co2_max_by_month = 6;
         filelength_n = 17523;
     elseif year == 2011
-        co2_min = -10; co2_max = 6;
+        co2_min_by_month = -10; co2_max_by_month = 6;
         filelength_n = 17523;
     end      
 
@@ -446,7 +436,7 @@ elseif sitecode == 11; % new Grassland
     end  
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-    co2_min = -7; co2_max = 6;
+    co2_min_by_month = -7; co2_max_by_month = 6;
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
@@ -458,7 +448,7 @@ elseif sitecode == 11; % new Grassland
 end
 
 % set winter_co2_min to the more restrictive of [ winter_co2_min, co2_min ]
-winter_co2_min = max( winter_co2_min, co2_min );
+winter_co2_min = max( winter_co2_min, co2_min_by_month );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set up file name and file path
@@ -1225,7 +1215,7 @@ pd = 44.6.*28.97.*atm_press./101.3.*273.16./t_meanK;
 dFc = (Si_top+Si_bot+Sip_spar) ./ RhoCp.*CO2_mg ./ t_meanK .* ...
       (1+1.6077.*H2O_g./pd);
 
-h_burba_fig = figure; 
+h_burba_fig = figure( 'Name', 'Burba' ); 
 plot(dFc,'.'); ylim([-1 1]);
 ylabel('Burba cold temp correction');
 xlabel('time');
@@ -1375,53 +1365,33 @@ if iteration > 1
     % display pulled ustar
     disp(sprintf('    u_star = %d',removed_ustar));
 end
-    
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Iteration 3 - now that values have been filtered for ustar, decide what
 % the min and max co2 flux values should be by examining figure 2 and then
 % entering them in the site options above, then run program with iteration
 % 3 and see the effect of removing them in figure 2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-    
+
 if iteration > 2
-    if sitecode ==1 && year(1) == 2007
-        removed_maxs_mins=0;
-        for i = 1:12
-                maxminflag = find((month==i & fc_raw_massman_wpl> ...
-                                   co2_max_by_month(i)) | ...
-                                  (month ==i & fc_raw_massman_wpl < ...
-                                   co2_min_by_month(i)) | ...
-                                  ( ismember( month, [ 1, 2, 12 ] ) & ...
-                                    fc_raw_massman_wpl < winter_co2_min ));
-                removed_maxs_mins = removed_maxs_mins+length(maxminflag);
-                decimal_day_nan(maxminflag) = NaN;
-                record(maxminflag) = NaN;
-        end
-    elseif sitecode == 5   %% PPine has month-to-month NEE max filter
-        removed_maxs_mins = 0;
-        maxminflag = [];
-        for i = 1:12
-            maxminflag = [ maxminflag; ...
-                           find( ( month == i & ...
-                                   fc_raw_massman_wpl > ...
-                                   co2_max_by_month( i ) ) | ...
-                                 ( month == i & ...
-                                   fc_raw_massman_wpl < ...
-                                   co2_min_by_month( i ) ) | ...
-                                 fc_raw_massman_wpl == 0 ) ];
-            removed_maxs_mins = removed_maxs_mins + length( maxminflag );
-            decimal_day_nan( maxminflag ) = NaN;
-            record( maxminflag ) = NaN;
-        end
-    else
-    % Pull out maxs and mins
-    maxminflag = find( fc_raw_massman_wpl > co2_max | ...
-                       fc_raw_massman_wpl < co2_min | ...
-                       ( ismember( month, [ 1, 2, 12 ] ) & ...
-                         fc_raw_massman_wpl < winter_co2_min ) );
-    removed_maxs_mins = length(maxminflag);
-    decimal_day_nan(maxminflag) = NaN;
-    record(maxminflag) = NaN;
+    if numel( co2_min_by_month ) == 1
+        co2_min_by_month = repmat( co2_min_by_month, 12, 1 );
+    end
+    if numel( co2_max_by_month ) == 1
+        co2_max_by_month = repmat( co2_max_by_month, 12, 1 );
+    end
+    removed_maxs_mins=0;
+    maxminflag = [];
+    for i = 1:12
+        fprintf( 'doing co2_min_bymonth' )
+        maxminflag = [ maxminflag; ...
+                       find((month==i & fc_raw_massman_wpl> ...
+                             co2_max_by_month(i)) | ...
+                            (month ==i & fc_raw_massman_wpl < ...
+                             co2_min_by_month(i)) ) ];
+        removed_maxs_mins = removed_maxs_mins+length(maxminflag);
+        decimal_day_nan(maxminflag) = NaN;
+        record(maxminflag) = NaN;
     end
     
     % display what is pulled for maxs and mins
@@ -1864,7 +1834,7 @@ if sitecode == 1 & year == 2010
     Tair( 12993:end ) = Tair_TOA5(  12993:end );
 end
 
-if write_gap_filling_out_file == 1;
+if write_gap_filling_out_file
     if (sitecode>7 && sitecode<10) % || 9);
         disp('writing gap-filling file...')
         header = {'day' 'month' 'year' 'hour' 'minute' ...
@@ -1920,7 +1890,7 @@ end
 %WRITE COMPLETE OUT-FILE  (FLUX_all matrix with bad values removed)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if write_complete_out_file == 1;
+if write_complete_out_file
     disp('writing qc file...')
     
     if sitecode == 5 || sitecode == 6 
@@ -2417,5 +2387,5 @@ timeo={'Created: ',time_out};
 end
 
 % close all figure windows
-close( h_burba_fig, h_co2_fig, h_fig_flux );
-close all;
+%close( h_burba_fig, h_co2_fig, h_fig_flux );
+%close all;
