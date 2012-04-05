@@ -1,20 +1,21 @@
 function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
                                                       draw_plots, ...
-                                                      linfit_Rg )
+                                                      linfit )
 % UNM_FILL_MET_GAPS_FROM_NEARBY_SITE - fills gaps in site's meteorological data
 %   from the closest nearby site
 %
 % USAGE
 %     result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, draw_plots,
-%                                                 linfit_Rg )
+%                                                 linfit )
 %
 % INPUTS
 %     sitecode [ integer ]: code of site to be filled
 %     year [ integer ]: year to be filled
 %     draw_plots [ logical ]: if true, plot observed and filled T, Rg, RH
-%     linfit_Rg [ logical ]: if true, use a linear regression model to fill
-%                            from the nearby RH rather than a simple
-%                            replacement
+%     linfit [ logical ]: if true, use a linear regression model to fill from
+%                            the nearby Rg rather than a simple replacement.  If
+%                            1x3 logical array, turns regression on/off for T,
+%                            RH, Rg, respectively
 %
 % OUTPUTS
 %     result [ integer ]: 0 on success, -1 on failure
@@ -101,20 +102,28 @@ end
 %--------------------------------------------------
 % fill T, RH
 
+if numel( linfit ) == 1
+    % T      RH    Rg
+    linfit = [ false, false, linfit ];
+elseif numel( linfit ) ~= 3
+    error( ['linfit argument must be single logical value or 3-element '...
+            ' logical array'] );
+end
+
 % replace missing Tair with nearby site
 [ this_data, T_filled_1, T_filled_2 ] = ...
     fill_variable( this_data, nearby_data, nearby_2, ...
-                   'Tair', 'Tair', 'Tair', true );
+                   'Tair', 'Tair', 'Tair', linfit( 1 ) );
 
 % replace missing rH with nearby site
 [ this_data, RH_filled_1, RH_filled_2 ] = ...
     fill_variable( this_data, nearby_data, nearby_2, ...
-                   'rH', 'rH', 'rH', true );
+                   'rH', 'rH', 'rH', linfit( 2 ) );
 
 % replace missing Rg with nearby site
 [ this_data, Rg_filled_1, Rg_filled_2 ] = ...
     fill_variable( this_data, nearby_data, nearby_2, ...
-                   'Rg', 'Rg', 'Rg', linfit_Rg );
+                   'Rg', 'Rg', 'Rg', linfit( 3 ) );
 
 %--------------------------------------------------
 % plot filled variables if requested
