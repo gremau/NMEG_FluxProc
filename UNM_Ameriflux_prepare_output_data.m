@@ -24,6 +24,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     TA_flag = f_flag;
     Rg_flag=f_flag;
     VPD_flag = f_flag;
+    rH_flag = f_flag;
     
     VPD_f = ds_pt.VPD_f ./ 10; % convert to kPa
                              % what is "_g"?  "good" values?  --TWH
@@ -36,6 +37,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     TA_flag( ~isnan( ds_qc.air_temp_hmp ) ) = 0;
     Rg_flag( ~isnan( ds_qc.sw_incoming ) ) = 0;
     VPD_flag( ~isnan( ds_qc.rH ) ) = 0;
+    rH_flag( isnan( ds_qc.rH ) & ~isnan( ds_pt.rH ) ) = 0;
 
     % Take out some extra uptake values at Grassland premonsoon.
     if sitecode ==1
@@ -193,7 +195,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gaps.PA = ds_qc.atm_press;
     amflux_gaps.CO2 = ds_qc.CO2_mean;
     amflux_gaps.VPD = VPD_g;
-    amflux_gaps.SWC_2p5cm = ds_soil.SWC_1;
+    amflux_gaps.SWC_2p5cm = dummy; %ds_soil.SWC_1;
     amflux_gaps.RNET = ds_qc.NR_tot;
     amflux_gaps.PAR = ds_qc.Par_Avg;
     amflux_gaps.PAR_DIFF = dummy;
@@ -232,12 +234,13 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gf.G1 = SHF_mean;
     amflux_gf.TS_2p5cm = ds_soil.Tsoil_1;
     amflux_gf.PRECIP = ds_qc.precip;
-    amflux_gf.RH = ds_qc.rH .* 100;
+    amflux_gf.RH = ds_pt.rH .* 100;
+    amflux_gf.RH_flag = rH_flag;
     amflux_gf.PA = ds_qc.atm_press;
     amflux_gf.CO2 = ds_qc.CO2_mean;
     amflux_gf.VPD = VPD_f;
     amflux_gf.VPD_flag = VPD_flag;
-    amflux_gf.SWC_2p5cm = ds_soil.SWC_1;
+    amflux_gf.SWC_2p5cm = dummy; %ds_soil.SWC_1;
     amflux_gf.RNET = ds_qc.NR_tot;
     amflux_gf.PAR = ds_qc.Par_Avg;
     amflux_gf.PAR_DIFF = dummy;
