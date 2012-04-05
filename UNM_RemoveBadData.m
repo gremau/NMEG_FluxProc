@@ -1745,14 +1745,34 @@ HSdry_massman(precipflag) = NaN;
 HSdry_massman(ustarflag) = NaN;
 removed_HSmass = length(find(isnan(HSdry_massman)));
 
+% clean the co2 flux variables
+fc_raw( not( idx_NEE_good ) ) = NaN;
+fc_raw_massman( not( idx_NEE_good ) ) = NaN;
+fc_water_term( not( idx_NEE_good ) ) = NaN;
+fc_heat_term_massman( not( idx_NEE_good ) ) = NaN;
+fc_raw_massman_wpl( not( idx_NEE_good ) ) = NaN;
+
+% clean the h2o flux variables - remove points flagged for ustar, wind, or pcp
+idx_E_good = repmat( true, size( E_raw ) );
+idx_E_good( unique( [ ustarflag; windflag; pcpflag ] ) ) = false;
+E_raw( not( idx_E_good ) ) = NaN;
+E_raw_massman( not( idx_E_good ) ) = NaN;
+E_water_term( not( idx_E_good ) ) = NaN;
+E_heat_term_massman( not( idx_E_good ) ) = NaN;
+E_wpl_massman( not( idx_E_good ) ) = NaN;
+
+% clean the co2 concentration
+CO2_mean( isnan( conc_record ) ) = NaN;
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Filter for max's and min's for other variables
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % QC for HL_raw
-LH_flag = find(HL_raw > LH_max | HL_raw < LH_min);
-removed_LH = length(LH_flag);
-HL_raw(LH_flag) = NaN;
+LH_flag = ( HL_raw > LH_max ) | ( HL_raw < LH_min );
+removed_LH = length( find( LH_flag ) );
+HL_raw( LH_flag ) = NaN;
 
 % QC for HL_wpl_massman
 LH_min = -20;  %as per Jim Heilman, 28 Mar 2012
@@ -1779,9 +1799,9 @@ removed_rH = length(rH_flag);
 rH(rH_flag) = NaN;
 
 % QC for h2o mean values
-h2o_flag = find(H2O_mean > h2o_max | H2O_mean < h2o_min);
-removed_h2o = length(h2o_flag);
-H2O_mean(h2o_flag) = NaN;
+h2o_flag = ( H2O_mean > h2o_max ) | ( H2O_mean < h2o_min );
+removed_h2o = length( find ( h2o_flag ) );
+H2O_mean( h2o_flag ) = NaN;
 
 % QC for atmospheric pressure
 press_flag = []; %find(atm_press > press_max | atm_press < press_min);
@@ -1899,23 +1919,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %WRITE COMPLETE OUT-FILE  (FLUX_all matrix with bad values removed)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% clean the co2 flux variables
-fc_raw(find(isnan(decimal_day_nan))) = NaN;
-fc_raw_massman(find(isnan(decimal_day_nan))) = NaN;
-fc_water_term(find(isnan(decimal_day_nan))) = NaN;
-fc_heat_term_massman(find(isnan(decimal_day_nan))) = NaN;
-fc_raw_massman_wpl(find(isnan(decimal_day_nan))) = NaN;
-
-% clean the h2o flux variables
-E_raw(find(isnan(decimal_day_nan))) = NaN;
-E_raw_massman(find(isnan(decimal_day_nan))) = NaN;
-E_water_term(find(isnan(decimal_day_nan))) = NaN;
-E_heat_term_massman(find(isnan(decimal_day_nan))) = NaN;
-E_wpl_massman(find(isnan(decimal_day_nan))) = NaN;
-
-% clean the co2 concentration
-CO2_mean(find(isnan(decimal_day_nan))) = NaN;
 
 if write_complete_out_file == 1;
     disp('writing qc file...')
@@ -2413,4 +2416,6 @@ timeo={'Created: ',time_out};
     end
 end
 
-close( h_burba_fig, h_co2_fig );
+% close all figure windows
+close( h_burba_fig, h_co2_fig, h_fig_flux );
+close all;
