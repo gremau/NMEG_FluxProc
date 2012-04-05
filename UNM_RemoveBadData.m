@@ -1754,7 +1754,7 @@ fc_raw_massman_wpl( not( idx_NEE_good ) ) = NaN;
 
 % clean the h2o flux variables - remove points flagged for ustar, wind, or pcp
 idx_E_good = repmat( true, size( E_raw ) );
-idx_E_good( unique( [ ustarflag; windflag; pcpflag ] ) ) = false;
+idx_E_good( unique( [ ustarflag; windflag; precipflag ] ) ) = false;
 E_raw( not( idx_E_good ) ) = NaN;
 E_raw_massman( not( idx_E_good ) ) = NaN;
 E_water_term( not( idx_E_good ) ) = NaN;
