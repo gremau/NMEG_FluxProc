@@ -37,7 +37,11 @@ iteration = 6;
 write_complete_out_file = 1; %1 to write "[sitename].._qc", -- file with all variables & bad data removed
 data_for_analyses = 0; %1 to output file with data sorted for specific analyses
 ET_gap_filler = 0; %run ET gap-filler program
-write_gap_filling_out_file = 1; %1 to write file for Reichstein's online gap-filling. SET U* LIM (including site- specific ones--comment out) TO 0!!!!!!!!!!
+write_gap_filling_out_file = 1; %1 to write file for Reichstein's online
+                                %gap-filling. SET U* LIM (including site-
+                                %specific ones--comment out) TO 0!!!!!!!!!!
+
+winter_co2_min = -100;  %initialization -- will be set for specific sites later
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Specify some details about sites and years
@@ -63,11 +67,13 @@ if sitecode==1; % grassland
         filelength_n = 17520;
         lastcolumn='IC';
         ustar_lim = 0.06;
+        winter_co2_min = -0.5;
         co2_min = -10; co2_max = 6;
     elseif year == 2010;
         filelength_n = 17523;
         lastcolumn='IL';
         ustar_lim = 0.06;
+        winter_co2_min = -0.5;
         co2_min = -10; co2_max = 6;
     elseif year == 2011;
         filelength_n = 17523;
@@ -107,6 +113,7 @@ elseif sitecode==2; % shrubland
         filelength_n = 17523;
         lastcolumn='IE';
         ustar_lim = 0.08;
+        winter_co2_min = -1;
         co2_min = -10; co2_max = 6;
     elseif year == 2011
         filelength_n = 17523;
@@ -158,7 +165,7 @@ elseif sitecode==3; % Juniper savanna
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
     HSmass_min = -100; HSmass_max = 450;
-    LH_min = -150; L_max = 450;
+    LH_min = -150; LH_max = 450;
     rH_min = 0; rH_max = 1;
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
@@ -231,7 +238,7 @@ elseif sitecode==5; % Ponderosa Pine
         ustar_lim = 0.08;
         co2_min = -15; co2_max = 15;
     end
-%    co2_max_by_month = [4 4 4 4 5 12 12 12 12 12 4 4];
+    co2_min_by_month = [-0.8 -0.8 -15 -15 -15 -15 -15 -15 -15 -15 -15 -1];
     co2_max_by_month = [4 4 4 5 8 8 8 8 8 8 5 4];
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -280,6 +287,7 @@ elseif sitecode==6; % Mixed conifer
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 153; wind_max = 213; % these are given a sonic_orient = 333;
     Tdry_min = 250; Tdry_max = 300;
+    winter_co2_min = -1.5;
     HS_min = -200; HS_max = 800;
     HSmass_min = -200; HSmass_max = 800;
     LH_min = -50; LH_max = 550;
@@ -407,7 +415,6 @@ elseif sitecode == 10; % Pinyon Juniper girdle
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
-    co2_min = -10; co2_max = 6;
     Tdry_min = 240; Tdry_max = 310;
     HS_min = -100; HS_max = 640;
     HSmass_min = -100; HSmass_max = 640;
@@ -416,10 +423,13 @@ elseif sitecode == 10; % Pinyon Juniper girdle
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
     if year == 2009
+        co2_min = -10; co2_max = 6;
         filelength_n = 17523;
     elseif year == 2010
+        co2_min = -7; co2_max = 6;
         filelength_n = 17523;
     elseif year == 2011
+        co2_min = -10; co2_max = 6;
         filelength_n = 17523;
     end      
 
@@ -446,6 +456,9 @@ elseif sitecode == 11; % new Grassland
     h2o_max = 30; h2o_min = 0;
     
 end
+
+% set winter_co2_min to the more restrictive of [ winter_co2_min, co2_min ]
+winter_co2_min = max( winter_co2_min, co2_min );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set up file name and file path
@@ -1374,7 +1387,12 @@ if iteration > 2
     if sitecode ==1 && year(1) == 2007
         removed_maxs_mins=0;
         for i = 1:12
-                maxminflag = find((month==i & fc_raw_massman_wpl> co2_max_by_month(i)) | (month ==i & fc_raw_massman_wpl < co2_min_by_month(i)));
+                maxminflag = find((month==i & fc_raw_massman_wpl> ...
+                                   co2_max_by_month(i)) | ...
+                                  (month ==i & fc_raw_massman_wpl < ...
+                                   co2_min_by_month(i)) | ...
+                                  ( ismember( month, [ 1, 2, 12 ] ) & ...
+                                    fc_raw_massman_wpl < winter_co2_min ));
                 removed_maxs_mins = removed_maxs_mins+length(maxminflag);
                 decimal_day_nan(maxminflag) = NaN;
                 record(maxminflag) = NaN;
@@ -1387,7 +1405,9 @@ if iteration > 2
                            find( ( month == i & ...
                                    fc_raw_massman_wpl > ...
                                    co2_max_by_month( i ) ) | ...
-                                 ( fc_raw_massman_wpl < co2_min ) | ...
+                                 ( month == i & ...
+                                   fc_raw_massman_wpl < ...
+                                   co2_min_by_month( i ) ) | ...
                                  fc_raw_massman_wpl == 0 ) ];
             removed_maxs_mins = removed_maxs_mins + length( maxminflag );
             decimal_day_nan( maxminflag ) = NaN;
@@ -1395,7 +1415,10 @@ if iteration > 2
         end
     else
     % Pull out maxs and mins
-    maxminflag = find(fc_raw_massman_wpl > co2_max | fc_raw_massman_wpl < co2_min);
+    maxminflag = find( fc_raw_massman_wpl > co2_max | ...
+                       fc_raw_massman_wpl < co2_min | ...
+                       ( ismember( month, [ 1, 2, 12 ] ) & ...
+                         fc_raw_massman_wpl < winter_co2_min ) );
     removed_maxs_mins = length(maxminflag);
     decimal_day_nan(maxminflag) = NaN;
     record(maxminflag) = NaN;
@@ -1600,7 +1623,8 @@ pal = brewer_palettes( 'Dark2' );
 
 h_fig_flux = figure( 'Units', 'Normalized', ...
                      'Position', [ 0.1, 0.2, 0.85, 0.70 ], ...
-                     'Name', 'NEE & filters', ...
+                     'Name', sprintf( 'NEE & filters, %s %d', ...
+                                      get_site_name( sitecode ), year ), ...
                      'NumberTitle', 'off' );
 ax2 = subplot( 'Position', [ 0.1, 0.05, 0.89, 0.2 ] );
 ax1 = subplot( 'Position', [ 0.1, 0.30, 0.89, 0.64 ] );
@@ -1691,7 +1715,12 @@ xlabel( 'decimal day' );
 linkaxes( [ ax1, ax2 ], 'x' );  %make axes zoom together horizontally
 
 shg;  %bring current window to front
-save;
+fprintf( 1, 'saving %s_%d.fig\n', get_site_name( sitecode ), year );
+hgsave( h_fig_flux, 'fluxfig' );
+system( sprintf( 'mv ./fluxfig.fig /cygdrive/c/Users/Tim/Plots/%s_%d.fig', ...
+                 get_site_name( sitecode ), year ) );
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Filter for sensible heat
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1804,9 +1833,11 @@ qc = ones(datalength,1);
 qc( not( idx_NEE_good ) ) = 2;
 NEE = fc_raw_massman_wpl; 
 NEE( not( idx_NEE_good ) ) = -9999;
-LE = HL_wpl_massman; LE(dd_idx) = -9999;
+LE = HL_wpl_massman;
+%LE(dd_idx) = -9999;
 
-H_dry = HSdry_massman; H_dry(dd_idx) = -9999;
+H_dry = HSdry_massman;
+%H_dry(dd_idx) = -9999;
 Tair = Tdry - 273.15;
 
 if sitecode == 1 & year == 2010
@@ -2382,4 +2413,4 @@ timeo={'Created: ',time_out};
     end
 end
 
-%close( h_burba_fig, h_co2_fig );
+close( h_burba_fig, h_co2_fig );
