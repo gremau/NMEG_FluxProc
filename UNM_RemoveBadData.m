@@ -174,14 +174,27 @@ elseif sitecode==3; % Juniper savanna
     
 elseif sitecode == 4; % Pinyon Juniper
     site = 'PJ'
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+    wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
+    co2_min_by_month = -10; 
+    co2_max_by_month = 6;
+    Tdry_min = 240; Tdry_max = 310;
+    HS_min = -100; HS_max = 640;
+    HSmass_min = -100; HSmass_max = 640;
+    LH_min = -150; LH_max = 450;
+    rH_min = 0; rH_max = 1;
+    h2o_max = 30; h2o_min = 0;
+    press_min = 70; press_max = 130;
     if year == 2007
         lastcolumn = 'HO';
         filelength_n = 2514;
         ustar_lim = 0.16;
     elseif year == 2008
         lastcolumn = 'HO';
-        filelength_n = 17572;
+        filelength_n = 17571;
         ustar_lim = 0.16;
+        co2_max_by_month = [ 1.5, 1.5, repmat( 6, 1, 10 ) ];
     elseif year == 2009
         lastcolumn = 'HJ';
         filelength_n = 17523;
@@ -195,17 +208,6 @@ elseif sitecode == 4; % Pinyon Juniper
         filelength_n = 17523;
         ustar_lim = 0.16;
     end    
-    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
-    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-    wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
-    co2_min_by_month = -10; co2_max_by_month = 6;
-    Tdry_min = 240; Tdry_max = 310;
-    HS_min = -100; HS_max = 640;
-    HSmass_min = -100; HSmass_max = 640;
-    LH_min = -150; LH_max = 450;
-    rH_min = 0; rH_max = 1;
-    h2o_max = 30; h2o_min = 0;
-    press_min = 70; press_max = 130;
     
 elseif sitecode==5; % Ponderosa Pine
     site = 'PPine'
@@ -252,11 +254,11 @@ elseif sitecode==6; % Mixed conifer
         lastcolumn='GA';
         ustar_lim = 0.12;
     elseif year == 2007
-        filelength_n = 17524;
+        filelength_n = 17523;
         lastcolumn='GB';
         ustar_lim = 0.12;
     elseif year == 2008;
-        filelength_n = 17420;
+        filelength_n = 17419;
         lastcolumn='GB';
         ustar_lim = 0.11;
     elseif year == 2009;
@@ -273,7 +275,7 @@ elseif sitecode==6; % Mixed conifer
         ustar_lim = 0.11;
     end
     co2_min_by_month = [ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ]; 
-    co2_max_by_month = [ 6, 6, repmat( -12, 1, 9 ), 6 ]; 
+    co2_max_by_month = 6;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 153; wind_max = 213; % these are given a sonic_orient = 333;
@@ -1067,7 +1069,7 @@ elseif sitecode == 5
         Par_Avg(1:10063)=Par_Avg(1:10063).*225;  % Apply correct calibration value 7.37, SA190 manual section 3-1
         Par_Avg(1:10063)=Par_Avg(1:10063)+(0.2210.*sw_incoming(1:10063));
         % calibration for par-lite sensor
-        Par_Avg(10064:17568) = Par_Avg(10064:17568).*1000./5.25;
+        Par_Avg(10064:end) = Par_Avg(10064:end).*1000./5.25;
         
     elseif year2 == 2009 || year2 ==2010 || year2 == 2011
         lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
@@ -1217,6 +1219,7 @@ dFc = (Si_top+Si_bot+Sip_spar) ./ RhoCp.*CO2_mg ./ t_meanK .* ...
 
 h_burba_fig = figure( 'Name', 'Burba' ); 
 plot(dFc,'.'); ylim([-1 1]);
+title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
 ylabel('Burba cold temp correction');
 xlabel('time');
 
@@ -1579,6 +1582,7 @@ if iteration > 4
                       'Marker', '.', ...
                       'Color', 'black', ...
                       'LineStyle', 'none');
+    title( sprintf( '%s %d', get_site_name( sitecode ), year( 1 ) ) );
     hold on;
     h_co2_clean = plot( decimal_day, CO2_mean_clean, ...
                         'Marker', 'o', ...
@@ -1586,13 +1590,13 @@ if iteration > 4
                         'LineStyle', 'none');
     h_co2_mean = plot( decimal_day(xx), yy, ...
                        'Marker', 'o', ...
-                       'Color', pal( 2, : ), ...
+                       'Color', pal( 3, : ), ...
                        'LineStyle', '-' );
     h_co2_std = plot( decimal_day(xx), yyl, ...
-                      'Color', pal(2, : ), ...
+                      'Color', pal( 3, : ), ...
                       'linewidth',2 ); 
     h_co2_std = plot( decimal_day(xx), yyu, ...
-                      'Color', pal( 2, : ),...
+                      'Color', pal( 3, : ),...
                       'linewidth',2); 
     xx=linspace(1, length(CO2_mean), length(CO2_mean));
     ylim([300 450]);
@@ -2406,4 +2410,5 @@ end
 
 % close all figure windows
 %close( h_burba_fig, h_co2_fig, h_fig_flux );
+%close( h_burba_fig, h_co2_fig );
 %close all;
