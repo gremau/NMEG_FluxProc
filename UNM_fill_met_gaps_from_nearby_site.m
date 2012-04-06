@@ -276,7 +276,12 @@ function ds = prepare_sev_met_data( ds, year, station )
     ds.Properties.VarNames = { 'Tair', 'rH', 'Rg' };
     ds.rH = ds.rH / 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
     ds.timestamp = ts;
+    % remove duplicated timestamps
+    dup_timestamps = find( abs( diff( ts ) ) < 1e-10 );
+    ds( dup_timestamps, : ) = [];
+    ts( dup_timestamps ) = [];
     
+
     % these readings are hourly -- interpolate to 30 mins
     thirty_mins = 30 / ( 60 * 24 );  % thirty minutes in units of days
     ts_30 = ts + thirty_mins;
