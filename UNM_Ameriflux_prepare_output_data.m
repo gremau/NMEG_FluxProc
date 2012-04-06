@@ -37,7 +37,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     TA_flag( ~isnan( ds_qc.air_temp_hmp ) ) = 0;
     Rg_flag( ~isnan( ds_qc.sw_incoming ) ) = 0;
     VPD_flag( ~isnan( ds_qc.rH ) ) = 0;
-    rH_flag( isnan( ds_qc.rH ) & ~isnan( ds_pt.rH ) ) = 0;
+    rH_flag( ~isnan( ds_qc.rH ) ) = 1;
 
     % Take out some extra uptake values at Grassland premonsoon.
     if sitecode ==1
@@ -188,8 +188,8 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gaps.SSA = dummy;
     amflux_gaps.LE = LE_obs;
     amflux_gaps.SLE = dummy;
-    amflux_gaps.G1 = SHF_mean;
-    amflux_gaps.TS_2p5cm = ds_soil.Tsoil_1;
+    amflux_gaps.G1 = dummy; %SHF_mean;
+    amflux_gaps.TS_2p5cm = dummy; %ds_soil.Tsoil_1;
     amflux_gaps.PRECIP = ds_qc.precip;
     amflux_gaps.RH = ds_qc.rH .* 100;
     amflux_gaps.PA = ds_qc.atm_press;
@@ -231,8 +231,8 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gf.LE = LE_2;
     amflux_gf.LE_flag = LE_flag;
     amflux_gf.SLE = dummy;
-    amflux_gf.G1 = SHF_mean;
-    amflux_gf.TS_2p5cm = ds_soil.Tsoil_1;
+    amflux_gf.G1 = dummy; %SHF_mean;
+    amflux_gf.TS_2p5cm = dummy; %ds_soil.Tsoil_1;
     amflux_gf.PRECIP = ds_qc.precip;
     amflux_gf.RH = ds_pt.rH .* 100;
     amflux_gf.RH_flag = rH_flag;
