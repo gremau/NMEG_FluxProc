@@ -75,7 +75,8 @@ if sitecode==1; % grassland
         lastcolumn='IL';
         ustar_lim = 0.06;
         winter_co2_min = -0.5;
-        co2_min_by_month = -10; co2_max_by_month = 6;
+        co2_min_by_month = [ -0.5, -0.5, repmat( -10, 1, 9 ), -0.5 ];; 
+        co2_max_by_month = 6;
     elseif year == 2011;
         filelength_n = 17523;
         lastcolumn='IL';
@@ -1815,6 +1816,17 @@ if sitecode == 7
         soil_heat_flux_mescan(find(soil_heat_flux_mescan > 40 | soil_heat_flux_mescan < -40)) = NaN;
         soil_heat_flux_juncan(find(soil_heat_flux_juncan > 20 | soil_heat_flux_juncan < -40)) = NaN;
     end
+end
+
+% remove days 295 to 320 for GLand 2010 for several variables -- the reported
+% values look weirdly bogus -- TWH 9 Apr 2012
+if sitecode == 1 & year(2) == 2010
+    bogus_idx = ( decimal_day >= 294 ) & ( decimal_day <= 320 );
+    HL_wpl_massman( bogus_idx ) = NaN;
+    HSdry_massman( bogus_idx ) = NaN;
+    E_wpl_massman( bogus_idx ) = NaN;
+    lw_incoming( bogus_idx ) = NaN;
+    lw_outgoing( bogus_idx ) = NaN;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
