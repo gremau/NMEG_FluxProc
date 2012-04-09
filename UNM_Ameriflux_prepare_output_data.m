@@ -71,7 +71,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     % LE,
     idx = ~isnan( ds_qc.HL_wpl_massman );
     LE_obs( idx ) = ds_qc.HL_wpl_massman( idx );
-    LE_flag( ~isnan(ds_qc.E_wpl_massman) ) = 0;
+    LE_flag( ~isnan(ds_qc.HL_wpl_massman) ) = 0;
     % and H
     idx = ~isnan( ds_qc.HSdry_massman );
     H_obs( idx ) = ds_qc.HSdry_massman( idx );
