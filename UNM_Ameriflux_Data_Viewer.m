@@ -24,6 +24,8 @@ function UNM_Ameriflux_Data_Viewer( sitecode, year )
     fname_filled = fullfile( get_out_directory( sitecode ), ...
                            sprintf( '%s_%d_gapfilled.txt', ...
                                     sites_ds.Ameriflux{ sitecode }, year ) );
+    fprintf( 'Ameriflux_Data_Viewer: parsing %s and %s\n', ...
+             fname_gaps, fname_filled );
     data_gaps = parse_ameriflux_file( fname_gaps );
     data_filled = parse_ameriflux_file( fname_filled );
     
@@ -153,6 +155,7 @@ function cur_col = next_but_cbk( source, eventdata, nfields, ...
     ud.cur_col = min( ud.cur_col + 1, nfields );
     % get the new variable names
     vars = get_var( ud.cur_col );
+
     if strcmp( vars.var_gaps, '' )
         cla( axh_gap )
     else 
@@ -246,6 +249,8 @@ function update_filled_plot( axh_gap, axh_filled, ...
                              data_gaps, data_filled, vars )
     % UPDATE_FILLED_PLOT - update the "filled data" plot this is a helper function
     % for UNM_Ameriflux_Data_Viewer
+
+    cla( axh_filled );
     
     pal = brewer_palettes( 'Dark2' );
     flag_val = zeros( size( data_filled.DTIME ) );

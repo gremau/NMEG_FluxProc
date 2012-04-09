@@ -35,7 +35,7 @@ function result = UNM_Ameriflux_write_file( sitecode, year, ds_aflx, email, ...
     fprintf( fid, fmt, units{:} );
     
     fclose( fid );
-
+    
     data = double( ds_aflx );
     data( isnan( data ) ) = -9999;
     dlmwrite( fname, data, '-append', 'delimiter', delim );

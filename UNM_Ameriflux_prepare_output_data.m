@@ -16,6 +16,10 @@ function [ amflux_gaps, amflux_gf ] = ...
     % a particular variable
     dummy = repmat( -9999, size( ds_qc, 1 ), 1 );
 
+    % A little cleaning - very basic high/low filtering
+    % anon function to find values in x outside of [L H]
+    HL = @( x, L, H )  (x < L) | (x > H);
+
     % initialize flags to 1
     f_flag = repmat( 1, size( data, 1 ), 1 );
     NEE_flag = f_flag;
@@ -32,25 +36,27 @@ function [ amflux_gaps, amflux_gf ] = ...
     VPD_g( ~isnan( ds_qc.rH ) ) = VPD_f( ~isnan( ds_qc.rH ) );
     Tair_f = ds_pt.Tair_f;
     Rg_f = ds_pt.Rg_f;
+    Rg_f( HL( Rg_f, 0, Inf ) ) = NaN;
 
     % set met flags to zero where data are missing
     TA_flag( ~isnan( ds_qc.air_temp_hmp ) ) = 0;
     Rg_flag( ~isnan( ds_qc.sw_incoming ) ) = 0;
     VPD_flag( ~isnan( ds_qc.rH ) ) = 0;
-    rH_flag( ~isnan( ds_qc.rH ) ) = 1;
+    rH_flag( ~isnan( ds_qc.rH ) ) = 0;
 
-    % Take out some extra uptake values at Grassland premonsoon.
-    if sitecode ==1
-        to_remove = find( ds_qc.fc_raw_massman_wpl( 1:7000 ) < -1.5 );
-        ds_qc.fc_raw_massman_wpl( to_remove ) = NaN;
-        to_remove = find( ds_qc.fc_raw_massman_wpl( 1:5000 ) < -0.75 );
-        ds_qc.fc_raw_massman_wpl( to_remove ) = NaN;
-    end
-    % Take out some extra uptake values at Ponderosa respiration.
-    if sitecode == 5
-        to_remove= find( ds_qc.fc_raw_massman_wpl > 8 );
-        ds_qc.fc_raw_massman_wpl( to_remove ) = NaN;
-    end
+    % the following taken care of in RemoveBadData now
+    % % Take out some extra uptake values at Grassland premonsoon.
+    % if sitecode ==1
+    %     to_remove = find( ds_qc.fc_raw_massman_wpl( 1:7000 ) < -1.5 );
+    %     ds_qc.fc_raw_massman_wpl( to_remove ) = NaN;
+    %     to_remove = find( ds_qc.fc_raw_massman_wpl( 1:5000 ) < -0.75 );
+    %     ds_qc.fc_raw_massman_wpl( to_remove ) = NaN;
+    % end
+    % % Take out some extra uptake values at Ponderosa respiration.
+    % if sitecode == 5
+    %     to_remove= find( ds_qc.fc_raw_massman_wpl > 8 );
+    %     ds_qc.fc_raw_massman_wpl( to_remove ) = NaN;
+    % end
 
     % initialize observed fluxes to NaNs
     NEE_obs = dummy;
@@ -116,19 +122,16 @@ function [ amflux_gaps, amflux_gf ] = ...
     %site to site
     shf_vars = regexp_ds_vars( ds_soil, 'SHF.*' );
     
-    % A little cleaning - very basic high/low filtering
-    % anon function to find values in x outside of [L H]
-    HL = @( x, L, H )  (x < L) | (x > H);
-    
     ds_soil.Tsoil_1( HL(ds_soil.Tsoil_1, -10, 50 ) ) = NaN;    
     ds_soil.SWC_1( HL( ds_soil.SWC_1, 0, 1 ) ) = NaN;
     ds_qc.lw_incoming( HL( ds_qc.lw_incoming, 120, 600 ) ) = NaN;
     ds_qc.lw_outgoing( HL( ds_qc.lw_outgoing, 120, 650 ) ) = NaN;
-    ds_qc.E_wpl_massman( HL( ds_qc.E_wpl_massman .* 18, -5, Inf ) ) = NaN;
+    ds_qc.E_wpl_massman( HL( ds_qc.E_wpl_massman .* 18, -5, 500 ) ) = NaN;
     ds_qc.CO2_mean( HL( ds_qc.CO2_mean, 350, Inf ) ) = NaN;
     ds_qc.wnd_spd( HL( ds_qc.wnd_spd, -Inf, 25  ) ) = NaN;
     ds_qc.atm_press( HL( ds_qc.atm_press, 20, 150 ) ) = NaN;
     ds_qc.Par_Avg( HL( ds_qc.Par_Avg, -100, 5000 ) ) = NaN;
+    ds_pt.rH( HL( ds_pt.rH, 0, 1 ) ) = NaN;
     for i = 1:numel( shf_vars )
         this_shf = ds_soil.( shf_vars{ i } );
         this_shf( HL( this_shf, -150, 150 ) ) = NaN;
@@ -258,5 +261,5 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gf.GPP = GPP_2;
     amflux_gf.GPP_flag = NEE_flag;
     amflux_gf.APAR = dummy;
-    amflux_gf.SWC_2 = ds_soil.SWC_2;
-    amflux_gf.SWC_3 = ds_soil.SWC_3;
+    amflux_gf.SWC_2 = dummy; %ds_soil.SWC_2;
+    amflux_gf.SWC_3 = dummy; %ds_soil.SWC_3;
