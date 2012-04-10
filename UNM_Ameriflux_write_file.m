@@ -25,7 +25,8 @@ function result = UNM_Ameriflux_write_file( sitecode, year, ds_aflx, email, ...
     fprintf( fid, 'Created: %s\n', datestr( now() ) );
 
     %% write variables name and unit headers
-    fmt = [ '%s', repmat( '\t%s', 1, ncol-1 ), '\n' ];
+    tok_str = sprintf( '%s%%s', delim );
+    fmt = [ '%s', repmat( tok_str', 1, ncol-1 ), '\n' ];
     var_names = ds_aflx.Properties.VarNames;
     % '.' was replaced with 'p' to make legal Matlab variable names.  Change
     % these 'p's back to '.'s -- identify by '.' between two digits

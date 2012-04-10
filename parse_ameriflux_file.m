@@ -7,7 +7,7 @@ function amflux_ds = parse_ameriflux_file( fname )
 % (c) Timothy W. Hilton, UNM, Dec 2011
 
 headerlines = 3;
-delim = '\t';
+delim = ',';
 
 fid = fopen( fname, 'r' );
 
