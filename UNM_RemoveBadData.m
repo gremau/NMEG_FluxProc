@@ -307,7 +307,7 @@ elseif sitecode == 7;
     elseif year == 2008;
         filelength_n = 17452;
         lastcolumn='GP';
-        ustar_lim = 0.11;
+        ustar_lim = 0.09;  % (changed from 0.11 10 Apr 2012 -- TWH )
         co2_min_by_month = -16; co2_max_by_month = 6;
     elseif year == 2009;
         filelength_n = 17282;
@@ -496,104 +496,104 @@ disp('file read');
 if year(2) < 2009 && sitecode ~= 3 
     if sitecode == 7 && year(2) == 2008 % This is set up for 2009 output
         disp('TX 2008 is set up as 2009 output');
-        stop
+        %stop
     end
     
-jday=data(:,8);
-iok=data(:,9);
-Tdry=data(:,14);
-wnd_dir_compass=data(:,15);
-wnd_spd=data(:,16);
-u_star=data(:,27);
-CO2_mean=data(:,31);
-CO2_std=data(:,32);
-H2O_mean=data(:,36);
-H2O_std=data(:,37);
-u_mean=data(:,10);
-t_mean=data(:,13);
-t_meanK=t_mean+ 273.15;
+    jday=data(:,8);
+    iok=data(:,9);
+    Tdry=data(:,14);
+    wnd_dir_compass=data(:,15);
+    wnd_spd=data(:,16);
+    u_star=data(:,27);
+    CO2_mean=data(:,31);
+    CO2_std=data(:,32);
+    H2O_mean=data(:,36);
+    H2O_std=data(:,37);
+    u_mean=data(:,10);
+    t_mean=data(:,13);
+    t_meanK=t_mean+ 273.15;
 
-fc_raw = data(:,38);
-fc_raw_massman = data(:,39);
-fc_water_term = data(:,42);
-fc_heat_term_massman = data(:,45);
-fc_raw_massman_wpl = data(:,46); % = flux_co2_massman + flux_co2_wpl_water + flux_co2_massman_wpl_heat
+    fc_raw = data(:,38);
+    fc_raw_massman = data(:,39);
+    fc_water_term = data(:,42);
+    fc_heat_term_massman = data(:,45);
+    fc_raw_massman_wpl = data(:,46); % = flux_co2_massman + flux_co2_wpl_water + flux_co2_massman_wpl_heat
 
-E_raw = data(:,47);
-E_raw_massman = data(:,44);
-E_water_term = data(:,51);
-E_heat_term_massman = data(:,50);
-E_wpl_massman = data(:,55); % = flux_h20_wpl_water + flux_h20_massman_wpl_heat
+    E_raw = data(:,47);
+    E_raw_massman = data(:,44);
+    E_water_term = data(:,51);
+    E_heat_term_massman = data(:,50);
+    E_wpl_massman = data(:,55); % = flux_h20_wpl_water + flux_h20_massman_wpl_heat
 
-HSdry = data(:,56);
-HSdry_massman = data(:,59);
+    HSdry = data(:,56);
+    HSdry_massman = data(:,59);
 
-HL_raw = data(:,60);
-HL_wpl_massman = data(:,64);
-HL_wpl_massman_un = data(:,63);
-% Half hourly data filler only produces uncorrected HL_wpl_massman, but use
-% these where available
-HL_wpl_massman(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un))=HL_wpl_massman_un(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un));
+    HL_raw = data(:,60);
+    HL_wpl_massman = data(:,64);
+    HL_wpl_massman_un = data(:,63);
+    % Half hourly data filler only produces uncorrected HL_wpl_massman, but use
+    % these where available
+    HL_wpl_massman(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un))=HL_wpl_massman_un(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un));
 
-rhoa_dry = data(:,65);
+    rhoa_dry = data(:,65);
 
-decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
-                datenum( year, 1, 1 ) + 1 );
-              
-year2 = year(2);
+    decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
+                    datenum( year, 1, 1 ) + 1 );
+    
+    year2 = year(2);
 
-for i=1:ncol;
-    if strcmp('RH',headertext(i)) == 1 || strcmp('rh_hmp', headertext(i)) == 1 || strcmp('rh_hmp_4_Avg', headertext(i)) == 1
-        rH = data(:,i-1);
+    for i=1:ncol;
+        if strcmp('RH',headertext(i)) == 1 || strcmp('rh_hmp', headertext(i)) == 1 || strcmp('rh_hmp_4_Avg', headertext(i)) == 1
+            rH = data(:,i-1);
+        end
     end
-end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-else
+else  %JSav pre-2009
     
-jday=data(:,8);
-iok=data(:,9);
-Tdry=data(:,14);
-wnd_dir_compass=data(:,15);
-wnd_spd=data(:,16);
-u_star=data(:,28);
-CO2_mean=data(:,32);
-CO2_std=data(:,33);
-H2O_mean=data(:,37);
-H2O_std=data(:,38);
-u_mean=data(:,10);
-t_mean=data(:,13);
-t_meanK=t_mean+ 273.15;
+    jday=data(:,8);
+    iok=data(:,9);
+    Tdry=data(:,14);
+    wnd_dir_compass=data(:,15);
+    wnd_spd=data(:,16);
+    u_star=data(:,28);
+    CO2_mean=data(:,32);
+    CO2_std=data(:,33);
+    H2O_mean=data(:,37);
+    H2O_std=data(:,38);
+    u_mean=data(:,10);
+    t_mean=data(:,13);
+    t_meanK=t_mean+ 273.15;
 
-fc_raw = data(:,39);
-fc_raw_massman = data(:,40);
-fc_water_term = data(:,41);
-fc_heat_term_massman = data(:,42);
-fc_raw_massman_wpl = data(:,43); % = flux_co2_massman + flux_co2_wpl_water + flux_co2_massman_wpl_heat
+    fc_raw = data(:,39);
+    fc_raw_massman = data(:,40);
+    fc_water_term = data(:,41);
+    fc_heat_term_massman = data(:,42);
+    fc_raw_massman_wpl = data(:,43); % = flux_co2_massman + flux_co2_wpl_water + flux_co2_massman_wpl_heat
 
-E_raw = data(:,44);
-E_raw_massman = data(:,45);
-E_water_term = data(:,46);
-E_heat_term_massman = data(:,47);
-E_wpl_massman = data(:,48);
+    E_raw = data(:,44);
+    E_raw_massman = data(:,45);
+    E_water_term = data(:,46);
+    E_heat_term_massman = data(:,47);
+    E_wpl_massman = data(:,48);
 
-HSdry = data(:,50);
-HSdry_massman = data(:,53);
+    HSdry = data(:,50);
+    HSdry_massman = data(:,53);
 
-HL_raw = data(:,54);
-HL_wpl_massman = data(:,56);
-HL_wpl_massman_un = data(:,55);
-% Half hourly data filler only produces uncorrected HL_wpl_massman, but use
-% these where available as very similar values
-HL_wpl_massman(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un))=HL_wpl_massman_un(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un));
+    HL_raw = data(:,54);
+    HL_wpl_massman = data(:,56);
+    HL_wpl_massman_un = data(:,55);
+    % Half hourly data filler only produces uncorrected HL_wpl_massman, but use
+    % these where available as very similar values
+    HL_wpl_massman(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un))=HL_wpl_massman_un(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un));
 
-rhoa_dry = data(:,57);
+    rhoa_dry = data(:,57);
 
-decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
-                datenum( year, 1, 1 ) + 1 );
-year2 = year(2);
+    decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
+                    datenum( year, 1, 1 ) + 1 );
+    year2 = year(2);
 
- end
+end
 
 %initialize RH to NaN
 rH = repmat( NaN, size( data, 1), 1 );
@@ -1258,8 +1258,8 @@ nanflag = find(isnan(fc_raw_massman_wpl));
 removednans = length(nanflag);
 decimal_day_nan(nanflag) = NaN;
 record(nanflag) = NaN;
-nanflag = find(isnan(CO2_mean));
-conc_record(nanflag) = NaN;
+co2_conc_nanflag = find(isnan(CO2_mean));
+conc_record(co2_conc_nanflag) = NaN;
 disp(sprintf('    original empties = %d',removednans));
 
 % % Remove values during precipitation
@@ -1332,6 +1332,7 @@ if iteration == 1
     hour_2 = hour(find(~isnan(decimal_day_nan)));
 
     ustar_bin = 1:1:30; % you can change this to have more or less categories
+    ustar_mean = repmat( NaN, size( ustar_bin ) );
     for i = 1:30 % you can change this to have more or less categories
         if i == 1
             startbin(i) = 0;
@@ -1341,15 +1342,19 @@ if iteration == 1
         endbin(i) = 0.01 + startbin(i);    
         elementstouse = find((u_star_2 > startbin(i) & u_star_2 < endbin(i)) & (hour_2 > 22 | hour_2 < 5));
         co2mean(i) = mean(fc_raw_massman_wpl_2(elementstouse));
+        ustar_mean( i ) = mean( u_star_2( elementstouse ) );
     end
 
     startbin;
 
-    figure( 1 );
+    figure( 'Name', 'determine Ustar cutoff', 'NumberTitle', 'Off' );
     clf;
-    plot(ustar_bin,co2mean,'.r');
+    plot( ustar_mean, co2mean, '.k' );
+    xlabel( 'UStar' );
+    ylabel( 'co2mean' );
     title( 'UStar' );
     shg;
+    return;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1614,10 +1619,11 @@ end % close if statement for iterations
 
 pal = brewer_palettes( 'Dark2' );
 
+fig_name = sprintf( 'NEE & filters, %s %d', ...
+                    get_site_name( sitecode ), year( 1 ) );
 h_fig_flux = figure( 'Units', 'Normalized', ...
                      'Position', [ 0.1, 0.2, 0.85, 0.70 ], ...
-                     'Name', sprintf( 'NEE & filters, %s %d', ...
-                                      get_site_name( sitecode ), year ), ...
+                     'Name', fig_name, ...
                      'NumberTitle', 'off' );
 ax2 = subplot( 'Position', [ 0.1, 0.05, 0.89, 0.2 ] );
 ax1 = subplot( 'Position', [ 0.1, 0.30, 0.89, 0.64 ] );
