@@ -1053,6 +1053,12 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             
         end
 
+        % calculate soil heat flux
+        init_vals = repmat( NaN, size( ds_qc, 1 ), n_shf_vars );
+        shf_names = arrayfun( @(x) sprintf('SHF_%d', x), 1:n_shf_vars, ...
+                              'UniformOutput', false);
+        ds_shf = dataset( {init_vals, shf_names{:} } );
+
     elseif ismember( sitecode, [ 8, 9 ] ) 
         Tsoil_1 = dummy;
         Tsoil_2 = dummy;

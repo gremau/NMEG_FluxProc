@@ -307,7 +307,7 @@ elseif sitecode == 7;
     elseif year == 2008;
         filelength_n = 17452;
         lastcolumn='GP';
-        ustar_lim = 0.09;  % (changed from 0.11 10 Apr 2012 -- TWH )
+        ustar_lim = 0.11;  % (changed from 0.11 10 Apr 2012 -- TWH )
         co2_min_by_month = -16; co2_max_by_month = 6;
     elseif year == 2009;
         filelength_n = 17282;
@@ -493,7 +493,59 @@ disp('file read');
 % sites, so they can be just hard-wired in by column number
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if year(2) < 2009 && sitecode ~= 3 
+if ( sitecode == 7 ) & ( year == 2008 )
+
+    jday=data(:,8);
+    iok=data(:,9);
+    Tdry=data(:,14);
+    wnd_dir_compass=data(:,15);
+    wnd_spd=data(:,16);
+    u_star=data(:,28);
+    CO2_mean=data(:,32);
+    CO2_std=data(:,33);
+    H2O_mean=data(:,37);
+    H2O_std=data(:,38);
+    u_mean=data(:,10);
+    t_mean=data(:,13);
+    t_meanK=t_mean+ 273.15;
+
+    fc_raw = data(:,39);
+    fc_raw_massman = data(:,40);
+    fc_water_term = data(:,41);
+    fc_heat_term_massman = data(:,42);
+    fc_raw_massman_wpl = data(:,43); % = flux_co2_massman + flux_co2_wpl_water + flux_co2_massman_wpl_heat
+
+    E_raw = data(:,44);
+    E_raw_massman = data(:,45);
+    E_water_term = data(:,46);
+    E_heat_term_massman = data(:,47);
+    E_wpl_massman = data(:,48); % = flux_h20_wpl_water + flux_h20_massman_wpl_heat
+
+    HSdry = data(:,50);
+    HSdry_massman = data(:,53);
+
+    HL_raw = data(:,54);
+    HL_wpl_massman = data(:,56);
+    HL_wpl_massman_un = repmat( NaN, size( data, 1 ), 1 );
+    % Half hourly data filler only produces uncorrected HL_wpl_massman, but use
+    % these where available
+    %HL_wpl_massman(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un))=HL_wpl_massman_un(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un));
+
+    rhoa_dry = data(:,57);
+
+    decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
+                    datenum( year, 1, 1 ) + 1 );
+    
+    year2 = year(2);
+
+    for i=1:ncol;
+        if strcmp('RH',headertext(i)) == 1 || strcmp('rh_hmp', headertext(i)) == 1 || strcmp('rh_hmp_4_Avg', headertext(i)) == 1
+            rH = data(:,i-1);
+        end
+    end
+
+
+elseif year(2) < 2009 && sitecode ~= 3 
     if sitecode == 7 && year(2) == 2008 % This is set up for 2009 output
         disp('TX 2008 is set up as 2009 output');
         %stop
@@ -1115,6 +1167,10 @@ elseif sitecode == 6
     
 %%%%%%%%%%%%%%%%% texas
 elseif sitecode == 7
+    % calibration for the li-190 par sensor - sensor had many high
+    % values, so delete all values above 6.5 first
+    Par_Avg(find(Par_Avg > 9.5)) = NaN;
+    Par_Avg = Par_Avg.*1000./(6.16.*0.604);
     if year2 == 2007 || year2 == 2006 || year2 == 2005
         % wind corrections for the Q*7
         NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.91.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
@@ -1129,10 +1185,6 @@ elseif sitecode == 7
         NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
         % calculate new net long wave from total net minus sw net
         NR_lw = NR_tot - NR_sw;
-        % calibration for the li-190 par sensor - sensor had many high
-        % values, so delete all values above 6.5 first
-        Par_Avg(find(Par_Avg > 9.5)) = NaN;
-        Par_Avg = Par_Avg.*1000./(6.16.*0.604);
     elseif year2 == 2008 || year2 == 2009
         % par switch to par-lite on ??
         NR_lw = lw_incoming - lw_outgoing;
