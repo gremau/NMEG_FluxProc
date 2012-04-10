@@ -1887,6 +1887,11 @@ if sitecode == 1 & year(2) == 2010
     lw_outgoing( bogus_idx ) = NaN;
 end
 
+if ( sitecode == 5 ) & ( year(2) == 2008 )
+    bogus_idx = ( decimal_day >= 100 ) & ( decimal_day < 190 ) & ( rH < 0.03 );
+    rH( bogus_idx ) = NaN;
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print to screen the number of removals
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
