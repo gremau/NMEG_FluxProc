@@ -5,7 +5,7 @@ function result = UNM_Ameriflux_write_file( sitecode, year, ds_aflx, email, ...
     
     result = 1;
     
-    delim = '\t';
+    delim = ',';
     ncol = size( ds_aflx, 2 );
     
     sites_info = parse_UNM_site_table();
