@@ -21,7 +21,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     HL = @( x, L, H )  (x < L) | (x > H);
 
     % initialize flags to 1
-    f_flag = repmat( 1, size( data, 1 ), 1 );
+    f_flag = int8( repmat( 1, size( data, 1 ), 1 ) );
     NEE_flag = f_flag;
     LE_flag = f_flag;
     H_flag = f_flag;
@@ -38,11 +38,15 @@ function [ amflux_gaps, amflux_gf ] = ...
     Rg_f = ds_pt.Rg_f;
     Rg_f( HL( Rg_f, 0, Inf ) ) = NaN;
 
-    % set met flags to zero where data are missing
-    TA_flag( ~isnan( ds_qc.air_temp_hmp ) ) = 0;
-    Rg_flag( ~isnan( ds_qc.sw_incoming ) ) = 0;
-    VPD_flag( ~isnan( ds_qc.rH ) ) = 0;
-    rH_flag( ~isnan( ds_qc.rH ) ) = 0;
+    % set met flags to zero where observations exist
+    TA_flag( ~isnan( ds_qc.air_temp_hmp ) ) = int8( 0 );
+    Rg_flag( ~isnan( ds_qc.sw_incoming ) ) = int8( 0 );
+    VPD_flag( ~isnan( ds_qc.rH ) ) = int8( 0 );
+    rH_flag( ~isnan( ds_qc.rH ) ) = int8( 0 );
+
+    % make vector containing only observed temperature 
+    Tair_obs = Tair_f;
+    Tair_obs( TA_flag == 1 ) = NaN;
 
     % the following taken care of in RemoveBadData now
     % % Take out some extra uptake values at Grassland premonsoon.
@@ -181,7 +185,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gaps.DOY = floor( amflux_gaps.DTIME );
     amflux_gaps.HRMIN = str2num( datestr( ds_qc.timestamp, 'HHMM' ) ); 
     amflux_gaps.UST = ds_qc.u_star;
-    amflux_gaps.TA = ds_qc.air_temp_hmp;
+    amflux_gaps.TA = Tair_obs;
     amflux_gaps.WD = ds_qc.wnd_dir_compass;
     amflux_gaps.WS = ds_qc.wnd_spd;
     amflux_gaps.NEE = dummy;
