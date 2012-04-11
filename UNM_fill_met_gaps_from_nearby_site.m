@@ -55,9 +55,15 @@ switch sitecode
              get_site_name( 4 ), year );
     nearby_data = parse_forgapfilling_file( 4, year, filled_file_false );
   case 4     % fill PJ from PJ girdle    
-    fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
-             get_site_name( 10 ), year );
-    nearby_data = parse_forgapfilling_file( 10, year, filled_file_false );
+    if year > 2009  % use PJ_girdle after 2009
+        fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
+                 get_site_name( 10 ), year );
+        nearby_data = parse_forgapfilling_file( 10, year, filled_file_false );
+    else  % use JSav before 2009
+        fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
+                 get_site_name( 3 ), year );
+        nearby_data = parse_forgapfilling_file( 3, year, filled_file_false );
+    end
   case 5     % fill PPine from Valles Caldera HQ met station ( station 11 )
     fprintf( 'parsing Valles Caldera headquarters met station ("source")\n' );
     nearby_data = UNM_parse_valles_met_data( year );
