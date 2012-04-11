@@ -1169,7 +1169,7 @@ elseif sitecode == 6
 elseif sitecode == 7
     % calibration for the li-190 par sensor - sensor had many high
     % values, so delete all values above 6.5 first
-    Par_Avg(find(Par_Avg > 9.5)) = NaN;
+    Par_Avg(find(Par_Avg > 11.5)) = NaN;
     Par_Avg = Par_Avg.*1000./(6.16.*0.604);
     if year2 == 2007 || year2 == 2006 || year2 == 2005
         % wind corrections for the Q*7
@@ -1890,6 +1890,15 @@ end
 if ( sitecode == 5 ) & ( year(2) == 2008 )
     bogus_idx = ( decimal_day >= 100 ) & ( decimal_day < 190 ) & ( rH < 0.03 );
     rH( bogus_idx ) = NaN;
+end
+
+if ( sitecode == 7 ) & ( year( 2 ) == 2008 )
+    u_star( u_star > 200 ) = NaN;
+end
+
+if ( sitecode == 3 ) & ( year( 2 ) == 2009 )
+    u_star( decimal_day < 34 ) = NaN;
+    wnd_dir_compass( decimal_day < 34 ) = NaN;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
