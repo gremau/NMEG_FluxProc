@@ -27,9 +27,29 @@ function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, rotati
     [ count, idx30min ] = histc( dn, edges );
 
     % remove data from outside [ t_start, t_end ]
-    outside = find( idx30min == 0 );
+    
+    % two notes about the counting details: 
+
+    % NOTE 1: matlab's histc function is defined to return in the last bin *only*
+    % elements that are *exactly* equal to edges( end ) -- in this case, an
+    % instant in time.  That is, now bins 1:end-1 each contain a 30-minute chunk
+    % of data, but bin(end) contains only a single data point.  We aren't
+    % interested in the instant, so remove it here.
+
+    % NOTE 2: histc results will place in bin(k) every element x such that edges( k
+    % ) <= x < edges( k + 1).  That is, each bin index will line up with the
+    % timestamp (in edges) for the beginning of the 30-minute period.  The UNM
+    % convention is to label each 30-minute average data point with the
+    % timestamp of the *end* of the 30-minute period.  Therefore we need to
+    % offset each 10-hz point's index (in idx30min) by one relative to its
+    % timestamp (in edges) to get the timestamp label right.
+
+    outside = find( idx30min == 0 | ...
+                    idx30min == numel( edges ) );  % see note 1, above
     all_data( outside, : ) = [];
     idx30min( outside ) = [];
+
+    edges = edges( 2:end );  %see note 2, above
 
     fprintf( 1, 'done (%d seconds)\nmaking 30-min chunks... ', ...
              int32( ( now() - t0 ) * 86400 ) );
@@ -48,12 +68,12 @@ function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, rotati
 
     %process each 30-minute chunk into averages
     avg_30min_cell = cell( size( chunks_30_min ) );
-    for i = 1:numel( edges )
+    for i = 1:numel( edges ) - 1
         if not( isempty( chunks_30_min{ i } ) )
-            avg_30min_cell{ i } = UNM_30min_TS_averager( sitecode, edges( i ), ...
+            avg_30min_cell{ i } = UNM_30min_TS_averager( sitecode, ...
+                                                         edges( i ), ...
                                                          lag, rotation, ...
-                                                         chunks_30_min{ i } ...
-                                                         );
+                                                         chunks_30_min{ i } );
         end
         if ( mod( i, 100 ) == 0 )
             fprintf( 'iteration %d\n', i );
