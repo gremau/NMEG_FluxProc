@@ -89,6 +89,7 @@ end
 
 %--------------------------------------------------
 % sychronize nearby_site timestamps to this_data timestamps
+save
 seconds = repmat( 0.0, size( this_data, 1 ), 1 );
 ts = datenum( this_data.year, this_data.month, this_data.day, ...
               this_data.hour, this_data.minute, seconds );
@@ -138,6 +139,7 @@ end
 [ this_data, Rg_filled_1, Rg_filled_2 ] = ...
     fill_variable( this_data, nearby_data, nearby_2, ...
                    'Rg', 'Rg', 'Rg', linfit( 3 ) );
+this_data.Rg( this_data.Rg < 0 ) = NaN;
 
 %--------------------------------------------------
 % plot filled variables if requested
