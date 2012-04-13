@@ -212,6 +212,9 @@ elseif sitecode == 4; % Pinyon Juniper
     
 elseif sitecode==5; % Ponderosa Pine
     site = 'PPine'
+    % site default values
+    co2_min_by_month = [-0.8 -0.8 -15 -15 -15 -15 -15 -15 -15 -15 -15 -1];
+    co2_max_by_month = [4 4 4 5 8 8 8 8 8 8 5 4];
     if year == 2006
         filelength_n = 11594;
     elseif year == 2007
@@ -225,19 +228,22 @@ elseif sitecode==5; % Ponderosa Pine
     elseif year == 2009;
         filelength_n = 17523;
         lastcolumn='FY';
-        ustar_lim = 0.08;
+        ustar_lim = 0.15;
+        co2_min_by_month = [ -4, -10, -15, -20, -20, -20, ...
+                            -20, -20, -20, -20, -15, -4 ];
+        co2_max_by_month = [ 8, 8, 8, repmat( 10, 1, 8 ), 4 ];
     elseif year == 2010;
         filelength_n = 17523;
         lastcolumn='FW';
         ustar_lim = 0.08;
+        co2_min_by_month = [ -15, -15, -15, -20, -20, -20, ...
+                            -20, -20, -20, -20, -15, -4 ];
+        co2_max_by_month = [ 4, 4, 4, 15, 15, 15, 20, 20, 20, 20, 15, 4 ];
     elseif year == 2011;
         filelength_n = 17523;
         lastcolumn='FY';
         ustar_lim = 0.08;
     end
-    %co2_min_by_month = [-0.8 -0.8 -15 -15 -15 -15 -15 -15 -15 -15 -15 -1];
-    co2_min_by_month = repmat( -15, 12, 1 );
-    co2_max_by_month = [4 4 4 5 8 8 8 8 8 8 5 4];
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 119; wind_max = 179; % these are given a sonic_orient = 329;
@@ -1169,7 +1175,7 @@ elseif sitecode == 6
 elseif sitecode == 7
     % calibration for the li-190 par sensor - sensor had many high
     % values, so delete all values above 6.5 first
-    Par_Avg(find(Par_Avg > 11.5)) = NaN;
+    Par_Avg(find(Par_Avg > 13.5)) = NaN;
     Par_Avg = Par_Avg.*1000./(6.16.*0.604);
     if year2 == 2007 || year2 == 2006 || year2 == 2005
         % wind corrections for the Q*7
@@ -1649,13 +1655,14 @@ if iteration > 4
     h_co2_mean = plot( decimal_day(xx), yy, ...
                        'Marker', 'o', ...
                        'Color', pal( 3, : ), ...
-                       'LineStyle', '-' );
+                       'LineStyle', '-', ...
+                       'LineWidth', 3);
     h_co2_std = plot( decimal_day(xx), yyl, ...
                       'Color', pal( 3, : ), ...
-                      'linewidth',2 ); 
+                      'linewidth', 3 ); 
     h_co2_std = plot( decimal_day(xx), yyu, ...
                       'Color', pal( 3, : ),...
-                      'linewidth',2); 
+                      'linewidth', 3 ); 
     xx=linspace(1, length(CO2_mean), length(CO2_mean));
     ylim([300 450]);
     xlabel('day of year');
@@ -1730,7 +1737,7 @@ legend( [ h_all, h_good, h_SD, h_SD_only ], ...
 xlabel('decimal day'); 
 ylabel('CO_2 flux');
 title( sprintf( '%s %d', get_site_name( sitecode ), year( 2 ) ) );
-ylim( [ -15, 15 ] );
+ylim( [ -25, 25 ] );
 hold off; 
 
 % -------
