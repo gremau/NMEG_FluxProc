@@ -167,8 +167,9 @@ outfile = fullfile( get_site_directory( sitecode ), ...
                     sprintf( '%s_flux_all_%d_for_gap_filling_filled.txt', ...
                              get_site_name( sitecode ), year ) );
 fprintf( 'writing %s\n', outfile );
-n_col = size( this_data, 2 );
-export( this_data( :, 1:n_col - 1 ), 'file', outfile );
+this_data.timestamp = [];
+export( this_data, 'file', outfile );
+%export( this_data( :, 2:end ), 'file', outfile );
 
 result = 0;
 
