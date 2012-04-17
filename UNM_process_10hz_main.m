@@ -1,6 +1,7 @@
 function result = UNM_process_10hz_main( sitecode, t_start, t_end )
 % UNM_PROCESS_10HZ_MAIN: top-level function for matlab processing of 10-hz data
-% from flux towers to 30-minute average.
+% from flux towers to 30-minute average.  t_start and t_end may not span two
+% different calendar years.
 %   
 %USAGE
 %    UNM_process_10hz_main( sitecode, t_start, t_end )
@@ -19,6 +20,17 @@ t0 = now();  % track running time
 
 lag = 0;
 rotation = 1;
+
+% pull out the year
+[ year_start, discard, discard, ...
+  discard, discard, discard ] = datevec( t_start );
+[ year_end, discard, discard, ...
+  discard, discard, discard ] = datevec( t_end );
+if ( year_start ~= year_end )
+    error( '10-hz data processing may not span different calendar years' );
+else
+    year = year_start;
+end
 
 %process 30 days at a time -- a whole year bogged down for lack of memory
 process_periods = t_start : 30 : t_end; 
