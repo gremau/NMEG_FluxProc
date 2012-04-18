@@ -1,4 +1,4 @@
-function [ vwc2, vwc3, vwc4 ] = UNM_soil_data_smoother( raw_soil_data )
+function [ vwc1, vwc2, vwc3, run_avg ] = UNM_soil_data_smoother( raw_soil_data )
 %
 % USAGE
 %    result = UNM_soil_data_smoother( raw_soil_data )
@@ -6,32 +6,27 @@ function [ vwc2, vwc3, vwc4 ] = UNM_soil_data_smoother( raw_soil_data )
 % (c) Timothy W. Hilton, UNM, Apr 2012
     
 % not temperature corrected
-vwc2 = repmat( -0.0663, size( raw_soil_data ) ) -  0.00636 .* raw_soil_data + 0.0007 .* ( raw_soil_data .* raw_soil_data );
+vwc1 = repmat( -0.0663, size( raw_soil_data ) ) -  ...
+       ( 0.00636 .* raw_soil_data ) + ...
+       ( 0.0007 .* ( raw_soil_data .* raw_soil_data ) );
 
 % Remove any negative SWC values
-vwc2( vwc2 < 0 ) = nan;
-vwc2( vwc2 > 1 ) = nan;
+vwc1( vwc1 < 0 ) = nan;
+vwc1( vwc1 > 1 ) = nan;
 
-% gap fill and smooth SWC using filter    
-aa = 1;
-nobs = 12; % 6 hr filter
-bb = ( ones( nobs, 1 ) / nobs );
-vwc3 = vwc2;
-vwc4 = vwc2;
-[ l w ] = size( vwc2 );
-for n = 1:w
-    for m = 11:l-11
-        average = nanmean( vwc2( ( m-10:m+10 ), n ) );
-        standev = nanstd( vwc2( ( m-10:m+10 ), n ) );
-        if ( vwc2( m, n ) > ( average + ( standev * 3 ) ) || ...
-             vwc2( m, n ) < ( average - ( standev * 3 ) ) )
-            vwc2(m,n)=nan;
-        end
-        if isnan( vwc2( m, n ) )
-            vwc3( m, n ) = average;
-        end
-    end
-    vwc4( :, n ) = filter( bb, aa, vwc3( :, n ) );
-    vwc4( 1:( l - ( nobs / 2 ) ) + 1, n ) = vwc4( nobs/2:l, n );
-end
+% calculate 6 hour running mean, standard deviation
+nobs = 13; % 6 hr filter on either side
+run_avg = running_mean( vwc1, nobs );
+run_std = running_stddev( vwc1, nobs );
+
+% return 3 different smoothing approaches:
+
+% remove points greater than +- 3 SD from mean
+idx = abs( vwc1 - run_avg ) > ( 3 * run_std );
+vwc2 = vwc1;
+vwc2( idx ) = NaN;
+
+% replace points greater than +- 3 SD from mean with mean
+vwc3 = vwc1;
+vwc3( idx ) = run_avg( idx );
 
