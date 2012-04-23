@@ -1,15 +1,10 @@
-function [ vwc1, vwc2, vwc3, run_avg ] = UNM_soil_data_smoother( raw_soil_data )
+function [ vwc2, vwc3, run_avg ] = UNM_soil_data_smoother( vwc1 )
 %
 % USAGE
-%    result = UNM_soil_data_smoother( raw_soil_data )
+%   [ vwc2, vwc3, run_avg ] = UNM_soil_data_smoother( vwc1 )
 %
 % (c) Timothy W. Hilton, UNM, Apr 2012
     
-% not temperature corrected
-vwc1 = repmat( -0.0663, size( raw_soil_data ) ) -  ...
-       ( 0.00636 .* raw_soil_data ) + ...
-       ( 0.0007 .* ( raw_soil_data .* raw_soil_data ) );
-
 % Remove any negative SWC values
 vwc1( vwc1 < 0 ) = nan;
 vwc1( vwc1 > 1 ) = nan;
