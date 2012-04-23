@@ -31,164 +31,39 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         scap = 837; 
         wcap = 4.19e6; 
         depth = 0.05;
+        
+        % column locations for cover types within SWC, soil T, etc.
+        cover_indices = { [ 1, 4, 7, 10, 13, 18 ], ...
+                          [ 3, 6, 9, 12, 15, 20 ], ...
+                          [ 17, 22 ] };
+        % N by 21 matrix of all 21 SWC sensor measurements
+        T_soil_all = data( :, 107:128 );
+        
+       if ismember( year, [ 2007, 2008 ] )
+           swc_raw  =  (data(:,165:187));            
+       elseif year >= 2009
+           swc_raw  =  (data(:,155:177));                        
+       end
+       
+       [ vwc, ...
+         vwc_Tc, ...
+         mean_vwc ...
+         mean_vwc_Tc ] = process_site_year_SWC( swc_raw, ...
+                                                T_soil, ...
+                                                cover_indices )
 
-       if year == 2007
-            Tsoil_1 = ds_qc.Tsoil_hfp;
-            Tsoil_2 = data(:,213); % deep well 10 cm
-            Tsoil_3 = dummy;
-            % Soil water content calculations from microsecond period
-            x  =  (data(:,165:187));
-            x_tc_2nd = (0.526-0.052.*x+0.00136.*(x.*x));
-            TS = (20-ds_qc.Tsoil_hfp); 
-            TS = repmat(TS,1,size(x_tc_2nd,2));
-            x_tc = x+TS.*x_tc_2nd;            %% temperature corrected
-            vwc = repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
-            %% not temperature corrected
-            vwc2 = repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
-            vwc(vwc>1) = NaN; vwc(vwc<0) = NaN;
-            vwc2(vwc2>1) = NaN; vwc2(vwc2<0) = NaN;
-            SWC_1 = nanmean(cat(2,vwc(:,1),vwc(:,4),vwc(:,7),...
-                              vwc(:,10),vwc(:,13),vwc(:,18))'); SWC_1 = SWC_1';
-            SWC_2 = nanmean(cat(2,vwc2(:,3),vwc2(:,6),vwc2(:,9),...
-                              vwc2(:,12),vwc2(:,15),vwc2(:,20))'); SWC_2 = SWC_2';
-            SWC_3 = nanmean(cat(2,vwc2(:,17),vwc2(:,22))'); SWC_3 = SWC_3';
-
-            vwc = data(:,188:210);
-            vwc(vwc>1) = NaN; vwc(vwc<0) = NaN;
-            SWC_21 = nanmean(cat(2,vwc(:,1),vwc(:,4),vwc(:,7),vwc(:,10),...
-                               vwc(:,13),vwc(:,18))'); SWC_21 = SWC_1';
-            SWC_22 = nanmean(cat(2,vwc(:,3),vwc(:,6),vwc(:,9),vwc(:,12),...
-                               vwc(:,15),vwc(:,20))'); SWC_22 = SWC_2';
-            SWC_23 = nanmean(cat(2,vwc(:,17),vwc(:,22))'); SWC_23 = SWC_3';
-            SWC_1(1:8000) = SWC_21(1:8000);
-            SWC_2(1:8000) = SWC_22(1:8000);
-            SWC_3(1:8000) = SWC_23(1:8000);
-            
-        elseif year  == 2008
-            Tsoil_1 = ds_qc.Tsoil_hfp;
-            Tsoil_2 = data(:,216); % deep well 10 cm
-            Tsoil_3 = dummy;
-            % Soil water content calculations from microsecond period
-            x  =  (data(:,165:187));
-            x_tc_2nd = (0.526-0.052.*x+0.00136.*(x.*x));
-            TS = (20-ds_qc.Tsoil_hfp); TS = repmat(TS,1,size(x_tc_2nd,2));
-            x_tc = x+TS.*x_tc_2nd;
-            %% temperature corrected
-            vwc = repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
-            %% not temperature corrected
-            vwc2 = repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
-            vwc(vwc>1) = NaN; vwc(vwc<0) = NaN;
-            vwc2(vwc2>1) = NaN; vwc2(vwc2<0) = NaN;
-            SWC_1 = nanmean(cat(2,vwc(:,1),vwc(:,4),vwc(:,7),vwc(:,10),...
-                              vwc(:,13),vwc(:,18))'); SWC_1 = SWC_1';
-            SWC_2 = nanmean(cat(2,vwc2(:,3),vwc2(:,6),vwc2(:,9),vwc2(:,12),...
-                              vwc2(:,15),vwc2(:,20))'); SWC_2 = SWC_2';
-            SWC_3 = nanmean(cat(2,vwc2(:,17),vwc2(:,22))'); SWC_3 = SWC_3';
-            
-            
-        elseif year  == 2009
-            Tsoil_1 = ds_qc.Tsoil_hfp;
-            Tsoil_2 = data(:,216); % deep well 10 cm
-            Tsoil_3 = dummy;
-            % Soil water content calculations from microsecond period
-            x  =  (data(:,155:177));
-            % x_tc_2nd = (0.526-0.052.*x+0.00136.*(x.*x));
-            % TS = (20-ds_qc.Tsoil_hfp); TS = repmat(TS,1,size(x_tc_2nd,2));
-            % x_tc = x+TS.*x_tc_2nd;
-            %%% temperature corrected
-            % vwc = repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
-            %%% not temperature corrected
-            vwc2 = repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
-            vwc2(vwc2>1) = NaN; vwc2(vwc2<0) = NaN;
-            
-            % gap fill and smooth SWC using filter
-            
-            aa  =  1;
-            nobs  =  12; % 6 hr filter
-            bb  =  (ones(nobs,1)/nobs);
-            vwc3 = vwc2;
-            vwc4 = vwc2;
-            [l w] = size(vwc2);
-            for n  =  1:w
-                for m  =  11:l-11
-                    average = nanmean(vwc2((m-10:m+10),n));
-                    standev = nanstd(vwc2((m-10:m+10),n));
-                    if(vwc2(m,n)>average+standev*3 || vwc2(m,n)<average-standev*3)
-                        vwc2(m,n) = nan;
-                    end
-                    if isnan(vwc2(m,n))
-                        vwc3(m,n) = average;
-                    end
-                end
-                vwc4(:,n) = filter(bb,aa,vwc3(:,n));
-                vwc4(1:(l-(nobs/2))+1,n) = vwc4(nobs/2:l,n);
-            end
-            
-            SWC_1 = nanmean(cat(2,vwc4(:,1),vwc4(:,4),vwc4(:,7),vwc4(:,10),...
-                              vwc4(:,13),vwc4(:,18))'); 
-            SWC_1 = SWC_1';
-            SWC_2 = nanmean(cat(2,vwc4(:,3),vwc4(:,6),vwc4(:,9),vwc4(:,12),...
-                              vwc4(:,15),vwc4(:,20))'); 
-            SWC_2 = SWC_2';
-            SWC_3 = nanmean(cat(2,vwc4(:,17),vwc4(:,22))'); 
-            SWC_3 = SWC_3';     
-            
-            datamatrix22  =  [SWC_1,SWC_2,SWC_3];
-            datamatrix22(isnan(datamatrix22)) = -9999;
-            dlmwrite('GLand_SWC_09.txt',datamatrix22)
-            
-        elseif year  ==  2010 || year  ==  2011 % added March 23 2011 by MF
-            Tsoil_1 = ds_qc.Tsoil_hfp;
-            Tsoil_2 = data(:,216); % deep well 10 cm
-            Tsoil_3 = dummy;
-            % Soil water content calculations from microsecond period
-            x  =  (data(:,155:177));
-            % x_tc_2nd = (0.526-0.052.*x+0.00136.*(x.*x));
-            % TS = (20-ds_qc.Tsoil_hfp); TS = repmat(TS,1,size(x_tc_2nd,2));
-            % x_tc = x+TS.*x_tc_2nd
-            %% temperature corrected
-            %vwc = repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
-            %% not temperature corrected
-            vwc2 = repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
-            vwc2( vwc2 > 1 ) = NaN; 
-            vwc2( vwc2 < 0 ) = NaN;
-            
-            % gap fill and smooth SWC using filter
-            
-            aa  =  1;
-            nobs  =  12; % 6 hr filter
-            bb  =  (ones(nobs,1)/nobs);
-            vwc3 = vwc2;
-            vwc4 = vwc2;
-            [l w] = size(vwc2);
-            for n  =  1:w
-                for m  =  11:l-11
-                    average = nanmean(vwc2((m-10:m+10),n));
-                    standev = nanstd(vwc2((m-10:m+10),n));
-                    if(vwc2(m,n)>average+standev*3 || vwc2(m,n)<average-standev*3)
-                        vwc2(m,n) = nan;
-                    end
-                    if isnan(vwc2(m,n))
-                        vwc3(m,n) = average;
-                    end
-                end
-                vwc4(:,n) = filter(bb,aa,vwc3(:,n));
-                vwc4(1:(l-(nobs/2))+1,n) = vwc4(nobs/2:l,n);
-            end
-            
-            SWC_1 = nanmean(cat(2,vwc4(:,1),vwc4(:,4),vwc4(:,7),...
-                              vwc4(:,10),vwc4(:,13),vwc4(:,18))'); SWC_1 = SWC_1';
-            SWC_2 = nanmean(cat(2,vwc4(:,3),vwc4(:,6),vwc4(:,9),...
-                              vwc4(:,12),vwc4(:,15),vwc4(:,20))'); SWC_2 = SWC_2';
-            SWC_3 = nanmean(cat(2,vwc4(:,17),vwc4(:,22))'); SWC_3 = SWC_3';
-            
-
-            datamatrix22  =  [SWC_1,SWC_2,SWC_3];
-            datamatrix22(isnan(datamatrix22)) = -9999;
-            dlmwrite('GLand_SWC_10.txt',datamatrix22)
-            
+        if year == 2007
+            % not sure what this is - different VWC measurement?  --TWH
+            DL_vwc = data( :, 188:210 );
+            DL_vwc( DL_vwc > 1.0 ) = NaN; 
+            DL_vwc( DL_vwc < 0.0 ) = NaN;
+            for i = 1:numel( cover_indices )
+                this_DL_vwc = nanmean( DL_vwc( :, cover_indices{ 1 } ), 2 );
+                this_vwc = mean_vwc{ i };
+                this_vwc( 1:8000 ) = this_DL_vwc( 1:8000 );
+                mean_vwc{ 1 } = this_vwc;
         end
-
+        
         % ------------------------------
         % calculate GLand soil heat flux, with storage
         init_vals = repmat( NaN, size( ds_qc, 1 ), n_shf_vars );
@@ -198,6 +73,8 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         
         % need to get the correct conversion factor
         shf_conv_factor = 1.0;
+        Tsoil_1 = nanmean( T_soil_all( :, cover_indices{ 1 } ), 2 );
+        Tsoil_2 = nanmean( T_soil_all( :, cover_indices{ 1 } ), 2 );
         ds_shf.SHF_1 = calculate_heat_flux( Tsoil_1,  SWC_1, ...
                                             bulk, scap, wcap, depth, ...
                                             ds_qc.soil_heat_flux_1, ...
@@ -208,106 +85,26 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
                                             shf_conv_factor );
         
     elseif sitecode  ==  2 % Shrubland
+        cover_indices = { [ 1, 6, 11, 16 ], ...
+                          [ 3, 8, 13, 18 ], ...
+                          [ 5, 10, 15, 20 ] };
         if year < 2009
-            Tsoil_1 = ds_qc.Tsoil_hfp;
-            Tsoil_2 = dummy;
-            Tsoil_3 = dummy;
-            % Soil water content calculations from microsecond period
-            x  =  (data(:,165:186));
-            x_tc_2nd = (0.526-0.052.*x+0.00136.*(x.*x));
-            TS = (20-ds_qc.Tsoil_hfp); TS = repmat(TS,1,size(x_tc_2nd,2));
-            x_tc = x+TS.*x_tc_2nd;
-            %% temperature corrected
-            vwc = repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
-            %% not temperature corrected
-            vwc2 = repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
-            %
-            SWC_1 = nanmean(cat(2,vwc(:,1),vwc(:,6),vwc(:,11),vwc(:,16))'); 
-            SWC_1 = SWC_1';
-            SWC_2 = nanmean(cat(2,vwc2(:,3),vwc2(:,8),vwc(:,13),vwc2(:,18))'); 
-            SWC_2 = SWC_2';
-            SWC_3 = nanmean(cat(2,vwc2(:,5),vwc2(:,10),vwc(:,15),vwc2(:,20))');
-            SWC_3 = SWC_3';
-
+            swc_raw  =  (data(:,165:186));
+            error( 'need to find T_soil columns' );
+            
             % Calculate ground heat flux
-            deltaT = cat(1,ds_qc.Tsoil_hfp,1)-cat(1,1,ds_qc.Tsoil_hfp); 
-            deltaT = deltaT(2:length(deltaT));
-            
-            theta = vwc(:,21);
-            theta(isnan(theta)) = SWC_1(isnan(theta));
-            theta(isnan(theta)) =  0.05; % Gapfill soil moisture with other
-                                       % shallow measurements; big gap in
-                                       % soil moisture firstpart of 2007 fill
-                                       % with 0.05
-            % parameter values
             bulk = 1327; scap = 837; wcap = 4.19e6; depth = 0.05; 
-
+            shf_conv_factor = 1.0;
+            ds_shf.SHF_1 = calculate_heat_flux( Tsoil_1,  mean_vwc{ 1 }, ...
+                                                bulk, scap, wcap, depth, ...
+                                                ds_qc.soil_heat_flux_1, ...
+                                                shf_conv_factor );
             
-        elseif year  ==  2009 || year == 2010 || year  ==  2011 
+        elseif year >= 2009
+            T_soil_all = data( 107:128 );
+            swc_raw = ( data( :, 155:176 ) );
             
-            % tsoil = data(:,216:235);
-            % Tsoil_1 = nanmean(cat(2,tsoil(:,1),tsoil(:,6),tsoil(:,11),...
-            %                     tsoil(:,16))');
-            % Tsoil_1 = Tsoil_1';
-            % Tsoil_2 = nanmean(cat(2,tsoil(:,3),tsoil(:,8),tsoil(:,13),...
-            %                     tsoil(:,18))');
-            % Tsoil_2 = Tsoil_2';
-            % Tsoil_3 = nanmean(cat(2,tsoil(:,5),tsoil(:,10),tsoil(:,15),...
-            %                     tsoil(:,20))'); 
-            % Tsoil_3 = Tsoil_3';
-            %
-            % Soil water content calculations from microsecond period
-            
-            x  =  (data(:,155:176));
-            
-            x_tc_2nd = (0.526-0.052.*x+0.00136.*(x.*x));
-            % TS = (20-ds_qc.Tsoil_hfp); TS = repmat(TS,1,size(x_tc_2nd,2));
-            % x_tc = x+TS.*x_tc_2nd;
-            %% temperature corrected NOT USED
-            % vwc = repmat(-0.0663,(size(x_tc)))-0.00636.*x_tc+0.0007.*(x_tc.*x_tc); 
-            %% not temperature corrected
-            vwc2 = repmat(-0.0663,(size(x)))-0.00636.*x+0.0007.*(x.*x); 
-            %
-            
-            %% gap fill and smooth SWC using filter
-            
-            aa  =  1;
-            nobs  =  12; % 6 hr filter
-            bb  =  (ones(nobs,1)/nobs);
-            vwc3 = vwc2;
-            vwc4 = vwc2;
-            [l w] = size(vwc2);
-            for n  =  1:w
-                for m  =  11:l-11
-                    average = nanmean(vwc2((m-10:m+10),n));
-                    standev = nanstd(vwc2((m-10:m+10),n));
-                    if(vwc2(m,n)>average+standev*3 || vwc2(m,n)<average-standev*3)
-                        vwc2(m,n) = nan;
-                    end
-                    if isnan(vwc2(m,n))
-                        vwc3(m,n) = average;
-                    end
-                end
-                vwc4(:,n) = filter(bb,aa,vwc3(:,n));
-                vwc4(1:(l-(nobs/2))+1,n) = vwc4(nobs/2:l,n);
-            end
-            
-            SWC_1 = nanmean(cat(2,vwc2(:,1),vwc2(:,6),vwc2(:,11),vwc2(:,16))');
-            SWC_1 = SWC_1';
-            SWC_2 = nanmean(cat(2,vwc2(:,3),vwc2(:,8),vwc2(:,13),vwc2(:,18))');
-            SWC_2 = SWC_2';
-            SWC_3 = nanmean(cat(2,vwc2(:,5),vwc2(:,10),vwc2(:,15),vwc2(:,20))');
-            SWC_3 = SWC_3';
-            
-            SWC_1 = nanmean(cat(2,vwc4(:,1),vwc4(:,6),vwc4(:,11),vwc4(:,16))');
-            SWC_1 = SWC_1';
-            SWC_2 = nanmean(cat(2,vwc4(:,3),vwc4(:,8),vwc4(:,13),vwc4(:,18))');
-            SWC_2 = SWC_2';
-            SWC_3 = nanmean(cat(2,vwc4(:,5),vwc4(:,10),vwc4(:,15),vwc4(:,20))');
-            SWC_3 = SWC_3';
-
             %%
-            %
             % Calculate ground heat flux
             soil_heat_flux_1 = data(:,209);
             soil_heat_flux_2 = data(:,210);
@@ -315,24 +112,24 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
             soil_heat_flux_4 = data(:,212);
             soil_heat_flux_5 = data(:,213);
             soil_heat_flux_6 = data(:,214);
-            %                            % firstpart of 2007 fill with 0.05
             % %set parameter values
             bulk = 1327; scap = 837; wcap = 4.19e6; depth = 0.05; 
             
-            % SWC_1 = dummy;
-            % SWC_2 = dummy;
-            % SWC_3 = dummy;
-            % SWC_1 = dummy;
-            Tsoil_1 = dummy;
-            Tsoil_2 = dummy;
-            Tsoil_3 = dummy;
-            ground  =  dummy;
-            
+            % why is this here and not in RemoveBadData?  --TWH
             par_down_Avg  =  data(:,143);
-            par_down_Avg  =  par_down_Avg.*1000./(6.94*0.604);
+            par_down_Avg  =  par_down_Avg .* 1000 ./ ( 6.94 * 0.604 );
             
         end
 
+        [ vwc, ...
+          vwc_Tc, ...
+          mean_vwc ...
+          mean_vwc_Tc ] = process_site_year_SWC( swc_raw, ...
+                                                 T_soil_all, ...
+                                                 cover_indices )
+
+        % calculate SLand soil heat flux, with storage
+        error( 'which vwc to use?  T-corrected or non-corrected?' );
         init_vals = repmat( NaN, size( ds_qc, 1 ), n_shf_vars );
         shf_names = cell( arrayfun( @(n) sprintf('SHF_%d', n), ...
                                     1:n_shf_vars, ...
@@ -341,15 +138,15 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
         
         % need to get the correct conversion factor
         shf_conv_factor = 1.0;
-        ds_shf.SHF_1 = calculate_heat_flux( Tsoil_1,  SWC_1, ...
+        ds_shf.SHF_1 = calculate_heat_flux( Tsoil_1,  mean_vwc{ 1 }, ...
                                             bulk, scap, wcap, depth, ...
                                             soil_heat_flux_1, ...
                                             shf_conv_factor );
-        ds_shf.SHF_2 = calculate_heat_flux( Tsoil_2,  SWC_2, ...
+        ds_shf.SHF_2 = calculate_heat_flux( Tsoil_2,  mean_vwc{ 2 }, ...
                                             bulk, scap, wcap, depth, ...
                                             soil_heat_flux_2, ...
                                             shf_conv_factor );
-        ds_shf.SHF_3 = calculate_heat_flux( Tsoil_3,  SWC_3, ...
+        ds_shf.SHF_3 = calculate_heat_flux( Tsoil_3,  mean_vwc{ 3 }, ...
                                             bulk, scap, wcap, depth, ...
                                             soil_heat_flux_3, ...
                                             shf_conv_factor );
@@ -1266,6 +1063,38 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
     t_tot = ( now() - t0 ) * 24 * 60 * 60;
     fprintf( 1, ' Done (%.0f secs)\n', t_tot );
     
+----------------------------------------------------------------------    
     
-    
-    
+function [ vwc, ...
+           vwc_Tc, ...
+           mean_vwc ...
+           mean_vwc_Tc ] = process_site_year_SWC( swc_raw, ...
+                                                  T_soil, ...
+                                                  cover_indices )
+% PROCESS_SITE_YEAR_SWC - process SWC from raw period measurements (in microseconds)
+% reported by CS616 to smoothed volumetric water content.  Returns both
+% temperature-corrected and non-temperature-corrected values as well as mean
+% values by cover type.  Helper function for UNM_Ameriflux_prepare_soil_met.
+
+           % convert cs616 period to volumetric water content
+           [ vwc, vwc_Tc ] = cs616_period2vwc( swc_raw, T_soil_all );
+           % smooth non-T-corrected vwc
+           [ vwc_bad_removed, ...
+             vwc_bad_replaced, ...
+             vwc_run_mean ] = UNM_soil_data_smoother( vwc );
+           % smooth T-corrected vwc
+           [ vwc_bad_removed_Tc, ...
+             vwc_bad_replaced_Tc, ...
+             vwc_run_mean_Tc ] = UNM_soil_data_smoother( vwc_Tc );
+           
+           mean_vwc = cell( 1, numel( cover_indices ) );
+           mean_vwc_Tc = cell( 1, numel( cover_indices ) );
+
+           for i = 1:numel( cover_indices )
+               % calculate the mean from each cover type along each row
+               % ( each row is a timestamp )
+               mean_vwc{ i } = nanmean( vwc( :, cover_indices{ i } ), 2 ); 
+               mean_vwc_Tc{ i } = nanmean( vwc_Tc( :, cover_indices{ i } ), 2 );
+           end
+
+

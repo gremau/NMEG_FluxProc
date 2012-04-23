@@ -1,4 +1,4 @@
-% demonstrates that running_stddev is working
+% demonstrates that running_stddev and running_mean are working
 
 data = [ randn( 1, 1000 ), ( 2 * randn( 1, 1000 ) ), ( 3 * randn( 1, 1000 ) ) ];
 figure();
