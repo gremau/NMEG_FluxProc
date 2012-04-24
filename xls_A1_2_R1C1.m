@@ -1,14 +1,15 @@
 function R1C1 = xls_A1_2_R1C1( A1 )
-% xls_A1_2_R1C1 - convert a spreadsheet column in "A1" format to "R1C1" format
+% xls_A1_2_R1C1 - convert a spreadsheet column reference in "A1" format to
+% "R1C1" format
 %   
 % USAGE: 
 %   R1C1 = xls_A1_2_R1C1(letter_column)
 %
 % INPUTS:
-%   A1: cell reference in "A1" style, e.g. B2, CZ53, etc.
+%   A1: column reference in "A1" style, e.g. B, CZ, etc.
 %
 % OUTPUTS:
-%   R1C1: cell reference in "R1C1" style: B2 becomes R2C2
+%   R1C1: column reference in "R1C1" style: B becomes 2
 %
 % (c) Timothy W. Hilton, UNM, April 2012
     
