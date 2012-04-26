@@ -58,7 +58,7 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     cols = setdiff( ds_pt_MR.Properties.VarNames, ...
                     ds_pt_GL.Properties.VarNames );
     ds_pt = [ ds_pt_GL, ds_pt_MR( :, cols ) ];
-    save( 'test_restart_02.mat' );
+
     %% parsing the excel files is slow -- this loads parsed data for testing
     %%load( '/media/OS/Users/Tim/DataSandbox/GLand_2010_fluxall.mat' );
 
@@ -83,6 +83,7 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     ds_qc.precip = fix_incorrect_precip_factors( sitecode, year, ...
                                                  ds_qc.fjday, ds_qc.precip );
 
+    save( 'test_restart_02.mat' );
     % create dataset of soil properties.
     ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
     

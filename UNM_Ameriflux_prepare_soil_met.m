@@ -24,35 +24,60 @@ n_shf_vars = size( shf_vars, 2 );  % how many SHF columns are there?
 data_timestamp = data.timestamp;
 data = double( data( :, 2:end ) );
 
-%--------------------
-% pull soil water content (SWC) and soil temperature (T) measurements out of
-% the FluxAll data. 
-
-% get the soil water content and soil T columns and labels
-[ cs616_SWC_cols, ...
-  echo_SWC_cols, ...           
-  soilT_cols ] = UNM_assign_soilT_labels( sitecode, year );
-
-soilT = soildata_2_dataset( data, ...
-                            soilT_cols.columns, ...
-                            soilT_cols.labels );
-
-
-cs616 = soildata_2_dataset( data, ...
-                            cs616_SWC_cols.columns, ...
-                            cs616_SWC_cols.labels );
-[ cs616, cs616_Tc ] = cs616_period2vwc( cs616, Tsoil );
-
-if ~isempty( echo_SWC_cols.columns )
-    echo = soildata_2_dataset( data, echo_SWC_cols.columns, ...
-                                echo_SWC_cols.labels );
-end
-
-
+% -----
+% get soil water content and soil temperature data
+% -----
 
 switch sitecode
-  case 1 % Grassland
-    
+  case { 1, 2, 3, 6, 7, 8, 9, 11 } 
+    % all sites except PJ and PJ_girdle store their soil data in the
+    % FluxAll file
+
+    % pull soil water content (SWC) and soil temperature (T) measurements out
+    % of the FluxAll data.
+
+    % get the soil water content and soil T columns and labels
+    [ cs616_SWC_cols, ...
+      echo_SWC_cols, ...           
+      Tsoil_cols ] = UNM_assign_soil_data_labels( sitecode, year );
+
+    Tsoil = soildata_2_dataset( data, ...
+                                Tsoil_cols.columns, ...
+                                Tsoil_cols.labels );
+
+    cs616 = soildata_2_dataset( data, ...
+                                cs616_SWC_cols.columns, ...
+                                cs616_SWC_cols.labels );
+    [ cs616, cs616_Tc ] = cs616_period2vwc( cs616, Tsoil );
+
+    if ~isempty( echo_SWC_cols.columns )
+        echo = soildata_2_dataset( data, echo_SWC_cols.columns, ...
+                                   echo_SWC_cols.labels );
+    end
+
+  case { 4, 10 }
+    % PJ and PJ_girdle store their soil data outside of FluxAll.
+    % These data are already converted to VWC.
+
+    [ Tsoil, cs616 ] = preprocess_PJ_soil_data( sitecode, year );
+    %[ cs616, cs616_Tc ] = cs616_period2vwc( cs616,  Tsoil );
+    cs616_Tc = cs616;
+end
+
+[ Tsoil_hilo_removed, ...
+  Tsoil_hilo_replaced, ...
+  Tsoil_runmean ] = UNM_soil_data_smoother( Tsoil );
+[ cs616_hilo_removed, ...
+  cs616_hilo_replaced, ...
+  cs616_runmean ] = UNM_soil_data_smoother( cs616 );
+[ cs616_Tc_hilo_removed, ...
+  cs616_Tc_hilo_replaced, ...
+  cs616_Tc_runmean ] = UNM_soil_data_smoother( cs616_Tc );
+keyboard
+
+switch sitecode
+  case 1
+
     % parameter values for soil heat flux
     bulk = 1398; 
     scap = 837; 
@@ -132,8 +157,6 @@ function [ ds ] = soildata_2_dataset(fluxall, columns, labels)
 varnames = regexprep( labels, '([0-9])\.([0-9])', '$1p$2' );
 
 ds = dataset( { fluxall( : ,columns ), varnames{ : } } );
-
-
 
 %----------------------------------------------------------------------    
 

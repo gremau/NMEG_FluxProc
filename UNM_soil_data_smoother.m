@@ -4,10 +4,13 @@ function [ vwc2, vwc3, run_avg ] = UNM_soil_data_smoother( vwc1 )
 %   [ vwc2, vwc3, run_avg ] = UNM_soil_data_smoother( vwc1 )
 %
 % (c) Timothy W. Hilton, UNM, Apr 2012
-    
-% Remove any negative SWC values
-vwc1( vwc1 < 0 ) = nan;
-vwc1( vwc1 > 1 ) = nan;
+
+input_is_dataset = isa( vwc1, 'dataset' );
+
+if input_is_dataset
+    vwc_input = vwc1;
+    vwc1 = double( vwc1 );
+end
 
 % calculate 6 hour running mean, standard deviation
 nobs = 13; % 6 hr filter on either side
@@ -25,3 +28,9 @@ vwc2( idx ) = NaN;
 vwc3 = vwc1;
 vwc3( idx ) = run_avg( idx );
 
+if input_is_dataset
+    vwc2 = replacedata( vwc_input, vwc2 );
+    vwc3 = replacedata( vwc_input, vwc3 );
+    run_avg = replacedata( vwc_input, run_avg );
+end
+        

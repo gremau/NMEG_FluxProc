@@ -4,11 +4,19 @@ function [ soilT, SWC ] = preprocess_PJ_soil_data( sitecode, year )
     
 % determine file path
     sitename = get_site_name( sitecode );
-    fname = fullfile( getenv( 'FLUXROOT' ), ...
-                      'Flux_Tower_Data_by_Site', ...
-                      sitename, ...
-                      'PJC-23x-Compiled-04-24-12.csv' );
 
+    fpath = fullfile( getenv( 'FLUXROOT' ), ...
+                      'Flux_Tower_Data_by_Site', ...
+                      sitename );
+    switch sitecode
+      case 4
+        fname =  'PJC-23x-Compiled-04-24-12.csv';
+      case 10
+        fname =  'PJG-23x-Compiled-04-24-12.csv';
+    end
+    fname = fullfile( fpath, fname );
+    
+    
     % parse data file to matlab dataset
     fmt = [ repmat( '%d', 1, 4 ), repmat( '%f', 1, 100 ) ];
     fmt = repmat( '%f', 1, 104 );
@@ -45,8 +53,9 @@ function [ soilT, SWC ] = preprocess_PJ_soil_data( sitecode, year )
     soil_data.tstamps = datenum( soil_data.tstamps );
 
     % replace -9999 and -99999 with NaN
+    badvals = [ -9999, 9999, -99999, 99999 ];
     soil_data = replacedata( soil_data, ...
-                             @(x) replace_badvals( x, [ -9999, -99999 ], 1e-6 ) );
+                             @(x) replace_badvals( x, badvals, 1e-6 ) );
     
     % pull out soil water content and soil temperature
     T_vars = cellfun( @(x) ~isempty( x ), ...

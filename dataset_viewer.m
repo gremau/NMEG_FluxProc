@@ -61,7 +61,10 @@ function dataset_viewer( ds )
 
 plot( axh, ds( :, 1 ), '.k' );
 xlabel( axh, 'index' );
-ylabel( axh, ds.Properties.VarNames{ 1 } );
+t_str = ds.Properties.VarNames{ 1 };
+t_str = strrep( t_str, '_', '\_');
+t_str = strrep( t_str, '0x2E', '.');
+ylabel( axh, t_str );
 
 %--------------------------
 %  Callbacks for GUI
