@@ -73,26 +73,22 @@ end
 [ cs616_Tc_hilo_removed, ...
   cs616_Tc_hilo_replaced, ...
   cs616_Tc_runmean ] = UNM_soil_data_smoother( cs616_Tc );
-keyboard
 
-switch sitecode
-  case 1
+Tsoil_cover_depth_avg = soil_data_averager( Tsoil_runmean );
+VWC_cover_depth_avg = soil_data_averager( VWC_runmean );
 
-    % parameter values for soil heat flux
-    bulk = 1398; 
-    scap = 837; 
-    wcap = 4.19e6; 
-    depth = 0.05;
-    
-    
-    
-    [ vwc, ...
-      vwc_Tc, ...
-      mean_vwc ...
-      mean_vwc_Tc ] = process_site_year_SWC( swc_raw, ...
-                                             T_soil, ...
-                                             cover_indices )
-end %switch sitecode
+% -----
+% -----
+% now we have VWC and soil T. Calculate heat flux with storage.
+% -----
+% -----
+
+SHF_pars = define_SHF_pars( sitecode, year );
+SHF = calculate_heat_flux( Tsoil, VWC, ...
+                           SHF_pars.bulk, SHF_pars.scap, ...
+                           SHF_pars.wcap, SHF_pars.depth, ...
+                           
+
 %%======================================================================
 %% assign all the variables created above to a dataset to be returned to
 %% the caller
@@ -158,39 +154,41 @@ varnames = regexprep( labels, '([0-9])\.([0-9])', '$1p$2' );
 
 ds = dataset( { fluxall( : ,columns ), varnames{ : } } );
 
-%----------------------------------------------------------------------    
+%----------------------------------------------------------------------
 
-function [ vwc, ...
-           vwc_Tc, ...
-           mean_vwc ...
-           mean_vwc_Tc ] = process_site_year_SWC( swc_raw, ...
-                                                  T_soil, ...
-                                                  cover_indices )
-% PROCESS_SITE_YEAR_SWC - process SWC from raw period measurements (in
-% microseconds) reported by CS616 to smoothed volumetric water content.
-% Returns both temperature-corrected and non-temperature-corrected values as
-% well as mean values by cover type.  Helper function for
-% UNM_Ameriflux_prepare_soil_met.
+function SHF_pars = define_SHF_pars( sitecode, year )
+% DEFINE_SHF_PARS - specifies parameters for calculating soil heat flux.
+% Helper function for UNM_Ameriflux_prepare_soil_met
+%   
+% (c) Timothy W. Hilton, UNM, April 2012
 
-% convert cs616 period to volumetric water content
-[ vwc, vwc_Tc ] = cs616_period2vwc( swc_raw, T_soil_all );
-% smooth non-T-corrected vwc
-[ vwc_bad_removed, ...
-  vwc_bad_replaced, ...
-  vwc_run_mean ] = UNM_soil_data_smoother( vwc );
-% smooth T-corrected vwc
-[ vwc_bad_removed_Tc, ...
-  vwc_bad_replaced_Tc, ...
-  vwc_run_mean_Tc ] = UNM_soil_data_smoother( vwc_Tc );
+% set parameter values for soil heat flux
+% scap and wcap do not vary among sites
+SHF_pars.scap = 837; 
+SHF_pars.wcap = 4.19e6; 
+SHF_pars.depth = 0.05;
 
-mean_vwc = cell( 1, numel( cover_indices ) );
-mean_vwc_Tc = cell( 1, numel( cover_indices ) );
-
-for i = 1:numel( cover_indices )
-    % calculate the mean from each cover type along each row
-    % ( each row is a timestamp )
-    mean_vwc{ i } = nanmean( vwc( :, cover_indices{ i } ), 2 ); 
-    mean_vwc_Tc{ i } = nanmean( vwc_Tc( :, cover_indices{ i } ), 2 );
-end
-
-
+switch sitecode
+    % bulk and depth vary across site-year
+  case 1 % GLand
+    SHF_pars.bulk = 1398; 
+  case 2  % SLand
+    SHF_pars.bulk=1327; 
+  case 3  % JSav
+    SHF_pars.bulk=1720; 
+  case 4  % PJ
+    SHF_pars.bulk=1437; 
+  case 5  % PPine
+    warning( 'check PPine SHF parameters' );
+    SHF_pars.bulk = 1071;
+    end
+  case 6  % MCon
+    warning( 'check MCon SHF parameters' );
+    SHF_pars.bulk = 1071;
+  case 7  % TX
+    SHF_pars.bulk = 1114;
+  case 10   % PJ girdle
+    SHF_pars.bulk = NaN;
+  case 11  % New_GLand
+    SHF_pars.bulk = 1398;
+end %switch sitecode -- soil heat flux parameters

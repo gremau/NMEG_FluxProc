@@ -22,8 +22,8 @@ function avg_soil_data = soil_data_averager( soil_data )
 grp_vars = regexp( soil_data.Properties.VarNames, '_', 'split' );
 grp_vars = vertcat( grp_vars{ : } ); 
 
-covers = unique( grp_vars( :, 2 ) );
-depths = unique( grp_vars( :, 4 ) );
+covers = unique( grp_vars( :, 2 ) );  %cover is 2nd underscore-delimited field
+depths = unique( grp_vars( :, 4 ) );  %depth is 4th underscore-delimited field
 
 avg_soil_data_vars = cell( 1, numel( covers) * numel( depths ) );
 avg_soil_data = repmat( NaN, ...
