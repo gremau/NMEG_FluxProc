@@ -1,15 +1,16 @@
 function [ cs616_SWC_labels, ...
            echo_SWC_labels, ...           
-           soilT_labels ] = UNM_assign_soil_data_labels( sitecode, year )
+           soilT_labels, ...
+           TCAV_labels ] = UNM_assign_soil_data_labels( sitecode, year )
 
-% UNM_ASSIGN_SOIL_DATA_LABELS - assign labels to soil temperature measurements.
+% UNM_ASSIGN_SOIL_DATA_LABELS - assign labels to soil measurements.
 %   Labels are of the format soilT_cover_index_depth_*, where cover, index, and
 %   depth are character strings.  e.g. "soilT_O_2_12.5_avg" denotes cover type
 %   open, index (pit) 2, and depth of 12.5 cm.  Depth is followed by an
 %   underscore, and then optional arbitrary text.
 %
 % USAGE:
-%    [ cs616_SWC_labels, echo_SWC_labels, soilT_labels ] = ...
+%    [ cs616_SWC_labels, echo_SWC_labels, soilT_labels, TCAV_labels ] = ...
 %                             UNM_assign_soil_data_labels( sitecode, year )
 %
 % INPUTS
@@ -20,7 +21,7 @@ function [ cs616_SWC_labels, ...
     echo_SWC_labels = labels_template;
     cs616_SWC_labels = labels_template;
     soilT_labels = labels_template;
-    
+    TCAV_labels = labels_template;
     %place holders
     % cs616_SWC_labels.columns = [];
     % cs616_SWC_labels.labels = {};
@@ -33,6 +34,7 @@ function [ cs616_SWC_labels, ...
     
 switch sitecode
     
+    % --------------------------------------------------
   case 1  % GLand
     switch year
       case { 2009, 2010 }
@@ -84,8 +86,13 @@ switch sitecode
                             'soilT_cover_3_12.5', ...
                             'soilT_cover_3_22.5', ...
                             'soilT_cover_3_37.5' }; %, ...
+
+        TCAV_labels.columns = 210:211;
+        TCAV_labels.labels = { 'TCAV_open_Avg', 'TCAV_cover_Avg' };
+
     end   %switch GLand year
-    
+
+    % --------------------------------------------------
   case 2 %SLand
     switch year
       case { 2009, 2010 }
@@ -127,6 +134,7 @@ switch sitecode
                             'soilT_cover_2_37.5', 'soilT_cover_2_52.5' };
     end    % switch SLand year
     
+    % --------------------------------------------------
   case 3  % JSav
     switch year
       case { 2009, 2010 }
@@ -161,11 +169,25 @@ switch sitecode
                             'SoilT_O_2_2.5_Avg', 'SoilT_O_2_12.5_Avg', ...
                             'SoilT_O_2_22.5_Avg', 'SoilT_O_3_2.5_Avg', ...
                             'SoilT_O_3_12.5_Avg', 'SoilT_03_22.5_Avg' };
-    end   % switch JSav year
 
+        TCAV_labels.columns = 216:217;
+        TCAV_labels.labels = { 'TCAV_Avg_1', 'TCAV_Avg_2' };
+    end   % switch JSav year
+    
+    % --------------------------------------------------
+  case 4  %PJ
     % note that PJ and PJ girdle do not report soil moisture or soil T in
     % their FluxAll files, so their soil data are parsed separately.
+    switch year
+      case 2009
+        TCAV_labels.columns = 216:217;
+      case 2010
+        TCAV_labels.columns = 206:207;
+    end
+    TCAV_labels.labels = { 'TCAV_pinon_1_Avg', 'TCAV_juniper_1_Avg' };
 
+    % --------------------------------------------------
+    
   case 11  % unburned grass
     
     cs616_SWC_labels.columns = [];
@@ -177,6 +199,9 @@ switch sitecode
     soilT_labels.columns = [];
     soilT_labels.labels = {};
     
+    TCAV_labels.columns = [];
+    TCAV_labels.labels = {};
+
 end
     
 

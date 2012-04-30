@@ -1,6 +1,15 @@
-function vars = regexp_ds_vars(ds, re)
+function vars = regexp_ds_vars( ds, re )
 % REGEXP_DS_VARS - returns cell array of strings of variable names from dataset
 %   ds that match regular expression re
+%
+% USAGE
+%    vars = regexp_ds_vars( ds, re )
+%
+% INPUTS
+%    ds: Matlab dataset
+%
+% OUTPUTS
+%    re: string; regular expression to match against dataset variable names
 %
 % (c) Timothy W. Hilton, UNM, Jan 2012
     

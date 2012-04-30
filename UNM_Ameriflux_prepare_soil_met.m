@@ -18,7 +18,7 @@ dummy = repmat( -9999, size( data, 1 ), 1 );
 
 % find any soil heat flux columns within QC data
 shf_vars = regexp_ds_vars( ds_qc, 'soil_heat_flux.*' );
-n_shf_vars = size( shf_vars, 2 );  % how many SHF columns are there?    
+n_shf_vars = numel( shf_vars );  % how many SHF columns are there?    
 %% data is now a dataset -- convert it to a matrix of doubles for
 %% back-compatibilty
 data_timestamp = data.timestamp;
@@ -33,13 +33,14 @@ switch sitecode
     % all sites except PJ and PJ_girdle store their soil data in the
     % FluxAll file
 
-    % pull soil water content (SWC) and soil temperature (T) measurements out
-    % of the FluxAll data.
+    % pull soil water content (SWC), soil temperature (T), and TCAV soil T
+    % measurements out of the FluxAll data.
 
     % get the soil water content and soil T columns and labels
     [ cs616_SWC_cols, ...
       echo_SWC_cols, ...           
-      Tsoil_cols ] = UNM_assign_soil_data_labels( sitecode, year );
+      Tsoil_cols, ...
+      TCAV_cols] = UNM_assign_soil_data_labels( sitecode, year );
 
     Tsoil = soildata_2_dataset( data, ...
                                 Tsoil_cols.columns, ...
@@ -53,6 +54,11 @@ switch sitecode
     if ~isempty( echo_SWC_cols.columns )
         echo = soildata_2_dataset( data, echo_SWC_cols.columns, ...
                                    echo_SWC_cols.labels );
+    end
+    
+    if ~isempty( TCAV_cols.columns )
+        TCAV = soildata_2_dataset( data, TCAV_cols.columns, ...
+                                   TCAV_cols.labels );
     end
 
   case { 4, 10 }
@@ -74,8 +80,10 @@ end
   cs616_Tc_hilo_replaced, ...
   cs616_Tc_runmean ] = UNM_soil_data_smoother( cs616_Tc );
 
-Tsoil_cover_depth_avg = soil_data_averager( Tsoil_runmean );
-VWC_cover_depth_avg = soil_data_averager( VWC_runmean );
+[ Tsoil_cover_depth_avg, ...
+  Tsoil_cover_avg ] = soil_data_averager( Tsoil_runmean );
+[ VWC_cover_depth_avg, ...
+  VWC_cover_avg ] = soil_data_averager( cs616_runmean );
 
 % -----
 % -----
@@ -84,10 +92,13 @@ VWC_cover_depth_avg = soil_data_averager( VWC_runmean );
 % -----
 
 SHF_pars = define_SHF_pars( sitecode, year );
-SHF = calculate_heat_flux( Tsoil, VWC, ...
-                           SHF_pars.bulk, SHF_pars.scap, ...
-                           SHF_pars.wcap, SHF_pars.depth, ...
-                           
+
+keyboard()
+SHF = calculate_heat_flux( TCAV, ...
+                           VWC_cover_avg, ...
+                           SHF_pars, ...
+                           SHF_vars, ...
+                           1.0 );
 
 %%======================================================================
 %% assign all the variables created above to a dataset to be returned to
@@ -181,7 +192,6 @@ switch sitecode
   case 5  % PPine
     warning( 'check PPine SHF parameters' );
     SHF_pars.bulk = 1071;
-    end
   case 6  % MCon
     warning( 'check MCon SHF parameters' );
     SHF_pars.bulk = 1071;
