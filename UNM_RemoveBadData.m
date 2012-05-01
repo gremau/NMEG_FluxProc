@@ -2132,11 +2132,6 @@ if write_complete_out_file
     out_data = dataset( { datamatrix2, header2{ 2:end } } );
     export( out_data, 'file', outfilename_csv );
 
-    outfilename = strcat(outfolder,filename,'_qc');
-    xlswrite(outfilename,header2,'data','A1');
-    xlswrite(outfilename,datamatrix2,'data','B2');
-    xlswrite(outfilename,timestamp,'data','A2');
-   
     if iteration > 4
         
         if sitecode == 8 || sitecode == 9
