@@ -20,22 +20,25 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %% parse the annual Flux_All file
-    data = UNM_parse_fluxall_xls_file( sitecode, year );
+    data = UNM_assign_soil_data_labels( sitecode, year );
     % seems to be parsing header of NewGland_2011 to bogus dates -- temporary
     % fix until I get the front end of processing away from excel files
     data( data.timestamp < datenum( 2000, 1, 1 ), : ) = [];
 
     %% parse the QC file
-    qc_num = UNM_parse_QC_xls_file( sitecode, year );
-    ds_qc = fluxallqc_2_dataset( qc_num, sitecode, year );
+    ds_qc = UNM_parse_QC_txt_file( sitecode, year );
     
     %% parse gapfilled and partitioned fluxes
     [ ds_pt_GL, ds_pt_MR ] = ...
         UNM_parse_gapfilled_partitioned_output( sitecode, year );
     
-    save( 'test_restart_01.mat' );
+    %save( 'test_restart_01.mat' );
+
     % make sure that QC, FluxAll, gapfilled, and partitioned have identical,
     % complete 30 minute timeseries
+    fprintf( 'synchronizing timestamps... ');
+    t0 = now(); % record running time
+
     t_min = min( [ ds_qc.timestamp; data.timestamp; ...
                  ds_pt_GL.timestamp; ds_pt_MR.timestamp ] );
     t_max = max( [ ds_qc.timestamp; data.timestamp; ...
@@ -58,6 +61,10 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     cols = setdiff( ds_pt_MR.Properties.VarNames, ...
                     ds_pt_GL.Properties.VarNames );
     ds_pt = [ ds_pt_GL, ds_pt_MR( :, cols ) ];
+    
+    seconds_per_day = 60 * 60 * 24;
+    t_run = ceil( ( now() - t0 ) * seconds_per_day );
+    fprintf( 'done (%d seconds)\n', t_run ); %done sychronizing timestamps
 
     %% parsing the excel files is slow -- this loads parsed data for testing
     %%load( '/media/OS/Users/Tim/DataSandbox/GLand_2010_fluxall.mat' );
@@ -83,7 +90,7 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     ds_qc.precip = fix_incorrect_precip_factors( sitecode, year, ...
                                                  ds_qc.fjday, ds_qc.precip );
 
-    save( 'test_restart_02.mat' );
+    %save( 'test_restart_02.mat' );
     % create dataset of soil properties.
     ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
     

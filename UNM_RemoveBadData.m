@@ -2128,7 +2128,7 @@ if write_complete_out_file
                        lw_outgoing,NR_sw,NR_lw,NR_tot];
     end
 
-    outfilename_csv = strcat( outfolder, filename, '.txt' );
+    outfilename_csv = strcat( outfolder, filename, '_qc.txt' );
     out_data = dataset( { datamatrix2, header2{ 2:end } } );
     export( out_data, 'file', outfilename_csv );
 

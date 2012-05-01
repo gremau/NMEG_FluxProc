@@ -17,12 +17,8 @@ fprintf( 1, 'Begin soil met properties...' );
 dummy = repmat( -9999, size( data, 1 ), 1 );
 
 % find any soil heat flux columns within QC data
-shf_vars = regexp_ds_vars( ds_qc, 'soil_heat_flux.*' );
+shf_vars = regexp_ds_vars( ds_qc, '(SHF|soil_heat_flux).*' );
 n_shf_vars = numel( shf_vars );  % how many SHF columns are there?    
-%% data is now a dataset -- convert it to a matrix of doubles for
-%% back-compatibilty
-data_timestamp = data.timestamp;
-data = double( data( :, 2:end ) );
 
 % -----
 % get soil water content and soil temperature data
@@ -37,29 +33,16 @@ switch sitecode
     % measurements out of the FluxAll data.
 
     % get the soil water content and soil T columns and labels
-    [ cs616_SWC_cols, ...
-      echo_SWC_cols, ...           
-      Tsoil_cols, ...
-      TCAV_cols] = UNM_assign_soil_data_labels( sitecode, year );
+    
+    Tsoil = data( :, regexp_ds_vars( data, ...
+                                     'soilT_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
 
-    Tsoil = soildata_2_dataset( data, ...
-                                Tsoil_cols.columns, ...
-                                Tsoil_cols.labels );
-
-    cs616 = soildata_2_dataset( data, ...
-                                cs616_SWC_cols.columns, ...
-                                cs616_SWC_cols.labels );
+    cs616 = data( :, regexp_ds_vars( data, ...
+                                     'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
     [ cs616, cs616_Tc ] = cs616_period2vwc( cs616, Tsoil );
 
-    if ~isempty( echo_SWC_cols.columns )
-        echo = soildata_2_dataset( data, echo_SWC_cols.columns, ...
-                                   echo_SWC_cols.labels );
-    end
-    
-    if ~isempty( TCAV_cols.columns )
-        TCAV = soildata_2_dataset( data, TCAV_cols.columns, ...
-                                   TCAV_cols.labels );
-    end
+    TCAV = data( :, regexp_ds_vars( data, ...
+                                     'TCAV_[A-Za-z]+.*' ) );
 
   case { 4, 10 }
     % PJ and PJ_girdle store their soil data outside of FluxAll.
@@ -92,12 +75,12 @@ end
 % -----
 
 SHF_pars = define_SHF_pars( sitecode, year );
+SHF = ds_qc( :, shf_vars );
 
-keyboard()
 SHF = calculate_heat_flux( TCAV, ...
                            VWC_cover_avg, ...
                            SHF_pars, ...
-                           SHF_vars, ...
+                           SHF, ...
                            1.0 );
 
 %%======================================================================

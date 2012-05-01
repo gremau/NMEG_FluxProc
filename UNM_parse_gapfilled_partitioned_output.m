@@ -23,6 +23,10 @@ function [ pt_in_MR, pt_in_GL ] = ...
     fname = fullfile( get_site_directory( sitecode ), ...
                       'processed_flux', ...
                       sprintf( 'DataSetafterFluxpartGL2010_%d.txt', year ) );
+
+    [ ~, fname_short, ext ] = fileparts( fname );
+    fprintf( 'reading %s.%s... ', fname_short, ext );
+
     % exception handling added by MF, modified by TWH
     try
         pt_in_GL = parse_jena_output( fname );  %GL == Gita Lasslop
@@ -54,9 +58,8 @@ function [ pt_in_MR, pt_in_GL ] = ...
                                   pt_in_MR.Hour, ...
                                   pt_in_MR.Minute, ...
                                   seconds );
-
-
     
+    fprintf( 'done\n');    
     
 
 
