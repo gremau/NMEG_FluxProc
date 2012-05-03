@@ -65,36 +65,16 @@ function ds  = UNM_parse_fluxall_txt_file2( sitecode, year, synch_tstamps )
     % translate data timestamps to matlab datenums
     for i = 1:numel( tstamp_cols )
         this_tstamps = data{ tstamp_cols( i ) };
-        idx = ~cellfun( @isempty, this_tstamps );
-        this_stamps = cellfun( @(x) nan_datenum( x, 'mm/dd/yyyy HH:MM' ), ...
-                               this_tstamps, ...
-                               'UniformOutput', false );
+        idx = cellfun( @isempty, this_tstamps );
+        % replace empty cells with dummy tstamp that datenum can handle
+        this_tstamps( idx ) = { '1/1/0 00:00' };
+        this_tstamps = datenum( this_tstamps, 'mm/dd/yyyy HH:MM' );
+        this_tstamps( idx ) = NaN;
         data{ tstamp_cols( i ) } = this_tstamps;
     end
-    keyboard()
+
     % combine data into double array
     data = cell2mat( data );
-
-    % -----
-    % optionally, synchronize timestamps of 10 hz, TOA5 sections of file
-    % -----
-
-    if synch_tstamps
-        ten_hz = data( :, 1:tstamp_cols( 3 ) );
-        TOA5 = data( :, tstamp_cols( 3 ):end );
-        thirty_mins = 1 / 48;  % 30 minutes expressed un units of days
-        ten_hz = dataset_fill_timestamps( ten_hz, ...
-                                          headers( 1 ), ...
-                                          thirty_mins, ...
-                                          datenum( year, 1, 1, 0, 0, 0 ), ...
-                                          datenum( year, 12, 31, 23, 30, 0 ) );
-        TOA5 = dataset_fill_timestamps( TOA5, ...
-                                        headers( 1 ), ...
-                                        thirty_mins, ...
-                                        datenum( year, 1, 1, 0, 0, 0 ), ...
-                                        datenum( year, 12, 31, 23, 30, 0 ) );
-        data = horzcat( ten_hz, TOA5 );
-    end
 
     % -----
     %% replace -9999s with NaN using floating point test with tolerance of 0.0001
@@ -110,8 +90,37 @@ function ds  = UNM_parse_fluxall_txt_file2( sitecode, year, synch_tstamps )
     data( :, empty_columns ) = [];
     ds = dataset( { data, headers{ : } } );
 
-    % ds.timestamp = datenum( ds.year, ds.month, ds.day, ...
-    %                         ds.hour, ds.min, ds.second );
+
+    % -----
+    % optionally, synchronize timestamps of 10 hz, TOA5 sections of file
+    % -----
+
+    if synch_tstamps
+        fprintf( ' synchronizing timestamps...' );
+        % columns shifted when empty columns were removed -- find tstamps again
+        tstamp_cols = find( cellfun( @(x) length( x ) > 0, ...
+                                      regexpi( ds.Properties.VarNames, ...
+                                               'timestamp.*' ) ) );
+        ten_hz_cols = 1:( tstamp_cols( 3 ) - 1 );
+        TOA5_cols = tstamp_cols( 3 ):numel( headers );
+        tvar_10hz = ds.Properties.VarNames{ tstamp_cols( 1 ) };
+        tvar_TOA5 = ds.Properties.VarNames{ tstamp_cols( 3 ) };
+        ten_hz = ds( :, ten_hz_cols );
+        TOA5 = ds( :, TOA5_cols );
+        thirty_mins = 1 / 48;  % 30 minutes expressed un units of days
+        ten_hz = dataset_fill_timestamps( ten_hz, ...
+                                          tvar_10hz, ...
+                                          thirty_mins, ...
+                                          datenum( year, 1, 1, 0, 0, 0 ), ...
+                                          datenum( year, 12, 31, 23, 30, 0 ) );
+        TOA5 = dataset_fill_timestamps( TOA5, ...
+                                        tvar_TOA5, ...
+                                        thirty_mins, ...
+                                        datenum( year, 1, 1, 0, 0, 0 ), ...
+                                        datenum( year, 12, 31, 23, 30, 0 ) );
+        ds = horzcat( ten_hz, TOA5 );
+    end
+
 
     fprintf( ' file read\n' );
 
