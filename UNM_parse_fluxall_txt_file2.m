@@ -118,7 +118,6 @@ function ds  = UNM_parse_fluxall_txt_file2( sitecode, year, synch_tstamps )
             tvar_TOA5, ...
             't_min', datenum( year, 1, 1, 0, 0, 0 ), ...
             't_max', datenum( year, 12, 31, 23, 30, 0 ) );
-        keyboard
         ds = horzcat( ten_hz, TOA5 );
     end
 
