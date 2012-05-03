@@ -3,6 +3,11 @@ function ds_filled = dataset_fill_timestamps( ds, t_var, delta_t, ...
     
     % DATASET_FILL_TIMESTAMPS - fill in missing timestamps in a dataset containing a
     % regularly-spaced time series
+    %
+    % USAGE:
+    %   ds_filled = dataset_fill_timestamps( ds, t_var, delta_t, ...
+    %                                        t_min, t_max )
+    %
     % INPUTS:
     %   ds: dataset to be filled
     %   t_var: string containing the name of the time variable (e.g. 'TIMESTAMP')
