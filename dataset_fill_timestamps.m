@@ -1,25 +1,52 @@
-function ds_filled = dataset_fill_timestamps( ds, t_var, delta_t, ...
-                                              t_min, t_max )
+function ds_filled = dataset_fill_timestamps( ds, t_var, varargin )
     
-    % DATASET_FILL_TIMESTAMPS - fill in missing timestamps in a dataset containing a
-    % regularly-spaced time series
-    %
-    % USAGE:
-    %   ds_filled = dataset_fill_timestamps( ds, t_var, delta_t, ...
-    %                                        t_min, t_max )
-    %
-    % INPUTS:
-    %   ds: dataset to be filled
-    %   t_var: string containing the name of the time variable (e.g. 'TIMESTAMP')
-    %   delta_t: interval of the time series, in days.  e.g., 30 mins should have
-    %            delta_t value of 1/48.
-    %   t_min: timestamp at which to begin filling.  If NaN, defaults to the
-    %          earliest timestamp in the dataset.
-    %   t_max: timestamp at which to end filling.  If NaN, defaults to the
-    %          latest timestamp in the dataset.
-    %
-    % (c) Timothy W. Hilton, UNM, Dec. 2011
-
+% DATASET_FILL_TIMESTAMPS - fill in missing timestamps in a dataset containing a
+% regularly-spaced time series
+%
+% USAGE:
+%   ds_filled = dataset_fill_timestamps( ds, t_var )
+%   ds_filled = dataset_fill_timestamps( ds, t_var, t_min, t_max )
+%   ds_filled = dataset_fill_timestamps( ds, ..., 'tstamps_as_strings', ...
+%                                                  val )
+%
+% INPUTS:
+%   ds: dataset to be filled
+%   t_var: string containing the name of the time variable (e.g. 'TIMESTAMP')
+%   delta_t: optional: interval of the time series, in days.  e.g., 30
+%          mins should have delta_t value of 1/48.  Defaults to 1/48.
+%   t_min: optional -- timestamp at which to begin filling.  Defaults to the
+%          earliest timestamp in the dataset. 
+%   t_max: optional -- timestamp at which to end filling.  Defaults to the
+%          latest timestamp in the dataset.
+%   tstamps_as_strings: optional: logical, default false: if true, return
+%          timestamps as strings. 
+%
+% (c) Timothy W. Hilton, UNM, Dec. 2011
+    
+% -----
+% define optional inputs, with defaults
+% -----
+    p = inputParser;
+    p.addRequired( 'ds' ); %, @( x ) isa( x, 'dataset' ) );
+    p.addRequired( 't_var', @ischar );
+    p.addOptional( 'delta_t', ( 1 / 48 ), @isnumeric );
+    p.addOptional( 'tstamps_as_strings', false, @islogical );
+    p.addParamValue( 't_min', ...
+                     NaN, ...
+                     @( x ) isnumeric( x ) );
+    p.addParamValue( 't_max', ...
+                     NaN, ...
+                     @( x ) isnumeric( x ) );
+    % parse optional inputs
+    p.parse( ds, t_var, varargin{ : } );
+    
+    ds = p.Results.ds;
+    t_var = p.Results.t_var;
+    delta_t = p.Results.delta_t;
+    t_min = p.Results.t_min;
+    t_max = p.Results.t_max;
+    tstamps_as_strings = p.Results.tstamps_as_strings;
+    
     if isnan( t_min )
         t_min = min( ds.( t_var ) );
     end
@@ -47,6 +74,11 @@ function ds_filled = dataset_fill_timestamps( ds, t_var, delta_t, ...
     % timestamps (they're strings now) got sorted lexigrapically -- sort
     % them now by the actual date
     dn = datenum(ds_filled.( t_var ), 'mm/dd/yyyy HH:MM:SS');
-    [ discard, idx ] = sort( dn );
+    [ ~, idx ] = sort( dn );
     ds_filled = ds_filled( idx, : );
+    
+    if ~tstamps_as_strings
+        ds_filled.( t_var ) = dn ( idx );
+    end
+    
     
