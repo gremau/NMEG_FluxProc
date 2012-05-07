@@ -121,7 +121,7 @@ function ds  = UNM_parse_fluxall_txt_file2( sitecode, year, synch_tstamps )
 
         TOA5_dups = find( diff( TOA5.( tvar_TOA5 ) ) == 0 );
         TOA5( TOA5_dups, : ) = [];
-        ten_hz_dups = find( diff( ten_hz.( tvar_ten_hz ) ) == 0 );
+        ten_hz_dups = find( diff( ten_hz.( tvar_10hz ) ) == 0 );
         ten_hz( ten_hz_dups, : ) = [];
 
         ds = horzcat( ten_hz, TOA5 );

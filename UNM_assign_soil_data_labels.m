@@ -11,7 +11,7 @@ function fluxall = UNM_assign_soil_data_labels( sitecode, year )
 %
 % INPUTS
    
-fluxall = UNM_parse_fluxall_txt_file( sitecode, year );
+fluxall = UNM_parse_fluxall_txt_file2( sitecode, year, true );
 
 placeholder = 0;
 labels_template = struct( 'labels', { 'placeholder' }, ...
