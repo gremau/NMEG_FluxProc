@@ -20,7 +20,7 @@ if length(find(FLAG)) > 0
    end
 else
     nans = 0;
-   fprintf('\n');
+    %fprintf('\n');
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
