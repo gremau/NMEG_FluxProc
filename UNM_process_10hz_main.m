@@ -4,7 +4,7 @@ function result = UNM_process_10hz_main( sitecode, t_start, t_end )
 % different calendar years.
 %   
 %USAGE
-%    UNM_process_10hz_main( sitecode, t_start, t_end )
+%    result = UNM_process_10hz_main( sitecode, t_start, t_end )
 %
 %INPUTS
 %    sitecode ( integer ): sitecode to process
@@ -17,6 +17,8 @@ function result = UNM_process_10hz_main( sitecode, t_start, t_end )
 % (c) Timothy W. Hilton, UNM, April 2012
 
 t0 = now();  % track running time
+
+result = 1;  % initialize to failure -- will change on successful completion
 
 lag = 0;
 rotation = 1;
@@ -47,7 +49,7 @@ for i = 1 : n_pds
                                           this_t_start, ...
                                           this_t_end, ...
                                           lag, ...
-                                          rotation )
+                                          rotation );
 end
 
 all_data = vertcat( chunks_cell{ : } );
@@ -65,21 +67,19 @@ save( outfile, 'all_data' );
 timestamp = dataset( { datenum( double( all_data( :, 1:6 ) ) ), ...
                     'timestamp' } );    
 all_data = [ timestamp, all_data ];
-all_data = dataset_fill_timestamps( all_data, 'timestamp', ...
-                                    ( 1 / 48 ), ...
-                                    t_start, ...
-                                    t_end );
-% filled timestamps are now strings -- convert to matlab datenums
-dn = datenum( all_data.timestamp, 'mm/dd/yyyy HH:MM:SS' );
-[ y, mon, d, h, m, s ] = datevec( dn );
+all_data = dataset_fill_timestamps( all_data, ...
+                                    'timestamp', ...
+                                    't_min', t_start, ...
+                                    't_max', t_end );
+[ y, mon, d, h, m, s ] = datevec( all_data.timestamp );
 all_data.year = y;
 all_data.month = mon;
 all_data.day = d;
 all_data.hour = h;
 all_data.min = m;
 all_data.second = s;
-all_data.date = datestr( dn, 'mmddyy' );
-all_data.jday = dn - datenum( year, 1, 1 ) + 1;
+all_data.date = datestr( all_data.timestamp, 'mmddyy' );
+all_data.jday = all_data.timestamp - datenum( year, 1, 1 ) + 1;
     
 % format to match existing FLUX_all_YYYY.xls files
 % for some reason, two time columns
@@ -97,13 +97,8 @@ export( all_data, ...
 disp( 'writing .mat file' );
 save( strrep( outfile, '.mat', '_filled.mat' ), 'all_data' );
 
-return
 %--------------------------------------------------
-    
-
-
-
 
 fprintf( 1, 'done (%d seconds)\n', int32( ( now() - t0 ) * 86400 ) );
 
-result = 1;
+result = 0;
