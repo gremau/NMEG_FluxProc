@@ -34,12 +34,15 @@ iteration = 6;
 % 8-TX_forest
 % 9-TX_grassland
 
-write_complete_out_file = true; %true to write "[sitename].._qc", -- file with all variables & bad data removed
+write_complete_out_file = false; %true to write "[sitename].._qc", -- file
+                                %with all variables & bad data removed
+write_gap_filling_out_file = false; %true to write file for Reichstein's online
+                                   %gap-filling. SET U* LIM (including site-
+                                   %specific ones--comment out) TO 0!!!!!!!!!!
+
+
 data_for_analyses = 0; %1 to output file with data sorted for specific analyses
 ET_gap_filler = 0; %run ET gap-filler program
-write_gap_filling_out_file = true; %true to write file for Reichstein's online
-                                %gap-filling. SET U* LIM (including site-
-                                %specific ones--comment out) TO 0!!!!!!!!!!
 
 winter_co2_min = -100;  %initialization -- will be set for specific sites later
 
@@ -1686,107 +1689,19 @@ end % close if statement for iterations
 % Plot the co2 flux for the whole series
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pal = brewer_palettes( 'Dark2' );
-
-fig_name = sprintf( 'NEE & filters, %s %d', ...
-                    get_site_name( sitecode ), year( 1 ) );
-h_fig_flux = figure( 'Units', 'Normalized', ...
-                     'Position', [ 0.1, 0.2, 0.85, 0.70 ], ...
-                     'Name', fig_name, ...
-                     'NumberTitle', 'off' );
-ax2 = subplot( 'Position', [ 0.1, 0.05, 0.89, 0.2 ] );
-ax1 = subplot( 'Position', [ 0.1, 0.30, 0.89, 0.64 ] );
-hold on; 
-box on;
-% --------
-% plot NEE in the top panel
-% plot all observations as black circles
-axes( ax1 );
-h_all = plot( decimal_day, fc_raw_massman_wpl, 'ok' );
-xlim( [ 0, 366 ] );
-% plot the "good" observations (that weren't filtered out) as red dots
-% find [CO2] observations that are (1) good or (2) excepted
-
-h_good = plot( decimal_day( idx_NEE_good  ), ...
-               fc_raw_massman_wpl( idx_NEE_good ), ...
-               'LineStyle', 'none', ...
-               'Marker', '.', ...
-               'Color', pal( 1, : ) );
-
-% mark points that were filtered for Std deviation and no other reason
-idx_std = repmat( false, size( decimal_day ) );
-idx_std( stdflag ) = true;
-idx_std( unique( [ ustarflag ; precipflag ; nightnegflag ; ...
-                   windflag ; maxminflag ; lowco2flag ; ...
-                   highco2flag ; nanflag ] ) ) = false;
-h_SD_only = plot( decimal_day( idx_std  ), ...
-                  fc_raw_massman_wpl( idx_std ), ...
-                  'LineStyle', 'none', ...
-                  'Marker', 'o', ...
-                  'MarkerEdgeColor', 'k', ...
-                  'MarkerFaceColor', pal( 3, : ) );
-
-%plot std dev windows
-endbin( end ) = numel( decimal_day );
-for i = 1:n_bins
-    bin_x = [ decimal_day( startbin( i ) ), decimal_day( endbin( i ) ) ];
-    bin_y = repmat( bin_ceil( i ), 1, 2 );
-    h_SD = plot( bin_x, bin_y, ...
-                 'Color', pal( 2, : ), 'LineStyle', '-', 'LineWidth', 2 );
-    bin_y = repmat( bin_floor( i ), 1, 2 );
-    h_SD = plot( bin_x, bin_y, ...
-                 'Color', pal( 2, : ), 'LineStyle', '-', 'LineWidth', 2 );
-    bin_y = [ mean_flux( i ), mean_flux( i ) ];
-    h_mean = plot( bin_x, bin_y, ...
-                   'Color', pal( 2, : ), 'LineStyle', '--', 'LineWidth', 2 );
-           
-end
-
-legend( [ h_all, h_good, h_SD, h_SD_only ], ...
-        'all obs', '"good" obs', 'Std. Dev. window', 'SD only' );
-xlabel('decimal day'); 
-ylabel('CO_2 flux');
-title( sprintf( '%s %d', get_site_name( sitecode ), year( 2 ) ) );
-ylim( [ -25, 25 ] );
-hold off; 
-
-% -------
-% plot reasons NEE was screened in the bottom panel
-axes( ax2 );
-hold on
-h_ustar = plot( decimal_day( ustarflag ), ...
-                repmat( 1, numel( ustarflag), 1 ), '.k' );
-h_pcp = plot( decimal_day( precipflag ), ...
-                repmat( 2, numel( precipflag), 1 ), '.k' );
-h_nightneg = plot( decimal_day( nightnegflag ), ...
-                repmat( 3, numel( nightnegflag), 1 ), '.k' );
-h_wind = plot( decimal_day( windflag ), ...
-                repmat( 4, numel( windflag), 1 ), '.k' );
-h_maxs_mins = plot( decimal_day( maxminflag ), ...
-                repmat( 5, numel( maxminflag), 1 ), '.k' );
-h_lowco2 = plot( decimal_day( lowco2flag ), ...
-                repmat( 6, numel( lowco2flag), 1 ), '.k' );
-h_highco2 = plot( decimal_day( highco2flag ), ...
-                repmat( 7, numel( highco2flag), 1 ), '.k' );
-h_nan = plot( decimal_day( nanflag ), ...
-                repmat( 8, numel( nanflag), 1 ), '.k' );
-h_std = plot( decimal_day( stdflag ), ...
-              repmat( 9, numel( find( stdflag ) ), 1 ), '.k' );
-set( ax2, 'YLim', [0, 10 ], ...
-          'YTick', 1:9, ...
-          'YTickLabel', ...
-          { 'ustar', 'precip', 'night neg', 'wind', ...
-            'max min', 'low co2', 'high co2', 'NaN', 'std dev' } );
-ylabel( 'reason screened' );
-xlabel( 'decimal day' );
-
-linkaxes( [ ax1, ax2 ], 'x' );  %make axes zoom together horizontally
+h_fig_flux = plot_NEE_with_QC_results( sitecode, year, decimal_day, ...
+                                       fc_raw_massman_wpl, idx_NEE_good, ...
+                                       ustarflag, precipflag, nightnegflag, ...
+                                       windflag, maxminflag, lowco2flag, ...
+                                       highco2flag, nanflag, stdflag, n_bins, ...
+                                       endbin, startbin, bin_ceil, bin_floor, ...
+                                       mean_flux )
 
 shg;  %bring current window to front
-fprintf( 1, 'saving %s_%d.fig\n', get_site_name( sitecode ), year );
-hgsave( h_fig_flux, 'fluxfig' );
-system( sprintf( 'mv ./fluxfig.fig /cygdrive/c/Users/Tim/Plots/%s_%d.fig', ...
-                 get_site_name( sitecode ), year ) );
+% fprintf( 1, 'saving %s_%d.fig\n', get_site_name( sitecode ), year );
+% hgsave( h_fig_flux, 'fluxfig' );
+% system( sprintf( 'mv ./fluxfig.fig /cygdrive/c/Users/Tim/Plots/%s_%d.fig', ...
+%                  get_site_name( sitecode ), year ) );
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
