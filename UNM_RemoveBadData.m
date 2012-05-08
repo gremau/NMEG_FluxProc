@@ -104,12 +104,15 @@ elseif sitecode==2; % shrubland
         lastcolumn='HA';
         ustar_lim = 0.08;
         co2_min_by_month = [-0.7, -0.7, repmat( -4, 1, 9 ), -0.7 ]; 
-        co2_max_by_month = 3.5;
+        co2_max_by_month = [ repmat( 1.5, 1, 6 ), repmat( 3.5, 1, 6 ) ];
     elseif year == 2008
         filelength_n = 17572;
         lastcolumn='GZ';
         ustar_lim = 0.08;
-        co2_min_by_month = -10; co2_max_by_month = 6;
+        co2_min_by_month = -10; 
+        co2_max_by_month = repmat( 6, 1, 12 );
+        co2_max_by_month( [ 7, 8 ] ) = 2.5; %remove some funny looking pts
+                                            %in Jul and Aug
     elseif year == 2009
         filelength_n = 17523;
         lastcolumn='IL';
@@ -143,12 +146,16 @@ elseif sitecode==3; % Juniper savanna
         filelength_n = 11596;
         lastcolumn='HR';
         ustar_lim = 0.09;
-        co2_min_by_month = -11; co2_max_by_month = 7;
+        co2_min_by_month = -11; 
+        co2_max_by_month = repmat( 7, 1, 12 );
+        co2_max_by_month( 7 ) = 5; %remove some funny pts in July
     elseif year == 2008
         filelength_n = 17572;
         lastcolumn='HJ';
         ustar_lim = 0.08;
-        co2_min_by_month = -10; co2_max_by_month = 10;
+        co2_min_by_month = -10; 
+        co2_max_by_month = repmat( 10, 1, 12 );
+        co2_max_by_month( 9 ) = 5; %remove some funny pts in Sep
     elseif year == 2009
         filelength_n = 17523;
         lastcolumn='IN';
@@ -194,11 +201,13 @@ elseif sitecode == 4; % Pinyon Juniper
         lastcolumn = 'HO';
         filelength_n = 2514;
         ustar_lim = 0.16;
+        co2_min_by_month = -5; 
+        co2_max_by_month = 2.5;
     elseif year == 2008
         lastcolumn = 'HO';
         filelength_n = 17571;
         ustar_lim = 0.16;
-        co2_max_by_month = [ 1.5, 1.5, repmat( 6, 1, 10 ) ];
+        co2_max_by_month = [ 1.5, 1.5, 1.4, repmat( 6, 1, 6 ), 3, 3, 3 ];
     elseif year == 2009
         lastcolumn = 'HJ';
         filelength_n = 17523;
@@ -216,7 +225,7 @@ elseif sitecode == 4; % Pinyon Juniper
 elseif sitecode==5; % Ponderosa Pine
     site = 'PPine'
     % site default values
-    co2_min_by_month = [-0.8 -0.8 -15 -15 -15 -15 -15 -15 -15 -15 -15 -1];
+    co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -5];
     co2_max_by_month = [4 4 4 5 8 8 8 8 8 8 5 4];
     if year == 2006
         filelength_n = 11594;
@@ -224,16 +233,18 @@ elseif sitecode==5; % Ponderosa Pine
         filelength_n = 17523;
         lastcolumn='FV';
         ustar_lim = 0.08;
+        co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -10];
     elseif year == 2008;
         filelength_n = 17571;
         lastcolumn='FU';
         ustar_lim = 0.08;
+        co2_min_by_month = [-6 -6 -15 -15 -15 -15 -20 -20 -25 -25 -15 -10];
     elseif year == 2009;
         filelength_n = 17523;
         lastcolumn='FY';
         ustar_lim = 0.15;
         co2_min_by_month = [ -4, -10, -15, -20, -20, -20, ...
-                            -20, -20, -20, -20, -15, -4 ];
+                            -20, -20, -20, -20, -15, -10 ];
         co2_max_by_month = [ 8, 8, 8, repmat( 10, 1, 8 ), 4 ];
     elseif year == 2010;
         filelength_n = 17523;
@@ -259,6 +270,17 @@ elseif sitecode==5; % Ponderosa Pine
     
 elseif sitecode==6; % Mixed conifer
     site = 'MCon'
+    co2_min_by_month = [ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ]; 
+    co2_max_by_month = 6;
+    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+    wind_min = 153; wind_max = 213; % these are given a sonic_orient = 333;
+    Tdry_min = 250; Tdry_max = 300;
+    HS_min = -200; HS_max = 800;
+    HSmass_min = -200; HSmass_max = 800;
+    LH_min = -50; LH_max = 550;
+    rH_min = 0; rH_max = 1;
+    h2o_max = 30; h2o_min = 0;
     if year == 2006
         filelength_n = 4420;
         lastcolumn='GA';
@@ -267,6 +289,8 @@ elseif sitecode==6; % Mixed conifer
         filelength_n = 17523;
         lastcolumn='GB';
         ustar_lim = 0.12;
+        co2_max_by_month = repmat( 6, 1, 12 );
+        co2_max_by_month( [ 4, 5 ] )  = 2;
     elseif year == 2008;
         filelength_n = 17419;
         lastcolumn='GB';
@@ -284,17 +308,6 @@ elseif sitecode==6; % Mixed conifer
         lastcolumn='GI';
         ustar_lim = 0.11;
     end
-    co2_min_by_month = [ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ]; 
-    co2_max_by_month = 6;
-    n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
-    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-    wind_min = 153; wind_max = 213; % these are given a sonic_orient = 333;
-    Tdry_min = 250; Tdry_max = 300;
-    HS_min = -200; HS_max = 800;
-    HSmass_min = -200; HSmass_max = 800;
-    LH_min = -50; LH_max = 550;
-    rH_min = 0; rH_max = 1;
-    h2o_max = 30; h2o_min = 0;
     
 elseif sitecode == 7;
     site = 'TX'
@@ -1494,6 +1507,11 @@ if iteration > 3
     co2_conc_filter_exceptions = repmat( false, size( CO2_mean ) );
     if ( sitecode == 1 ) & ( year(1) == 2010 )
         co2_conc_filter_exceptions( 5084:5764 ) = true;
+    end
+
+    if (sitecode == 5 ) & ( year == 2007 )
+        % days 290:335 -- bogus [CO2] but fluxes look ok
+        co2_conc_filter_exceptions( 13920:16080 ) = true;
     end
 
     removed_highco2 = length(highco2flag);
