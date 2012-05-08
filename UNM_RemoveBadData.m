@@ -34,9 +34,9 @@ iteration = 6;
 % 8-TX_forest
 % 9-TX_grassland
 
-write_complete_out_file = false; %true to write "[sitename].._qc", -- file
+write_complete_out_file = true; %true to write "[sitename].._qc", -- file
                                 %with all variables & bad data removed
-write_gap_filling_out_file = false; %true to write file for Reichstein's online
+write_gap_filling_out_file = true; %true to write file for Reichstein's online
                                    %gap-filling. SET U* LIM (including site-
                                    %specific ones--comment out) TO 0!!!!!!!!!!
 
@@ -832,7 +832,7 @@ if sitecode == 1 %GLand   added TWH, 27 Oct 2011
     SHF_idx = find( cellfun( @(x) ~isempty(x), ...
                              regexp( headertext, 'hfp.*[Aa]vg' ) ) );
     if numel( SHF_idx ) ~= 2 
-        error( 'could not find two soil heat flux observations' );
+        %error( 'could not find two soil heat flux observations' );
     end
     soil_heat_flux = data( :, SHF_idx );
     SHF_labels = headertext( SHF_idx );
@@ -847,6 +847,13 @@ elseif sitecode == 2 %SLand   added TWH, 4 Nov 2011
             soil_heat_flux_2 = data(:,i-1);
         end
     end
+    SHF_labels = { 'shf_sh_1_Avg', 'shf_sh_2_Avg' };
+    soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_1 ];
+
+elseif sitecode == 3 %JSav   added TWH, 7 May 2012
+    SHF_cols = find( ~cellfun( @isempty, regexp( headertext, 'shf_Avg.*' ) ) );
+    soil_heat_flux = data( :, SHF_cols - 1 );
+    SHF_labels = { 'SHF_1', 'SHF_2', 'SHF_3', 'SHF_4' };
 
 elseif sitecode == 4 %PJ
     for i=1:ncol;
@@ -863,11 +870,18 @@ elseif sitecode == 4 %PJ
     end
     soil_heat_flux_1 = repmat( NaN, size( data, 1 ), 1 );
     soil_heat_flux_2 = repmat( NaN, size( data, 1 ), 1 );
-   
+    SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2' };
+    soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];   
+
    % related lines 678-682: corrections for site 4 (PJ) soil_heat_flux_1 and soil_heat_flux_2
    Tsoil=sw_incoming.*NaN;  %MF: note, this converts all values in Tsoil to NaN. Not sure if this was intended.
   
 elseif sitecode == 5 || sitecode == 6 % Ponderosa pine or Mixed conifer
+
+    soil_heat_flux_1 = repmat( NaN, size( data, 1 ), 1 );
+    soil_heat_flux_2 = soil_heat_flux_1;
+    soil_heat_flux_3 = soil_heat_flux_1;
+
     for i=1:ncol;
         if strcmp('T107_C_Avg(1)',headertext(i)) == 1
             Tsoil_2cm_1 = data(:,i-1);
@@ -887,7 +901,10 @@ elseif sitecode == 5 || sitecode == 6 % Ponderosa pine or Mixed conifer
     end
     Tsoil_2cm = (Tsoil_2cm_1 + Tsoil_2cm_2)/2;
     Tsoil_6cm = (Tsoil_6cm_1 + Tsoil_6cm_2)/2;
-    Tsoil = Tsoil_2cm;
+    Tsoil = Tsoil_2cm;    
+
+    SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2', 'soil_heat_flux_3' };
+    soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2, soil_heat_flux_3 ];   
     
 elseif sitecode == 7 % Texas Freeman
     for i=1:ncol;
@@ -926,6 +943,8 @@ elseif sitecode == 7 % Texas Freeman
        Tsoil=sw_incoming.*NaN;
        soil_heat_flux_1 =sw_incoming.*NaN;
        soil_heat_flux_2 =sw_incoming.*NaN;
+       SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2' };
+    soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];
 end
 
 
@@ -943,6 +962,8 @@ if sitecode == 4
     soil_heat_flux_1 = soil_heat_flux_1.*35.2;
     soil_heat_flux_2 = soil_heat_flux_2.*32.1;
 end
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1717,7 +1738,7 @@ save_vars = { 'sitecode', 'year', 'decimal_day', 'fc_raw_massman_wpl', ...
               'idx_NEE_good', 'ustarflag', 'precipflag', 'nightnegflag', ...
               'windflag', 'maxminflag', 'lowco2flag', 'highco2flag', ...
               'nanflag', 'stdflag', 'n_bins', 'endbin', 'startbin', ...
-              'bin_ceil', 'bin_floor', 'mean_flux' }
+              'bin_ceil', 'bin_floor', 'mean_flux' };
 save( restore_fname, save_vars{ : } );
 
 [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( sitecode, year, ...
