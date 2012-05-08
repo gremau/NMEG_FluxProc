@@ -114,7 +114,7 @@ elseif sitecode==2; % shrubland
         filelength_n = 17523;
         lastcolumn='IL';
         ustar_lim = 0.08;
-        co2_min_by_month = -10; co2_max_by_month = 6;
+        co2_min_by_month = -4; co2_max_by_month = 4;
     elseif year == 2010
         filelength_n = 17523;
         lastcolumn='IE';
@@ -284,7 +284,7 @@ elseif sitecode==6; % Mixed conifer
         lastcolumn='GI';
         ustar_lim = 0.11;
     end
-    co2_min_by_month = -12;
+    co2_min_by_month = [ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ]; 
     co2_max_by_month = 6;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -460,10 +460,7 @@ elseif sitecode == 11; % new Grassland
 end
 
 % set winter_co2_min to the more restrictive of [ winter_co2_min, co2_min ]
-winter_co2_min = co2_min_by_month;
-
-n_SDs_filter_hi = 5.0; % how many std devs above the mean NEE to allow
-n_SDs_filter_lo = 5.0; % how many std devs below the mean NEE to allow
+winter_co2_min = max( winter_co2_min, co2_min_by_month );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set up file name and file path
@@ -1695,7 +1692,7 @@ end % close if statement for iterations
 restore_fname = fullfile( getenv( 'FLUXROOT' ), ...
                           'FluxOut', ...
                           'QC_files', ...
-                          sprintf( '%s_%d_QC_Andy.mat', ...
+                          sprintf( '%s_%d_QC_Tim.mat', ...
                                    get_site_name( sitecode ), ...
                                    year( 2 ) ) );
 save_vars = { 'sitecode', 'year', 'decimal_day', 'fc_raw_massman_wpl', ...
