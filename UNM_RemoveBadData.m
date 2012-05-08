@@ -65,7 +65,7 @@ if sitecode==1; % grassland
         filelength_n = 17571;
         lastcolumn='HD';
         ustar_lim = 0.06;
-        co2_min_by_month = [ -0.4; -0.4; repmat( -10, 9, 1 ); -0.4 ];
+        co2_min_by_month = -10;
         co2_max_by_month = 6;
     elseif year == 2009;
         filelength_n = 17520;
@@ -103,7 +103,7 @@ elseif sitecode==2; % shrubland
         filelength_n = 17523;
         lastcolumn='HA';
         ustar_lim = 0.08;
-        co2_min_by_month = [-0.7, -0.7, repmat( -4, 1, 9 ), -0.7 ]; 
+        co2_min_by_month = -4; 
         co2_max_by_month = 3.5;
     elseif year == 2008
         filelength_n = 17572;
@@ -198,7 +198,6 @@ elseif sitecode == 4; % Pinyon Juniper
         lastcolumn = 'HO';
         filelength_n = 17571;
         ustar_lim = 0.16;
-        co2_max_by_month = [ 1.5, 1.5, repmat( 6, 1, 10 ) ];
     elseif year == 2009
         lastcolumn = 'HJ';
         filelength_n = 17523;
@@ -216,8 +215,8 @@ elseif sitecode == 4; % Pinyon Juniper
 elseif sitecode==5; % Ponderosa Pine
     site = 'PPine'
     % site default values
-    co2_min_by_month = [-0.8 -0.8 -15 -15 -15 -15 -15 -15 -15 -15 -15 -1];
-    co2_max_by_month = [4 4 4 5 8 8 8 8 8 8 5 4];
+    co2_min_by_month = -15;
+    co2_max_by_month = 15;
     if year == 2006
         filelength_n = 11594;
     elseif year == 2007
@@ -232,9 +231,6 @@ elseif sitecode==5; % Ponderosa Pine
         filelength_n = 17523;
         lastcolumn='FY';
         ustar_lim = 0.15;
-        co2_min_by_month = [ -4, -10, -15, -20, -20, -20, ...
-                            -20, -20, -20, -20, -15, -4 ];
-        co2_max_by_month = [ 8, 8, 8, repmat( 10, 1, 8 ), 4 ];
     elseif year == 2010;
         filelength_n = 17523;
         lastcolumn='FW';
@@ -822,7 +818,7 @@ if sitecode == 1 %GLand   added TWH, 27 Oct 2011
     SHF_idx = find( cellfun( @(x) ~isempty(x), ...
                              regexp( headertext, 'hfp.*[Aa]vg' ) ) );
     if numel( SHF_idx ) ~= 2 
-        error( 'could not find two soil heat flux observations' );
+        %error( 'could not find two soil heat flux observations' );
     end
     soil_heat_flux = data( :, SHF_idx );
     SHF_labels = headertext( SHF_idx );
@@ -1694,7 +1690,7 @@ end % close if statement for iterations
 
 restore_fname = fullfile( getenv( 'FLUXROOT' ), ...
                           'FluxOut', ...
-                          'QC_files', ...
+                          'QC_files', ... 
                           sprintf( '%s_%d_QC_Andy.mat', ...
                                    get_site_name( sitecode ), ...
                                    year( 2 ) ) );
