@@ -94,8 +94,8 @@ if rotation == sonic_rotation.threeD
     hsout = u(1,2);
     HBUOYANT =  29/1000*38.6*1004*hsout; % BUOYANCY  FLUX , approximate (W/m^2)
 %    USTAR = sqrt(sqrt(uw^2 + vw^2));
-    u_vector(1:3)=UVW2;
-    w_mean=UVW2(:, 3);
+    u_vector = mean( UVW2( :, find(SONDIAG) ), 2 );
+    w_mean = u_vector( 3 );
     
     % UVWTVAR - 4X1 -  variances of ROTATED wind components and the sonic temperature
     %    ROW 1: along-wind velocity variance

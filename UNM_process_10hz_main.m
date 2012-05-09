@@ -51,9 +51,6 @@ t0 = now();  % track running time
 
 result = 1;  % initialize to failure -- will change on successful completion
 
-p.Results
-return
-
 [ year_start, discard, discard, ...
   discard, discard, discard ] = datevec( t_start );
 [ year_end, discard, discard, ...
@@ -120,6 +117,10 @@ all_data = [ timestamp2, all_data ];
 if size( all_data.iok, 2 ) > 1
     all_data.iok = all_data.iok( :, 2 );
 end
+
+% -----
+% write filled data to disk
+% -----
 
 disp( 'exporting dataset' );
 export( all_data, ...

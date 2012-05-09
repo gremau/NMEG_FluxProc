@@ -238,11 +238,14 @@ function [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...
 
     y.buoyancy_flux = HBUOYANT;
     y.transport = TRANSPORT;
+    y_units = [ y_units, repmat( { '-' }, 1, 2 ) ];
 
     names = { 'NaNs','Maxs','Mins','Spikes','Bad_variance' };
+    y_units = [ y_units, repmat( { '-' }, 1, 5 ) ];
     y = [ y, dataset( { removed, names{ : } } ) ];
 
     y.zoL = zoL;
+    y_units = [ y_units, { '-' } ];
 
     % u_vector is rotated according to the rotation specified to
     % UNM_process_10hz_main (either planar or 3D).  For 3D rotation, u_vector_w
@@ -252,9 +255,10 @@ function [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...
     names = { 'u_vector_u','u_vector_v','u_vector_w' };
     y = [ y, ...
           dataset( { uvector', names{ : } } ) ];
+    y_units = [ y_units, repmat( { 'm/s' }, 1, 3 ) ];
 
     y.w_mean_rot = wmean;
-    y_units = [ y_units, repmat( { '-' }, 1, 11 ) ];
+    y_units = [ y_units, { 'm/s' } ];
 
     y.Properties.Units = y_units;
 
