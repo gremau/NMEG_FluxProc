@@ -21,7 +21,7 @@ t0 = now();  % track running time
 result = 1;  % initialize to failure -- will change on successful completion
 
 lag = 0;
-rotation = 1;
+rotation = sonic_rotation.threeD;
 
 % pull out the year
 [ year_start, discard, discard, ...

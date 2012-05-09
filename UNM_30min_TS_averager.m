@@ -59,7 +59,7 @@ function [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...
     % Split path for 3d versus planar rotation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    if rotation == 0; % 3d rotation
+    if rotation == sonic_rotation.threeD; 
 
         % ROTATE COORDINATES SUCH THAT MEAN U, V, & W = 0
         [ UVWROT, uvwmeanrot ] = UNM_coordrot( uvw2, SONDIAG ); 
@@ -70,7 +70,7 @@ function [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...
         % ROW 3: sonic w component
         UVW2 = UVWROT; 
 
-    elseif rotation == 1 % planar rotation
+    elseif rotation == sonic_rotation.planar
 
         %in this case, UVW2 !! is not !! rotated
         UVW2 = uvw2; 

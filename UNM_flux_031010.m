@@ -82,7 +82,7 @@ function [ CO2OUT, H2OOUT, FCO2, FH2O, HSENSIBLE, HLATENT, RHOM, TDRY, OKNUM, ..
 
 u = cov([UVW2(:,find(SONDIAG)); temp2(find(SONDIAG))]');  %covariance between (1) rotated coordinates (good values only) and (2)sonic temperature (good values only) 
 
-if rotation == 0
+if rotation == sonic_rotation.threeD
     UVWTVAR = diag(u);
     COVUVWT = [ u(1,3); u(2,3); u(1,2); u(1,4); u(2,4); u(3,4)];
     USTAR = sqrt(sqrt(u(1,3)^2 + u(2,3)^2));
@@ -111,7 +111,7 @@ if rotation == 0
     %    ROW 5: vt co-variance
     %    ROW 6: wt co-variance
     
-elseif rotation == 1
+elseif rotation == sonic_rotation.planar
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Specify planar coefficients here
@@ -623,11 +623,14 @@ else
     uhl2max=(uhl2(1,2));
     vhl2max=(vhl2(1,2));
     whl2max=(whl2(1,2));
-    if rotation==0; %3D rotation-- keep variables the same
+    if rotation == sonic_rotation.threeD; 
+        %3D rotation-- keep variables the same
         uhl2max2=uhl2max;
         vhl2max2=vhl2max;
         whl2max2=whl2max;
-    elseif rotation==1;  %planar rotation: determine scalar flux in new coordinate (code from HANDBOOK OF MICROMETEOROLOGY P. 63)
+    elseif rotation == sonic_rotation.planar;  
+        %planar rotation: determine scalar flux in new coordinate (code from
+        %HANDBOOK OF MICROMETEOROLOGY P. 63)
         H = [uhl2max vhl2max whl2max];
         uhl2max2=sum(i.*H);
         vhl2max2=sum(j.*H);
@@ -660,11 +663,14 @@ else
     uco2max=(uco2(1,2));
     vco2max=(vco2(1,2));
     wco2max=(wco2(1,2));
-    if rotation==0; %3D rotation-- keep variables the same
+    if rotation == sonic_rotation.threeD; 
+        %3D rotation-- keep variables the same
         uco2max2=uco2max;
         vco2max2=vco2max;
         wco2max2=wco2max;
-    elseif rotation==1;  %planar rotation: determine scalar flux in new coordinate (code from HANDBOOK OF MICROMETEOROLOGY P. 63)
+    elseif rotation == sonic_rotation.planar;  
+        %planar rotation: determine scalar flux in new coordinate (code from
+        %HANDBOOK OF MICROMETEOROLOGY P. 63)
         H= [uco2max vco2max wco2max];
         uco2max2=sum(i.*H);
         vco2max2=sum(j.*H);
@@ -696,11 +702,14 @@ else
     uTdmax=(uTd(1,2));
     vTdmax=(vTd(1,2));
     wTdmax=(wTd(1,2));
-    if rotation==0; %3D rotation-- keep variables the same
+    if rotation == sonic_rotation.threeD
+        %3D rotation-- keep variables the same
         uTdmax2=uTdmax;
         vTdmax2=vTdmax;
         wTdmax2=wTdmax;
-    elseif rotation==1;  %planar rotation: determine scalar flux in new coordinate (code from HANDBOOK OF MICROMETEOROLOGY P. 63)
+    elseif rotation == sonic_rotation.planar  
+        %planar rotation: determine scalar flux in new coordinate (code from
+        %HANDBOOK OF MICROMETEOROLOGY P. 63)
         H= [uTdmax vTdmax wTdmax];
         uTdmax2=sum(i.*H);
         vTdmax2=sum(j.*H);
@@ -719,11 +728,14 @@ else
     uhsmax=(uhs(1,2));
     vhsmax=(vhs(1,2));
     whsmax=(whs(1,2));
-    if rotation==0; %3D rotation-- keep variables the same
+    if rotation == sonic_rotation.threeD 
+        %3D rotation-- keep variables the same
         uhsmax2=uhsmax;
         vhsmax2=vhsmax;
         whsmax2=whsmax;
-    elseif rotation==1;  %planar rotation: determine scalar flux in new coordinate (code from HANDBOOK OF MICROMETEOROLOGY P. 63)
+    elseif rotation == sonic_rotation.planar
+        %planar rotation: determine scalar flux in new coordinate (code from
+        %HANDBOOK OF MICROMETEOROLOGY P. 63) 
         H= [uhsmax vhsmax whsmax];
         uhsmax2=sum(i.*H);
         vhsmax2=sum(j.*H);
@@ -743,11 +755,14 @@ else
     urhovmax=(urhov(1,2));
     vrhovmax=(vrhov(1,2));
     wrhovmax=(wrhov(1,2));
-    if rotation==0; %3D rotation-- keep variables the same
+    if rotation == sonic_rotation.threeD
+        %3D rotation-- keep variables the same
         urhovmax2=urhovmax;
         vrhovmax2=vrhovmax;
         wrhovmax2=wrhovmax;
-    elseif rotation==1;  %planar rotation: determine scalar flux in new coordinate (code from HANDBOOK OF MICROMETEOROLOGY P. 63)
+    elseif rotation == sonic_rotation.planar
+        %planar rotation: determine scalar flux in new coordinate (code from
+        %HANDBOOK OF MICROMETEOROLOGY P. 63) 
         H= [urhovmax vrhovmax wrhovmax];
         urhovmax2=sum(i.*H);
         vrhovmax2=sum(j.*H);
