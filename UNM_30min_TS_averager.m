@@ -169,7 +169,7 @@ function [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...
     y.iok = IOKNUM;
     y_units = [ y_units, { '-', '-', '-' } ];
 
-    names = { 'u_mean', 'v_mean', 'w_mean', 'temp_mean' };
+    names = { 'u_mean_unrot', 'v_mean_unrot', 'w_mean_unrot', 'temp_mean' };
     y_units = [ y_units, { 'm/s', 'm/s', 'm/s', 'C' } ];
     y = [ y, dataset( { uvwtmean', names{:}  } ) ];
 
@@ -244,11 +244,16 @@ function [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...
 
     y.zoL = zoL;
 
+    % u_vector is rotated according to the rotation specified to
+    % UNM_process_10hz_main (either planar or 3D).  For 3D rotation, u_vector_w
+    % will be the same as w_mean_rot (next line below). For planar fit, these
+    % will be different as per eqs 3.18 and 3.19 of Handbook of
+    % Micrometeorology (p. 62).
     names = { 'u_vector_u','u_vector_v','u_vector_w' };
     y = [ y, ...
           dataset( { uvector', names{ : } } ) ];
 
-    y.w_mean = wmean;
+    y.w_mean_rot = wmean;
     y_units = [ y_units, repmat( { '-' }, 1, 11 ) ];
 
     y.Properties.Units = y_units;
