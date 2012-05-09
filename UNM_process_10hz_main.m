@@ -51,10 +51,8 @@ t0 = now();  % track running time
 
 result = 1;  % initialize to failure -- will change on successful completion
 
-[ year_start, discard, discard, ...
-  discard, discard, discard ] = datevec( t_start );
-[ year_end, discard, discard, ...
-  discard, discard, discard ] = datevec( t_end );
+[ year_start, ~, ~, ~, ~, ~ ] = datevec( t_start );
+[ year_end, ~, ~, ~, ~, ~ ] = datevec( t_end );
 if ( year_start ~= year_end )
     error( '10-hz data processing may not span different calendar years' );
 else
@@ -62,7 +60,7 @@ else
 end
 
 %process 30 days at a time -- a whole year bogged down for lack of memory
-process_periods = t_start : 30 : t_end; 
+process_periods = t_start : 30 : max( ( t_start + 30 ), t_end );
 n_pds = numel( process_periods ) - 1;
 chunks_list = cell( 1, n_pds );
 
@@ -77,6 +75,10 @@ for i = 1 : n_pds
                                           this_t_end, ...
                                           lag, ...
                                           rotation );
+    fprintf( '==================================================\n');
+    fprintf( 'iteration %d/%d\n', i, n_pds );
+    memory
+    fprintf( '==================================================\n');
 end
 
 all_data = vertcat( chunks_cell{ : } );
