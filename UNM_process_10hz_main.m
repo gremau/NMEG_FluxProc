@@ -1,29 +1,59 @@
-function result = UNM_process_10hz_main( sitecode, t_start, t_end )
+function result = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
 % UNM_PROCESS_10HZ_MAIN: top-level function for matlab processing of 10-hz data
 % from flux towers to 30-minute average.  t_start and t_end may not span two
 % different calendar years.
 %   
 %USAGE
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end )
+%    result = UNM_process_10hz_main( sitecode, t_start, t_end, lag)
+%    result = UNM_process_10hz_main( sitecode, t_start, t_end, ..., rotation)
 %
 %INPUTS
 %    sitecode ( integer ): sitecode to process
 %    t_start (matlab datenum): data timestamp for starting processing
 %    t_end (matlab datenum): data timestamp for ending processing
+%    lag (integer): optional, 1 or 0 (default 0)
+%    rotation (sonic_rotation object): sonic_rotation.planar or 
+%        sonic_rotation.threeD (default threeD)
 %
 % OUTPUTS:
 %    result: 0 on success
 %
 % (c) Timothy W. Hilton, UNM, April 2012
 
+% -----
+% define inputs, with defaults for optionals, and with type-checking
+% -----
+p = inputParser;
+p.addRequired( 'sitecode', @isnumeric ); 
+p.addRequired( 't_start', @isnumeric );
+p.addRequired( 't_end', @isnumeric );
+p.addParamValue( 'lag', ...
+                 0, ...
+                 @( x ) isnumeric( x ) );
+p.addParamValue( 'rotation', ...
+                 sonic_rotation.threeD, ...
+                 @( x ) isa( x, 'sonic_rotation' ) );
+% parse optional inputs
+p.parse( sitecode, t_start, t_end, varargin{ : } );
+    
+sitecode = p.Results.sitecode;
+t_start = p.Results.t_start;
+t_end = p.Results.t_end;
+lag = p.Results.lag;
+rotation = p.Results.rotation;
+
+% -----
+% start processing
+% -----
+
 t0 = now();  % track running time
 
 result = 1;  % initialize to failure -- will change on successful completion
 
-lag = 0;
-rotation = sonic_rotation.threeD;
+p.Results
+return
 
-% pull out the year
 [ year_start, discard, discard, ...
   discard, discard, discard ] = datevec( t_start );
 [ year_end, discard, discard, ...
