@@ -1,7 +1,10 @@
-% enumerated type to specify sitecodes
-% (c) Timothy W. Hilton, UNM, May 2012
-
 classdef(Enumeration) UNM_sites < int32
+    % enumerated type to specify sitecodes.
+    %
+    % see also enumeration
+    %
+    % (c) Timothy W. Hilton, UNM, May 2012
+
     enumeration
         GLand(1),
         SLand(2),
