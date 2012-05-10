@@ -1,4 +1,4 @@
-function main_success = process_card_main( this_site )
+function main_success = process_card_main_partial( this_site )
 % PROCESS_CARD_MAIN - main function for retrieving flux tower data from a flash
 %   card:
 %    * Copies the raw data from the card to the appropriate 'Raw data from
@@ -28,8 +28,8 @@ function main_success = process_card_main( this_site )
                             this_site, ...
                             'Raw_data_from_cards', ...
                             'Raw_Data_2012', ...
-                            'JSav_03-28-12');
-    mod_date = datenum(2012, 03, 28, 17, 08, 00 );
+                            'PJ_04-26-12');
+    mod_date = datenum(2012, 04, 26, 12, 08, 00 );
 
     % % convert the thirty-minute data to TOA5 file
     % fprintf(1, '\n----------\n');
@@ -43,24 +43,24 @@ function main_success = process_card_main( this_site )
     % flux_raw_diagnostic_plot(fluxraw, this_site, mod_date);
     % clear('fluxraw');
 
-    %convert the time series (10 hz) data to TOB1 files
-    fprintf(1, '\n----------\n');
-    fprintf(1, 'CONVERTING TIME SERIES DATA TO TOB1 FILES...');
-    [tsdata_convert_success, ts_data_fnames] = ...
-        tsdata_2_TOB1(this_site, raw_data_dir);
-    fprintf(1, ' Done\n');
+    % %convert the time series (10 hz) data to TOB1 files
+    % fprintf(1, '\n----------\n');
+    % fprintf(1, 'CONVERTING TIME SERIES DATA TO TOB1 FILES...');
+    % [tsdata_convert_success, ts_data_fnames] = ...
+    %     tsdata_2_TOB1(this_site, raw_data_dir);
+    % fprintf(1, ' Done\n');
 
-    %copy uncompressed TOB1 data to MyBook
-    fprintf(1, '\n----------\n');
-    fprintf(1, 'COPYING UNCOMPRESSED TOB1 DATA TO MYBOOK...\n');
-    copy_uncompressed_TOB_files(this_site, ts_data_fnames);
-    fprintf(1, 'Done copying uncompressed TOB1 data to mybook\n');
+    % %copy uncompressed TOB1 data to MyBook
+    % fprintf(1, '\n----------\n');
+    % fprintf(1, 'COPYING UNCOMPRESSED TOB1 DATA TO MYBOOK...\n');
+    % copy_uncompressed_TOB_files(this_site, ts_data_fnames);
+    % fprintf(1, 'Done copying uncompressed TOB1 data to mybook\n');
 
-    %copy uncompressed raw data to Story
-    fprintf(1, '\n----------\n');
-    fprintf(1, 'COPYING UNCOMPRESSED RAW CARD DATA TO STORY...\n');
-    copy_uncompressed_raw_card_data(this_site, raw_data_dir);
-    fprintf(1, 'Done copying uncompressed TOB1 data to mybook\n');
+    % %copy uncompressed raw data to Story
+    % fprintf(1, '\n----------\n');
+    % fprintf(1, 'COPYING UNCOMPRESSED RAW CARD DATA TO STORY...\n');
+    % copy_uncompressed_raw_card_data(this_site, raw_data_dir);
+    % fprintf(1, 'Done copying uncompressed TOB1 data to mybook\n');
 
     %compress the raw data on the local drive
     fprintf(1, '\n----------\n');

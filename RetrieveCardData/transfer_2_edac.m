@@ -37,20 +37,31 @@ function success = transfer_2_edac(site, compressed_data_fname)
     fprintf(fid, ['\n\n#This DOS window will not close by itself -- you may ' ...
                   'close it now by typing ''exit'' at the prompt.\n']);
     fclose(fid);
+
+    blk_fname = create_blocking_file( [ 'blocking file for %s FTP data ' ...
+                        'transfer --> EDAC' ] );
     
     % run the transfer in a dos window
     script_file_cygpath = strrep(sftp_script_file, 'C:\', '/cygdrive/c/');
     script_file_cygpath = strrep(script_file_cygpath, '\', '/');
     cmd =sprintf(['sftp -o "batchmode no" -b %s ', ...
-                  'jdelong@edacdata1.unm.edu &'], ...
+                  'jdelong@edacdata1.unm.edu '], ...
                  script_file_cygpath);
+    cmd = sprintf( '%s & del %s &', cmd, blk_fname );
+    
     [s, r] = dos(cmd);
 
-    % need to implement some sort of blocking scheme here to make Matlab wait
-    % until compression is done.  This will work, but requires a click when
-    % compression is complete.
-    h = warndlg('press OK when file transfer is complete', 'transfering file');
-    waitfor(h);
+    pause on;
+    while( exist( blk_fname ) == 2 )
+        pause( 5 );
+    end
+    pause off
+    
+    % % need to implement some sort of blocking scheme here to make Matlab wait
+    % % until compression is done.  This will work, but requires a click when
+    % % compression is complete.
+    % h = warndlg('press OK when file transfer is complete', 'transfering file');
+    % waitfor(h);
     
     %remove the sftp script
     delete(sftp_script_file);
