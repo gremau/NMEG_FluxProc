@@ -80,7 +80,18 @@ function [ CO2OUT, H2OOUT, FCO2, FH2O, HSENSIBLE, HLATENT, RHOM, TDRY, OKNUM, ..
 % Calculate covariance matrix of sonic measurements
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-u = cov([UVW2(:,find(SONDIAG)); temp2(find(SONDIAG))]');  %covariance between (1) rotated coordinates (good values only) and (2)sonic temperature (good values only) 
+% in the odd case where there is exactly one valid SONDIAG, u is a 1 by 4 matrix
+% and cov treats it as a vector of observations, returning the 1 by 1 covariance
+% of the four elements.  In this oddball case, set the covariance matrix to a 4
+% by 4 matrix of zeros.  We are looking at you, 28 Nov 2009 from 23:00 to
+% 23:29:59 at PJ_girdle...
+if numel( find( SONDIAG ) ) == 1
+    SONDIAG = zeros( size( SONDIAG ) );
+end
+
+%covariance between (1) rotated coordinates (good values only) and (2)sonic
+%temperature (good values only)
+u = cov([UVW2(:,find(SONDIAG)); temp2(find(SONDIAG))]');  
 
 if rotation == sonic_rotation.threeD
     UVWTVAR = diag(u);

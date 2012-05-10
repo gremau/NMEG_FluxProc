@@ -50,6 +50,7 @@ rotation = p.Results.rotation;
 t0 = now();  % track running time
 
 result = 1;  % initialize to failure -- will change on successful completion
+print_memory_message = false;
 
 [ year_start, ~, ~, ~, ~, ~ ] = datevec( t_start );
 [ year_end, ~, ~, ~, ~, ~ ] = datevec( t_end );
@@ -59,8 +60,12 @@ else
     year = year_start;
 end
 
-%process 30 days at a time -- a whole year bogged down for lack of memory
-process_periods = t_start : 30 : max( ( t_start + 30 ), t_end );
+%process a few days at a time -- a whole year bogged down for lack of memory
+period_n_days = 30;
+process_periods = t_start : period_n_days : t_end;
+if ( process_periods( end ) < t_end )
+    process_periods = [ process_periods, t_end ];
+end
 n_pds = numel( process_periods ) - 1;
 chunks_list = cell( 1, n_pds );
 
@@ -75,13 +80,31 @@ for i = 1 : n_pds
                                           this_t_end, ...
                                           lag, ...
                                           rotation );
-    fprintf( '==================================================\n');
-    fprintf( 'iteration %d/%d\n', i, n_pds );
-    memory
-    fprintf( '==================================================\n');
+
+    if isempty( chunks_cell{ i } )
+        chunks_cell( i ) = [];
+    end
+    
+    if print_memory_message
+        fprintf( '==================================================\n');
+        fprintf( 'iteration %d/%d\n', i, n_pds );
+        memory
+        fprintf( '==================================================\n');
+    end
 end
 
 all_data = vertcat( chunks_cell{ : } );
+all_data.timestamp = datenum( all_data.year, all_data.month, all_data.day, ...
+                              all_data.hour, all_data.min, all_data.second );
+all_data = dataset_fill_timestamps( all_data, ...
+                                    'timestamp', ...
+                                    't_min', t_start, ...
+                                    't_max', t_end );
+[ all_data.year, all_data.month, all_data.day, ...
+  all_data.hour, all_data.min, all_data.second ] = ...
+    datevec( all_data.timestamp );
+all_data.date = datestr( all_data.timestamp, 'mmddyy' );
+all_data.jday = all_data.timestamp - datenum( year, 1, 1 ) + 1;
 
 % this last part takes a long time -- save results so we can restart if one
 % of the following steps issues an error
@@ -91,24 +114,6 @@ outfile = fullfile( get_out_directory( sitecode ), ...
                              get_site_name( sitecode ), year ) );
 save( outfile, 'all_data' );
 
-% fill missing timestamps with NaN so there is a complete 30-minute record
-% from t_start to t_end
-timestamp = dataset( { datenum( double( all_data( :, 1:6 ) ) ), ...
-                    'timestamp' } );    
-all_data = [ timestamp, all_data ];
-all_data = dataset_fill_timestamps( all_data, ...
-                                    'timestamp', ...
-                                    't_min', t_start, ...
-                                    't_max', t_end );
-[ y, mon, d, h, m, s ] = datevec( all_data.timestamp );
-all_data.year = y;
-all_data.month = mon;
-all_data.day = d;
-all_data.hour = h;
-all_data.min = m;
-all_data.second = s;
-all_data.date = datestr( all_data.timestamp, 'mmddyy' );
-all_data.jday = all_data.timestamp - datenum( year, 1, 1 ) + 1;
     
 % format to match existing FLUX_all_YYYY.xls files
 % for some reason, two time columns

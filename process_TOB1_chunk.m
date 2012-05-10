@@ -1,7 +1,8 @@
 function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, rotation)
 % PROCESS_TOB1_CHUNK - process 10 hz data within a specified time window to
 % 30-minute averages.  Returns a matlab dataset, each row of which contains
-% the processed and averaged 10-hz data for a 30 minute window. 
+% the processed and averaged 10-hz data for a 30 minute window.  If no data
+% are found within the requested time period, returns an empty dataset.
 %   
 % USAGE
 %    ds_avg_30min = process_TOB1_chunk( sitecode, t_start, t_end, lag, rotation )
@@ -10,8 +11,18 @@ function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, rotati
 
     t0 = now(); % monitor running time
 
+    fmt = 'dd mmm yyyy HH:MM';
+    fprintf( 1, 'reading TOB1 files (%s - %s):\n\t', ...
+             datestr( t_start, fmt ), datestr( t_end, fmt ) );
+    
     file_list = get_ts_file_names( get_site_name( sitecode ), t_start, t_end );
 
+    if isempty( file_list )
+        ds_avg_30min = dataset( [] );
+        fprintf( 'No files found\n');
+        return
+    end
+   
     data = cellfun( @read_TOB1_file, file_list, 'UniformOutput', false );
     all_data = vertcat( data{ : } );
 
@@ -51,8 +62,9 @@ function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, rotati
 
     edges = edges( 2:end );  %see note 2, above
 
-    fprintf( 1, 'done (%d seconds)\nmaking 30-min chunks... ', ...
+    fprintf( 1, ' done (%d seconds)\nmaking 30-min chunks... ', ...
              int32( ( now() - t0 ) * 86400 ) );
+    t0 = now();
 
     % split all_data into a cell array, each cell containing data from a
     % 30-minute window
@@ -63,8 +75,9 @@ function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, rotati
                                 [ n_chunks, 1 ], ...
                                 @( i ) { all_data( i, : ) } );
 
-    fprintf( 1, 'done (%d seconds)\ncalculating 30-min avgs... ', ...
+    fprintf( 1, 'done (%d seconds)\ncalculating 30-min avgs: ', ...
              int32( ( now() - t0 ) * 86400 ) );
+    t0 = now();
 
     %process each 30-minute chunk into averages
     avg_30min_cell = cell( size( chunks_30_min ) );
@@ -76,8 +89,9 @@ function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, rotati
                                                          chunks_30_min{ i } );
         end
         if ( mod( i, 100 ) == 0 )
-            fprintf( 'iteration %d\n', i );
+            fprintf( '.' );
+            %fprintf( 'iteration %d\n', i );
         end
     end
-
+    fprintf( 'done (%d seconds)\n', int32( ( now() - t0 ) * 86400 ) );
     ds_avg_30min = vertcat( avg_30min_cell{ : } );

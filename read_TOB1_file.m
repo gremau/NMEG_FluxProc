@@ -8,7 +8,10 @@ function ds = read_TOB1_file( fname )
 % W. Hilton, October 2011, based on existing code modified by Krista
 % Anderson-Teixeira in January 2008
  
-    fprintf( 1, 'reading %s\n', fname );
+    [ ~, file_name_only, file_ext ] = fileparts( fname );
+
+    %fprintf( 1, 'reading %s%s\n', file_name_only, file_ext );
+    fprintf( 1, '.', file_name_only, file_ext );
    
     fid=fopen( fname,'r','ieee-le' ); % file ID
     if fid == -1
