@@ -14,6 +14,9 @@ function [] = UNM_30min_flux_processor_071610(sitecode,year,first_row,last_row)
 % first_row=10228;
 % last_row=10707;
 
+fprintf( '%s %d: %d %d\n', get_site_name( sitecode ), year, ...
+         first_row, last_row );
+    
 if sitecode == 1
     site = 'GLand';
     z_CSAT = 3.2; sep2 = 0.191; angle = 28.94; h_canopy = 0.25;
@@ -220,7 +223,7 @@ end
 % Set up files and read in data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-filename = strcat(site,'_flux_all_',num2str(year))
+filename = strcat(site,'_flux_all_',num2str(year));
 filein = strcat('C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
 datarange = strcat(data1c1,num2str(first_row),':',data1c2,num2str(last_row)); % specify what portion of spreadsheet to read in
 headerrange = strcat(data1c1,'2:',data1c2,'2'); % specify portion of spreadsheet that is headers
@@ -232,6 +235,11 @@ headertext = text; % assign column headers to header text array
 data = num; % assign data to data array
 ncol = size(data,2); % find number of columns for use in locating headers below
 nrows = size(data,1);
+
+% if no 30 minute data exist either, exit without altering flux all
+if numel( data ) == 0
+    return
+end
 
 datarange2 = strcat(data2c1,num2str(first_row),':',data2c2,num2str(last_row));
 [num text]=xlsread(filein,datarange2);
