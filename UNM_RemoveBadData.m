@@ -72,7 +72,8 @@ if sitecode==1; % grassland
         lastcolumn='IC';
         ustar_lim = 0.06;
         winter_co2_min = -0.5;
-        co2_min_by_month = -10; co2_max_by_month = 6;
+        co2_min_by_month = -10; 
+        co2_max_by_month = [2.5 2.5 2.5 2.5 2.5 2.5 2.5 2.5 2.5 2.5 2.5 2.5];
     elseif year == 2010;
         filelength_n = 17523;
         lastcolumn='IL';
@@ -1523,9 +1524,13 @@ if iteration > 3
     highco2flag = find(CO2_mean > 450);
 
     % exceptions
+    co2_conc_filter_exceptions = repmat( false, size( CO2_mean ) );
+    if ( sitecode == 1 ) & ( year(1) == 2009 )
+        % DOY 302 to 333, 2009
+        co2_conc_filter_exceptions( 14496:15984 ) = true;
+    end
     % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
     % fluxes look OK.  TWH 27 Mar 2012
-    co2_conc_filter_exceptions = repmat( false, size( CO2_mean ) );
     if ( sitecode == 1 ) & ( year(1) == 2010 )
         co2_conc_filter_exceptions( 5084:5764 ) = true;
     end
