@@ -20,7 +20,8 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %% parse the annual Flux_All file
-    data = UNM_assign_soil_data_labels( sitecode, year );
+    %data = UNM_assign_soil_data_labels( sitecode, year );
+    data = UNM_parse_fluxall_xls_file( sitecode, year );
     % seems to be parsing header of NewGland_2011 to bogus dates -- temporary
     % fix until I get the front end of processing away from excel files
     data( data.timestamp < datenum( 2000, 1, 1 ), : ) = [];
@@ -73,8 +74,8 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     % do some bookkeeping
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    % create a column of -9999s to place in the dataset where a site does not record
-    % a particular variable
+    % create a column of -9999s to place in the dataset where a site does not
+    % record a particular variable
     dummy = repmat( -9999, size( data, 1 ), 1 );
 
     %% calculate fractional day of year (i.e. 3 Jan at 12:00 would be 3.5)
@@ -92,7 +93,7 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
 
     %save( 'test_restart_02.mat' );
     % create dataset of soil properties.
-    ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
+    ds_soil = NaN; %UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % create Ameriflux output dataset and write to ASCII files

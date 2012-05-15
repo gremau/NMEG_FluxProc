@@ -12,6 +12,8 @@ function [ amflux_gaps, amflux_gf ] = ...
     %
     % (c) Timothy W. Hilton, UNM, January 2012
 
+    soil_moisture = false; % turn off soil moisture processing for now
+    
     % create a column of -9999s to place in the dataset where a site does not record
     % a particular variable
     dummy = repmat( -9999, size( ds_qc, 1 ), 1 );
@@ -124,10 +126,13 @@ function [ amflux_gaps, amflux_gf ] = ...
 
     %get the names of the soil heat flux variables (how many there are varies
     %site to site
-    shf_vars = regexp_ds_vars( ds_soil, 'SHF.*' );
+    if soil_moisture
+        shf_vars = regexp_ds_vars( ds_soil, 'SHF.*' );
     
-    ds_soil.Tsoil_1( HL(ds_soil.Tsoil_1, -10, 50 ) ) = NaN;    
-    ds_soil.SWC_1( HL( ds_soil.SWC_1, 0, 1 ) ) = NaN;
+        ds_soil.Tsoil_1( HL(ds_soil.Tsoil_1, -10, 50 ) ) = NaN;    
+        ds_soil.SWC_1( HL( ds_soil.SWC_1, 0, 1 ) ) = NaN;
+    end
+    
     ds_qc.lw_incoming( HL( ds_qc.lw_incoming, 120, 600 ) ) = NaN;
     ds_qc.lw_outgoing( HL( ds_qc.lw_outgoing, 120, 650 ) ) = NaN;
     ds_qc.E_wpl_massman( HL( ds_qc.E_wpl_massman .* 18, -5, 500 ) ) = NaN;
@@ -136,12 +141,13 @@ function [ amflux_gaps, amflux_gf ] = ...
     ds_qc.atm_press( HL( ds_qc.atm_press, 20, 150 ) ) = NaN;
     ds_qc.Par_Avg( HL( ds_qc.Par_Avg, -100, 5000 ) ) = NaN;
     ds_pt.rH( HL( ds_pt.rH, 0, 1 ) ) = NaN;
-    for i = 1:numel( shf_vars )
-        this_shf = ds_soil.( shf_vars{ i } );
-        this_shf( HL( this_shf, -150, 150 ) ) = NaN;
-        ds_soil.( shf_vars{ i } ) = this_shf;
+    if soil_moisture
+        for i = 1:numel( shf_vars )
+            this_shf = ds_soil.( shf_vars{ i } );
+            this_shf( HL( this_shf, -150, 150 ) ) = NaN;
+            ds_soil.( shf_vars{ i } ) = this_shf;
+        end
     end
-
     NEE_f( HL( NEE_f, -50, 50 ) ) = NaN;
     RE_f( HL( RE_f, -50, 50) ) = NaN;
     GPP_f( HL( GPP_f, -50, 50 ) ) = NaN;
@@ -168,8 +174,10 @@ function [ amflux_gaps, amflux_gf ] = ...
     VPD_f = replace_badvals( VPD_f, -999.9, fp_tol );
     
     % calculate mean soil heat flux across all pits
-    SHF_vars = ds_soil( :, regexp_ds_vars( ds_soil, 'SHF.*' ) );    
-    SHF_mean = nanmean( double( SHF_vars ), 2 );
+    if soil_moisture
+        SHF_vars = ds_soil( :, regexp_ds_vars( ds_soil, 'SHF.*' ) );    
+        SHF_mean = nanmean( double( SHF_vars ), 2 );
+    end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % place calculated values into Matlab datasets 
