@@ -1,12 +1,16 @@
-function dataset_viewer( ds )
+function fh =  dataset_viewer( ds )
 % dataset_viewer -- a graphical user interface to view matlab variables of
 % class dataset column by column
 %       
 % USAGE
-%    datasetviewer( ds )
+%    fh = datasetviewer( ds )
 %
 % INPUTS:
 %    ds: variable of class dataset
+%
+% OUTPUTS:
+%
+%    fh: handle to the figure window created
 %
 % (c) Timothy W. Hilton, UNM, Mar 2012
     
@@ -79,7 +83,11 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     ud.cur_col = max( ud.cur_col - 1, 1 );
     % get the new variable names
     this_var = ds.Properties.VarNames{ ud.cur_col };
-    plot( axh, ds.( this_var ), '.k' );
+    if isnumeric( ds.( this_var ) )
+        plot( axh, ds.( this_var ), '.k' );
+    else
+        cla( axh );
+    end
     set( fh, 'UserData', ud );
 
     % label x axis on lower plot
@@ -109,7 +117,12 @@ function cur_col = next_but_cbk( source, eventdata, ...
     ud.cur_col = min( ud.cur_col + 1, nfields );
     % get the new variable names
     this_var = ds.Properties.VarNames{ ud.cur_col };
-    plot( axh, ds.( this_var ), '.k' );
+        if isnumeric( ds.( this_var ) )
+        plot( axh, ds.( this_var ), '.k' );
+    else
+        cla( axh );
+    end
+
     set( fh, 'UserData', ud );
 
     % label x axis on lower plot
