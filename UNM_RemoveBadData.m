@@ -246,7 +246,8 @@ elseif sitecode==5; % Ponderosa Pine
         ustar_lim = 0.15;
         co2_min_by_month = [ -4, -10, -15, -20, -20, -20, ...
                             -20, -20, -20, -20, -15, -10 ];
-        co2_max_by_month = [ 8, 8, 8, repmat( 10, 1, 8 ), 4 ];
+        %co2_max_by_month = [ 8, 8, 8, repmat( 10, 1, 8 ), 4 ];
+        co2_max_by_month = repmat( 3, 1, 12 );
     elseif year == 2010;
         filelength_n = 17523;
         lastcolumn='FW';
@@ -374,7 +375,7 @@ elseif sitecode == 8;
         ustar_lim = 0.12;
     elseif year == 2009;
         filelength_n = 17180;
-        lastcolumn='ET';
+        lastcolumn='EU';
         ustar_lim = 0.11;
     end
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
@@ -681,6 +682,8 @@ rH = repmat( NaN, size( data, 1), 1 );
 for i=1:ncol;
     if strcmp('agc_Avg',headertext(i)) == 1
         agc_Avg = data(:,i-1);
+    elseif strcmp( 'h2o_hmp_Avg', headertext( i ) )
+            h2o_hmp = data( :, i-1 );
     elseif strcmp('RH',headertext(i)) == 1 || ...
             strcmp('rh_hmp', headertext(i)) == 1 || ...
             strcmp('rh_hmp_4_Avg', headertext(i)) == 1 || ...
@@ -794,16 +797,17 @@ if ismember( sitecode, [ 3, 4 ] )
     % use "RH" at JSav, PJ
     rh_col = find( strcmp( 'RH', headertext ) ) - 1;
     fprintf( 'found RH\n' );
-    RH = data( :, rh_col ) / 100.0;
+    rH = data( :, rh_col ) / 100.0;
 elseif ismember( sitecode, [ 5, 6 ] )
     % use "RH_2" at PPine, MCon
     rh_col = find( strcmp( 'RH_2', headertext ) ) - 1;
     fprintf( 'found RH_2\n' );
-    RH = data( :, rh_col ) / 100.0;
+    rH = data( :, rh_col ) / 100.0;
+elseif sitecode == 10
+    % at PJ girdle, calculate relative humidity from hmp obs using helper
+    % function
+    rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) / 100.0;
 end
-
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % correction for incorrectly-calculated latent heat flux pointed out by Jim
@@ -940,7 +944,7 @@ elseif sitecode == 7 % Texas Freeman
         Tsoil = (open_5cm + canopy_5cm)/2;
     end
     
-    elseif sitecode == 10 || sitecode == 11
+elseif sitecode == 10 || sitecode == 11
        Tsoil=sw_incoming.*NaN;
        soil_heat_flux_1 =sw_incoming.*NaN;
        soil_heat_flux_2 =sw_incoming.*NaN;
@@ -1246,6 +1250,18 @@ elseif sitecode == 7
         NR_tot = NR_lw + NR_sw;
     end
     
+elseif sitecode == 8 
+    % for TX forest 2009, there was no PAR observation in the fluxall file on
+    % 15 Mat 2012.  We substituted in PAR from the TX savana site. --  TWH &
+    % ML
+    if year == 2009
+        Par_Avg(find(Par_Avg > 13.5)) = NaN;
+        Par_Avg = Par_Avg.*1000./(6.16.*0.604);
+    end
+    NR_lw = lw_incoming - lw_outgoing;
+    NR_sw = sw_incoming - sw_outgoing;
+    NR_tot = NR_lw + NR_sw;
+        
 elseif intersect( sitecode, [ 9, 10 ] )
         NR_lw = lw_incoming - lw_outgoing;
         NR_sw = sw_incoming - sw_outgoing;
@@ -1534,11 +1550,18 @@ if iteration > 3
     if ( sitecode == 1 ) & ( year(1) == 2010 )
         co2_conc_filter_exceptions( 5084:5764 ) = true;
     end
-
     if (sitecode == 5 ) & ( year == 2007 )
         % days 290:335 -- bogus [CO2] but fluxes look ok
         co2_conc_filter_exceptions( 13920:16080 ) = true;
     end
+    if (sitecode == 8 ) & ( year == 2009 )
+        % days 0 to 40.5 -- low [CO2] but fluxes look ok
+        obs_per_day = 48;  % half-hourly observations
+        exc_idx1 = 1;
+        exc_idx2 = 40.5 * obs_per_day;
+        co2_conc_filter_exceptions( exc_idx1:exc_idx2 ) = true;
+    end
+    
 
     removed_highco2 = length(highco2flag);
     decimal_day_nan(highco2flag) = NaN;
@@ -1966,25 +1989,26 @@ if write_gap_filling_out_file
                 end
             end
         end
-        outfilename_forgapfill_xls = strcat( outfolder, ...
-                                             filename, ...
-                                             '_for_gap_filling' );
-        xlswrite(outfilename_forgapfill_xls, header, 'data', 'A1');
-        xlswrite(outfilename_forgapfill_xls, datamatrix, 'data', 'A2');
-
-        outfilename_forgapfill_txt = strcat( outfilename_forgapfill_xls, ...
-                                             '.txt' );
-        fid = fopen( outfilename_forgapfill_txt , 'w' );
-        fmt = repmat('%s\t', 1, numel( header ) - 1 );
-        fmt = [ fmt, '%s\n' ];
-        fprintf( fid, fmt, header{ : } );
-        fclose( fid );
-        dlmwrite( outfilename_forgapfill_txt, ...
-                  datamatrix, ...
-                  '-append', ...
-                  'delimiter', '\t' );
     end
+    outfilename_forgapfill_xls = strcat( outfolder, ...
+                                         filename, ...
+                                         '_for_gap_filling' );
+    xlswrite(outfilename_forgapfill_xls, header, 'data', 'A1');
+    xlswrite(outfilename_forgapfill_xls, datamatrix, 'data', 'A2');
+    
+    outfilename_forgapfill_txt = strcat( outfilename_forgapfill_xls, ...
+                                         '.txt' );
+    fid = fopen( outfilename_forgapfill_txt , 'w' );
+    fmt = repmat('%s\t', 1, numel( header ) - 1 );
+    fmt = [ fmt, '%s\n' ];
+    fprintf( fid, fmt, header{ : } );
+    fclose( fid );
+    dlmwrite( outfilename_forgapfill_txt, ...
+              datamatrix, ...
+              '-append', ...
+              'delimiter', '\t' );
 end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %WRITE COMPLETE OUT-FILE  (FLUX_all matrix with bad values removed)
@@ -2068,7 +2092,9 @@ if write_complete_out_file
                    'E_raw_massman', 'E_water_term', 'E_heat_term_massman', ...
                    'E_wpl_massman', 'HSdry', 'HSdry_massman', 'HL_raw', ...
                    'HL_wpl_massman', 'Tdry', 'air_temp_hmp', 'precip', ...
-                   'atm_press', 'rH'};
+                   'atm_press', 'rH', 'Par_Avg', 'sw_incoming', ...
+                   'sw_outgoing', 'lw_incoming', 'lw_outgoing', 'NR_sw', ...
+                   'NR_lw', 'NR_tot'};
         %atm_press=ones(size(precip)).*-999;
         %air_temp_hmp=ones(size(precip)).*-999;
         datamatrix2 = [year, month, day, hour, minute, second, jday, iok, ...
@@ -2078,7 +2104,9 @@ if write_complete_out_file
                        fc_raw_massman_wpl, E_raw, E_raw_massman, ...
                        E_water_term, E_heat_term_massman, E_wpl_massman, ...
                        HSdry, HSdry_massman, HL_raw, HL_wpl_massman, Tdry, ...
-                       air_temp_hmp, precip, atm_press, rH];
+                       air_temp_hmp, precip, atm_press, rH, Par_Avg, ...
+                       sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, ...
+                       NR_sw,NR_lw,NR_tot];
     
     else
         header2 = {'timestamp', 'year', 'month', 'day', 'hour', 'minute', ...
@@ -2101,7 +2129,7 @@ if write_complete_out_file
                        E_heat_term_massman,E_wpl_massman, HSdry, ...
                        HSdry_massman,HL_raw,HL_wpl_massman, Tdry, ...
                        air_temp_hmp,Tsoil, soil_heat_flux, precip, atm_press, ...
-                       rH Par_Avg, sw_incoming, sw_outgoing, lw_incoming, ...
+                       rH, Par_Avg, sw_incoming, sw_outgoing, lw_incoming, ...
                        lw_outgoing,NR_sw,NR_lw,NR_tot];
     end
 
@@ -2210,13 +2238,13 @@ time_out=datestr(time_out);
 sname={'Site name: Test'};
 email={'Email: andyfox@unm.edu'};
 timeo={'Created: ',time_out};
-    outfilename = strcat(outfolder,filename,'_AF.xls');
-    xlswrite(outfilename,sname,'data','A1');
-    xlswrite(outfilename,email,'data','A2');
-    xlswrite(outfilename,timeo,'data','A3');
-    xlswrite(outfilename,header2,'data','A4');
-    xlswrite(outfilename,header2,'data','A5');
-    xlswrite(outfilename,header2,'data','A6');
+outfilename = strcat(outfolder,filename,'_AF.xls');
+xlswrite(outfilename,sname,'data','A1');
+xlswrite(outfilename,email,'data','A2');
+xlswrite(outfilename,timeo,'data','A3');
+xlswrite(outfilename,header2,'data','A4');
+xlswrite(outfilename,header2,'data','A5');
+xlswrite(outfilename,header2,'data','A6');
     end
 end
 
@@ -2224,3 +2252,5 @@ end
 %close( h_burba_fig, h_co2_fig, h_fig_flux );
 %close( h_burba_fig, h_co2_fig );
 %close all;
+
+%------------------------------------------------------------
