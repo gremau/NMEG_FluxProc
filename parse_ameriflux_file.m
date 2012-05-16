@@ -7,7 +7,7 @@ function amflux_ds = parse_ameriflux_file( fname )
 % (c) Timothy W. Hilton, UNM, Dec 2011
 
 headerlines = 3;
-delim = detect_delimiter( fname )
+delim = detect_delimiter( fname );
 
 fid = fopen( fname, 'r' );
 
@@ -27,6 +27,8 @@ n_vars = numel( var_names );
 fmt = repmat( '%f', 1, n_vars );
 data = cell2mat( textscan( fid, fmt, 'delimiter', delim ) );
 data =  replace_badvals( data, [ -9999 ], 1e-10 );
+
+fclose( fid );
 
 amflux_ds = dataset( { data, var_names{ : } } );
 amflux_ds.Properties.Units = var_units;
