@@ -10,9 +10,15 @@ qcfile = fullfile( get_site_directory( sitecode ), ...
                    sprintf( '%s_flux_all_%d_qc.txt', site, year ) );
 
 [ ~, fname, ext ] = fileparts( qcfile );
-fprintf( 'reading %s.%s... ', fname, ext );
+fprintf( 'reading %s%s... ', fname, ext );
 
-fmt = repmat( '%f', 1, 46 );
+% count the number of columns in the file - this varies between sites
+fid = fopen( qcfile, 'r' );
+header_line = fgetl( fid );
+n_cols = numel( regexp( header_line, '\t', 'split' ) );
+
+fmt = repmat( '%f', 1, n_cols );
+%fmt = '%f';
 qc_ds = dataset( 'File', qcfile, ...
                  'Delimiter', '\t', ...
                  'format', fmt );
