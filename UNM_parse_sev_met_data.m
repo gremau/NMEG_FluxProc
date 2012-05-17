@@ -10,6 +10,9 @@ function met_data = UNM_parse_sev_met_data( year )
                       sprintf( 'sev_met_data_%d.dat', year ) );
     
     infile = fopen( fname, 'r' );
+    if ( infile == -1 )
+        error( sprintf( 'failed to open %s\n', fname ) );
+    end
     headers = fgetl( infile );
     var_names = regexp( headers, ',', 'split' );
     n_cols = numel( var_names );  %how many columns?
