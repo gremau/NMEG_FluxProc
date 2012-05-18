@@ -74,6 +74,9 @@ function [ amflux_gaps, amflux_gf ] = ...
     idx = ~isnan( ds_qc.fc_raw_massman_wpl );
     NEE_obs( idx ) =   ds_qc.fc_raw_massman_wpl( idx );
     NEE_flag( idx ) = 0;
+    % set NEE_flag to 1 where local gapfilling was performed
+    idx_filled = UNM_gapfill_from_local_data( sitecode, year, dataset( [] ) );
+    NEE_flag( idx_filled ) = 1;
     % LE,
     idx = ~isnan( ds_qc.HL_wpl_massman );
     LE_obs( idx ) = ds_qc.HL_wpl_massman( idx );
@@ -83,9 +86,11 @@ function [ amflux_gaps, amflux_gf ] = ...
     H_obs( idx ) = ds_qc.HSdry_massman( idx );
     H_flag( idx ) = 0;
 
-
-    % NEE_f = ds_pt.NEE_HBLR;  %Lasslop filled NEE
-    NEE_f = ds_pt.NEE_f;  % Reichstein filled NEE
+    if sitecode == 5
+        NEE_f = ds_pt.NEE_HBLR;  % Lasslop filled NEE
+    else
+        NEE_f = ds_pt.NEE_f;  % Reichstein filled NEE
+    end
     RE_f  = ds_pt.Reco_HBLR;
     GPP_f = ds_pt.GPP_HBLR;
     LE_f = ds_pt.LE_f;

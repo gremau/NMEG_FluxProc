@@ -22,30 +22,84 @@ function varargout =  UNM_gapfill_from_local_data( sitecode, ...
 % (c) Timothy W. Hilton, UNM, 2012
 obs_per_day = 48;
 
-%----------
-% JSav 2009
-if ( sitecode == 3 ) & ( year == 2009 )
-    % JSav has no flux data for roughly 1 Dec 2008 to 1 Mar 2009.  The
-    % gapfiller has trouble with this large gap at the beginning of 2009, so
-    % here we fill the first 21 days with JSav 2008 data.  Hopefully the
-    % gapfiller can "calibrate" from these data and produce a better fit for
-    % the remaining gap.
-    
-    filled_idx = 1 : ( obs_per_day * 21 ); %first 21 days of the year
+filled_idx = [];  %initialize to no gapfilling performed
 
-    % if caller only requested the indices to be filled, don't bother
-    % processng the data
+%----------
+% GLand 2010
+if ( sitecode == 1 ) & ( year == 2010 )
+
+    % GLand 2009 has a gap between DOY 295 and DOY 328 which the online
+    % gapfiller fills poorly.  Fill with a linear regression using observed
+    % NEE at New_GLand 2009 between DOY 280 and DOY 295.
+    
+    filled_idx = ( obs_per_day * 295 ) : ( obs_per_day * 328 );
+
     if nargout == 2
-        jsav08 = parse_forgapfilling_file( 3, 2008, '' );
-        % fill NEE, LE, and H for 1 to 21 Jan 2009 from 1 to 21 Jan 2008
-        ds_for_gapfill.NEE( filled_idx ) = jsav08.NEE( filled_idx );
-        ds_for_gapfill.qcNEE( filled_idx ) = ...
-            isnan( jsav08.NEE( filled_idx ) ) + 1; % 2 for bad data, 1 for good
-        ds_for_gapfill.LE( filled_idx ) = jsav08.LE( filled_idx );
-        ds_for_gapfill.H( filled_idx ) = jsav08.H( filled_idx );
+        regress_idx = [ (obs_per_day * 280 ) : ( obs_per_day * 295 ), ...
+                        ( obs_per_day * 228 ) : ( obs_per_day * 238 ) ];
+
+        newgland10 = parse_forgapfilling_file( 10, 2010, '' );
+        regress_data = [ newgland10.NEE( regress_idx ), ...
+                         ds_for_gapfill.NEE( regress_idx ) ];
+        regress_data = replace_badvals( regress_data, [ -9999 ], 1e-6 );
+        nan_idx = any( isnan( regress_data ), 2 );
+        linfit = polyfit( regress_data( ~nan_idx, 1 ), ...
+                          regress_data( ~nan_idx, 2 ), 1 );
+        
+        figure( 'NumberTitle', 'Off', ...
+                'Name', 'GLand 2010 linear fit' );
+        ax1 = subplot( 2, 1, 1 );
+        plot( regress_data( ~nan_idx, 1 ), ...
+              regress_data( ~nan_idx, 2 ), ...
+              '.k' );
+        h = refline( linfit );
+        set( h , 'Color', 'blue' );
+        xlabel( 'unburned gland 2010' );
+        ylabel( 'burned gland 2010' );
+        set( ax1, 'YLim', get( ax1, 'XLim' ) );
+
+        newglandNEE = replace_badvals( double( newgland10.NEE( filled_idx ) ), ...
+                                       [ -9999 ], 1e-6 );
+        newglandNEE = ( newglandNEE * linfit( 1 ) ) +  linfit( 2 ) + 0.5;
+        newglandNEE( isnan( newglandNEE ) ) = -9999.0;
+        orig_gland_NEE = ds_for_gapfill.NEE;
+        ds_for_gapfill.NEE( filled_idx ) = newglandNEE;
+
+        ax2 = subplot( 2, 1, 2 );
+        h_orig = plot( orig_gland_NEE, 'ok' );
+        hold on;
+        h_new = plot( filled_idx, ds_for_gapfill.NEE( filled_idx ), '.r' );
+        ylim( [ -10, 10 ] );
+        legend( [ h_orig, h_new ], 'original', 'linear fit' );
     end
 end
 
+
+% %----------
+% % JSav 2009
+% if ( sitecode == 3 ) & ( year == 2009 )
+%     % JSav has no flux data for roughly 1 Dec 2008 to 1 Mar 2009.  The
+%     % gapfiller has trouble with this large gap at the beginning of 2009, so
+%     % here we fill the first 21 days with JSav 2008 data.  Hopefully the
+%     % gapfiller can "calibrate" from these data and produce a better fit for
+%     % the remaining gap.
+    
+%     filled_idx = 1 : ( obs_per_day * 21 ); %first 21 days of the year
+
+%     % if caller only requested the indices to be filled, don't bother
+%     % processng the data
+%     if nargout == 2
+%         jsav08 = parse_forgapfilling_file( 3, 2008, '' );
+%         % fill NEE, LE, and H for 1 to 21 Jan 2009 from 1 to 21 Jan 2008
+%         ds_for_gapfill.NEE( filled_idx ) = jsav08.NEE( filled_idx );
+%         ds_for_gapfill.qcNEE( filled_idx ) = ...
+%             isnan( jsav08.NEE( filled_idx ) ) + 1; % 2 for bad data, 1 for good
+%         ds_for_gapfill.LE( filled_idx ) = jsav08.LE( filled_idx );
+%         ds_for_gapfill.H( filled_idx ) = jsav08.H( filled_idx );
+%     end
+% end
+
+%----------
 % create output arguments based on whether the user requested the filled 
 if nargout <= 1
     varargout = { filled_idx };

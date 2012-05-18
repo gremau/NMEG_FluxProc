@@ -45,6 +45,7 @@ data_for_analyses = 0; %1 to output file with data sorted for specific analyses
 ET_gap_filler = 0; %run ET gap-filler program
 
 winter_co2_min = -100;  %initialization -- will be set for specific sites later
+obs_per_day = 48;  % half-hourly observations
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Specify some details about sites and years
@@ -1520,10 +1521,77 @@ if iteration > 2
                              co2_max_by_month(i)) | ...
                             (month ==i & fc_raw_massman_wpl < ...
                              co2_min_by_month(i)) ) ];
-        removed_maxs_mins = removed_maxs_mins+length(maxminflag);
-        decimal_day_nan(maxminflag) = NaN;
-        record(maxminflag) = NaN;
     end
+    
+    % some exceptions to the maxmin filtering
+    maxmin_exc_flag = repmat( false, numel( decimal_day_nan ), 1 );
+    std_exc_flag = repmat( false, numel( decimal_day_nan ), 1 );
+    maxmin_exc_flag( maxminflag ) = true;
+    
+    if ( sitecode == 2 ) & ( year2 == 2008 )
+        DOY184 = ( obs_per_day * 184 ) - obs_per_day + 1;
+        DOY190 = ( obs_per_day * 190 ) - obs_per_day + 1;
+        idx = find( ( fc_raw_massman_wpl > 0 ) & ...
+                    ( fc_raw_massman_wpl < 20 ) );
+        idx( ( idx < DOY184 ) | ( idx > DOY190 ) ) = [];
+        maxmin_exc_flag( idx ) = false;
+        std_exc_flag( idx ) = true;
+        maxminflag = find( maxmin_exc_flag );
+    end
+    if ( sitecode == 2 ) & ( year2 == 2011 )
+        DOY1 = ( obs_per_day * 190 ) - obs_per_day + 1;
+        DOY2 = ( obs_per_day * 195 ) - obs_per_day + 1;
+        idx = find( ( fc_raw_massman_wpl > 0 ) & ...
+                    ( fc_raw_massman_wpl < 7 ) );
+        idx( ( idx < DOY1 ) | ( idx > DOY2 ) ) = [];
+        maxmin_exc_flag( idx ) = false;
+        std_exc_flag( idx ) = true;
+        maxminflag = find( maxmin_exc_flag );
+    end
+    if ( sitecode == 2 ) & ( year2 == 2011 )
+        DOY1 = ( obs_per_day * 342 ) - obs_per_day + 1;
+        DOY2 = ( obs_per_day * 346 ) - obs_per_day + 1;
+        idx = find( ( fc_raw_massman_wpl > 0 ) & ...
+                    ( fc_raw_massman_wpl < 8 ) );
+        idx( ( idx < DOY1 ) | ( idx > DOY2 ) ) = [];
+        maxmin_exc_flag( idx ) = false;
+        std_exc_flag( idx ) = true;
+        maxminflag = find( maxmin_exc_flag );
+    end
+    if ( sitecode == 2 ) & ( year2 == 2011 )
+        DOY1 = ( obs_per_day * 99 ) - obs_per_day + 1;
+        DOY2 = ( obs_per_day * 101 ) - obs_per_day + 1;
+        idx = find( ( fc_raw_massman_wpl < 0 ) & ...
+                    ( fc_raw_massman_wpl > -4 ) );
+        idx( ( idx < DOY1 ) | ( idx > DOY2 ) ) = [];
+        maxmin_exc_flag( idx ) = false;
+        std_exc_flag( idx ) = true;
+        maxminflag = find( maxmin_exc_flag );
+    end
+    if ( sitecode == 2 ) & ( year2 == 2011 )
+        DOY1 = ( obs_per_day * 80 ) - obs_per_day + 1;
+        DOY2 = ( obs_per_day * 81 ) - obs_per_day + 1;
+        idx = find( ( fc_raw_massman_wpl < 0 ) & ...
+                    ( fc_raw_massman_wpl > -4 ) );
+        idx( ( idx < DOY1 ) | ( idx > DOY2 ) ) = [];
+        maxmin_exc_flag( idx ) = false;
+        std_exc_flag( idx ) = true;
+        maxminflag = find( maxmin_exc_flag );
+    end
+    if ( sitecode == 1 ) & ( year2 == 2010 )
+        DOY223 = ( obs_per_day * 223 ) - obs_per_day + 1;
+        DOY229 = ( obs_per_day * 229 ) - obs_per_day + 1;
+        idx = find( ( fc_raw_massman_wpl < 0 ) & ...
+                    ( fc_raw_massman_wpl > -17 ) );
+        idx( ( idx < DOY223 ) | ( idx > DOY229 ) ) = [];
+        maxmin_exc_flag( idx ) = false;
+        std_exc_flag( idx ) = true;
+        maxminflag = find( maxmin_exc_flag );
+    end
+    
+    removed_maxs_mins = removed_maxs_mins+length(maxminflag);
+    decimal_day_nan(maxminflag) = NaN;
+    record(maxminflag) = NaN;
     
     % display what is pulled for maxs and mins
     disp(sprintf('    above max or below min = %d',removed_maxs_mins));
@@ -1541,25 +1609,42 @@ if iteration > 3
 
     % exceptions
     co2_conc_filter_exceptions = repmat( false, size( CO2_mean ) );
+    
     if ( sitecode == 1 ) & ( year(1) == 2009 )
         % DOY 302 to 333, 2009
-        co2_conc_filter_exceptions( 14496:15984 ) = true;
+        DOY302 = obs_per_day * 302 - obs_per_day + 1;
+        DOY333 = obs_per_day * 333 - obs_per_day + 1;
+        co2_conc_filter_exceptions( DOY302 : DOY333 ) = true;
     end
     % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
     % fluxes look OK.  TWH 27 Mar 2012
     if ( sitecode == 1 ) & ( year(1) == 2010 )
         co2_conc_filter_exceptions( 5084:5764 ) = true;
-    end
+        % days 253:257 -- bogus [CO2] but fluxes look ok
+        DOY218 = obs_per_day * 218  - obs_per_day + 1;
+        DOY229 = obs_per_day * 229  - obs_per_day + 1;
+        DOY271 = obs_per_day * 271  - obs_per_day + 1;
+        DOY278 = obs_per_day * 278  - obs_per_day + 1;
+        co2_conc_filter_exceptions( DOY218:DOY229 ) = true;
+        co2_conc_filter_exceptions( DOY271:DOY278 ) = true;
+    end 
+    if ( sitecode == 2 ) & ( year == 2007 )
+       % days 253:257 -- bogus [CO2] but fluxes look ok
+       DOY253 = obs_per_day * 253  - obs_per_day + 1;
+        DOY257 = obs_per_day * 257  - obs_per_day + 1;
+        co2_conc_filter_exceptions( DOY253:DOY257 ) = true;
+    end 
     if (sitecode == 5 ) & ( year == 2007 )
         % days 290:335 -- bogus [CO2] but fluxes look ok
-        co2_conc_filter_exceptions( 13920:16080 ) = true;
+        DOY290 = obs_per_day * 290 - obs_per_day + 1;
+        DOY335 = obs_per_day * 335 - obs_per_day + 1;
+        co2_conc_filter_exceptions( DOY290 : DOY335 ) = true;
     end
     if (sitecode == 8 ) & ( year == 2009 )
-        % days 0 to 40.5 -- low [CO2] but fluxes look ok
-        obs_per_day = 48;  % half-hourly observations
-        exc_idx1 = 1;
-        exc_idx2 = 40.5 * obs_per_day;
-        co2_conc_filter_exceptions( exc_idx1:exc_idx2 ) = true;
+        % days 1 to 40.5 -- low [CO2] but fluxes look ok
+        DOY001 = 1;
+        DOY40p5 = 40.5 * obs_per_day - obs_per_day + 1;
+        co2_conc_filter_exceptions( DOY001 : DOY40p5 ) = true;
     end
     
 
@@ -1652,6 +1737,7 @@ if iteration > 4
         stdflag_thisbin_low = ( this_bin & ...
                                 fc_raw_massman_wpl < bin_floor( i ) );
         stdflag = stdflag | stdflag_thisbin_hi | stdflag_thisbin_low;
+        stdflag( find( std_exc_flag ) ) = false;
 
         % %plot each SD window and its mean and SD
         % figure()
@@ -1973,6 +2059,7 @@ if write_gap_filling_out_file
         xlswrite(outfilename, datamatrix, 'data', 'A2');
     else    
         disp('writing gap-filling file...')
+        
         header = {'day' 'month' 'year' 'hour' 'minute' ...
                   'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
                   'rH' 'precip' 'Ustar'};
@@ -1981,6 +2068,14 @@ if write_gap_filling_out_file
         end
         datamatrix = [day month year hour minute qc NEE ...
                       LE H_dry sw_incoming Tair Tsoil rH precip u_star];
+        
+        [ filled_idx, datamatrix ] = ...
+            UNM_gapfill_from_local_data( ...
+                sitecode, ...
+                year, ...
+                dataset( { datamatrix, header{ : } } ) );
+        datamatrix = double( datamatrix );
+
         for n = 1:datalength
             for k = 1:15;
                 if isnan(datamatrix(n,k)) == 1;

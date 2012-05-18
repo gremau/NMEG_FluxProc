@@ -143,26 +143,26 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     % write another Ameriflux files with soil heat flux for internal use
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    shf_vars = regexp_ds_vars( ds_qc, 'soil_heat_flux.*' );
-    shf_idx = find( ismember( ds_qc.Properties.VarNames, shf_vars ) );
-    ds_shf = ds_qc( :, shf_idx );
-    units = cell( 1, numel( shf_idx ) );
-    for i = 1:numel( shf_idx )
-        units{i} = 'W / m2';
-    end
-    ds_shf.Properties.Units = units;
+    % shf_vars = regexp_ds_vars( ds_qc, 'soil_heat_flux.*' );
+    % shf_idx = find( ismember( ds_qc.Properties.VarNames, shf_vars ) );
+    % ds_shf = ds_qc( :, shf_idx );
+    % units = cell( 1, numel( shf_idx ) );
+    % for i = 1:numel( shf_idx )
+    %     units{i} = 'W / m2';
+    % end
+    % ds_shf.Properties.Units = units;
 
-    amflux_shf = [ amflux_gaps, ds_shf ];
-    UNM_Ameriflux_write_file( sitecode, year, amflux_shf, ...
-                              'mlitvak@unm.edu', 'SHF' );
+    % amflux_shf = [ amflux_gaps, ds_shf ];
+    % UNM_Ameriflux_write_file( sitecode, year, amflux_shf, ...
+    %                           'mlitvak@unm.edu', 'SHF' );
     
-    % plot the soil heat flux variables
-    ds_shf = [ amflux_shf( :, 'DTIME' ), ds_shf ];
-    t0 = now();
-    fname = fullfile( get_out_directory( sitecode ), ...
-                      sprintf( '%s_%d_SHF.ps', ...
-                               get_site_name(sitecode), year ) );
-    UNM_Ameriflux_plot_dataset_eps( ds_shf, fname, year, 2 );
-    fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
+    % % plot the soil heat flux variables
+    % ds_shf = [ amflux_shf( :, 'DTIME' ), ds_shf ];
+    % t0 = now();
+    % fname = fullfile( get_out_directory( sitecode ), ...
+    %                   sprintf( '%s_%d_SHF.ps', ...
+    %                            get_site_name(sitecode), year ) );
+    % UNM_Ameriflux_plot_dataset_eps( ds_shf, fname, year, 2 );
+    % fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
 
     result = 1;
