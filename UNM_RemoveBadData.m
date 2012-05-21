@@ -1562,9 +1562,16 @@ function [] = UNM_RemoveBadData(sitecode,year)
             co2_conc_filter_exceptions( DOYidx( 218 ) : DOYidx( 229 ) ) = true;
             co2_conc_filter_exceptions( DOYidx( 271 ) : DOYidx( 278 ) ) = true;
         end 
+        if ( sitecode == 1 ) & ( year(1) == 2011 )
+            co2_conc_filter_exceptions( DOYidx( 97 ) : DOYidx( 104 ) ) = true;
+            co2_conc_filter_exceptions( DOYidx( 153 ) : DOYidx( 160 ) ) = true;
+        end 
         if ( sitecode == 2 ) & ( year == 2007 )
             % days 253:257 -- bogus [CO2] but fluxes look ok
             co2_conc_filter_exceptions( DOYidx( 253 ) : DOYidx( 257 ) ) = true;
+        end 
+        if ( sitecode == 3 ) & ( year(1) == 2011 )
+            co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 52.7 ) ) = true;
         end 
         if (sitecode == 5 ) & ( year == 2007 )
             % days 290:335 -- bogus [CO2] but fluxes look ok
@@ -2368,6 +2375,13 @@ function [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
         DOY_co2_min( idx ) = -17;
         std_exc_flag( idx ) = true;
         
+    % GLand 2011
+    elseif ( sitecode == 1 ) & ( year == 2011 )
+        std_exc_flag( DOYidx( 158.4 ) : DOYidx( 158.6 ) ) = true;
+        std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
+        std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
+        std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
+        
     %SLand 2008
     elseif ( sitecode == 2 ) & ( year == 2008 )
         idx = DOYidx( 184 ) : DOYidx( 190 );
@@ -2398,7 +2412,15 @@ function [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
     elseif  ( sitecode == 3 ) & ( year == 2008 )
         idx = DOYidx( 215 ) : DOYidx( 240 );
         DOY_co2_min( idx ) = -12.0;
-        
+    % JSav 2011
+    elseif ( sitecode == 3 ) & ( year == 2011 )
+        std_exc_flag( DOYidx( 17.5 ) : DOYidx( 17.6 ) ) = true;
+        std_exc_flag( DOYidx( 20.4 ) : DOYidx( 20.7 ) ) = true;
+        std_exc_flag( DOYidx( 58.4 ) : DOYidx( 58.6 ) ) = true;
+        std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;        
+        std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
+        std_exc_flag( DOYidx( 184.5 ) : DOYidx( 186 ) ) = true;
+        std_exc_flag( DOYidx( 232.0 ) : DOYidx( 232.1 ) ) = true;
     %MCon 2007
     elseif (sitecode == 6 ) & ( year == 2007 )
 
