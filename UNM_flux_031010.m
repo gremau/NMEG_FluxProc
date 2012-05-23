@@ -86,12 +86,14 @@ function [ CO2OUT, H2OOUT, FCO2, FH2O, HSENSIBLE, HLATENT, RHOM, TDRY, OKNUM, ..
 % by 4 matrix of zeros.  We are looking at you, 28 Nov 2009 from 23:00 to
 % 23:29:59 at PJ_girdle...
 if numel( find( SONDIAG ) ) == 1
-    SONDIAG = zeros( size( SONDIAG ) );
+    u = zeros( 4, 4 );
+elseif isempty( find( SONDIAG ) )
+    u = repmat( NaN, 4, 4 );
+else
+    %covariance between (1) rotated coordinates (good values only) and (2)sonic
+    %temperature (good values only)
+    u = cov([UVW2(:,find(SONDIAG)); temp2(find(SONDIAG))]');  
 end
-
-%covariance between (1) rotated coordinates (good values only) and (2)sonic
-%temperature (good values only)
-u = cov([UVW2(:,find(SONDIAG)); temp2(find(SONDIAG))]');  
 
 if rotation == sonic_rotation.threeD
     UVWTVAR = diag(u);
