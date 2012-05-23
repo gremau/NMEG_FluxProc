@@ -192,11 +192,26 @@ function [ amflux_gaps, amflux_gf ] = ...
     [amflux_gaps, amflux_gf] = ...
         UNM_Ameriflux_create_output_datasets( sitecode, size( ds_qc, 1 ) );
     
+    amflux_gaps.timestamp = ds_qc.timestamp;
+    amflux_gf.timestamp = ds_qc.timestamp;
+    
+    t_min = datenum( year, 1, 1, 0, 0, 0 );
+    t_max = datenum( year, 12, 31, 23, 59, 59 );
+    
+    amflux_gaps = dataset_fill_timestamps( amflux_gaps, ...
+                                           'timestamp', ...
+                                           't_min', t_min, ...
+                                           't_max', t_max );
+    amflux_gf = dataset_fill_timestamps( amflux_gf, ...
+                                           'timestamp', ...
+                                           't_min', t_min, ...
+                                           't_max', t_max );                                           
+    
     % assign values to aflx1
-    amflux_gaps.YEAR = str2num( datestr( ds_qc.timestamp, 'YYYY' ) );
-    amflux_gaps.DTIME = ds_qc.timestamp - datenum( amflux_gaps.YEAR, 1, 1 ) + 1;
+    amflux_gaps.YEAR = str2num( datestr( amflux_gaps.timestamp, 'YYYY' ) );
+    amflux_gaps.DTIME = amflux_gaps.timestamp - datenum( amflux_gaps.YEAR, 1, 1 ) + 1;
     amflux_gaps.DOY = floor( amflux_gaps.DTIME );
-    amflux_gaps.HRMIN = str2num( datestr( ds_qc.timestamp, 'HHMM' ) ); 
+    amflux_gaps.HRMIN = str2num( datestr( amflux_gaps.timestamp, 'HHMM' ) ); 
     amflux_gaps.UST = ds_qc.u_star;
     amflux_gaps.TA = Tair_obs;
     amflux_gaps.WD = ds_qc.wnd_dir_compass;
@@ -232,10 +247,14 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gaps.APAR = dummy;
     
     % assign values to amflux_gaps
-    amflux_gf.YEAR = amflux_gaps.YEAR;
-    amflux_gf.DOY = amflux_gaps.DOY;
-    amflux_gf.HRMIN = amflux_gaps.HRMIN;
-    amflux_gf.DTIME = amflux_gaps.DTIME;
+    amflux_gf.YEAR = str2num( datestr( amflux_gf.timestamp, 'YYYY' ) );
+    amflux_gf.DTIME = amflux_gf.timestamp - datenum( amflux_gf.YEAR, 1, 1 ) + 1;
+    amflux_gf.DOY = floor( amflux_gf.DTIME );
+    amflux_gf.HRMIN = str2num( datestr( amflux_gf.timestamp, 'HHMM' ) ); 
+    % amflux_gf.YEAR = amflux_gaps.YEAR;
+    % amflux_gf.DOY = amflux_gaps.DOY;
+    % amflux_gf.HRMIN = amflux_gaps.HRMIN;
+    % amflux_gf.DTIME = amflux_gaps.DTIME;
     amflux_gf.UST = ds_qc.u_star;
     amflux_gf.TA = Tair_f;
     amflux_gf.TA_flag = TA_flag;
