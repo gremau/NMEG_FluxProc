@@ -798,8 +798,13 @@ function [] = UNM_RemoveBadData(sitecode,year)
         rH = data( :, rh_col ) / 100.0;
     elseif ismember( sitecode, [ 5, 6 ] )
         % use "RH_2" at PPine, MCon
-        rh_col = find( strcmp( 'RH_2', headertext ) ) - 1;
-        fprintf( 'found RH_2\n' );
+        rh_col = find( strcmp( 'RH_2', headertext ) | ...
+                       strcmp( 'RH_2_Avg', headertext ) ) - 1;
+        if ~isempty( rh_col )
+            fprintf( 'found RH_2\n' );
+        else
+            error( 'could not locate RH_2' );
+        end
         rH = data( :, rh_col ) / 100.0;
     elseif sitecode == 10
         % at PJ girdle, calculate relative humidity from hmp obs using helper
@@ -1540,48 +1545,9 @@ function [] = UNM_RemoveBadData(sitecode,year)
 
         % exceptions
         co2_conc_filter_exceptions = repmat( false, size( CO2_mean ) );
-        DOYidx = @( DOY ) ( ( obs_per_day * DOY ) - obs_per_day + 1 );
-        
-        if ( sitecode == 1 ) & ( year(1) == 2007 )
-            % DOY 302 to 333, 2009
-            co2_conc_filter_exceptions( DOYidx( 133 ) : DOYidx( 137 ) ) = true;
-            co2_conc_filter_exceptions( DOYidx( 199.5 ) : ...
-                                        DOYidx( 202.5 ) ) = true;
-            co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
-        end
-        
-        if ( sitecode == 1 ) & ( year(1) == 2009 )
-            % DOY 302 to 333, 2009
-            co2_conc_filter_exceptions( DOYidx( 302 ) : DOYidx( 333 ) ) = true;
-        end
-        % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
-        % fluxes look OK.  TWH 27 Mar 2012
-        if ( sitecode == 1 ) & ( year(1) == 2010 )
-            co2_conc_filter_exceptions( 5084:5764 ) = true;
-            % days 253:257 -- bogus [CO2] but fluxes look ok
-            co2_conc_filter_exceptions( DOYidx( 218 ) : DOYidx( 229 ) ) = true;
-            co2_conc_filter_exceptions( DOYidx( 271 ) : DOYidx( 278 ) ) = true;
-        end 
-        if ( sitecode == 1 ) & ( year(1) == 2011 )
-            co2_conc_filter_exceptions( DOYidx( 97 ) : DOYidx( 104 ) ) = true;
-            co2_conc_filter_exceptions( DOYidx( 153 ) : DOYidx( 160 ) ) = true;
-        end 
-        if ( sitecode == 2 ) & ( year == 2007 )
-            % days 253:257 -- bogus [CO2] but fluxes look ok
-            co2_conc_filter_exceptions( DOYidx( 253 ) : DOYidx( 257 ) ) = true;
-        end 
-        if ( sitecode == 3 ) & ( year(1) == 2011 )
-            co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 52.7 ) ) = true;
-        end 
-        if (sitecode == 5 ) & ( year == 2007 )
-            % days 290:335 -- bogus [CO2] but fluxes look ok
-            co2_conc_filter_exceptions( DOYidx( 290 ) : DOYidx( 335 ) ) = true;
-        end
-        if (sitecode == 8 ) & ( year == 2009 )
-            % days 1 to 40.5 -- low [CO2] but fluxes look ok
-            co2_conc_filter_exceptions( DOYidx( 1 ) : DOYidx( 40.5 ) ) = true;
-        end
-        
+        co2_conc_filter_exceptions = ...
+            specify_siteyear_co2_conc_filter_exceptions( ...
+                sitecode, year, co2_conc_filter_exceptions ); 
 
         removed_highco2 = length(highco2flag);
         decimal_day_nan(highco2flag) = NaN;
@@ -1595,15 +1561,6 @@ function [] = UNM_RemoveBadData(sitecode,year)
             lowco2flag = find(CO2_mean <250);
         else
             lowco2flag = find(CO2_mean <350);
-        end
-
-        % exceptions 
-        % keep index 4128 to 5084, 7296-8064 (days 152:168) in 2010 -
-        % these CO2 obs are bogus but the datalogger 30-min fluxes look OK.  TWH 27
-        % Mar 2012
-        if ( sitecode == 1 ) & ( year(1) == 2010 )
-            co2_conc_filter_exceptions( 4128:5084 ) = true;
-            co2_conc_filter_exceptions( 7296:8064 ) = true;
         end
 
         removed_lowco2 = length(lowco2flag);
@@ -2333,98 +2290,173 @@ function [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
         specify_siteyear_filter_exceptions( sitecode, year, ...
                                             DOY_co2_min, DOY_co2_max );
     
-    % SPECIFY_SITEYEAR_MAXMIN_EXCEPTIONS - adds site-year-specific DOY-based CO2 NEE
-    % max/min values to the DOY-based max-min arrays, specify corresponding
-    % exceptions to standard deviation filter.
-    
-    % anonymous function to calculate index into array of half-hourly
-    % observations for a given day of year.
-    obs_per_day = 48;
-    DOYidx = @( DOY ) int32( ( obs_per_day * DOY ) - obs_per_day + 1 );
-    
-    % initialize standard deviation filter exceptions to no exceptions
-    std_exc_flag = repmat( false, size( DOY_co2_max ) );
+% SPECIFY_SITEYEAR_MAXMIN_EXCEPTIONS - adds site-year-specific DOY-based CO2 NEE
+% max/min values to the DOY-based max-min arrays, specify corresponding
+% exceptions to standard deviation filter.
 
-    % GLand 2007
-    if ( sitecode == 1 ) & ( year == 2007 )
-        idx = DOYidx( 199.5 ) : DOYidx( 202.5 );
-        DOY_co2_min( idx ) = -9;
-        std_exc_flag( idx ) = true;
-        
-        idx = DOYidx( 133 ) : DOYidx( 137 );
-        DOY_co2_min( idx ) = -4;
-        std_exc_flag( idx ) = true;
+% anonymous function to calculate index into array of half-hourly
+% observations for a given day of year.
+obs_per_day = 48;
+DOYidx = @( DOY ) int32( ( obs_per_day * DOY ) - obs_per_day + 1 );
+
+% initialize standard deviation filter exceptions to no exceptions
+std_exc_flag = repmat( false, size( DOY_co2_max ) );
+
+% GLand 2007
+if ( sitecode == 1 ) & ( year == 2007 )
+    idx = DOYidx( 199.5 ) : DOYidx( 202.5 );
+    DOY_co2_min( idx ) = -9;
+    std_exc_flag( idx ) = true;
+    
+    idx = DOYidx( 133 ) : DOYidx( 137 );
+    DOY_co2_min( idx ) = -4;
+    std_exc_flag( idx ) = true;
     
     %GLand 2008
-    elseif ( sitecode == 1 ) & ( year == 2008 )
-        idx = DOYidx( 184 ) : DOYidx( 186.5 );
-        DOY_co2_max( idx ) = 15;
-        std_exc_flag( idx ) = true;
-        
+elseif ( sitecode == 1 ) & ( year == 2008 )
+    idx = DOYidx( 184 ) : DOYidx( 186.5 );
+    DOY_co2_max( idx ) = 15;
+    std_exc_flag( idx ) = true;
+    
     %GLand 2009
-    elseif ( sitecode == 1 ) & ( year == 2009 )
-        idx = DOYidx( 245 ) : DOYidx( 255 );
-        DOY_co2_max( idx ) = 1.5;
+elseif ( sitecode == 1 ) & ( year == 2009 )
+    idx = DOYidx( 245 ) : DOYidx( 255 );
+    DOY_co2_max( idx ) = 1.5;
 
-        std_exc_flag( DOYidx( 328.4 ) : DOYidx( 328.6 ) ) = true;
-        std_exc_flag( DOYidx( 331.4 ) : DOYidx( 331.6 ) ) = true;
-        
+    std_exc_flag( DOYidx( 328.4 ) : DOYidx( 328.6 ) ) = true;
+    std_exc_flag( DOYidx( 331.4 ) : DOYidx( 331.6 ) ) = true;
+    
     % GLand 2010
-    elseif ( sitecode == 1 ) & ( year == 2010 )
-        idx = DOYidx( 223 ) : DOYidx( 229 );
-        DOY_co2_min( idx ) = -17;
-        std_exc_flag( idx ) = true;
-        
+elseif ( sitecode == 1 ) & ( year == 2010 )
+    idx = DOYidx( 223 ) : DOYidx( 229 );
+    DOY_co2_min( idx ) = -17;
+    std_exc_flag( idx ) = true;
+    
     % GLand 2011
-    elseif ( sitecode == 1 ) & ( year == 2011 )
-        std_exc_flag( DOYidx( 158.4 ) : DOYidx( 158.6 ) ) = true;
-        std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
-        std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
-        std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
-        
+elseif ( sitecode == 1 ) & ( year == 2011 )
+    std_exc_flag( DOYidx( 158.4 ) : DOYidx( 158.6 ) ) = true;
+    std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
+    std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
+    std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
+    
     %SLand 2008
-    elseif ( sitecode == 2 ) & ( year == 2008 )
-        idx = DOYidx( 184 ) : DOYidx( 190 );
-        DOY_co2_max( idx ) = 20;
-        std_exc_flag( idx ) = true;
-        
+elseif ( sitecode == 2 ) & ( year == 2008 )
+    idx = DOYidx( 184 ) : DOYidx( 190 );
+    DOY_co2_max( idx ) = 20;
+    std_exc_flag( idx ) = true;
+    
     %SLand 2011
-    elseif  ( sitecode == 2 ) & ( year == 2011 )
-        idx = DOYidx( 190 ) : DOYidx( 195 );
-        DOY_co2_max( idx ) = 7;
-        std_exc_flag( idx ) = true;
-        
-        idx = DOYidx( 342 ) : DOYidx( 346 );
-        DOY_co2_max( idx ) = 8;
-        std_exc_flag( idx ) = true;
-        
-        idx = DOYidx( 99  ) : DOYidx( 101 );
-        DOY_co2_min( idx ) = -4;
-        std_exc_flag( idx ) = true;
-        
-        idx = DOYidx( 80  ) : DOYidx( 81 );
-        DOY_co2_min( idx ) = -4;
-        std_exc_flag( idx ) = true;
-        
-        std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
+elseif  ( sitecode == 2 ) & ( year == 2011 )
+    idx = DOYidx( 215.5 ) : DOYidx( 216.4 );
+    std_exc_flag( idx ) = true;
+
+    idx = DOYidx( 190 ) : DOYidx( 195 );
+    DOY_co2_max( idx ) = 7;
+    std_exc_flag( idx ) = true;
+    
+    idx = DOYidx( 342 ) : DOYidx( 346 );
+    DOY_co2_max( idx ) = 8;
+    std_exc_flag( idx ) = true;
+    
+    idx = DOYidx( 99  ) : DOYidx( 101 );
+    DOY_co2_min( idx ) = -4;
+    std_exc_flag( idx ) = true;
+    
+    idx = DOYidx( 80  ) : DOYidx( 81 );
+    DOY_co2_min( idx ) = -4;
+    std_exc_flag( idx ) = true;
+    
+    std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
 
     %JSav 2008
-    elseif  ( sitecode == 3 ) & ( year == 2008 )
-        idx = DOYidx( 215 ) : DOYidx( 240 );
-        DOY_co2_min( idx ) = -12.0;
+elseif  ( sitecode == 3 ) & ( year == 2008 )
+    idx = DOYidx( 215 ) : DOYidx( 240 );
+    DOY_co2_min( idx ) = -12.0;
     % JSav 2011
-    elseif ( sitecode == 3 ) & ( year == 2011 )
-        std_exc_flag( DOYidx( 17.5 ) : DOYidx( 17.6 ) ) = true;
-        std_exc_flag( DOYidx( 20.4 ) : DOYidx( 20.7 ) ) = true;
-        std_exc_flag( DOYidx( 58.4 ) : DOYidx( 58.6 ) ) = true;
-        std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;        
-        std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
-        std_exc_flag( DOYidx( 184.5 ) : DOYidx( 186 ) ) = true;
-        std_exc_flag( DOYidx( 232.0 ) : DOYidx( 232.1 ) ) = true;
-    %MCon 2007
-    elseif (sitecode == 6 ) & ( year == 2007 )
+elseif ( sitecode == 3 ) & ( year == 2011 )
+    std_exc_flag( DOYidx( 12.5 ) : DOYidx( 12.6 ) ) = true;
+    std_exc_flag( DOYidx( 17.4 ) : DOYidx( 17.6 ) ) = true;
+    std_exc_flag( DOYidx( 20.4 ) : DOYidx( 20.7 ) ) = true;
+    std_exc_flag( DOYidx( 58.4 ) : DOYidx( 58.6 ) ) = true;
+    std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;        
+    std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
+    std_exc_flag( DOYidx( 184.5 ) : DOYidx( 186 ) ) = true;
+    std_exc_flag( DOYidx( 232.0 ) : DOYidx( 232.1 ) ) = true;
+    
+    % PJ 2011
+elseif ( sitecode == 4 ) & ( year == 2011 )
+    std_exc_flag( DOYidx( 31.5 ) : DOYidx( 31.7 ) ) = true;
+    std_exc_flag( DOYidx( 182.6 ) : DOYidx( 182.8 ) ) = true;
+    std_exc_flag( DOYidx( 183.4 ) : DOYidx( 183.7 ) ) = true;
+    std_exc_flag( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = true;
+    
+    DOY_co2_max( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = 6.5;
 
-        std_exc_flag( DOYidx( 292.4 ) : DOYidx( 294.5 ) ) = true;
-        std_exc_flag( DOYidx( 293.5 ) : DOYidx( 293.6 ) ) = true;
-        std_exc_flag( DOYidx( 301.5 ) : DOYidx( 301.7 ) ) = true;
-    end
+    % PPine 2011
+elseif (sitecode == 5 ) & ( year == 2011 )
+    std_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
+    DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;
+    
+    %MCon 2007
+elseif (sitecode == 6 ) & ( year == 2007 )
+
+    std_exc_flag( DOYidx( 292.4 ) : DOYidx( 294.5 ) ) = true;
+    std_exc_flag( DOYidx( 293.5 ) : DOYidx( 293.6 ) ) = true;
+    std_exc_flag( DOYidx( 301.5 ) : DOYidx( 301.7 ) ) = true;
+    
+elseif (sitecode == 10 ) & ( year == 2011 )
+    idx = DOYidx( 192.2 ) : DOYidx( 192.6 );
+    std_exc_flag( idx ) = true;
+    DOY_co2_max( idx ) = 6.5;
+end
+
+%------------------------------------------------------------
+
+function co2_conc_filter_exceptions = specify_siteyear_co2_conc_filter_exceptions( ...
+    sitecode, year, co2_conc_filter_exceptions ); 
+
+DOYidx = @( DOY ) ( ( obs_per_day * DOY ) - obs_per_day + 1 );
+
+if ( sitecode == 1 ) & ( year(1) == 2007 )
+    % DOY 302 to 333, 2009
+    co2_conc_filter_exceptions( DOYidx( 133 ) : DOYidx( 137 ) ) = true;
+    co2_conc_filter_exceptions( DOYidx( 199.5 ) : ...
+                                DOYidx( 202.5 ) ) = true;
+    co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
+end
+
+if ( sitecode == 1 ) & ( year(1) == 2009 )
+    % DOY 302 to 333, 2009
+    co2_conc_filter_exceptions( DOYidx( 302 ) : DOYidx( 333 ) ) = true;
+end
+% keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
+% fluxes look OK.  TWH 27 Mar 2012
+if ( sitecode == 1 ) & ( year(1) == 2010 )
+    % keep index 4128 to 5084, 7296-8064 (days 152:168) in 2010 -
+    % these CO2 obs are bogus but the datalogger 30-min fluxes look OK.  TWH 27
+    % Mar 2012
+    co2_conc_filter_exceptions( 4128:5764 ) = true;
+    co2_conc_filter_exceptions( 7296:8064 ) = true;    
+    % days 253:257 -- bogus [CO2] but fluxes look ok
+    co2_conc_filter_exceptions( DOYidx( 218 ) : DOYidx( 229 ) ) = true;
+    co2_conc_filter_exceptions( DOYidx( 271 ) : DOYidx( 278 ) ) = true;
+end 
+if ( sitecode == 1 ) & ( year(1) == 2011 )
+    co2_conc_filter_exceptions( DOYidx( 97 ) : DOYidx( 104 ) ) = true;
+    co2_conc_filter_exceptions( DOYidx( 153 ) : DOYidx( 160 ) ) = true;
+end 
+if ( sitecode == 2 ) & ( year == 2007 )
+    % days 253:257 -- bogus [CO2] but fluxes look ok
+    co2_conc_filter_exceptions( DOYidx( 253 ) : DOYidx( 257 ) ) = true;
+end 
+if ( sitecode == 3 ) & ( year(1) == 2011 )
+    co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 52.7 ) ) = true;
+end 
+if (sitecode == 5 ) & ( year == 2007 )
+    % days 290:335 -- bogus [CO2] but fluxes look ok
+    co2_conc_filter_exceptions( DOYidx( 290 ) : DOYidx( 335 ) ) = true;
+end
+if (sitecode == 8 ) & ( year == 2009 )
+    % days 1 to 40.5 -- low [CO2] but fluxes look ok
+    co2_conc_filter_exceptions( DOYidx( 1 ) : DOYidx( 40.5 ) ) = true;
+end
