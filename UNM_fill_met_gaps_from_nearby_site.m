@@ -51,8 +51,11 @@ switch sitecode
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
     nearby_data = parse_forgapfilling_file( 1, year, filled_file_false );
-    nearby_2 = UNM_parse_sev_met_data( year );
-    nearby_2 = prepare_sev_met_data( nearby_2, year, 49 );
+    if ( year < 2011 )  
+        % no sev met data available for 2011 yet - TWH 21 May 2012
+        nearby_2 = UNM_parse_sev_met_data( year );
+        nearby_2 = prepare_sev_met_data( nearby_2, year, 49 );
+    end
   case 3    % fill JSav from PJ, with regressions
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 4 ), year );
