@@ -42,8 +42,11 @@ switch sitecode
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 2 ), year );  %
     nearby_data = parse_forgapfilling_file( 2, year, filled_file_false );
-    nearby_2 = UNM_parse_sev_met_data( year );
-    nearby_2 = prepare_sev_met_data( nearby_2, year, 40 );
+    if ( year < 2011 )  
+        % no sev met data available for 2011 yet - TWH 21 May 2012
+        nearby_2 = UNM_parse_sev_met_data( year );
+        nearby_2 = prepare_sev_met_data( nearby_2, year, 40 );
+    end
   case 2    % fill SLand from GLand, then Sev Five Points station (# 49 )
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );

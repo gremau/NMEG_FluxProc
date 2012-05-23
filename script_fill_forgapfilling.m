@@ -4,7 +4,7 @@ regress_off = false;
 
 y = 2008;
 
-for y = 2009:2010
+for y = 2007:2010
     UNM_fill_met_gaps_from_nearby_site( 1, y, draw_plots, ...
                                         [ false false false ] )
     UNM_fill_met_gaps_from_nearby_site( 2, y, draw_plots, ...
@@ -17,8 +17,8 @@ for y = 2009:2010
                                         [ false false true ] )
     UNM_fill_met_gaps_from_nearby_site( 6, y, draw_plots, ...
                                         [ false false true ])
-    UNM_fill_met_gaps_from_nearby_site( 10, y, draw_plots, ...
-                                        [ false false false ] )
+    % UNM_fill_met_gaps_from_nearby_site( 10, y, draw_plots, ...
+    %                                     [ false false false ] )
 end
 
 % UNM_fill_met_gaps_from_nearby_site( 11, 2010, draw_plots, ...
