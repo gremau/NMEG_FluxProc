@@ -53,8 +53,4 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
                                        't_min', min( ts_all ), ...
                                        't_max', max( ts_all ) );
     
-    % convert timestamps from strings back to matlab datenums
-    ds_out1.( tvar1 ) = datenum( ds_out1.( tvar1 ) );
-    ds_out2.( tvar2 ) = datenum( ds_out2.( tvar2 ) );
-    
 
