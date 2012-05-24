@@ -462,7 +462,7 @@ function [] = UNM_RemoveBadData(sitecode,year)
             filelength_n = 17523; % updated 10 Nov, 2011
             
         end  
-        n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+        n_SDs_filter_hi = 4.5; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
         co2_min_by_month = -7; co2_max_by_month = 6;
         wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
@@ -2408,6 +2408,41 @@ elseif (sitecode == 10 ) & ( year == 2011 )
     idx = DOYidx( 192.2 ) : DOYidx( 192.6 );
     std_exc_flag( idx ) = true;
     DOY_co2_max( idx ) = 6.5;
+    
+elseif (sitecode == 11 ) & ( year == 2011 )
+    % std_exc_flag( DOYidx( 9.5 ) : DOYidx( 9.7 ) ) = true;
+    % std_exc_flag( DOYidx( 19.6 ) : DOYidx( 19.7 ) ) = true;
+    % std_exc_flag( DOYidx( 24.55 ) : DOYidx( 24.65 ) ) = true;
+    % std_exc_flag( DOYidx( 39.5 ) : DOYidx( 39.7 ) ) = true;
+    std_exc_flag( DOYidx( 50.5 ) : DOYidx( 50.7 ) ) = true;
+    std_exc_flag( DOYidx( 58.5 ) : DOYidx( 58.7 ) ) = true;
+    std_exc_flag( DOYidx( 66.6 ) : DOYidx( 66.8 ) ) = true;
+    std_exc_flag( DOYidx( 72.5 ) : DOYidx( 72.6 ) ) = true;
+    std_exc_flag( DOYidx( 89.55 ) : DOYidx( 89.65 ) ) = true;
+    std_exc_flag( DOYidx( 104.48 ) : DOYidx( 104.52 ) ) = true;
+    std_exc_flag( DOYidx( 107.52 ) : DOYidx( 107.58 ) ) = true;
+    std_exc_flag( DOYidx( 129.48 ) : DOYidx( 129.56 ) ) = true;
+    
+    idx = DOYidx( 80.5 ) : DOYidx( 80.65 );
+    std_exc_flag( idx ) = true;
+    DOY_co2_max( idx ) = 6.9;
+    
+
+    idx = DOYidx( 99.45 ) : DOYidx( 99.6 );
+    std_exc_flag( idx ) = true;
+    DOY_co2_max( idx ) = 7.4;
+
+    idx = DOYidx( 116.5 ) : DOYidx( 116.6 );
+    std_exc_flag( idx ) = true;
+    DOY_co2_max( idx ) = 7.2;
+    
+    DOY_co2_max( DOYidx( 194 ) : DOYidx( 195 ) ) = 2.3;
+    std_exc_flag( DOYidx( 201 ) : DOYidx( 203 ) ) = true;
+    std_exc_flag( DOYidx( 225.6 ) : DOYidx( 225.7 ) ) = true;
+    std_exc_flag( DOYidx( 290.4 ) : DOYidx( 290.6 ) ) = true;
+    std_exc_flag( DOYidx( 335.45 ) : DOYidx( 335.6 ) ) = true;
+    DOY_co2_max( DOYidx( 344.5 ) : DOYidx( 344.7 ) ) = 9.0;
+    DOY_co2_max( DOYidx( 345.48 ) : DOYidx( 345.56 ) ) = 9.0;
 end
 
 %------------------------------------------------------------
@@ -2415,6 +2450,7 @@ end
 function co2_conc_filter_exceptions = specify_siteyear_co2_conc_filter_exceptions( ...
     sitecode, year, co2_conc_filter_exceptions ); 
 
+obs_per_day = 48;
 DOYidx = @( DOY ) ( ( obs_per_day * DOY ) - obs_per_day + 1 );
 
 if ( sitecode == 1 ) & ( year(1) == 2007 )
@@ -2451,6 +2487,9 @@ if ( sitecode == 2 ) & ( year == 2007 )
 end 
 if ( sitecode == 3 ) & ( year(1) == 2011 )
     co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 52.7 ) ) = true;
+end 
+if ( sitecode == 4 ) & ( year(1) == 2011 )
+    co2_conc_filter_exceptions( DOYidx( 358  ) : end ) = true;
 end 
 if (sitecode == 5 ) & ( year == 2007 )
     % days 290:335 -- bogus [CO2] but fluxes look ok
