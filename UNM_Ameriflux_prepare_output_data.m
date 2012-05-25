@@ -284,6 +284,8 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gf.RE_flag = NEE_flag;
     amflux_gf.GPP = GPP_2;
     amflux_gf.GPP_flag = NEE_flag;
-    amflux_gf.APAR = dummy;
-    amflux_gf.SWC_2 = []; %dummy; %ds_soil.SWC_2;
+    amflux_gf.APAR = dummy;    amflux_gf.SWC_2 = []; %dummy; %ds_soil.SWC_2;
     amflux_gf.SWC_3 = []; %dummy; %ds_soil.SWC_3;
+    
+    amflux_gaps.timestamp = [];
+    amflux_gf.timestamp = [];
