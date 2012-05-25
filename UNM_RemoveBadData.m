@@ -298,6 +298,7 @@ function [] = UNM_RemoveBadData(sitecode,year)
             filelength_n = 17419;
             lastcolumn='GB';
             ustar_lim = 0.11;
+            n_SDs_filter_hi = 3.5; % how many std devs above the mean NEE to allow
         elseif year == 2009;
             filelength_n = 17523;
             lastcolumn='GF';
@@ -587,24 +588,24 @@ function [] = UNM_RemoveBadData(sitecode,year)
         t_mean=data(:,13);
         t_meanK=t_mean+ 273.15;
 
-        fc_raw = data(:,38);
-        fc_raw_massman = data(:,39);
+        fc_raw = data(:,40);
+        fc_raw_massman = data(:,44);
         fc_water_term = data(:,42);
         fc_heat_term_massman = data(:,45);
         fc_raw_massman_wpl = data(:,46); % = flux_co2_massman + flux_co2_wpl_water + flux_co2_massman_wpl_heat
 
-        E_raw = data(:,47);
-        E_raw_massman = data(:,44);
+        E_raw = data(:,49);
+        E_raw_massman = data(:,53);
         E_water_term = data(:,51);
-        E_heat_term_massman = data(:,50);
+        E_heat_term_massman = data(:,54);
         E_wpl_massman = data(:,55); % = flux_h20_wpl_water + flux_h20_massman_wpl_heat
 
         HSdry = data(:,56);
         HSdry_massman = data(:,59);
 
-        HL_raw = data(:,60);
+        HL_raw = data(:,61);
         HL_wpl_massman = data(:,64);
-        HL_wpl_massman_un = data(:,63);
+        HL_wpl_massman_un = data(:,63); 
         % Half hourly data filler only produces uncorrected HL_wpl_massman, but use
         % these where available
         HL_wpl_massman(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un))=HL_wpl_massman_un(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un));
@@ -1824,11 +1825,11 @@ function [] = UNM_RemoveBadData(sitecode,year)
     LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
     LH_night_flag = ( Par_Avg < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
     LH_day_flag = ( Par_Avg >= 20.0 ) & ( HL_wpl_massman < 0.0 );
+    script_debug_LE;
     removed_LH_wpl_mass = numel( find( LH_maxmin_flag | ...
                                        LH_night_flag | ...
                                        LH_day_flag ) );
     HL_wpl_massman( LH_maxmin_flag | LH_night_flag | LH_day_flag ) = NaN;
-
     % QC for sw_incoming
 
     % QC for Tdry
@@ -2304,9 +2305,6 @@ std_exc_flag = repmat( false, size( DOY_co2_max ) );
 
 % GLand 2007
 if ( sitecode == 1 ) & ( year == 2007 )
-    idx = DOYidx( 199.5 ) : DOYidx( 202.5 );
-    DOY_co2_min( idx ) = -9;
-    std_exc_flag( idx ) = true;
     
     idx = DOYidx( 133 ) : DOYidx( 137 );
     DOY_co2_min( idx ) = -4;
@@ -2399,10 +2397,15 @@ elseif (sitecode == 5 ) & ( year == 2011 )
     
     %MCon 2007
 elseif (sitecode == 6 ) & ( year == 2007 )
-
     std_exc_flag( DOYidx( 292.4 ) : DOYidx( 294.5 ) ) = true;
     std_exc_flag( DOYidx( 293.5 ) : DOYidx( 293.6 ) ) = true;
     std_exc_flag( DOYidx( 301.5 ) : DOYidx( 301.7 ) ) = true;
+    
+    %MCon 2007
+elseif (sitecode == 6 ) & ( year == 2008 )
+    std_exc_flag( DOYidx( 43.5 ) : DOYidx( 43.6 ) ) = true;
+    std_exc_flag( DOYidx( 88 ) : DOYidx( 93 ) ) = true;
+    std_exc_flag( DOYidx( 121 ) : DOYidx( 122 ) ) = true;
     
 elseif (sitecode == 10 ) & ( year == 2011 )
     idx = DOYidx( 192.2 ) : DOYidx( 192.6 );
@@ -2456,8 +2459,6 @@ DOYidx = @( DOY ) ( ( obs_per_day * DOY ) - obs_per_day + 1 );
 if ( sitecode == 1 ) & ( year(1) == 2007 )
     % DOY 302 to 333, 2009
     co2_conc_filter_exceptions( DOYidx( 133 ) : DOYidx( 137 ) ) = true;
-    co2_conc_filter_exceptions( DOYidx( 199.5 ) : ...
-                                DOYidx( 202.5 ) ) = true;
     co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
 end
 
