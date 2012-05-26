@@ -1509,6 +1509,13 @@ function [] = UNM_RemoveBadData(sitecode,year)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
     if iteration > 2
+        
+        [ fc_raw_massman_wpl, E_wpl_massman, CO2_mean, H2O_mean ] = ...
+            remove_specific_problem_periods( sitecode, year, ...
+                                             fc_raw_massman_wpl, ...
+                                             E_wpl_massman, ...
+                                             CO2_mean, ...
+                                             H2O_mean );
 
         [ DOY_co2_min, DOY_co2_max ] = get_daily_maxmin( month, ...
                                                          co2_min_by_month, ...
@@ -2287,13 +2294,46 @@ function [ doy_min, doy_max ] = get_daily_maxmin( data_month, ...
     
 %------------------------------------------------------------
 
+function [ fc_raw_massman_wpl, E_wpl_massman, CO2_mean, H2O_mean ] = ...
+    remove_specific_problem_periods( sitecode, year, ...
+                                     fc_raw_massman_wpl, ...
+                                     E_wpl_massman, ...
+                                     CO2_mean, ...
+                                     H2O_mean )
+
+% Helper function for UNM_RemoveBadData (RBD for short).  Specifies periods
+% where various flux observations did not activate any of the RBD filters,
+% yet are deemed biologically impossible.
+
+% anonymous function to calculate index into array of half-hourly
+% observations for a given day of year.
+obs_per_day = 48;
+DOYidx = @( DOY ) int32( ( obs_per_day * DOY ) - obs_per_day + 1 );
+
+% GLand 2007
+if ( ( sitecode == 1 ) & ( year == 2007 ) )
+
+    % IRGA problems
+    fc_raw_massman_wpl( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+    E_wpl_massman( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+    CO2_mean( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+    H2O_mean( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+    
+    % IRGA problems here -- big jump in [CO2] and suspicious looking fluxes
+    fc_raw_massman_wpl( DOYidx( 229 ) : DOYidx( 235 ) ) = NaN;
+end
+
+%------------------------------------------------------------
+
 function [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
         specify_siteyear_filter_exceptions( sitecode, year, ...
                                             DOY_co2_min, DOY_co2_max );
     
-% SPECIFY_SITEYEAR_MAXMIN_EXCEPTIONS - adds site-year-specific DOY-based CO2 NEE
-% max/min values to the DOY-based max-min arrays, specify corresponding
-% exceptions to standard deviation filter.
+% SPECIFY_SITEYEAR_MAXMIN_EXCEPTIONS - % Helper function for UNM_RemoveBadData
+% (RBD for short).  Adds site-year-specific DOY-based CO2 NEE max/min values to
+% the DOY-based max-min arrays, and defines exceptions to the standard deviation
+% filter.  This is meant to be applied to cases where measured NEE seems
+% biologically reasonable despite tripping one of the RBD filters.
 
 % anonymous function to calculate index into array of half-hourly
 % observations for a given day of year.
@@ -2303,15 +2343,8 @@ DOYidx = @( DOY ) int32( ( obs_per_day * DOY ) - obs_per_day + 1 );
 % initialize standard deviation filter exceptions to no exceptions
 std_exc_flag = repmat( false, size( DOY_co2_max ) );
 
-% GLand 2007
-if ( sitecode == 1 ) & ( year == 2007 )
-    
-    idx = DOYidx( 133 ) : DOYidx( 137 );
-    DOY_co2_min( idx ) = -4;
-    std_exc_flag( idx ) = true;
-    
     %GLand 2008
-elseif ( sitecode == 1 ) & ( year == 2008 )
+if ( sitecode == 1 ) & ( year == 2008 )
     idx = DOYidx( 184 ) : DOYidx( 186.5 );
     DOY_co2_max( idx ) = 15;
     std_exc_flag( idx ) = true;
@@ -2450,15 +2483,19 @@ end
 
 %------------------------------------------------------------
 
-function co2_conc_filter_exceptions = specify_siteyear_co2_conc_filter_exceptions( ...
-    sitecode, year, co2_conc_filter_exceptions ); 
+function co2_conc_filter_exceptions = ...
+    specify_siteyear_co2_conc_filter_exceptions( ...
+        sitecode, year, co2_conc_filter_exceptions ); 
+% Helper function for UNM_RemoveBadData (RBD for short).  Disables the high and
+% low CO2 concentration filters for specified time periods (noted in the code
+% below).  There are periods of incorrect [CO2] observations from the IRGA which
+% nonetheless contain reasonable CO2 NEE.  This allows us to keep those NEE
+% measurements.
 
 obs_per_day = 48;
 DOYidx = @( DOY ) ( ( obs_per_day * DOY ) - obs_per_day + 1 );
 
 if ( sitecode == 1 ) & ( year(1) == 2007 )
-    % DOY 302 to 333, 2009
-    co2_conc_filter_exceptions( DOYidx( 133 ) : DOYidx( 137 ) ) = true;
     co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
 end
 
@@ -2479,7 +2516,6 @@ if ( sitecode == 1 ) & ( year(1) == 2010 )
     co2_conc_filter_exceptions( DOYidx( 271 ) : DOYidx( 278 ) ) = true;
 end 
 if ( sitecode == 1 ) & ( year(1) == 2011 )
-    co2_conc_filter_exceptions( DOYidx( 97 ) : DOYidx( 104 ) ) = true;
     co2_conc_filter_exceptions( DOYidx( 153 ) : DOYidx( 160 ) ) = true;
 end 
 if ( sitecode == 2 ) & ( year == 2007 )
