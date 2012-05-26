@@ -15,30 +15,37 @@
 %
 % UNM_RemoveBadData_080310(sitecode,year)
 
-function [] = UNM_RemoveBadData(sitecode,year)
+function [] = UNM_RemoveBadData( sitecode, year, varargin )
 %clear all
 %close all
 
+% -----
+% define optional inputs, with defaults and typechecking
+% -----
+p = inputParser;
+p.addRequired( 'sitecode', @(x) isint( x ) | isa( x, 'UNM_sites' ) );
+p.addRequired( 'year', @isint );
+p.addParamValue( 'iteration', 6, @isint );
+p.addParamValue( 'write_QC', true, @islogical );
+p.addParamValue( 'write_for_gapfill', true, @islogical );
+p.addParamValue( 'draw_plots', true, @islogical );
+
+% parse optional inputs
+p.parse( sitecode, year, varargin{ : } );
+
+% place user arguments into variables
+sitecode = p.Results.sitecode;
+year = p.Results.year;
+
 % sitecode = 10;
 % year = 2011;
-    iteration = 6;
+iteration = int8( p.Results.iteration );
 
-    % sitecode key
-    % 1-GLand
-    % 2-SLand
-    % 3-JSav
-    % 4-PJ
-    % 5-PPine
-    % 6-MCon
-    % 7-TX_savanna
-    % 8-TX_forest
-    % 9-TX_grassland
-
-    write_complete_out_file = true; %true to write "[sitename].._qc", -- file
-                                    %with all variables & bad data removed
-    write_gap_filling_out_file = true; %true to write file for Reichstein's online
-                                       %gap-filling. SET U* LIM (including site-
-                                       %specific ones--comment out) TO 0!!!!!!!!!!
+%true to write "[sitename].._qc", -- file with all variables & bad data removed
+write_complete_out_file = p.Results.write_QC; 
+%true to write file for Reichstein's online gap-filling. SET U* LIM (including
+%site- specific ones--comment out) TO 0!!!!!!!!!!
+write_gap_filling_out_file = p.Results.write_for_gapfill; 
 
 
     data_for_analyses = 0; %1 to output file with data sorted for specific analyses
