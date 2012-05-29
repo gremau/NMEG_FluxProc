@@ -261,9 +261,12 @@ function ds = prepare_valles_met_data( ds, year, station )
     % these readings are hourly -- interpolate to 30 mins
     thirty_mins = 30 / ( 60 * 24 );  % thirty minutes in units of days
     ts_30 = ts + thirty_mins;
-    rh_interp = interp1( ts, ds.rh, ts_30 );
-    T_interp = interp1( ts, ds.airt, ts_30 );
-    Rg_interp = interp1( ts, ds.sol, ts_30 );
+    valid = find( ~isnan( ds.rh ) );
+    rh_interp = interp1( ts( valid ), ds.rh( valid ), ts_30 );
+    valid = find( ~isnan( ds.airt ) );
+    T_interp = interp1( ts( valid ), ds.airt( valid ), ts_30 );
+    valid = find( ~isnan( ds.sol ) );
+    Rg_interp = interp1( ts( valid ), ds.sol( valid ), ts_30 );
     
     ds = vertcat( ds, dataset( { [ ts_30, rh_interp, T_interp, Rg_interp ], ...
                                'timestamp', 'rh', 'airt', 'sol' } ) );
@@ -305,9 +308,12 @@ function ds = prepare_sev_met_data( ds, year, station )
     % these readings are hourly -- interpolate to 30 mins
     thirty_mins = 30 / ( 60 * 24 );  % thirty minutes in units of days
     ts_30 = ts + thirty_mins;
-    rh_interp = interp1( ts, ds.rH, ts_30 );
-    T_interp = interp1( ts, ds.Tair, ts_30 );
-    Rg_interp = interp1( ts, ds.Rg, ts_30 );
+    valid = find( ~isnan( ds.rH ) );
+    rh_interp = interp1( ts( valid ), ds.rH( valid ), ts_30 );
+    valid = find( ~isnan( ds.Tair ) );
+    T_interp = interp1( ts( valid ), ds.Tair( valid ), ts_30 );
+    valid = find( ~isnan( ds.Rg ) );
+    Rg_interp = interp1( ts( valid ), ds.Rg( valid ), ts_30 );
     
     ds = vertcat( ds, dataset( { [ ts_30, rh_interp, T_interp, Rg_interp ], ...
                                'timestamp', 'rH', 'Tair', 'Rg' } ) );
