@@ -1,5 +1,6 @@
 % This program was created by Krista Anderson Teixeira in July 2007
-% Modified by John DeLong 2008 through 2009
+% Modified by John DeLong 2008 through 2009.
+% Modifed by Timothy W. Hilton, 2011 through 2012
 %
 % The program reads site_fluxall_year excel files and pulls in a
 % combination of matlab processed ts data and data logged average 30-min
@@ -13,7 +14,30 @@
 % along with the sitecode (1-7 see below) and the year.  This means that it
 % only runs on files that are broken out by year.
 %
-% UNM_RemoveBadData_080310(sitecode,year)
+% USAGE
+%     UNM_RemoveBadData( sitecode, year )
+%     UNM_RemoveBadData( sitecode, year, iteration )
+%     UNM_RemoveBadData( sitecode, year, ..., write_QC )
+%     UNM_RemoveBadData( sitecode, year, ..., write_for_gapfill )
+%     UNM_RemoveBadData( sitecode, year, ..., draw_plots )
+%
+% INPUTS
+%     sitecode: UNM_sites object or integer; specifies site to process
+%     year: integer; year to process
+%     iteration: optional, integer 1-6; defines which set of bad data tasks
+%          to perform (see code for details)
+%     write_QC: optional, logical (default true); if true, writes flux_all_qc 
+%          file
+%     write_for_gapfill: optional, logical (default true); if true, writes
+%          flux_all_for_gapfilling file
+%     draw_plots: optional, logical (default true); if true, draws diagnostic
+%          plots.  If false, no plots are drawn.
+%
+% OUTPUTS:
+%     This function has no outputs
+%
+% (c) Timothy W. Hilton, UNM, May 2012
+
 
 function [] = UNM_RemoveBadData( sitecode, year, varargin )
 %clear all
@@ -23,9 +47,9 @@ function [] = UNM_RemoveBadData( sitecode, year, varargin )
 % define optional inputs, with defaults and typechecking
 % -----
 p = inputParser;
-p.addRequired( 'sitecode', @(x) isint( x ) | isa( x, 'UNM_sites' ) );
-p.addRequired( 'year', @isint );
-p.addParamValue( 'iteration', 6, @isint );
+p.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+p.addRequired( 'year', @isintval );
+p.addParamValue( 'iteration', 6, @isintval );
 p.addParamValue( 'write_QC', true, @islogical );
 p.addParamValue( 'write_for_gapfill', true, @islogical );
 p.addParamValue( 'draw_plots', true, @islogical );
