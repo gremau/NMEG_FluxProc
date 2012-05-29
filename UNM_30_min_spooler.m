@@ -99,8 +99,7 @@ elseif sitecode == 3 % JSav
         UNM_30min_flux_processor(3,2008,10207,10228);
         UNM_30min_flux_processor(3,2008,10923,10948);
     elseif year == 2009
-        UNM_30min_flux_processor_071610(3,2009,987,1558);
-        UNM_30min_flux_processor_071610(3,2009,1564,3095);
+        UNM_30min_flux_processor_071610(3,2009,987,3106);
         UNM_30min_flux_processor_071610(3,2009,6746,7962);
         UNM_30min_flux_processor_071610(3,2009,14716,16737);
     elseif year == 2010

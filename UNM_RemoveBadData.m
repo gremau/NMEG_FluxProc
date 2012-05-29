@@ -704,6 +704,9 @@ write_gap_filling_out_file = p.Results.write_for_gapfill;
     %initialize RH to NaN
     rH = repmat( NaN, size( data, 1), 1 );
 
+    % filter out absurd u_star values
+    u_star( u_star > 50 ) = NaN;
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Read in 30-min data, variable order and names in flux_all files are not  
     % consistent so match headertext
@@ -819,6 +822,9 @@ write_gap_filling_out_file = p.Results.write_for_gapfill;
         end
     end
 
+    % remove absurd precipitation measurements
+    precip( precip > 1000 ) = NaN;
+    
     if ismember( sitecode, [ 1, 2 ] ) & year(2) == 2009
         Par_Avg = combine_PARavg_PARlite( headertext, data );
     end
@@ -2342,16 +2348,45 @@ obs_per_day = 48;
 DOYidx = @( DOY ) int32( ( obs_per_day * DOY ) - obs_per_day + 1 );
 
 % GLand 2007
-if ( ( sitecode == 1 ) & ( year == 2007 ) )
-
-    % IRGA problems
-    fc_raw_massman_wpl( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
-    E_wpl_massman( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
-    CO2_mean( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
-    H2O_mean( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+switch sitecode
+  case UNM_sites.GLand
+    switch year
+      case 2007 
+        
+        % IRGA problems
+        fc_raw_massman_wpl( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+        E_wpl_massman( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+        CO2_mean( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+        H2O_mean( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+        
+        % IRGA problems here -- big jump in [CO2] and suspicious looking fluxes
+        fc_raw_massman_wpl( DOYidx( 229 ) : DOYidx( 235 ) ) = NaN;
     
-    % IRGA problems here -- big jump in [CO2] and suspicious looking fluxes
-    fc_raw_massman_wpl( DOYidx( 229 ) : DOYidx( 235 ) ) = NaN;
+      case 2011
+        
+        % IRGA problems
+        idx = DOYidx( 96 ) : DOYidx( 104 );
+        fc_raw_massman_wpl( idx ) = NaN;
+        E_wpl_massman( idx ) = NaN;
+        CO2_mean( idx ) = NaN;
+        H2O_mean( idx ) = NaN;
+        
+        idx = DOYidx( 342 ) : DOYidx( 348 );
+        fc_raw_massman_wpl( idx ) = NaN;
+        E_wpl_massman( idx ) = NaN;
+        CO2_mean( idx ) = NaN;
+        H2O_mean( idx ) = NaN;
+    end
+    
+  case UNM_sites.SLand
+    switch year
+      case 2011
+        idx = DOYidx( 342 ) : DOYidx( 348 );
+        fc_raw_massman_wpl( idx ) = NaN;
+        E_wpl_massman( idx ) = NaN;
+        CO2_mean( idx ) = NaN;
+        H2O_mean( idx ) = NaN;
+    end
 end
 
 %------------------------------------------------------------
@@ -2384,9 +2419,12 @@ if ( sitecode == 1 ) & ( year == 2008 )
 elseif ( sitecode == 1 ) & ( year == 2009 )
     idx = DOYidx( 245 ) : DOYidx( 255 );
     DOY_co2_max( idx ) = 1.5;
-
-    std_exc_flag( DOYidx( 328.4 ) : DOYidx( 328.6 ) ) = true;
-    std_exc_flag( DOYidx( 331.4 ) : DOYidx( 331.6 ) ) = true;
+    
+    % the site burned DOY 210, 2009.  Here we remove points in the period
+    % following the burn that look more like noise than biologically
+    % realistic carbon uptake.
+    DOY_co2_min( DOYidx( 210 ) : DOYidx( 256 ) ) = -0.5;
+    DOY_co2_min( DOYidx( 256 ) : DOYidx( 270 ) ) = -1.2;
     
     % GLand 2010
 elseif ( sitecode == 1 ) & ( year == 2010 )
@@ -2400,6 +2438,9 @@ elseif ( sitecode == 1 ) & ( year == 2011 )
     std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
     std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
     std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
+    
+    DOY_co2_min( DOYidx( 310 ) : end ) = -0.5;
+    DOY_co2_min( 1 : DOYidx( 210 ) ) = -0.5;
     
     %SLand 2008
 elseif ( sitecode == 2 ) & ( year == 2008 )
@@ -2444,6 +2485,8 @@ elseif ( sitecode == 3 ) & ( year == 2011 )
     std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
     std_exc_flag( DOYidx( 184.5 ) : DOYidx( 186 ) ) = true;
     std_exc_flag( DOYidx( 232.0 ) : DOYidx( 232.1 ) ) = true;
+
+    DOY_co2_min( 1 : DOYidx( 40 ) ) = -2.0;
     
     % PJ 2011
 elseif ( sitecode == 4 ) & ( year == 2011 )
@@ -2530,10 +2573,6 @@ if ( sitecode == 1 ) & ( year(1) == 2007 )
     co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
 end
 
-if ( sitecode == 1 ) & ( year(1) == 2009 )
-    % DOY 302 to 333, 2009
-    co2_conc_filter_exceptions( DOYidx( 302 ) : DOYidx( 333 ) ) = true;
-end
 % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
 % fluxes look OK.  TWH 27 Mar 2012
 if ( sitecode == 1 ) & ( year(1) == 2010 )
