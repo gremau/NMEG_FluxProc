@@ -21,7 +21,13 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
 %     result [ integer ]: 0 on success, -1 on failure
 %
 % (c) Timothy W. Hilton, UNM, March 2012
-    
+  
+if isintval( sitecode )
+    sitecode = UNM_sites( sitecode )
+else
+    error( 'sitecode must be an integer' );
+end
+
 % initialize
 result = -1;
 nearby_2 = [];
@@ -38,7 +44,7 @@ this_data = parse_forgapfilling_file( sitecode, year, filled_file_false );
 % parse data with which to fill T & RH
                 
 switch sitecode    
-  case 1    % fill GLand from SLand, then Sev Deep Well station (# 40)
+  case UNM_sites.GLand    % fill GLand from SLand, then Sev Deep Well station (# 40)
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 2 ), year );  %
     nearby_data = parse_forgapfilling_file( 2, year, filled_file_false );
@@ -47,7 +53,7 @@ switch sitecode
         nearby_2 = UNM_parse_sev_met_data( year );
         nearby_2 = prepare_sev_met_data( nearby_2, year, 40 );
     end
-  case 2    % fill SLand from GLand, then Sev Five Points station (# 49 )
+  case UNM_sites.SLand    % fill SLabnd from GLand, then Sev Five Points station (# 49 )
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
     nearby_data = parse_forgapfilling_file( 1, year, filled_file_false );
@@ -56,11 +62,11 @@ switch sitecode
         nearby_2 = UNM_parse_sev_met_data( year );
         nearby_2 = prepare_sev_met_data( nearby_2, year, 49 );
     end
-  case 3    % fill JSav from PJ, with regressions
+  case UNM_sites.JSav    % fill JSav from PJ, with regressions
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 4 ), year );
     nearby_data = parse_forgapfilling_file( 4, year, filled_file_false );
-  case 4     % fill PJ from PJ girdle    
+  case UNM_sites.PJ     % fill PJ from PJ girdle    
     if year > 2009  % use PJ_girdle after 2009
         fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
                  get_site_name( 10 ), year );
@@ -70,19 +76,22 @@ switch sitecode
                  get_site_name( 3 ), year );
         nearby_data = parse_forgapfilling_file( 3, year, filled_file_false );
     end
-  case 5     % fill PPine from Valles Caldera HQ met station ( station 11 )
+  case UNM_sites.PPine     % fill PPine from Valles Caldera HQ met station (
+                           % station 11 ) 
     fprintf( 'parsing Valles Caldera headquarters met station ("source")\n' );
     nearby_data = UNM_parse_valles_met_data( year );
     nearby_data = prepare_valles_met_data( nearby_data, year, 11 );
-  case 6     % fill MCon from Valles Caldera Redondo met station ( station 14 )
+  case UNM_sites.MCon     % fill MCon from Valles Caldera Redondo met station
+                          % ( station 14 )
+    
     fprintf( 'parsing Valles Caldera Redondo met station ("source")\n' );
     nearby_data =UNM_parse_valles_met_data( year );
     nearby_data = prepare_valles_met_data( nearby_data, year, 14 );
-  case 10    % fill PJ_girdle from PJ
+  case UNM_sites.PJ_girdle    % fill PJ_girdle from PJ
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 4 ), year );
     nearby_data = parse_forgapfilling_file( 4, year, filled_file_false );
-  case 11    % fill New_GLand from GLand
+  case UNM_sites.New_GLand    % fill New_GLand from GLand
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
     nearby_data = parse_forgapfilling_file( 1, year, filled_file_false );
