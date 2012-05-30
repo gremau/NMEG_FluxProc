@@ -43,13 +43,17 @@ function [] = UNM_RemoveBadData( sitecode, year, varargin )
 %clear all
 %close all
 
+[ this_year, ~, ~ ] = datevec( now );
+
 % -----
 % define optional inputs, with defaults and typechecking
 % -----
 p = inputParser;
 p.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
-p.addRequired( 'year', @isintval );
-p.addParamValue( 'iteration', 6, @isintval );
+p.addRequired( 'year', ...
+               @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
+p.addParamValue( 'iteration', 6, ...
+                 @(x) ( isintval( x ) & ( x >= 1 ) & ( x <= 6 ) ) );
 p.addParamValue( 'write_QC', true, @islogical );
 p.addParamValue( 'write_for_gapfill', true, @islogical );
 p.addParamValue( 'draw_plots', true, @islogical );
@@ -828,7 +832,7 @@ write_gap_filling_out_file = p.Results.write_for_gapfill;
     if ismember( sitecode, [ 1, 2 ] ) & year(2) == 2009
         Par_Avg = combine_PARavg_PARlite( headertext, data );
     end
-
+    
     if ismember( sitecode, [ 3, 4 ] )
         % use "RH" at JSav, PJ
         rh_col = find( strcmp( 'RH', headertext ) ) - 1;
@@ -1327,6 +1331,11 @@ write_gap_filling_out_file = p.Results.write_for_gapfill;
         NR_tot = NR_lw + NR_sw;
     end
 
+    % normalize PAR to account for calibration problems at some sites
+    if ismember( sitecode, [ 1, 2 ] )
+        Par_Avg = normalize_PAR( sitecode, Par_Avg, decimal_day );
+    end
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Apply Burba 2008 correction for sensible heat conducted from 7500
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1548,13 +1557,14 @@ write_gap_filling_out_file = p.Results.write_for_gapfill;
     if iteration > 2
         
         [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
-          CO2_mean, H2O_mean ] = ...
+          CO2_mean, H2O_mean, atm_press ] = ...
             remove_specific_problem_periods( sitecode, year2, ...
                                              fc_raw_massman_wpl, ...
                                              E_wpl_massman, ...
                                              HL_wpl_massman, ...
                                              CO2_mean, ...
-                                             H2O_mean );
+                                             H2O_mean, ...
+                                             atm_press );
 
         [ DOY_co2_min, DOY_co2_max ] = get_daily_maxmin( month, ...
                                                          co2_min_by_month, ...
@@ -1606,6 +1616,8 @@ write_gap_filling_out_file = p.Results.write_for_gapfill;
             lowco2flag = find(CO2_mean <250);
         elseif sitecode == 8 && year(1) ==2008
             lowco2flag = find(CO2_mean <250);
+        elseif sitecode == 1 && year(1) ==2007
+            lowco2flag = find(CO2_mean <344);
         else
             lowco2flag = find(CO2_mean <350);
         end
@@ -1868,9 +1880,14 @@ write_gap_filling_out_file = p.Results.write_for_gapfill;
 
     % QC for HL_wpl_massman
     LH_min = -20;  %as per Jim Heilman, 28 Mar 2012
+    % if PAR measurement exists, use this to remove nighttime LE, otherwise
+    % use NR_tot
+    LH_rad = Par_Avg;
+    LH_rad( isnan( LH_rad ) ) = NR_tot( isnan( LH_rad ) );
+
     LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
-    LH_night_flag = ( Par_Avg < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
-    LH_day_flag = ( Par_Avg >= 20.0 ) & ( HL_wpl_massman < 0.0 );
+    LH_night_flag = ( LH_rad < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
+    LH_day_flag = ( LH_rad >= 20.0 ) & ( HL_wpl_massman < 0.0 );
     script_debug_LE;
     removed_LH_wpl_mass = numel( find( LH_maxmin_flag | ...
                                        LH_night_flag | ...
@@ -2334,13 +2351,14 @@ function [ doy_min, doy_max ] = get_daily_maxmin( data_month, ...
 %------------------------------------------------------------
 
 function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
-           CO2_mean, H2O_mean ] = ...
+           CO2_mean, H2O_mean, atm_press ] = ...
     remove_specific_problem_periods( sitecode, year, ...
                                      fc_raw_massman_wpl, ...
                                      E_wpl_massman, ...
                                      HL_wpl_massman, ...
                                      CO2_mean, ...
-                                     H2O_mean )
+                                     H2O_mean, ...
+                                     atm_press )
 
 % Helper function for UNM_RemoveBadData (RBD for short).  Specifies periods
 % where various flux observations did not activate any of the RBD filters,
@@ -2368,6 +2386,9 @@ switch sitecode
         % IRGA problems here -- big jump in [CO2] and suspicious looking fluxes
         fc_raw_massman_wpl( DOYidx( 229 ) : DOYidx( 235 ) ) = NaN;
     
+        % remove ridiculous drop in pressure
+        atm_pres( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+
       case 2011
         
         % IRGA problems
@@ -2384,6 +2405,10 @@ switch sitecode
         HL_wpl_massman( idx ) = NaN;
         CO2_mean( idx ) = NaN;
         H2O_mean( idx ) = NaN;
+        
+        % [CO2] concentration calibration problem
+        idx = DOYidx( 131.6 ) : DOYidx( 164.6 );
+        CO2_mean( idx ) = CO2_mean( idx ) + 10.0;
     end
     
   case UNM_sites.SLand
@@ -2512,6 +2537,9 @@ elseif (sitecode == 5 ) & ( year == 2011 )
     
     %MCon 2007
 elseif (sitecode == 6 ) & ( year == 2007 )
+    idx = DOYidx( 120.35 ) : DOYidx( 120.55 );
+    std_exc_flag( idx ) = true;
+    DOY_co2_min( idx ) = -15;
     std_exc_flag( DOYidx( 292.4 ) : DOYidx( 294.5 ) ) = true;
     std_exc_flag( DOYidx( 293.5 ) : DOYidx( 293.6 ) ) = true;
     std_exc_flag( DOYidx( 301.5 ) : DOYidx( 301.7 ) ) = true;
@@ -2614,3 +2642,30 @@ if (sitecode == 8 ) & ( year == 2009 )
     % days 1 to 40.5 -- low [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 1 ) : DOYidx( 40.5 ) ) = true;
 end
+
+%------------------------------------------------------------
+
+function par_norm = normalize_PAR( sitecode, par, doy )
+% NORMALIZE_PAR - normalizes PAR to a site-specific maximum.
+%   
+
+par_max = 2500;
+doy = floor( doy );
+
+if ismember( sitecode, 5:9 )
+    fprintf( 'PAR normalization not yet implemented for %s\n', ...
+             char( UNM_sites( sitecode ) ) );
+end
+
+daily_obs_par_max = accumarray( doy, par, [], @max );
+% fit a parabola to the observed PAR
+doy365 = ( 1:numel( daily_obs_par_max ) )';
+par_fit_coeff = polyfit( doy365, daily_obs_par_max, 2 );
+
+par_fit = polyval( par_fit_coeff, doy365 );
+
+norm_factor = par_max / max( par_fit );
+
+par_norm = par * norm_factor;
+
+keyboard
