@@ -219,6 +219,7 @@ elseif sitecode == 6 % MCon
     elseif year == 2011 % added by Mike Fuller
         UNM_30min_flux_processor_071610(6, 2011, 1530,1609);
         UNM_30min_flux_processor_071610(6, 2011, 1781,2236);
+        UNM_30min_flux_processor_071610(6, 2011, 10778, 11369);
     end
 
 elseif sitecode == 7 % TX_savanna
