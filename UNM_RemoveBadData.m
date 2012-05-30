@@ -1547,10 +1547,12 @@ write_gap_filling_out_file = p.Results.write_for_gapfill;
 
     if iteration > 2
         
-        [ fc_raw_massman_wpl, E_wpl_massman, CO2_mean, H2O_mean ] = ...
-            remove_specific_problem_periods( sitecode, year, ...
+        [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
+          CO2_mean, H2O_mean ] = ...
+            remove_specific_problem_periods( sitecode, year2, ...
                                              fc_raw_massman_wpl, ...
                                              E_wpl_massman, ...
+                                             HL_wpl_massman, ...
                                              CO2_mean, ...
                                              H2O_mean );
 
@@ -2331,10 +2333,12 @@ function [ doy_min, doy_max ] = get_daily_maxmin( data_month, ...
     
 %------------------------------------------------------------
 
-function [ fc_raw_massman_wpl, E_wpl_massman, CO2_mean, H2O_mean ] = ...
+function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
+           CO2_mean, H2O_mean ] = ...
     remove_specific_problem_periods( sitecode, year, ...
                                      fc_raw_massman_wpl, ...
                                      E_wpl_massman, ...
+                                     HL_wpl_massman, ...
                                      CO2_mean, ...
                                      H2O_mean )
 
@@ -2354,10 +2358,12 @@ switch sitecode
       case 2007 
         
         % IRGA problems
-        fc_raw_massman_wpl( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
-        E_wpl_massman( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
-        CO2_mean( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
-        H2O_mean( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+        idx = DOYidx( 156 ) : DOYidx( 163 );
+        fc_raw_massman_wpl( idx ) = NaN;
+        E_wpl_massman( idx ) = NaN;
+        HL_wpl_massman( idx ) = NaN;
+        CO2_mean( idx  ) = NaN;
+        H2O_mean( idx ) = NaN;
         
         % IRGA problems here -- big jump in [CO2] and suspicious looking fluxes
         fc_raw_massman_wpl( DOYidx( 229 ) : DOYidx( 235 ) ) = NaN;
@@ -2368,12 +2374,14 @@ switch sitecode
         idx = DOYidx( 96 ) : DOYidx( 104 );
         fc_raw_massman_wpl( idx ) = NaN;
         E_wpl_massman( idx ) = NaN;
+        HL_wpl_massman( idx ) = NaN;
         CO2_mean( idx ) = NaN;
         H2O_mean( idx ) = NaN;
         
         idx = DOYidx( 342 ) : DOYidx( 348 );
         fc_raw_massman_wpl( idx ) = NaN;
         E_wpl_massman( idx ) = NaN;
+        HL_wpl_massman( idx ) = NaN;
         CO2_mean( idx ) = NaN;
         H2O_mean( idx ) = NaN;
     end
@@ -2386,6 +2394,7 @@ switch sitecode
         E_wpl_massman( idx ) = NaN;
         CO2_mean( idx ) = NaN;
         H2O_mean( idx ) = NaN;
+        HL_wpl_massman( idx ) = NaN;
     end
 end
 
@@ -2457,10 +2466,6 @@ elseif  ( sitecode == 2 ) & ( year == 2011 )
     DOY_co2_max( idx ) = 7;
     std_exc_flag( idx ) = true;
     
-    idx = DOYidx( 342 ) : DOYidx( 346 );
-    DOY_co2_max( idx ) = 8;
-    std_exc_flag( idx ) = true;
-    
     idx = DOYidx( 99  ) : DOYidx( 101 );
     DOY_co2_min( idx ) = -4;
     std_exc_flag( idx ) = true;
@@ -2476,6 +2481,9 @@ elseif  ( sitecode == 3 ) & ( year == 2008 )
     idx = DOYidx( 215 ) : DOYidx( 240 );
     DOY_co2_min( idx ) = -12.0;
     % JSav 2011
+elseif ( sitecode == 3 ) & ( year == 2011 )
+    std_exc_flag( DOYidx( 313.4 ) : DOYidx( 313.6 ) ) = true;
+
 elseif ( sitecode == 3 ) & ( year == 2011 )
     std_exc_flag( DOYidx( 12.5 ) : DOYidx( 12.6 ) ) = true;
     std_exc_flag( DOYidx( 17.4 ) : DOYidx( 17.6 ) ) = true;
