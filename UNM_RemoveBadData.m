@@ -2649,23 +2649,27 @@ function par_norm = normalize_PAR( sitecode, par, doy )
 % NORMALIZE_PAR - normalizes PAR to a site-specific maximum.
 %   
 
-par_max = 2500;
-doy = floor( doy );
-
 if ismember( sitecode, 5:9 )
     fprintf( 'PAR normalization not yet implemented for %s\n', ...
              char( UNM_sites( sitecode ) ) );
 end
 
-daily_obs_par_max = accumarray( doy, par, [], @max );
-% fit a parabola to the observed PAR
-doy365 = ( 1:numel( daily_obs_par_max ) )';
-par_fit_coeff = polyfit( doy365, daily_obs_par_max, 2 );
-
-par_fit = polyval( par_fit_coeff, doy365 );
-
-norm_factor = par_max / max( par_fit );
-
+par_max = 2500;
+doy = floor( doy );
+norm_factor = par_max / prctile( par, 99.8 )
 par_norm = par * norm_factor;
 
-keyboard
+figure( 'NumberTitle', 'off', ...
+        'Name', 'PAR normalization' );
+
+max_par = nanmax( [ par, par_norm ] );
+
+pal = brewer_palettes( 'Dark2' );
+h_par = plot( doy, par, 'ok' );
+hold on
+h_par_norm = plot( doy, par_norm, 'x', 'Color', pal( 1, : ) );
+hold off
+xlabel( 'PAR [W/m^2]' );
+xlabel( 'DOY' );
+legend( [ h_par, h_par_norm ], 'PAR (obs)', 'PAR (normalized)', ...
+        'Location', 'best' );
