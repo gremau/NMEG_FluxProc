@@ -2369,6 +2369,11 @@ function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
 obs_per_day = 48;
 DOYidx = @( DOY ) int32( ( obs_per_day * DOY ) - obs_per_day + 1 );
 
+% if sitecode passed as integer, convert to UNM_sites object
+if not( isa( sitecode, 'UNM_sites' ) )
+    sitecode = UNM_sites( sitecode );
+end
+
 % GLand 2007
 switch sitecode
   case UNM_sites.GLand
@@ -2387,7 +2392,7 @@ switch sitecode
         fc_raw_massman_wpl( DOYidx( 229 ) : DOYidx( 235 ) ) = NaN;
     
         % remove ridiculous drop in pressure
-        atm_pres( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+        atm_press( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
 
       case 2011
         
@@ -2618,8 +2623,8 @@ if ( sitecode == 1 ) & ( year(1) == 2010 )
     co2_conc_filter_exceptions( 4128:5764 ) = true;
     co2_conc_filter_exceptions( 7296:8064 ) = true;    
     % days 253:257 -- bogus [CO2] but fluxes look ok
-    co2_conc_filter_exceptions( DOYidx( 218 ) : DOYidx( 229 ) ) = true;
-    co2_conc_filter_exceptions( DOYidx( 271 ) : DOYidx( 278 ) ) = true;
+    co2_conc_filter_exceptions( DOYidx( 218 ) : DOYidx( 223 ) ) = true;
+    %co2_conc_filter_exceptions( DOYidx( 271 ) : DOYidx( 278 ) ) = true;
 end 
 if ( sitecode == 1 ) & ( year(1) == 2011 )
     co2_conc_filter_exceptions( DOYidx( 153 ) : DOYidx( 160 ) ) = true;
@@ -2669,7 +2674,7 @@ h_par = plot( doy, par, 'ok' );
 hold on
 h_par_norm = plot( doy, par_norm, 'x', 'Color', pal( 1, : ) );
 hold off
-xlabel( 'PAR [W/m^2]' );
+ylabel( 'PAR [W/m^2]' );
 xlabel( 'DOY' );
 legend( [ h_par, h_par_norm ], 'PAR (obs)', 'PAR (normalized)', ...
         'Location', 'best' );

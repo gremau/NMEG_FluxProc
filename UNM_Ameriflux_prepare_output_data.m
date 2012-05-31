@@ -183,6 +183,13 @@ function [ amflux_gaps, amflux_gf ] = ...
         SHF_vars = ds_soil( :, regexp_ds_vars( ds_soil, 'SHF.*' ) );    
         SHF_mean = nanmean( double( SHF_vars ), 2 );
     end
+
+    % do not include [CO2] for GLand 2009, 2010 -- the calibrations are
+    % really bad.
+    if ( sitecode == 1 ) & ismember( year, [ 2009, 2010 ] )
+        ds_qc.CO2_mean( : ) = dummy;
+    end
+       
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % place calculated values into Matlab datasets 
