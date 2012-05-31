@@ -104,7 +104,6 @@ end
 
 %--------------------------------------------------
 % sychronize nearby_site timestamps to this_data timestamps
-save
 seconds = repmat( 0.0, size( this_data, 1 ), 1 );
 ts = datenum( this_data.year, this_data.month, this_data.day, ...
               this_data.hour, this_data.minute, seconds );
