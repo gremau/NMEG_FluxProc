@@ -16,10 +16,10 @@
 %
 % USAGE
 %     UNM_RemoveBadData( sitecode, year )
-%     UNM_RemoveBadData( sitecode, year, iteration )
-%     UNM_RemoveBadData( sitecode, year, ..., write_QC )
-%     UNM_RemoveBadData( sitecode, year, ..., write_for_gapfill )
-%     UNM_RemoveBadData( sitecode, year, ..., draw_plots )
+%     UNM_RemoveBadData( sitecode, year, 'iteration', iteration )
+%     UNM_RemoveBadData( sitecode, year, ..., 'write_QC', write_QC )
+%     UNM_RemoveBadData( sitecode, year, ..., 'write_GF', write_GF )
+%     UNM_RemoveBadData( sitecode, year, ..., 'draw_plots', draw_plots )
 %
 % INPUTS
 %     sitecode: UNM_sites object or integer; specifies site to process
@@ -28,7 +28,7 @@
 %          to perform (see code for details)
 %     write_QC: optional, logical (default true); if true, writes flux_all_qc 
 %          file
-%     write_for_gapfill: optional, logical (default true); if true, writes
+%     write_GF: optional, logical (default true); if true, writes
 %          flux_all_for_gapfilling file
 %     draw_plots: optional, logical (default true); if true, draws diagnostic
 %          plots.  If false, no plots are drawn.
@@ -55,7 +55,7 @@ p.addRequired( 'year', ...
 p.addParamValue( 'iteration', 6, ...
                  @(x) ( isintval( x ) & ( x >= 1 ) & ( x <= 6 ) ) );
 p.addParamValue( 'write_QC', true, @islogical );
-p.addParamValue( 'write_for_gapfill', true, @islogical );
+p.addParamValue( 'write_GF', true, @islogical );
 p.addParamValue( 'draw_plots', true, @islogical );
 
 % parse optional inputs
@@ -73,7 +73,7 @@ iteration = int8( p.Results.iteration );
 write_complete_out_file = p.Results.write_QC; 
 %true to write file for Reichstein's online gap-filling. SET U* LIM (including
 %site- specific ones--comment out) TO 0!!!!!!!!!!
-write_gap_filling_out_file = p.Results.write_for_gapfill; 
+write_gap_filling_out_file = p.Results.write_GF; 
 
 
     data_for_analyses = 0; %1 to output file with data sorted for specific analyses
