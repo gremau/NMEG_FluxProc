@@ -141,7 +141,11 @@ function [ amflux_gaps, amflux_gf ] = ...
     ds_qc.lw_incoming( HL( ds_qc.lw_incoming, 120, 600 ) ) = NaN;
     ds_qc.lw_outgoing( HL( ds_qc.lw_outgoing, 120, 650 ) ) = NaN;
     ds_qc.E_wpl_massman( HL( ds_qc.E_wpl_massman .* 18, -5, 500 ) ) = NaN;
-    ds_qc.CO2_mean( HL( ds_qc.CO2_mean, 350, Inf ) ) = NaN;
+    if ( sitecode == 1 ) & ( year == 2007 )
+        ds_qc.CO2_mean( HL( ds_qc.CO2_mean, 344, Inf ) ) = NaN;
+    else
+        ds_qc.CO2_mean( HL( ds_qc.CO2_mean, 350, Inf ) ) = NaN;
+    end
     ds_qc.wnd_spd( HL( ds_qc.wnd_spd, -Inf, 25  ) ) = NaN;
     ds_qc.atm_press( HL( ds_qc.atm_press, 20, 150 ) ) = NaN;
     ds_qc.Par_Avg( HL( ds_qc.Par_Avg, -100, 5000 ) ) = NaN;

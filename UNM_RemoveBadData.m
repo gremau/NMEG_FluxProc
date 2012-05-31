@@ -2387,13 +2387,22 @@ switch sitecode
         HL_wpl_massman( idx ) = NaN;
         CO2_mean( idx  ) = NaN;
         H2O_mean( idx ) = NaN;
+        atm_press( idx ) = NaN;
         
         % IRGA problems here -- big jump in [CO2] and suspicious looking fluxes
-        fc_raw_massman_wpl( DOYidx( 229 ) : DOYidx( 235 ) ) = NaN;
-    
-        % remove ridiculous drop in pressure
-        atm_press( DOYidx( 156 ) : DOYidx( 163 ) ) = NaN;
+        idx = DOYidx( 228.5 ) : DOYidx( 235.5 );
+        fc_raw_massman_wpl( idx ) = NaN;
+        H2O_mean( idx ) = NaN;
 
+      case 2010
+        % IRGA problems
+        idx = DOYidx( 102 ) : DOYidx( 119.5 );
+        E_wpl_massman( idx ) = NaN;
+        HL_wpl_massman( idx ) = NaN;
+        H2O_mean( idx ) = NaN;
+        
+        H2O_mean( DOYidx( 85.5 ) : DOYidx( 102.5 ) ) = NaN;
+        
       case 2011
         
         % IRGA problems
