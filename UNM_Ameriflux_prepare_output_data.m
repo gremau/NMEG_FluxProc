@@ -38,6 +38,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     VPD_g( ~isnan( ds_qc.rH ) ) = VPD_f( ~isnan( ds_qc.rH ) );
     Tair_f = ds_pt.Tair_f;
     Rg_f = ds_pt.Rg_f;
+    Rg_f( ds_pt.Rg_fqcOK == 0 ) = NaN;
     Rg_f( HL( Rg_f, 0, Inf ) ) = NaN;
 
     % set met flags to zero where observations exist
