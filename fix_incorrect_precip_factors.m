@@ -24,12 +24,12 @@ if site_code == 1     % Gland
 
 %%-------------------------
 %% fix SLand
-elseif site_code == 2      %SLand
-    idx = ( year == 2011 );
-    if any( idx )
-        pcp_fixed( idx ) = -9999;
-        % now fill in precip record from Sevilleta meteo station 49 
-    end
+% elseif site_code == 2      %SLand
+%     idx = ( year == 2011 );
+%     if any( idx )
+%         pcp_fixed( idx ) = -9999;
+%         % now fill in precip record from Sevilleta meteo station 49 
+%     end
     
 
 %%-------------------------

@@ -213,7 +213,7 @@ write_gap_filling_out_file = p.Results.write_GF;
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
         wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
         Tdry_min = 240; Tdry_max = 320;
-        HS_min = -100; HS_max = 450;
+        HS_min = -100; HS_max = 550;
         HSmass_min = -100; HSmass_max = 450;
         LH_min = -150; LH_max = 450;
         rH_min = 0; rH_max = 1;
@@ -1079,7 +1079,9 @@ write_gap_filling_out_file = p.Results.write_GF;
         if year2 == 2007
             % was this a Q*7 through the big change on 5/30/07? need updated
             % calibration
-            for i = 1:6816
+            may30 = 48 * ( datenum( 2007, 5, 30 ) - datenum( 2007, 1, 1 ) );
+            for i = 1:may30
+            %for i = 1:6816
                 if NR_tot(1) < 0
                     NR_tot(i) = NR_tot(i)*10.74*((0.00174*wnd_spd(i)) + 0.99755);
                 elseif NR_tot(1) > 0
@@ -1332,9 +1334,37 @@ write_gap_filling_out_file = p.Results.write_GF;
     end
 
     % normalize PAR to account for calibration problems at some sites
-    if ismember( sitecode, [ 1, 2 ] )
-        Par_Avg = normalize_PAR( sitecode, Par_Avg, decimal_day );
+    if ismember( sitecode, [ 1, 2, 3, 4, 10, 11 ] );
+        if ( sitecode == 3 ) & ( year == 2008 )
+            % there is a small but suspicious-looking step change at DOY164 -
+            % normalize the first half of the year separately from the second
+            doy164 = DOYidx( 164 );
+            Par_Avg1 = normalize_PAR( sitecode, ...
+                                      Par_Avg( 1:doy164 ), ...
+                                      decimal_day( 1:doy164 ) );
+            Par_Avg2 = normalize_PAR( sitecode, ...
+                                      Par_Avg( doy164:end ), ...
+                                      decimal_day( doy164:end ) );
+            Par_Avg = [ Par_Avg1, Par_Avg2 ];
+
+        elseif ( sitecode == 10 ) & ( year == 2010 )
+            % two step changes in this one
+            doy138 = DOYidx( 138 );
+            doy341 = DOYidx( 341 );
+            Par_Avg1 = normalize_PAR( sitecode, ...
+                                      Par_Avg( 1:doy138 ), ...
+                                      decimal_day( 1:doy138 ) );
+            Par_Avg2 = normalize_PAR( sitecode, ...
+                                      Par_Avg( doy138:doy341 ), ...
+                                      decimal_day( doy138:doy341 ) );
+            Par_Avg = [ Par_Avg1, Par_Avg2, Par_Avg( doy341:end ) ];
+        else
+            Par_Avg = normalize_PAR( sitecode, Par_Avg, decimal_day );
+        end
     end
+
+    % remove negative Rg_out values
+    sw_outgoing( sw_outgoing < 0 ) = NaN;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Apply Burba 2008 correction for sensible heat conducted from 7500
@@ -1557,14 +1587,18 @@ write_gap_filling_out_file = p.Results.write_GF;
     if iteration > 2
         
         [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
-          CO2_mean, H2O_mean, atm_press ] = ...
+          CO2_mean, H2O_mean, atm_press, NR_tot, sw_outgoing, ...
+          lw_outgoing ] = ...
             remove_specific_problem_periods( sitecode, year2, ...
                                              fc_raw_massman_wpl, ...
                                              E_wpl_massman, ...
                                              HL_wpl_massman, ...
                                              CO2_mean, ...
                                              H2O_mean, ...
-                                             atm_press );
+                                             atm_press, ...
+                                             NR_tot, ...
+                                             sw_outgoing, ...
+                                             lw_outgoing );
 
         [ DOY_co2_min, DOY_co2_max ] = get_daily_maxmin( month, ...
                                                          co2_min_by_month, ...
@@ -2351,23 +2385,22 @@ function [ doy_min, doy_max ] = get_daily_maxmin( data_month, ...
 %------------------------------------------------------------
 
 function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
-           CO2_mean, H2O_mean, atm_press ] = ...
+           CO2_mean, H2O_mean, atm_press, NR_tot, sw_outgoing, ...
+           lw_outgoing ] = ...
     remove_specific_problem_periods( sitecode, year, ...
                                      fc_raw_massman_wpl, ...
                                      E_wpl_massman, ...
                                      HL_wpl_massman, ...
                                      CO2_mean, ...
                                      H2O_mean, ...
-                                     atm_press )
+                                     atm_press, ...
+                                     NR_tot, ...
+                                     sw_outgoing, ...
+                                     lw_outgoing )
 
 % Helper function for UNM_RemoveBadData (RBD for short).  Specifies periods
 % where various flux observations did not activate any of the RBD filters,
 % yet are deemed biologically impossible.
-
-% anonymous function to calculate index into array of half-hourly
-% observations for a given day of year.
-obs_per_day = 48;
-DOYidx = @( DOY ) int32( ( obs_per_day * DOY ) - obs_per_day + 1 );
 
 % if sitecode passed as integer, convert to UNM_sites object
 if not( isa( sitecode, 'UNM_sites' ) )
@@ -2427,6 +2460,12 @@ switch sitecode
     
   case UNM_sites.SLand
     switch year
+      case 2007
+        NR_tot( DOYidx( 143 ) : DOYidx( 151 ) ) = NaN;
+        sw_outgoing( DOYidx( 150 ) : DOYidx( 162 ) ) = NaN;
+      case 2009
+        CO2_mean( DOYidx( 139 ) : DOYidx( 142 ) ) = NaN;
+        CO2_mean( DOYidx( 287.5 ) : DOYidx( 290.8 ) ) = NaN;
       case 2011
         idx = DOYidx( 342 ) : DOYidx( 348 );
         fc_raw_massman_wpl( idx ) = NaN;
@@ -2434,6 +2473,31 @@ switch sitecode
         CO2_mean( idx ) = NaN;
         H2O_mean( idx ) = NaN;
         HL_wpl_massman( idx ) = NaN;
+    end
+    
+  case UNM_sites.JSav
+    switch year
+      case 2010
+        lw_outgoing( DOYidx( 130.4 ) : DOYidx( 131.4 ) ) = NaN;
+        lw_outgoing( DOYidx( 331.4 ) : DOYidx( 332.7 ) ) = NaN;
+        H2O_mean( DOYidx( 221 ) : DOYidx( 229 ) ) = NaN;
+    end
+    
+  case UNM_sites.PJ_girdle
+    switch year
+      case 2009
+        CO2_mean( DOYidx( 131.4 ) : DOYidx( 141.5 ) ) = NaN;
+        CO2_mean( DOYidx( 284 ) : DOYidx( 293.65 ) ) = NaN;
+    end
+    
+  case UNM_sites.MCon
+    switch year
+      case 2010
+        idx = DOYidx( 134.4 ) : DOYidx( 146.5 );
+        CO2_mean( idx ) = CO2_mean( idx ) + 10;
+        
+        idx = DOYidx( 301.6 ) : DOYidx( 344.7 );
+        CO2_mean( idx ) = CO2_mean( idx ) - 17;
     end
 end
 
@@ -2448,11 +2512,6 @@ function [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
 % the DOY-based max-min arrays, and defines exceptions to the standard deviation
 % filter.  This is meant to be applied to cases where measured NEE seems
 % biologically reasonable despite tripping one of the RBD filters.
-
-% anonymous function to calculate index into array of half-hourly
-% observations for a given day of year.
-obs_per_day = 48;
-DOYidx = @( DOY ) int32( ( obs_per_day * DOY ) - obs_per_day + 1 );
 
 % initialize standard deviation filter exceptions to no exceptions
 std_exc_flag = repmat( false, size( DOY_co2_max ) );
@@ -2505,13 +2564,8 @@ elseif  ( sitecode == 2 ) & ( year == 2011 )
     DOY_co2_max( idx ) = 7;
     std_exc_flag( idx ) = true;
     
-    idx = DOYidx( 99  ) : DOYidx( 101 );
-    DOY_co2_min( idx ) = -4;
-    std_exc_flag( idx ) = true;
-    
-    idx = DOYidx( 80  ) : DOYidx( 81 );
-    DOY_co2_min( idx ) = -4;
-    std_exc_flag( idx ) = true;
+    idx = DOYidx( 80  ) : DOYidx( 100 );
+    DOY_co2_min( idx ) = -0.7;
     
     std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
 
