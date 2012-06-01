@@ -270,12 +270,12 @@ datarange2 = strcat(data2c1,num2str(first_row),':',data2c2,num2str(last_row));
 DATA_IN = num;
 
 % timestamps are text so read them in separately
-[num text] = xlsread(filein,strcat(timestamp_col,num2str(first_row),':',timestamp_col,num2str(last_row))); 
+[num text] = xlsread(filein,strcat(timestamp_col,num2str(first_row),':',timestamp_col,num2str(last_row)));
 timestamp = text; % assign timestamp array
 
 % added by MF
 try
-    [year2 month day hour minute second] = datevec(timestamp) % ,'dd/mm/yyyy HH:MM:SS'); %break timestamp into usable data and time variables
+    [year2 month day hour minute second] = datevec(timestamp); % ,'dd/mm/yyyy HH:MM:SS'); %break timestamp into usable data and time variables
     %[year month day hour minute second] = datevec(timestamp); %break timestamp into usable data and time variables
 catch err
     error('timestamp value found does not seem to be a date; check that correct column is being used for this input file');
@@ -286,21 +286,7 @@ bad_v = NaN(nrows);
 
 %bad_v = num; % assign bad_variance array
 
-% I don't think this jday calculator always works
-%  it doesn't !!  ML we need to fix it! 2/27/22
-jday = ones(nrows,1);
-jday(find(month == 1)) = day(find(month == 1));
-jday(find(month == 2)) = day(find(month == 2)) + 31; % add jan days (31)
-jday(find(month == 3)) = day(find(month == 3)) + 59; % add feb days (28)
-jday(find(month == 4)) = day(find(month == 4)) + 90; % add mar days (31)
-jday(find(month == 5)) = day(find(month == 5)) + 120; % add apr days (30)
-jday(find(month == 6)) = day(find(month == 6)) + 151; % add may days (31)
-jday(find(month == 7)) = day(find(month == 7)) + 181; % add jun days (30)
-jday(find(month == 8)) = day(find(month == 8)) + 212; % add jul days (31)
-jday(find(month == 9)) = day(find(month == 9)) + 243; % add aug days (31)
-jday(find(month == 10)) = day(find(month == 10)) + 273; % add sep days (30)
-jday(find(month == 11)) = day(find(month == 11)) + 304; % add oct days (31)
-jday(find(month == 12)) = day(find(month == 12)) + 334; % add nov days (30)
+jday = datenum(timestamp) - datenum( year2(1), 1, 0 );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 30-minute data vary in column and header name across sites and years, 
@@ -311,7 +297,7 @@ jday(find(month == 12)) = day(find(month == 12)) + 334; % add nov days (30)
 % Note: this block should also contain 'else' statements for the FALSE case
 % of each evaluation
 
-for i=1:ncol;
+for i=1:ncol
       
     if strcmp('Ts_Avg',headertext(i)) || strcmp('Ts_mean',headertext(i)) || strcmp('Ts_a',headertext(i))
         Ts_meanC = data(:,i); % read in in C 
@@ -434,7 +420,7 @@ rhomtotal  = (1e3./8.314).*press_mean./TD;
 h2owet = h2o_Avg./rhomtotal;
 
 % calculate mol fraction of co2 (umol co2/mol moist air) in moist air
-co2wet = 1e3.*co2_mean./rhomtotal; 
+co2wet = 1e3.*co2_mean./rhomtotal;
 
 % Assume wet air and the partial pressure of dry air is the output of the
 % irga minus the vapor pressure
@@ -606,7 +592,7 @@ for i = 1:nrows
         b2 = 0.004444167;
         k(1) = -0.001619988;
         k(2) = -0.004444117;
-        k(3) = 0.999988813;            
+        k(3) = 0.999988813;
 
     elseif sitecode == 7 && year == 2006 % all of 2006 looks pretty consistent, use one set of data
         b0 = 0.064455667;
@@ -623,7 +609,7 @@ for i = 1:nrows
         b2 = 0.004444167;
         k(1) = -0.001619988;
         k(2) = -0.004444117;
-        k(3) = 0.999988813;            
+        k(3) = 0.999988813;
 
     elseif sitecode == 7 && year == 2007 && month(1) == 3 || sitecode == 7 && year == 2007 && month(1) == 4
         % March and April 2007 has their own set of coefficients
@@ -632,7 +618,7 @@ for i = 1:nrows
         b2 = 0.004444167;
         k(1) = -0.001619988;
         k(2) = -0.004444117;
-        k(3) = 0.999988813;       
+        k(3) = 0.999988813;
 
     elseif sitecode == 7 && year == 2007 && month(1) >= 5 %after that, use a new set of
         % coefficients calculated with only the data in the last 6 months of 2007 
@@ -659,28 +645,28 @@ for i = 1:nrows
             b2 = -0.031249502;
             k(1) = -0.046221527;
             k(2) = 0.014738558;
-            k(3) = 0.998206387;  
+            k(3) = 0.998206387;
         elseif wind_direction(i) > 60 && wind_direction(i) <= 210
             b0 = 0.094117303;
             b1 = 0.03882402;
             b2 = 0.011170481;
             k(1) = -0.038792377;
             k(2) = -0.011161377;
-            k(3) = 0.999184955;  
+            k(3) = 0.999184955;
         elseif wind_direction(i) > 210 && wind_direction(i) <= 270
             b0 = 0.070326918;
             b1 = -0.026290012;
             b2 = -0.009114614;
             k(1) = 0.02627984;
             k(2) = 0.009111088;
-            k(3) = 0.999613104;  
+            k(3) = 0.999613104;
         elseif wind_direction(i) > 270 && wind_direction(i) <= 360
             b0 = 0.215938294;
             b1 = 0.123314215;
             b2 = 0.000787889;
             k(1) = -0.122387155;
             k(2) = -0.000781966;
-            k(3) = 0.992482127; 
+            k(3) = 0.992482127;
         end    
 
     elseif sitecode == 9 % TX_grassland
@@ -768,9 +754,9 @@ for i = 1:nrows
    % flux_co2(i) = (flux_co2(i)./1000000)*44*1000; % back to mg
     
     % rotating sensible heat flux
-    cov_Ts_Ux(i)
-    cov_Ts_Uy(i)
-    cov_Ts_Uz(i)
+    cov_Ts_Ux(i);
+    cov_Ts_Uy(i);
+    cov_Ts_Uz(i);
         
     H(i,:) = [cov_Ts_Ux(i) cov_Ts_Uy(i) cov_Ts_Uz(i)];
     uxT_rot(i) = sum(l(i,:).*H(i,:));
@@ -811,10 +797,9 @@ for i = 1:nrows
     L = -((USTAR(i))^3*TD(i))/(0.4 * 9.81 * cov_Ts_Uz(i));
     
     % CALL MASSMAN
-    i
     [X_op_C,X_op_H,X_T,zoL]= UNM_massman(z,L,uvwmean(i,:),sep2,angle);
 
-    HSdry_massman(i) = HSdry(i)./X_T; 
+    HSdry_massman(i) = HSdry(i)./X_T;
     flux_h2o_massman(i) = flux_h2o(i)/X_op_H; % flux still in mmol per m^2 per s
     flux_co2_massman(i) = (flux_co2(i)/X_op_C)*1000/44; %flux still in mg per m^2 s converted to umol per m^2 s
 
@@ -914,7 +899,7 @@ elseif year==2009 || sitecode==3 || year == 2010 || year==2008 && sitecode == 8 
      Fc_raw',flux_co2_massman',Fc_water_term',Fc_heat_term_massman',Fc_corr_massman_ourwpl',...
      flux_h2o',flux_h2o_massman',E_water_term',E_heat_term_massman',E_corr_massman',blank',...
      HSdry',HSwet',HSwetwet',HSdry_massman',...
-     flux_HL',flux_HL_massman',flux_HL_wpl_massman',rhoa_out',rhov_out',rhoc_out'];   
+     flux_HL',flux_HL_massman',flux_HL_wpl_massman',rhoa_out',rhov_out',rhoc_out'];
  
   % MF: the files for sites GLand and SLand lack cols for cov_Ux_Ux, cov_Uy_Uy, and cov_Uz_Uz,
   % therefore, this block is for those two sites, and does not contain the missing data vectors
@@ -932,7 +917,7 @@ elseif sitecode == 11
      Fc_raw',flux_co2_massman',Fc_water_term',Fc_heat_term_massman',Fc_corr_massman_ourwpl',...
      flux_h2o',flux_h2o_massman',E_water_term',E_heat_term_massman',E_corr_massman',blank',...
      HSdry',HSwet',HSwetwet',HSdry_massman',...
-     flux_HL',flux_HL_massman',flux_HL_wpl_massman',rhoa_out',rhov_out',rhoc_out'];   
+     flux_HL',flux_HL_massman',flux_HL_wpl_massman',rhoa_out',rhov_out',rhoc_out'];
  
 else
  DATAOUT = [jday, blank', umean, vmean, wmean, Ts_meanC, TD, wind_direction, wind_speed, cov_Ux_Ux, cov_Uy_Uy, ...

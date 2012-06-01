@@ -300,16 +300,16 @@ elseif sitecode == 10 % PJ_control
     end   
     
 elseif sitecode == 11 % New GLand
-        if year == 2010
-            % enter values here
-        elseif year == 2011
-%             UNM_30min_flux_processor_MFedit(11,2011,1898,2043);
-%             UNM_30min_flux_processor_MFedit(11,2011,3125,3220);
-%             UNM_30min_flux_processor_MFedit(11,2011,8148,8294);
-%             UNM_30min_flux_processor_MFedit(11,2011,8339,8356);
-           UNM_30min_flux_processor_MFedit(11,2011,6267,8146);
-        end 
-      
+    if year == 2010
+        % enter values here
+    elseif year == 2011
+        %             UNM_30min_flux_processor_MFedit(11,2011,1898,2043);
+        %             UNM_30min_flux_processor_MFedit(11,2011,3125,3220);
+        %             UNM_30min_flux_processor_MFedit(11,2011,8148,8294);
+        %             UNM_30min_flux_processor_MFedit(11,2011,8339,8356);
+        UNM_30min_flux_processor_Tim(11,2011,6303,8330);
+    end 
+    
 end
 
 
