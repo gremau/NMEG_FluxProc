@@ -1,6 +1,9 @@
 function qc_ds = UNM_parse_QC_txt_file( sitecode, year )
 % UNM_PARSE_QC_TXT_FILE - parse tab-delimited ASCII QC file to matlab dataset
 %   
+% USAGE:
+%     qc_ds = UNM_parse_QC_txt_file( sitecode, year )
+%
 % (c) Timothy W. Hilton, UNM, April 2012
 
 site = get_site_name( sitecode );
