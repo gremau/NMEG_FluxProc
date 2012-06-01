@@ -214,7 +214,7 @@ write_gap_filling_out_file = p.Results.write_GF;
         wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
         Tdry_min = 240; Tdry_max = 320;
         HS_min = -100; HS_max = 550;
-        HSmass_min = -100; HSmass_max = 450;
+        HSmass_min = -100; HSmass_max = 550;
         LH_min = -150; LH_max = 450;
         rH_min = 0; rH_max = 1;
         h2o_max = 30; h2o_min = 0;
@@ -1335,7 +1335,7 @@ write_gap_filling_out_file = p.Results.write_GF;
 
     % normalize PAR to account for calibration problems at some sites
     if ismember( sitecode, [ 1, 2, 3, 4, 10, 11 ] );
-        if ( sitecode == 3 ) & ( year == 2008 )
+        if ( sitecode == 3 ) & ( year2 == 2008 )
             % there is a small but suspicious-looking step change at DOY164 -
             % normalize the first half of the year separately from the second
             doy164 = DOYidx( 164 );
@@ -1343,11 +1343,11 @@ write_gap_filling_out_file = p.Results.write_GF;
                                       Par_Avg( 1:doy164 ), ...
                                       decimal_day( 1:doy164 ) );
             Par_Avg2 = normalize_PAR( sitecode, ...
-                                      Par_Avg( doy164:end ), ...
-                                      decimal_day( doy164:end ) );
-            Par_Avg = [ Par_Avg1, Par_Avg2 ];
+                                      Par_Avg( (doy164 + 1):end ), ...
+                                      decimal_day( (doy164 + 1):end ) );
+            Par_Avg = [ Par_Avg1; Par_Avg2 ];
 
-        elseif ( sitecode == 10 ) & ( year == 2010 )
+        elseif ( sitecode == 10 ) & ( year2 == 2010 )
             % two step changes in this one
             doy138 = DOYidx( 138 );
             doy341 = DOYidx( 341 );
@@ -1355,13 +1355,14 @@ write_gap_filling_out_file = p.Results.write_GF;
                                       Par_Avg( 1:doy138 ), ...
                                       decimal_day( 1:doy138 ) );
             Par_Avg2 = normalize_PAR( sitecode, ...
-                                      Par_Avg( doy138:doy341 ), ...
-                                      decimal_day( doy138:doy341 ) );
-            Par_Avg = [ Par_Avg1, Par_Avg2, Par_Avg( doy341:end ) ];
+                                      Par_Avg( doy138+1:doy341 ), ...
+                                      decimal_day( doy138+1:doy341 ) );
+            Par_Avg = [ Par_Avg1; Par_Avg2; Par_Avg( doy341+1:end ) ];
         else
             Par_Avg = normalize_PAR( sitecode, Par_Avg, decimal_day );
         end
     end
+    Par_Avg( Par_Avg < 0 ) = NaN;
 
     % remove negative Rg_out values
     sw_outgoing( sw_outgoing < 0 ) = NaN;
@@ -2478,7 +2479,7 @@ switch sitecode
   case UNM_sites.JSav
     switch year
       case 2010
-        lw_outgoing( DOYidx( 130.4 ) : DOYidx( 131.4 ) ) = NaN;
+        lw_outgoing( DOYidx( 130.3 ) : DOYidx( 131.5 ) ) = NaN;
         lw_outgoing( DOYidx( 331.4 ) : DOYidx( 332.7 ) ) = NaN;
         H2O_mean( DOYidx( 221 ) : DOYidx( 229 ) ) = NaN;
     end
