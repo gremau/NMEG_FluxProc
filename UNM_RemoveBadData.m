@@ -2646,6 +2646,8 @@ elseif (sitecode == 10 ) & ( year == 2011 )
     std_exc_flag( idx ) = true;
     DOY_co2_max( idx ) = 6.5;
     
+    DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
+    
 elseif (sitecode == 11 ) & ( year == 2011 )
     % std_exc_flag( DOYidx( 9.5 ) : DOYidx( 9.7 ) ) = true;
     % std_exc_flag( DOYidx( 19.6 ) : DOYidx( 19.7 ) ) = true;
