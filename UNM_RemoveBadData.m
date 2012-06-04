@@ -2564,10 +2564,10 @@ elseif  ( sitecode == 2 ) & ( year == 2011 )
     idx = DOYidx( 190 ) : DOYidx( 195 );
     DOY_co2_max( idx ) = 7;
     std_exc_flag( idx ) = true;
-    
-    idx = DOYidx( 80  ) : DOYidx( 100 );
-    DOY_co2_min( idx ) = -0.7;
-    
+
+    DOY_co2_min(  DOYidx( 50.0 ) : DOYidx( 70.0 ) ) = -0.5;
+    DOY_co2_min( DOYidx( 80  ) : DOYidx( 100 ) ) = -0.
+
     std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
 
     %JSav 2008
@@ -2598,6 +2598,7 @@ elseif ( sitecode == 4 ) & ( year == 2011 )
     std_exc_flag( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = true;
     
     DOY_co2_max( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = 6.5;
+    DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
 
     % PPine 2011
 elseif (sitecode == 5 ) & ( year == 2011 )
@@ -2619,6 +2620,10 @@ elseif (sitecode == 6 ) & ( year == 2008 )
     std_exc_flag( DOYidx( 88 ) : DOYidx( 93 ) ) = true;
     std_exc_flag( DOYidx( 121 ) : DOYidx( 122 ) ) = true;
     
+elseif (sitecode == 6 ) & ( year == 2011 )
+    DOY_co2_min( DOYidx( 335 ) : end ) = -0.5;
+    DOY_co2_max( DOYidx( 335 ) : end ) = 1.0;
+    
 elseif (sitecode == 10 ) & ( year == 2011 )
     idx = DOYidx( 192.2 ) : DOYidx( 192.6 );
     std_exc_flag( idx ) = true;
@@ -2628,7 +2633,7 @@ elseif (sitecode == 11 ) & ( year == 2011 )
     % std_exc_flag( DOYidx( 9.5 ) : DOYidx( 9.7 ) ) = true;
     % std_exc_flag( DOYidx( 19.6 ) : DOYidx( 19.7 ) ) = true;
     % std_exc_flag( DOYidx( 24.55 ) : DOYidx( 24.65 ) ) = true;
-    % std_exc_flag( DOYidx( 39.5 ) : DOYidx( 39.7 ) ) = true;
+    std_exc_flag( DOYidx( 39.5 ) : DOYidx( 39.7 ) ) = true;
     std_exc_flag( DOYidx( 50.5 ) : DOYidx( 50.7 ) ) = true;
     std_exc_flag( DOYidx( 58.5 ) : DOYidx( 58.7 ) ) = true;
     std_exc_flag( DOYidx( 66.6 ) : DOYidx( 66.8 ) ) = true;
