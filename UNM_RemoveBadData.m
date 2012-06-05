@@ -48,32 +48,34 @@ function [] = UNM_RemoveBadData( sitecode, year, varargin )
 % -----
 % define optional inputs, with defaults and typechecking
 % -----
-p = inputParser;
-p.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
-p.addRequired( 'year', ...
+args = inputParser;
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'year', ...
                @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
-p.addParamValue( 'iteration', 6, ...
+args.addParamValue( 'iteration', 6, ...
                  @(x) ( isintval( x ) & ( x >= 1 ) & ( x <= 6 ) ) );
-p.addParamValue( 'write_QC', true, @islogical );
-p.addParamValue( 'write_GF', true, @islogical );
-p.addParamValue( 'draw_plots', true, @islogical );
+args.addParamValue( 'write_QC', true, @islogical );
+args.addParamValue( 'write_GF', true, @islogical );
+args.addParamValue( 'draw_plots', true, @islogical );
 
 % parse optional inputs
-p.parse( sitecode, year, varargin{ : } );
+args.parse( sitecode, year, varargin{ : } );
 
 % place user arguments into variables
-sitecode = p.Results.sitecode;
-year = p.Results.year;
+sitecode = args.Results.sitecode;
+year = args.Results.year;
 
 % sitecode = 10;
 % year = 2011;
-iteration = int8( p.Results.iteration );
+iteration = int8( args.Results.iteration );
 
 %true to write "[sitename].._qc", -- file with all variables & bad data removed
-write_complete_out_file = p.Results.write_QC; 
+write_complete_out_file = args.Results.write_QC; 
 %true to write file for Reichstein's online gap-filling. SET U* LIM (including
 %site- specific ones--comment out) TO 0!!!!!!!!!!
-write_gap_filling_out_file = p.Results.write_GF; 
+write_gap_filling_out_file = args.Results.write_GF; 
+
+draw_plots = args.Results.draw_plots;
 
 
     data_for_analyses = 0; %1 to output file with data sorted for specific analyses
@@ -522,7 +524,7 @@ write_gap_filling_out_file = p.Results.write_GF;
     filelength = num2str(filelength_n);
     %datalength = filelength_n - row1 + 1; 
     filein = strcat(drive,'\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename)
-    outfolder = strcat(drive,'\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\processed_flux\');
+   outfolder = strcat(drive,'\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\processed_flux\');
     range = strcat('B',num2str(row1),':',lastcolumn,filelength);
     headerrange = strcat('B2:',lastcolumn,'2');
     time_stamp_range = strcat('A5:A',filelength);
@@ -1341,10 +1343,12 @@ write_gap_filling_out_file = p.Results.write_GF;
             doy164 = DOYidx( 164 );
             Par_Avg1 = normalize_PAR( sitecode, ...
                                       Par_Avg( 1:doy164 ), ...
-                                      decimal_day( 1:doy164 ) );
+                                      decimal_day( 1:doy164 ), ...
+                                      draw_plots );
             Par_Avg2 = normalize_PAR( sitecode, ...
                                       Par_Avg( (doy164 + 1):end ), ...
-                                      decimal_day( (doy164 + 1):end ) );
+                                      decimal_day( (doy164 + 1):end ), ...
+                                      draw_plots );
             Par_Avg = [ Par_Avg1; Par_Avg2 ];
 
         elseif ( sitecode == 10 ) & ( year2 == 2010 )
@@ -1353,19 +1357,28 @@ write_gap_filling_out_file = p.Results.write_GF;
             doy341 = DOYidx( 341 );
             Par_Avg1 = normalize_PAR( sitecode, ...
                                       Par_Avg( 1:doy138 ), ...
-                                      decimal_day( 1:doy138 ) );
+                                      decimal_day( 1:doy138 ), ...
+                                      draw_plots );
             Par_Avg2 = normalize_PAR( sitecode, ...
                                       Par_Avg( doy138+1:doy341 ), ...
-                                      decimal_day( doy138+1:doy341 ) );
+                                      decimal_day( doy138+1:doy341 ), ...
+                                      draw_plots );
             Par_Avg = [ Par_Avg1; Par_Avg2; Par_Avg( doy341+1:end ) ];
         else
-            Par_Avg = normalize_PAR( sitecode, Par_Avg, decimal_day );
+            Par_Avg = normalize_PAR( sitecode, ...
+                                     Par_Avg, ...
+                                     decimal_day, ...
+                                     draw_plots );
         end
     end
-    Par_Avg( Par_Avg < 0 ) = NaN;
+    % fix calibration problem at JSav 2009
+    if ( sitecode == 3 ) & ( year2 == 2009 )
+        Par_Avg( 1:1554 ) = Par_Avg( 1:1554 ) + 133;
+    end
+    Par_Avg( Par_Avg < -50 ) = NaN;
 
     % remove negative Rg_out values
-    sw_outgoing( sw_outgoing < 0 ) = NaN;
+    sw_outgoing( sw_outgoing < 50 ) = NaN;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Apply Burba 2008 correction for sensible heat conducted from 7500
@@ -1421,11 +1434,13 @@ write_gap_filling_out_file = p.Results.write_GF;
     dFc = (Si_top+Si_bot+Sip_spar) ./ RhoCp.*CO2_mg ./ t_meanK .* ...
           (1+1.6077.*H2O_g./pd);
 
-    h_burba_fig = figure( 'Name', 'Burba' ); 
-    plot(dFc,'.'); ylim([-1 1]);
-    title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
-    ylabel('Burba cold temp correction');
-    xlabel('time');
+    if draw_plots
+        h_burba_fig = figure( 'Name', 'Burba' ); 
+        plot(dFc,'.'); ylim([-1 1]);
+        title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
+        ylabel('Burba cold temp correction');
+        xlabel('time');
+    end
 
     fc_mg = fc_raw_massman_wpl.*0.044; % Convert correct flux from mumol/m2/s to
                                        % mg/m2/s
@@ -1549,14 +1564,15 @@ write_gap_filling_out_file = p.Results.write_GF;
         end
 
         startbin;
-
-        figure( 'Name', 'determine Ustar cutoff', 'NumberTitle', 'Off' );
-        clf;
-        plot( ustar_mean, co2mean, '.k' );
-        xlabel( 'UStar' );
-        ylabel( 'co2mean' );
-        title( 'UStar' );
-        shg;
+        if draw_plots
+            figure( 'Name', 'determine Ustar cutoff', 'NumberTitle', 'Off' );
+            clf;
+            plot( ustar_mean, co2mean, '.k' );
+            xlabel( 'UStar' );
+            ylabel( 'co2mean' );
+            title( 'UStar' );
+            shg;
+        end
         return;
     end
 
@@ -1799,37 +1815,40 @@ write_gap_filling_out_file = p.Results.write_GF;
             xx(end) = length(decimal_day);
         end
         pal = brewer_palettes( 'Dark2' );
-        h_co2_fig = figure( 'Name', '[CO2]' );
-        CO2_mean_clean=CO2_mean;
-        CO2_mean_clean(find(isnan(conc_record)))=-9999;
-        h_co2_all = plot( decimal_day, CO2_mean, ...
-                          'Marker', '.', ...
-                          'Color', 'black', ...
-                          'LineStyle', 'none');
-        title( sprintf( '%s %d', get_site_name( sitecode ), year( 1 ) ) );
-        hold on;
-        h_co2_clean = plot( decimal_day, CO2_mean_clean, ...
-                            'Marker', 'o', ...
-                            'Color', pal( 1, : ), ...
-                            'LineStyle', 'none');
-        h_co2_mean = plot( decimal_day(xx), yy, ...
-                           'Marker', 'o', ...
-                           'Color', pal( 3, : ), ...
-                           'LineStyle', '-', ...
-                           'LineWidth', 3);
-        h_co2_std = plot( decimal_day(xx), yyl, ...
-                          'Color', pal( 3, : ), ...
-                          'linewidth', 3 ); 
-        h_co2_std = plot( decimal_day(xx), yyu, ...
-                          'Color', pal( 3, : ),...
-                          'linewidth', 3 ); 
-        xx=linspace(1, length(CO2_mean), length(CO2_mean));
-        ylim([300 450]);
-        xlabel('day of year');
-        ylabel('[CO_2], ppm');
-        legend( [ h_co2_all, h_co2_clean, h_co2_mean, h_co2_std ], ...
-                'all [CO2]', 'cleaned [CO2]', 'mean [CO2]', 'st dev [CO2]', ...
-                'Location', 'best' );
+
+        if draw_plots
+            h_co2_fig = figure( 'Name', '[CO2]' );
+            CO2_mean_clean=CO2_mean;
+            CO2_mean_clean(find(isnan(conc_record)))=-9999;
+            h_co2_all = plot( decimal_day, CO2_mean, ...
+                              'Marker', '.', ...
+                              'Color', 'black', ...
+                              'LineStyle', 'none');
+            title( sprintf( '%s %d', get_site_name( sitecode ), year( 1 ) ) );
+            hold on;
+            h_co2_clean = plot( decimal_day, CO2_mean_clean, ...
+                                'Marker', 'o', ...
+                                'Color', pal( 1, : ), ...
+                                'LineStyle', 'none');
+            h_co2_mean = plot( decimal_day(xx), yy, ...
+                               'Marker', 'o', ...
+                               'Color', pal( 3, : ), ...
+                               'LineStyle', '-', ...
+                               'LineWidth', 3);
+            h_co2_std = plot( decimal_day(xx), yyl, ...
+                              'Color', pal( 3, : ), ...
+                              'linewidth', 3 ); 
+            h_co2_std = plot( decimal_day(xx), yyu, ...
+                              'Color', pal( 3, : ),...
+                              'linewidth', 3 ); 
+            xx=linspace(1, length(CO2_mean), length(CO2_mean));
+            ylim([300 450]);
+            xlabel('day of year');
+            ylabel('[CO_2], ppm');
+            legend( [ h_co2_all, h_co2_clean, h_co2_mean, h_co2_std ], ...
+                    'all [CO2]', 'cleaned [CO2]', 'mean [CO2]', 'st dev [CO2]', ...
+                    'Location', 'best' );
+        end  %co2 plot
     end % close if statement for iterations
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1850,19 +1869,21 @@ write_gap_filling_out_file = p.Results.write_GF;
     save( restore_fname, save_vars{ : } );
 
     maxminflag = find( maxminflag );
-    [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( sitecode, year, ...
-                                                      decimal_day, ...
-                                                      fc_raw_massman_wpl, ...
-                                                      idx_NEE_good, ustarflag, ...
-                                                      precipflag, nightnegflag, ...
-                                                      windflag, maxminflag, ...
-                                                      lowco2flag, highco2flag, ...
-                                                      nanflag, stdflag, n_bins, ...
-                                                      endbin, startbin, bin_ceil, ...
-                                                      bin_floor, mean_flux );
-    shg;  %bring current window to front
-
-
+    if draw_plots
+        [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
+            sitecode, ...
+            year, ...
+            decimal_day, ...
+            fc_raw_massman_wpl, ...
+            idx_NEE_good, ustarflag, ...
+            precipflag, nightnegflag, ...
+            windflag, maxminflag, ...
+            lowco2flag, highco2flag, ...
+            nanflag, stdflag, n_bins, ...
+            endbin, startbin, bin_ceil, ...
+            bin_floor, mean_flux );
+        shg;  %bring current window to front
+    end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Filter for sensible heat
@@ -1927,7 +1948,9 @@ write_gap_filling_out_file = p.Results.write_GF;
     LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
     LH_night_flag = ( LH_rad < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
     LH_day_flag = ( LH_rad >= 20.0 ) & ( HL_wpl_massman < 0.0 );
-    script_debug_LE;
+    if draw_plots
+        script_debug_LE;
+    end
     removed_LH_wpl_mass = numel( find( LH_maxmin_flag | ...
                                        LH_night_flag | ...
                                        LH_day_flag ) );
@@ -2638,8 +2661,8 @@ elseif (sitecode == 6 ) & ( year == 2008 )
     std_exc_flag( DOYidx( 121 ) : DOYidx( 122 ) ) = true;
     
 elseif (sitecode == 6 ) & ( year == 2011 )
-    DOY_co2_min( DOYidx( 335 ) : end ) = -0.5;
-    DOY_co2_max( DOYidx( 335 ) : end ) = 1.0;
+    % DOY_co2_min( DOYidx( 335 ) : end ) = -0.5;
+    % DOY_co2_max( DOYidx( 335 ) : end ) = 1.0;
     
 elseif (sitecode == 10 ) & ( year == 2011 )
     idx = DOYidx( 192.2 ) : DOYidx( 192.6 );
@@ -2738,7 +2761,7 @@ end
 
 %------------------------------------------------------------
 
-function par_norm = normalize_PAR( sitecode, par, doy )
+function par_norm = normalize_PAR( sitecode, par, doy, draw_plots )
 % NORMALIZE_PAR - normalizes PAR to a site-specific maximum.
 %   
 
@@ -2752,17 +2775,19 @@ doy = floor( doy );
 norm_factor = par_max / prctile( par, 99.8 )
 par_norm = par * norm_factor;
 
-figure( 'NumberTitle', 'off', ...
-        'Name', 'PAR normalization' );
+if draw_plots
+    figure( 'NumberTitle', 'off', ...
+            'Name', 'PAR normalization' );
 
-max_par = nanmax( [ par, par_norm ] );
+    max_par = nanmax( [ par, par_norm ] );
 
-pal = brewer_palettes( 'Dark2' );
-h_par = plot( doy, par, 'ok' );
-hold on
-h_par_norm = plot( doy, par_norm, 'x', 'Color', pal( 1, : ) );
-hold off
-ylabel( 'PAR [W/m^2]' );
-xlabel( 'DOY' );
-legend( [ h_par, h_par_norm ], 'PAR (obs)', 'PAR (normalized)', ...
-        'Location', 'best' );
+    pal = brewer_palettes( 'Dark2' );
+    h_par = plot( doy, par, 'ok' );
+    hold on
+    h_par_norm = plot( doy, par_norm, 'x', 'Color', pal( 1, : ) );
+    hold off
+    ylabel( 'PAR [W/m^2]' );
+    xlabel( 'DOY' );
+    legend( [ h_par, h_par_norm ], 'PAR (obs)', 'PAR (normalized)', ...
+            'Location', 'best' );
+end
