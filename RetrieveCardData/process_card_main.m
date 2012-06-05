@@ -30,7 +30,8 @@ function main_success = process_card_main( this_site )
 
     %make diagnostic plots of the raw flux data from the card
     fluxraw = toa5_2_dataset(toa5_fname);
-    flux_raw_diagnostic_plot(fluxraw, this_site, mod_date);
+    h_viewer = fluxraw_dataset_viewer(fluxraw, this_site, mod_date);
+    waitfor( h_viewer );
     clear('fluxraw');
 
     %convert the time series (10 hz) data to TOB1 files
