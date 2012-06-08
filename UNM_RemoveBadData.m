@@ -123,7 +123,7 @@ draw_plots = args.Results.draw_plots;
             filelength_n = 17523;
             lastcolumn='IL';
             ustar_lim = 0.06;
-            co2_min_by_month = -10; co2_max_by_month = 6;
+            co2_min_by_month = -0.8; co2_max_by_month = 6;
         end
         n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -2467,6 +2467,8 @@ switch sitecode
         H2O_mean( idx ) = NaN;
         
         H2O_mean( DOYidx( 85.5 ) : DOYidx( 102.5 ) ) = NaN;
+       
+        fc_raw_massman_wpl( DOYidx( 327 ) : DOYidx( 328 ) ) = NaN;
         
       case 2011
         
@@ -2585,16 +2587,23 @@ elseif ( sitecode == 1 ) & ( year == 2011 )
     std_exc_flag( DOYidx( 158.4 ) : DOYidx( 158.6 ) ) = true;
     std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
     std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
-    std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
+    %    std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
     
     DOY_co2_min( DOYidx( 310 ) : end ) = -0.5;
     DOY_co2_min( 1 : DOYidx( 210 ) ) = -0.5;
+    DOY_co2_max( DOYidx( 250 ) : end ) = 2.0;
     
     %SLand 2008
 elseif ( sitecode == 2 ) & ( year == 2008 )
+    DOY_co2_min( 1 : DOYidx( 50 ) ) = -0.5;
+    
     idx = DOYidx( 184 ) : DOYidx( 190 );
     DOY_co2_max( idx ) = 20;
     std_exc_flag( idx ) = true;
+    
+elseif  ( sitecode == 2 ) & ( year == 2010 )
+    DOY_co2_min( 1 : DOYidx( 80 ) ) = -1.4;
+    DOY_co2_max( DOYidx( 204 ) : DOYidx( 220 ) ) = 2.0;
     
     %SLand 2011
 elseif  ( sitecode == 2 ) & ( year == 2011 )
@@ -2605,18 +2614,39 @@ elseif  ( sitecode == 2 ) & ( year == 2011 )
     DOY_co2_max( idx ) = 7;
     std_exc_flag( idx ) = true;
 
-    DOY_co2_min(  DOYidx( 50.0 ) : DOYidx( 70.0 ) ) = -0.5;
-    DOY_co2_min( DOYidx( 80  ) : DOYidx( 100 ) ) = -0.
+    DOY_co2_min(  1 : DOYidx( 70.0 ) ) = -0.5;
+    DOY_co2_max(  1 : DOYidx( 70.0 ) ) = 1.0;
+    DOY_co2_min( DOYidx( 80  ) : DOYidx( 100 ) ) = -2.0;
 
     std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
+    
+    DOY_co2_min(  DOYidx( 185 ) : end ) = -1.5;
 
     %JSav 2008
 elseif  ( sitecode == 3 ) & ( year == 2008 )
     idx = DOYidx( 215 ) : DOYidx( 240 );
     DOY_co2_min( idx ) = -12.0;
+elseif  ( sitecode == 3 ) & ( year == 2009 )
+    DOY_co2_max( 1 : DOYidx( 125 ) ) = 2.0;
+    DOY_co2_max( DOYidx( 150 ) : DOYidx( 180 ) ) = 2.0;
+    DOY_co2_max( DOYidx( 220 ) : DOYidx( 250 ) ) = 2.5;
+    DOY_co2_max( DOYidx( 251 ) : DOYidx( 280 ) ) = 4.0;
+    DOY_co2_max( DOYidx( 281 ) : DOYidx( 365 ) ) = 2.5;
+    DOY_co2_min( 1 : DOYidx( 94 ) ) = -6.0;
+
+elseif  ( sitecode == 3 ) & ( year == 2010 )
+    DOY_co2_max( 1 : DOYidx( 80 ) ) = 2.0;
+    DOY_co2_max( DOYidx( 81 ) : DOYidx( 190 ) ) = 4.0;
+    DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 6.0;
+    DOY_co2_max( DOYidx( 211 ) : DOYidx( 225 ) ) = 5.0;
+    DOY_co2_max( DOYidx( 226 ) : end ) = 3.0;
+
     % JSav 2011
 elseif ( sitecode == 3 ) & ( year == 2011 )
     std_exc_flag( DOYidx( 313.4 ) : DOYidx( 313.6 ) ) = true;
+    DOY_co2_max( DOYidx( 210 ) : DOYidx( 220 ) ) = 5.0;
+    DOY_co2_max( DOYidx( 221 ) : DOYidx( 265 ) ) = 4.0;
+    DOY_co2_max( DOYidx( 266 ) : end ) = 3.0;
 
 elseif ( sitecode == 3 ) & ( year == 2011 )
     std_exc_flag( DOYidx( 12.5 ) : DOYidx( 12.6 ) ) = true;
@@ -2631,6 +2661,14 @@ elseif ( sitecode == 3 ) & ( year == 2011 )
     DOY_co2_min( 1 : DOYidx( 40 ) ) = -2.0;
     
     % PJ 2011
+elseif ( sitecode == 4 ) & ( year == 2008 )
+    DOY_co2_max( 1 : DOYidx( 185 ) ) = 3.0;
+    DOY_co2_min( DOYidx( 335 ) : DOYidx( 365 ) ) = -6.5;
+    
+elseif ( sitecode == 4 ) & ( year == 2009 )
+    DOY_co2_max( 1 : DOYidx( 180 ) ) = 3.0;
+    DOY_co2_max( DOYidx( 190 ) : DOYidx( 260 ) ) = 4.0;
+    
 elseif ( sitecode == 4 ) & ( year == 2011 )
     std_exc_flag( DOYidx( 31.5 ) : DOYidx( 31.7 ) ) = true;
     std_exc_flag( DOYidx( 182.6 ) : DOYidx( 182.8 ) ) = true;
@@ -2654,15 +2692,33 @@ elseif (sitecode == 6 ) & ( year == 2007 )
     std_exc_flag( DOYidx( 293.5 ) : DOYidx( 293.6 ) ) = true;
     std_exc_flag( DOYidx( 301.5 ) : DOYidx( 301.7 ) ) = true;
     
+    DOY_co2_max( DOYidx( 75 ) : DOYidx( 86 ) ) = 2.0;
+    DOY_co2_max( DOYidx( 176 ) : DOYidx( 206 ) ) = 3.5;
+    DOY_co2_max( DOYidx( 207 ) : DOYidx( 297 ) ) = 4.0;
+    DOY_co2_min( DOYidx( 327 ) : end ) = -2.0;
+    
     %MCon 2007
 elseif (sitecode == 6 ) & ( year == 2008 )
     std_exc_flag( DOYidx( 43.5 ) : DOYidx( 43.6 ) ) = true;
     std_exc_flag( DOYidx( 88 ) : DOYidx( 93 ) ) = true;
     std_exc_flag( DOYidx( 121 ) : DOYidx( 122 ) ) = true;
     
+    DOY_co2_min( 1 : DOYidx( 106 ) ) = -2.0;
+    DOY_co2_max( DOYidx( 125 ) : DOYidx( 155 ) ) = 3.0;
+    
+elseif (sitecode == 6 ) & ( year == 2009 )
+    DOY_co2_min( DOYidx( 83 ) : DOYidx( 100 ) ) = -3.0;
+    DOY_co2_max( DOYidx( 83 ) : DOYidx( 100 ) ) = 4.0;
+    DOY_co2_max( DOYidx( 156 ) : DOYidx( 305 ) ) = 4.0;
+    DOY_co2_max( DOYidx( 311 ) : end ) = 3.0;
+    
+elseif (sitecode == 6 ) & ( year == 2010 )
+    DOY_co2_max( DOYidx( 200 ) : DOYidx( 244 ) ) = 4.0;
+    DOY_co2_max( DOYidx( 246 ) : DOYidx( 300 ) ) = 3.0;
+    
 elseif (sitecode == 6 ) & ( year == 2011 )
-    % DOY_co2_min( DOYidx( 335 ) : end ) = -0.5;
-    % DOY_co2_max( DOYidx( 335 ) : end ) = 1.0;
+    DOY_co2_max( DOYidx( 95 ) : DOYidx( 166 ) ) = 4.0;
+    DOY_co2_max( DOYidx( 180 ) : end ) = 4.0;
     
 elseif (sitecode == 10 ) & ( year == 2011 )
     idx = DOYidx( 192.2 ) : DOYidx( 192.6 );
@@ -2717,9 +2773,6 @@ function co2_conc_filter_exceptions = ...
 % below).  There are periods of incorrect [CO2] observations from the IRGA which
 % nonetheless contain reasonable CO2 NEE.  This allows us to keep those NEE
 % measurements.
-
-obs_per_day = 48;
-DOYidx = @( DOY ) ( ( obs_per_day * DOY ) - obs_per_day + 1 );
 
 if ( sitecode == 1 ) & ( year(1) == 2007 )
     co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
