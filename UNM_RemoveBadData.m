@@ -1259,7 +1259,7 @@ draw_plots = args.Results.draw_plots;
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
             NR_tot = NR_lw + NR_sw;
             
-        elseif year2 == 2008 || year2 == 2009 || year2 == 2010 || year2 == 2011
+        elseif year2 > 2007
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites   
             lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
@@ -1378,7 +1378,7 @@ draw_plots = args.Results.draw_plots;
     Par_Avg( Par_Avg < -50 ) = NaN;
 
     % remove negative Rg_out values
-    sw_outgoing( sw_outgoing < 50 ) = NaN;
+    sw_outgoing( sw_outgoing < -50 ) = NaN;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Apply Burba 2008 correction for sensible heat conducted from 7500
@@ -2559,13 +2559,15 @@ function [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
 % initialize standard deviation filter exceptions to no exceptions
 std_exc_flag = repmat( false, size( DOY_co2_max ) );
 
-if isa( sitecode, 'double') | isa( sitecode( 'integer' )
+if isa( sitecode, 'double') | isa( sitecode, 'integer' )
     sitecode = UNM_sites( sitecode )
 end
 
 switch sitecode
   case UNM_sites.GLand
     switch year
+      case 2007
+        DOY_co2_max( 1 : DOYidx( 15 ) ) = 1.25;
       case 2008
         idx = DOYidx( 184 ) : DOYidx( 186.5 );
         DOY_co2_max( idx ) = 15;
@@ -2574,12 +2576,18 @@ switch sitecode
         idx = DOYidx( 245 ) : DOYidx( 255 );
         DOY_co2_max( idx ) = 1.5;
     
+        DOY_co2_max( DOYidx( 178 ) : DOYidx( 267 ) ) = 0.8;
+        
         % the site burned DOY 210, 2009.  Here we remove points in the period
         % following the burn that look more like noise than biologically
         % realistic carbon uptake.
         DOY_co2_min( DOYidx( 210 ) : DOYidx( 256 ) ) = -0.5;
         DOY_co2_min( DOYidx( 256 ) : DOYidx( 270 ) ) = -1.2;
       case 2010
+        DOY_co2_max( DOYidx( 200 ) : DOYidx( 225 ) ) = 2.5;
+        DOY_co2_max( 1 : DOYidx( 160 ) ) = 1.5;
+        DOY_co2_min( 1 : DOYidx( 160 ) ) = -1.5;
+
         idx = DOYidx( 223 ) : DOYidx( 229 );
         DOY_co2_min( idx ) = -17;
         std_exc_flag( idx ) = true;
@@ -2591,7 +2599,10 @@ switch sitecode
         
         DOY_co2_min( DOYidx( 310 ) : end ) = -0.5;
         DOY_co2_min( 1 : DOYidx( 210 ) ) = -0.5;
-        DOY_co2_max( DOYidx( 250 ) : end ) = 2.0;
+
+        DOY_co2_max( DOYidx( 261 ) : end ) = 2.0;
+        DOY_co2_max( DOYidx( 250 ) : DOYidx( 260 ) ) = 0.8;
+        DOY_co2_max( DOYidx( 280 ) : DOYidx( 285 ) ) = 1.2;
     end %GLand
 
   case UNM_sites.SLand
