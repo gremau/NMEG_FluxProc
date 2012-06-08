@@ -2559,208 +2559,218 @@ function [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
 % initialize standard deviation filter exceptions to no exceptions
 std_exc_flag = repmat( false, size( DOY_co2_max ) );
 
-    %GLand 2008
-if ( sitecode == 1 ) & ( year == 2008 )
-    idx = DOYidx( 184 ) : DOYidx( 186.5 );
-    DOY_co2_max( idx ) = 15;
-    std_exc_flag( idx ) = true;
-    
-    %GLand 2009
-elseif ( sitecode == 1 ) & ( year == 2009 )
-    idx = DOYidx( 245 ) : DOYidx( 255 );
-    DOY_co2_max( idx ) = 1.5;
-    
-    % the site burned DOY 210, 2009.  Here we remove points in the period
-    % following the burn that look more like noise than biologically
-    % realistic carbon uptake.
-    DOY_co2_min( DOYidx( 210 ) : DOYidx( 256 ) ) = -0.5;
-    DOY_co2_min( DOYidx( 256 ) : DOYidx( 270 ) ) = -1.2;
-    
-    % GLand 2010
-elseif ( sitecode == 1 ) & ( year == 2010 )
-    idx = DOYidx( 223 ) : DOYidx( 229 );
-    DOY_co2_min( idx ) = -17;
-    std_exc_flag( idx ) = true;
-    
-    % GLand 2011
-elseif ( sitecode == 1 ) & ( year == 2011 )
-    std_exc_flag( DOYidx( 158.4 ) : DOYidx( 158.6 ) ) = true;
-    std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
-    std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
-    %    std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
-    
-    DOY_co2_min( DOYidx( 310 ) : end ) = -0.5;
-    DOY_co2_min( 1 : DOYidx( 210 ) ) = -0.5;
-    DOY_co2_max( DOYidx( 250 ) : end ) = 2.0;
-    
-    %SLand 2008
-elseif ( sitecode == 2 ) & ( year == 2008 )
-    DOY_co2_min( 1 : DOYidx( 50 ) ) = -0.5;
-    
-    idx = DOYidx( 184 ) : DOYidx( 190 );
-    DOY_co2_max( idx ) = 20;
-    std_exc_flag( idx ) = true;
-    
-elseif  ( sitecode == 2 ) & ( year == 2010 )
-    DOY_co2_min( 1 : DOYidx( 80 ) ) = -1.4;
-    DOY_co2_max( DOYidx( 204 ) : DOYidx( 220 ) ) = 2.0;
-    
-    %SLand 2011
-elseif  ( sitecode == 2 ) & ( year == 2011 )
-    idx = DOYidx( 215.5 ) : DOYidx( 216.4 );
-    std_exc_flag( idx ) = true;
+if isa( sitecode, 'double') | isa( sitecode( 'integer' )
+    sitecode = UNM_sites( sitecode )
+end
 
-    idx = DOYidx( 190 ) : DOYidx( 195 );
-    DOY_co2_max( idx ) = 7;
-    std_exc_flag( idx ) = true;
+switch sitecode
+  case UNM_sites.GLand
+    switch year
+      case 2008
+        idx = DOYidx( 184 ) : DOYidx( 186.5 );
+        DOY_co2_max( idx ) = 15;
+        std_exc_flag( idx ) = true;
+      case 2009
+        idx = DOYidx( 245 ) : DOYidx( 255 );
+        DOY_co2_max( idx ) = 1.5;
+    
+        % the site burned DOY 210, 2009.  Here we remove points in the period
+        % following the burn that look more like noise than biologically
+        % realistic carbon uptake.
+        DOY_co2_min( DOYidx( 210 ) : DOYidx( 256 ) ) = -0.5;
+        DOY_co2_min( DOYidx( 256 ) : DOYidx( 270 ) ) = -1.2;
+      case 2010
+        idx = DOYidx( 223 ) : DOYidx( 229 );
+        DOY_co2_min( idx ) = -17;
+        std_exc_flag( idx ) = true;
+      case 2011
+        std_exc_flag( DOYidx( 158.4 ) : DOYidx( 158.6 ) ) = true;
+        std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
+        std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
+        %    std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
+        
+        DOY_co2_min( DOYidx( 310 ) : end ) = -0.5;
+        DOY_co2_min( 1 : DOYidx( 210 ) ) = -0.5;
+        DOY_co2_max( DOYidx( 250 ) : end ) = 2.0;
+    end %GLand
 
-    DOY_co2_min(  1 : DOYidx( 70.0 ) ) = -0.5;
-    DOY_co2_max(  1 : DOYidx( 70.0 ) ) = 1.0;
-    DOY_co2_min( DOYidx( 80  ) : DOYidx( 100 ) ) = -2.0;
+  case UNM_sites.SLand
+    switch year
+      case 2008
+        DOY_co2_min( 1 : DOYidx( 50 ) ) = -0.5;
+        
+        idx = DOYidx( 184 ) : DOYidx( 190 );
+        DOY_co2_max( idx ) = 20;
+        std_exc_flag( idx ) = true;
+      case 2010
+        DOY_co2_min( 1 : DOYidx( 80 ) ) = -1.4;
+        DOY_co2_max( DOYidx( 204 ) : DOYidx( 220 ) ) = 2.0;
+      case 2011
+        idx = DOYidx( 215.5 ) : DOYidx( 216.4 );
+        std_exc_flag( idx ) = true;
 
-    std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
-    
-    DOY_co2_min(  DOYidx( 185 ) : end ) = -1.5;
+        idx = DOYidx( 190 ) : DOYidx( 195 );
+        DOY_co2_max( idx ) = 7;
+        std_exc_flag( idx ) = true;
 
-    %JSav 2008
-elseif  ( sitecode == 3 ) & ( year == 2008 )
-    idx = DOYidx( 215 ) : DOYidx( 240 );
-    DOY_co2_min( idx ) = -12.0;
-elseif  ( sitecode == 3 ) & ( year == 2009 )
-    DOY_co2_max( 1 : DOYidx( 125 ) ) = 2.0;
-    DOY_co2_max( DOYidx( 150 ) : DOYidx( 180 ) ) = 2.0;
-    DOY_co2_max( DOYidx( 220 ) : DOYidx( 250 ) ) = 2.5;
-    DOY_co2_max( DOYidx( 251 ) : DOYidx( 280 ) ) = 4.0;
-    DOY_co2_max( DOYidx( 281 ) : DOYidx( 365 ) ) = 2.5;
-    DOY_co2_min( 1 : DOYidx( 94 ) ) = -6.0;
+        DOY_co2_min(  1 : DOYidx( 70.0 ) ) = -0.5;
+        DOY_co2_max(  1 : DOYidx( 70.0 ) ) = 1.0;
+        DOY_co2_min( DOYidx( 80  ) : DOYidx( 100 ) ) = -2.0;
 
-elseif  ( sitecode == 3 ) & ( year == 2010 )
-    DOY_co2_max( 1 : DOYidx( 80 ) ) = 2.0;
-    DOY_co2_max( DOYidx( 81 ) : DOYidx( 190 ) ) = 4.0;
-    DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 6.0;
-    DOY_co2_max( DOYidx( 211 ) : DOYidx( 225 ) ) = 5.0;
-    DOY_co2_max( DOYidx( 226 ) : end ) = 3.0;
+        std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
+        
+        DOY_co2_min(  DOYidx( 185 ) : end ) = -1.5;
 
-    % JSav 2011
-elseif ( sitecode == 3 ) & ( year == 2011 )
-    std_exc_flag( DOYidx( 313.4 ) : DOYidx( 313.6 ) ) = true;
-    DOY_co2_max( DOYidx( 210 ) : DOYidx( 220 ) ) = 5.0;
-    DOY_co2_max( DOYidx( 221 ) : DOYidx( 265 ) ) = 4.0;
-    DOY_co2_max( DOYidx( 266 ) : end ) = 3.0;
+    end %SLand
+  
+  case UNM_sites.JSav
+    switch year
+      case 2008
+        idx = DOYidx( 215 ) : DOYidx( 240 );
+        DOY_co2_min( idx ) = -12.0;
+        
+      case 2009
+        DOY_co2_max( 1 : DOYidx( 125 ) ) = 2.0;
+        DOY_co2_max( DOYidx( 150 ) : DOYidx( 180 ) ) = 2.0;
+        DOY_co2_max( DOYidx( 220 ) : DOYidx( 250 ) ) = 2.5;
+        DOY_co2_max( DOYidx( 251 ) : DOYidx( 280 ) ) = 4.0;
+        DOY_co2_max( DOYidx( 281 ) : DOYidx( 365 ) ) = 2.5;
+        DOY_co2_min( 1 : DOYidx( 94 ) ) = -6.0;
 
-elseif ( sitecode == 3 ) & ( year == 2011 )
-    std_exc_flag( DOYidx( 12.5 ) : DOYidx( 12.6 ) ) = true;
-    std_exc_flag( DOYidx( 17.4 ) : DOYidx( 17.6 ) ) = true;
-    std_exc_flag( DOYidx( 20.4 ) : DOYidx( 20.7 ) ) = true;
-    std_exc_flag( DOYidx( 58.4 ) : DOYidx( 58.6 ) ) = true;
-    std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;        
-    std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
-    std_exc_flag( DOYidx( 184.5 ) : DOYidx( 186 ) ) = true;
-    std_exc_flag( DOYidx( 232.0 ) : DOYidx( 232.1 ) ) = true;
+      case 2010
+        DOY_co2_max( 1 : DOYidx( 80 ) ) = 2.0;
+        DOY_co2_max( DOYidx( 81 ) : DOYidx( 190 ) ) = 4.0;
+        DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 6.0;
+        DOY_co2_max( DOYidx( 211 ) : DOYidx( 225 ) ) = 5.0;
+        DOY_co2_max( DOYidx( 226 ) : end ) = 3.0;
 
-    DOY_co2_min( 1 : DOYidx( 40 ) ) = -2.0;
-    
-    % PJ 2011
-elseif ( sitecode == 4 ) & ( year == 2008 )
-    DOY_co2_max( 1 : DOYidx( 185 ) ) = 3.0;
-    DOY_co2_min( DOYidx( 335 ) : DOYidx( 365 ) ) = -6.5;
-    
-elseif ( sitecode == 4 ) & ( year == 2009 )
-    DOY_co2_max( 1 : DOYidx( 180 ) ) = 3.0;
-    DOY_co2_max( DOYidx( 190 ) : DOYidx( 260 ) ) = 4.0;
-    
-elseif ( sitecode == 4 ) & ( year == 2011 )
-    std_exc_flag( DOYidx( 31.5 ) : DOYidx( 31.7 ) ) = true;
-    std_exc_flag( DOYidx( 182.6 ) : DOYidx( 182.8 ) ) = true;
-    std_exc_flag( DOYidx( 183.4 ) : DOYidx( 183.7 ) ) = true;
-    std_exc_flag( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = true;
-    
-    DOY_co2_max( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = 6.5;
-    DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
+      case 2011
+        DOY_co2_min( 1 : DOYidx( 40 ) ) = -2.0;
+        DOY_co2_max( DOYidx( 210 ) : DOYidx( 220 ) ) = 5.0;
+        DOY_co2_max( DOYidx( 221 ) : DOYidx( 265 ) ) = 4.0;
+        DOY_co2_max( DOYidx( 266 ) : end ) = 3.0;
 
-    % PPine 2011
-elseif (sitecode == 5 ) & ( year == 2011 )
-    std_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
-    DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;
+        std_exc_flag( DOYidx( 12.5 ) : DOYidx( 12.6 ) ) = true;
+        std_exc_flag( DOYidx( 17.4 ) : DOYidx( 17.6 ) ) = true;
+        std_exc_flag( DOYidx( 20.4 ) : DOYidx( 20.7 ) ) = true;
+        std_exc_flag( DOYidx( 58.4 ) : DOYidx( 58.6 ) ) = true;
+        std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;        
+        std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
+        std_exc_flag( DOYidx( 184.5 ) : DOYidx( 186 ) ) = true;
+        std_exc_flag( DOYidx( 232.0 ) : DOYidx( 232.1 ) ) = true;
+        std_exc_flag( DOYidx( 313.4 ) : DOYidx( 313.6 ) ) = true;
+    end  %JSav
     
-    %MCon 2007
-elseif (sitecode == 6 ) & ( year == 2007 )
-    idx = DOYidx( 120.35 ) : DOYidx( 120.55 );
-    std_exc_flag( idx ) = true;
-    DOY_co2_min( idx ) = -15;
-    std_exc_flag( DOYidx( 292.4 ) : DOYidx( 294.5 ) ) = true;
-    std_exc_flag( DOYidx( 293.5 ) : DOYidx( 293.6 ) ) = true;
-    std_exc_flag( DOYidx( 301.5 ) : DOYidx( 301.7 ) ) = true;
-    
-    DOY_co2_max( DOYidx( 75 ) : DOYidx( 86 ) ) = 2.0;
-    DOY_co2_max( DOYidx( 176 ) : DOYidx( 206 ) ) = 3.5;
-    DOY_co2_max( DOYidx( 207 ) : DOYidx( 297 ) ) = 4.0;
-    DOY_co2_min( DOYidx( 327 ) : end ) = -2.0;
-    
-    %MCon 2007
-elseif (sitecode == 6 ) & ( year == 2008 )
-    std_exc_flag( DOYidx( 43.5 ) : DOYidx( 43.6 ) ) = true;
-    std_exc_flag( DOYidx( 88 ) : DOYidx( 93 ) ) = true;
-    std_exc_flag( DOYidx( 121 ) : DOYidx( 122 ) ) = true;
-    
-    DOY_co2_min( 1 : DOYidx( 106 ) ) = -2.0;
-    DOY_co2_max( DOYidx( 125 ) : DOYidx( 155 ) ) = 3.0;
-    
-elseif (sitecode == 6 ) & ( year == 2009 )
-    DOY_co2_min( DOYidx( 83 ) : DOYidx( 100 ) ) = -3.0;
-    DOY_co2_max( DOYidx( 83 ) : DOYidx( 100 ) ) = 4.0;
-    DOY_co2_max( DOYidx( 156 ) : DOYidx( 305 ) ) = 4.0;
-    DOY_co2_max( DOYidx( 311 ) : end ) = 3.0;
-    
-elseif (sitecode == 6 ) & ( year == 2010 )
-    DOY_co2_max( DOYidx( 200 ) : DOYidx( 244 ) ) = 4.0;
-    DOY_co2_max( DOYidx( 246 ) : DOYidx( 300 ) ) = 3.0;
-    
-elseif (sitecode == 6 ) & ( year == 2011 )
-    DOY_co2_max( DOYidx( 95 ) : DOYidx( 166 ) ) = 4.0;
-    DOY_co2_max( DOYidx( 180 ) : end ) = 4.0;
-    
-elseif (sitecode == 10 ) & ( year == 2011 )
-    idx = DOYidx( 192.2 ) : DOYidx( 192.6 );
-    std_exc_flag( idx ) = true;
-    DOY_co2_max( idx ) = 6.5;
-    
-    DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
-    
-elseif (sitecode == 11 ) & ( year == 2011 )
-    % std_exc_flag( DOYidx( 9.5 ) : DOYidx( 9.7 ) ) = true;
-    % std_exc_flag( DOYidx( 19.6 ) : DOYidx( 19.7 ) ) = true;
-    % std_exc_flag( DOYidx( 24.55 ) : DOYidx( 24.65 ) ) = true;
-    std_exc_flag( DOYidx( 39.5 ) : DOYidx( 39.7 ) ) = true;
-    std_exc_flag( DOYidx( 50.5 ) : DOYidx( 50.7 ) ) = true;
-    std_exc_flag( DOYidx( 58.5 ) : DOYidx( 58.7 ) ) = true;
-    std_exc_flag( DOYidx( 66.6 ) : DOYidx( 66.8 ) ) = true;
-    std_exc_flag( DOYidx( 72.5 ) : DOYidx( 72.6 ) ) = true;
-    std_exc_flag( DOYidx( 89.55 ) : DOYidx( 89.65 ) ) = true;
-    std_exc_flag( DOYidx( 104.48 ) : DOYidx( 104.52 ) ) = true;
-    std_exc_flag( DOYidx( 107.52 ) : DOYidx( 107.58 ) ) = true;
-    std_exc_flag( DOYidx( 129.48 ) : DOYidx( 129.56 ) ) = true;
-    
-    idx = DOYidx( 80.5 ) : DOYidx( 80.65 );
-    std_exc_flag( idx ) = true;
-    DOY_co2_max( idx ) = 6.9;
-    
+  case UNM_sites.PJ
+    switch year    
+      case 2008
+        DOY_co2_max( 1 : DOYidx( 185 ) ) = 3.0;
+        DOY_co2_min( DOYidx( 335 ) : DOYidx( 365 ) ) = -6.5;
+      
+      case 2009
+        DOY_co2_max( 1 : DOYidx( 180 ) ) = 3.0;
+        DOY_co2_max( DOYidx( 190 ) : DOYidx( 260 ) ) = 4.0;
 
-    idx = DOYidx( 99.45 ) : DOYidx( 99.6 );
-    std_exc_flag( idx ) = true;
-    DOY_co2_max( idx ) = 7.4;
+      case 2011
+        std_exc_flag( DOYidx( 31.5 ) : DOYidx( 31.7 ) ) = true;
+        std_exc_flag( DOYidx( 182.6 ) : DOYidx( 182.8 ) ) = true;
+        std_exc_flag( DOYidx( 183.4 ) : DOYidx( 183.7 ) ) = true;
+        std_exc_flag( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = true;
+        
+        DOY_co2_max( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = 6.5;
+        DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
+    end  %PJ
 
-    idx = DOYidx( 116.5 ) : DOYidx( 116.6 );
-    std_exc_flag( idx ) = true;
-    DOY_co2_max( idx ) = 7.2;
+  case UNM_sites.PPine
+    switch year
+      case 2011
+        std_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
+        DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;
+    end
     
-    DOY_co2_max( DOYidx( 194 ) : DOYidx( 195 ) ) = 2.3;
-    std_exc_flag( DOYidx( 201 ) : DOYidx( 203 ) ) = true;
-    std_exc_flag( DOYidx( 225.6 ) : DOYidx( 225.7 ) ) = true;
-    std_exc_flag( DOYidx( 290.4 ) : DOYidx( 290.6 ) ) = true;
-    std_exc_flag( DOYidx( 335.45 ) : DOYidx( 335.6 ) ) = true;
-    DOY_co2_max( DOYidx( 344.5 ) : DOYidx( 344.7 ) ) = 9.0;
-    DOY_co2_max( DOYidx( 345.48 ) : DOYidx( 345.56 ) ) = 9.0;
+  case UNM_sites.MCon
+    switch year
+      case 2007
+        idx = DOYidx( 120.35 ) : DOYidx( 120.55 );
+        std_exc_flag( idx ) = true;
+        DOY_co2_min( idx ) = -15;
+        std_exc_flag( DOYidx( 292.4 ) : DOYidx( 294.5 ) ) = true;
+        std_exc_flag( DOYidx( 293.5 ) : DOYidx( 293.6 ) ) = true;
+        std_exc_flag( DOYidx( 301.5 ) : DOYidx( 301.7 ) ) = true;
+        
+        DOY_co2_max( DOYidx( 75 ) : DOYidx( 86 ) ) = 2.0;
+        DOY_co2_max( DOYidx( 176 ) : DOYidx( 206 ) ) = 3.5;
+        DOY_co2_max( DOYidx( 207 ) : DOYidx( 297 ) ) = 4.0;
+        DOY_co2_min( DOYidx( 327 ) : end ) = -2.0;
+      
+      case 2008
+        std_exc_flag( DOYidx( 43.5 ) : DOYidx( 43.6 ) ) = true;
+        std_exc_flag( DOYidx( 88 ) : DOYidx( 93 ) ) = true;
+        std_exc_flag( DOYidx( 121 ) : DOYidx( 122 ) ) = true;
+        
+        DOY_co2_min( 1 : DOYidx( 106 ) ) = -2.0;
+        DOY_co2_max( DOYidx( 125 ) : DOYidx( 155 ) ) = 3.0;
+
+      case 2009
+        DOY_co2_min( DOYidx( 83 ) : DOYidx( 100 ) ) = -3.0;
+        DOY_co2_max( DOYidx( 83 ) : DOYidx( 100 ) ) = 4.0;
+        DOY_co2_max( DOYidx( 156 ) : DOYidx( 305 ) ) = 4.0;
+        DOY_co2_max( DOYidx( 311 ) : end ) = 3.0;
+
+      case 2010
+        DOY_co2_max( DOYidx( 200 ) : DOYidx( 244 ) ) = 4.0;
+        DOY_co2_max( DOYidx( 246 ) : DOYidx( 300 ) ) = 3.0;
+
+      case 2011
+
+        DOY_co2_max( DOYidx( 95 ) : DOYidx( 166 ) ) = 4.0;
+        DOY_co2_max( DOYidx( 180 ) : end ) = 4.0;
+    end  % MCon
+    
+  case UNM_sites.PJ_girdle
+    switch year
+      case 2011
+        idx = DOYidx( 192.2 ) : DOYidx( 192.6 );
+        std_exc_flag( idx ) = true;
+        DOY_co2_max( idx ) = 6.5;
+    
+        DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
+    end
+    
+  case UNM_sites.New_GLand
+    switch year
+      case 2011
+        std_exc_flag( DOYidx( 39.5 ) : DOYidx( 39.7 ) ) = true;
+        std_exc_flag( DOYidx( 50.5 ) : DOYidx( 50.7 ) ) = true;
+        std_exc_flag( DOYidx( 58.5 ) : DOYidx( 58.7 ) ) = true;
+        std_exc_flag( DOYidx( 66.6 ) : DOYidx( 66.8 ) ) = true;
+        std_exc_flag( DOYidx( 72.5 ) : DOYidx( 72.6 ) ) = true;
+        std_exc_flag( DOYidx( 89.55 ) : DOYidx( 89.65 ) ) = true;
+        std_exc_flag( DOYidx( 104.48 ) : DOYidx( 104.52 ) ) = true;
+        std_exc_flag( DOYidx( 107.52 ) : DOYidx( 107.58 ) ) = true;
+        std_exc_flag( DOYidx( 129.48 ) : DOYidx( 129.56 ) ) = true;
+        
+        idx = DOYidx( 80.5 ) : DOYidx( 80.65 );
+        std_exc_flag( idx ) = true;
+        DOY_co2_max( idx ) = 6.9;
+        
+
+        idx = DOYidx( 99.45 ) : DOYidx( 99.6 );
+        std_exc_flag( idx ) = true;
+        DOY_co2_max( idx ) = 7.4;
+
+        idx = DOYidx( 116.5 ) : DOYidx( 116.6 );
+        std_exc_flag( idx ) = true;
+        DOY_co2_max( idx ) = 7.2;
+        
+        DOY_co2_max( DOYidx( 194 ) : DOYidx( 195 ) ) = 2.3;
+        std_exc_flag( DOYidx( 201 ) : DOYidx( 203 ) ) = true;
+        std_exc_flag( DOYidx( 225.6 ) : DOYidx( 225.7 ) ) = true;
+        std_exc_flag( DOYidx( 290.4 ) : DOYidx( 290.6 ) ) = true;
+        std_exc_flag( DOYidx( 335.45 ) : DOYidx( 335.6 ) ) = true;
+        DOY_co2_max( DOYidx( 344.5 ) : DOYidx( 344.7 ) ) = 9.0;
+        DOY_co2_max( DOYidx( 345.48 ) : DOYidx( 345.56 ) ) = 9.0;
+    end  % New_GLand
 end
 
 %------------------------------------------------------------
