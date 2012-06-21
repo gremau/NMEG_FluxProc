@@ -1,0 +1,29 @@
+function UNM_site_plot_fullyear_time_offsets( sitecode, year )
+% UNM_SITE_PLOT_DOY_TIME_OFFSETS - 
+%  
+
+data = parse_forgapfilling_file( sitecode, year, '' );
+sol_ang = UNM_get_solar_angle( sitecode, data.timestamp );
+
+opt_off_Rg = repmat( NaN, 1, numel( 1:365 ) );
+opt_off_PAR = repmat( NaN, 1, numel( 1:365 ) );
+for doy = 1:365
+    opt_off_Rg( doy ) = match_solarangle_radiation( data.Rg, ...
+                                                    sol_ang, ...
+                                                    data.timestamp, ...
+                                                    doy, year, false );
+    % opt_off_PAR( doy ) = match_solarangle_radiation( data.PAR, ...
+    %                                              sol_ang, ...
+    %                                              data.timestamp, ...
+    %                                              doy, year, false );
+end
+
+t_str = sprintf( '%s %d radiation offset', char( sitecode ), year ); 
+figure( 'Name', t_str )
+h_Rg = plot( opt_off_Rg, '.k' );
+% hold on;
+% h_PAR = plot( opt_off_PAR, 'ob' );
+title( t_str );
+xlabel( 'DOY' );
+ylabel( 'offset, hours' );
+%legend( [ h_Rg, h_PAR ], 'Rg', 'PAR', 'Location', 'best' );

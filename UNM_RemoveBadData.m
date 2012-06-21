@@ -63,7 +63,7 @@ args.parse( sitecode, year, varargin{ : } );
 
 % place user arguments into variables
 sitecode = args.Results.sitecode;
-year = args.Results.year;
+year_arg = args.Results.year;
 
 % sitecode = 10;
 % year = 2011;
@@ -546,8 +546,14 @@ draw_plots = args.Results.draw_plots;
     datenumber = datenum(timestamp);
     disp('file read');
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % some siteyears have periods where the observed radition does not line
+    % up with sunrise.  Fix this here so that the matched time/radiation
+    % propagates through the rest of the calculations
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+    data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data );
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Read in Matlab processed ts data (these are in the same columns for all
     % sites, so they can be just hard-wired in by column number
@@ -1949,7 +1955,7 @@ draw_plots = args.Results.draw_plots;
     LH_night_flag = ( LH_rad < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
     LH_day_flag = ( LH_rad >= 20.0 ) & ( HL_wpl_massman < 0.0 );
     if draw_plots
-        script_debug_LE;
+        script_LE_diagnostic_plot;
     end
     removed_LH_wpl_mass = numel( find( LH_maxmin_flag | ...
                                        LH_night_flag | ...
@@ -2059,7 +2065,22 @@ draw_plots = args.Results.draw_plots;
     if sitecode == 1 & year == 2010
         Tair( 12993:end ) = Tair_TOA5(  12993:end );
     end
-
+    
+    % -----
+    % debug code to remove -- TWH
+    scratch;
+    % plot_fingerprint( jday, sw_incoming, ...
+    %                   sprintf( '%s %d Rg fingerprint', ...
+    %                            char( sitecode ), year_arg ) );
+    t_str = get( get( gca, 'Title' ), 'string' );
+    set( get( gca, 'Title' ), 'string', [ t_str, ' shift = -1 hour' ] )
+    fjday = datenum( year, month, day, hour, minute, second ) - ...
+            datenum( year_arg, 1, 0 );
+    %idx = floor( fjday ) == 90;
+    figure(); plot( fjday, sw_incoming, '.' );
+    title( 'JSav 2009 Rg shift = -1' );
+    % -----
+    
     if write_gap_filling_out_file
         if (sitecode>7 && sitecode<10) % || 9);
             disp('writing gap-filling file...')
@@ -2091,7 +2112,6 @@ draw_plots = args.Results.draw_plots;
             end
             datamatrix = [day month year hour minute qc NEE ...
                           LE H_dry sw_incoming Tair Tsoil rH precip u_star];
-            
             [ filled_idx, datamatrix ] = ...
                 UNM_gapfill_from_local_data( ...
                     sitecode, ...

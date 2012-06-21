@@ -21,7 +21,7 @@ function ds  = UNM_parse_fluxall_xls_file( sitecode, year )
     
     range = sprintf( 'B%d:%s%d', row1 ,lastcolumn, filelength_n );
     headerrange = sprintf( 'B2:%s2',lastcolumn );
-    time_stamp_range = sprintf( 'A5:A%d', filelength_n );
+    time_stamp_range = sprintf( 'B5:B%d', filelength_n );
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Open file and parse out dates and times

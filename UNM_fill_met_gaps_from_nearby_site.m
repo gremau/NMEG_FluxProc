@@ -150,7 +150,7 @@ end
 [ this_data, Rg_filled_1, Rg_filled_2 ] = ...
     fill_variable( this_data, nearby_data, nearby_2, ...
                    'Rg', 'Rg', 'Rg', linfit( 3 ) );
-this_data.Rg( this_data.Rg < 0 ) = NaN;
+this_data.Rg( this_data.Rg < -50 ) = NaN;
 
 %--------------------------------------------------
 % plot filled variables if requested

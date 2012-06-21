@@ -1,12 +1,21 @@
 function [ h_fig, h_ax ] = plot_fingerprint( dtime, data, t_str )
 % PLOT_FINGERPRINT - plot Jena-style fingerprint plot of data
 %   
+% USAGE
+%    [ h_fig, h_ax ] = plot_fingerprint( dtime, data, t_str )
+%
+% (c) Timothy W. Hilton, UNM, June 2012
+
+data = padarray( data, [ 48 - mod( size( data, 1 ), 48 ), 0 ], NaN, 'post' );
 
 doy = sort( unique( floor( dtime ) ) );
 data_rect = reshape( data, 48, [] )';
 
-h_fig = figure();
-h_ax = axes();
+% h_fig = figure();
+% h_ax = axes();
+
+h_fig = gcf();
+h_ax = gca();
 
 hours_of_day = (1:48) / 2;
 
