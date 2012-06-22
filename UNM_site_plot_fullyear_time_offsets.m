@@ -1,6 +1,20 @@
 function UNM_site_plot_fullyear_time_offsets( sitecode, year, varargin )
 % UNM_SITE_PLOT_DOY_TIME_OFFSETS - 
 %  
+% USAGE
+%    UNM_site_plot_fullyear_time_offsets( sitecode, year )
+%    UNM_site_plot_fullyear_time_offsets( sitecode, year, save_fig )
+%
+% INPUTS
+%    sitecode: integer or UNM_sites object
+%    year: integer
+%    save_fig: optional, logical; if true, save the figure to an eps file
+%        (default false)
+%
+% OUTPUTS
+%    no outputs
+%
+% (c) Timothy W. Hilton, UNM, June 2012
 
 % -----
 % define optional inputs, with defaults and typechecking
@@ -10,7 +24,7 @@ args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 [ this_year, ~, ~ ] = datevec( now );
 args.addRequired( 'year', ...
                @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
-args.addParamValue( 'save_fig', true, @islogical );
+args.addParamValue( 'save_fig', false, @islogical );
 
 % parse optional inputs
 args.parse( sitecode, year, varargin{ : } );

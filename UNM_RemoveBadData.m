@@ -2072,13 +2072,6 @@ draw_plots = args.Results.draw_plots;
     % plot_fingerprint( jday, sw_incoming, ...
     %                   sprintf( '%s %d Rg fingerprint', ...
     %                            char( sitecode ), year_arg ) );
-    t_str = get( get( gca, 'Title' ), 'string' );
-    set( get( gca, 'Title' ), 'string', [ t_str, ' shift = -1 hour' ] )
-    fjday = datenum( year, month, day, hour, minute, second ) - ...
-            datenum( year_arg, 1, 0 );
-    %idx = floor( fjday ) == 90;
-    figure(); plot( fjday, sw_incoming, '.' );
-    title( 'JSav 2009 Rg shift = -1' );
     % -----
     
     if write_gap_filling_out_file
