@@ -18,24 +18,49 @@ switch sitecode
 
   case UNM_sites.SLand
     switch year
-      case 2007 
+      case 2008
+        idx = [ 1: DOYidx( 5 ), DOYidx( 20 ) : size( data, 1 ) ];
+        data( idx, : ) = shift_data( data( idx, : ), -1.0 );
+      case 2009
+        idx = 1 : DOYidx( 64 );
+        data( idx, : ) = shift_data( data( idx, : ),  -1.0 );
+      case 2011
+        idx = DOYidx( 137 ) : DOYidx( 153 );
+        data( idx, : ) = shift_data( data( idx, : ),  -1.0 );
     end
     
   case UNM_sites.JSav
     switch year
       case 2009
         idx = 1 : DOYidx( 97.5 );
-        offset = -1.0;
-        data( idx, : ) = shift_data( data( idx, : ),  offset );
+        data( idx, : ) = shift_data( data( idx, : ),  -1.0 );
+    end
+
+  case UNM_sites.PJ
+    switch year
+      case { 2009, 2010, 2011 }
+        data = shift_data( data, 1.0 );
     end
     
   case UNM_sites.MCon
     switch year
       case 2010
         data = shift_data( data, -1.0 );
-      otherwise
+      case 2011
+        idx = 1 : DOYidx( 50.0 );
+        data( idx, : ) = shift_data( data( idx, : ),  -2.0 );
+    end
     
-end
+  case UNM_sites.New_GLand
+    switch year
+      case 2010
+        idx = DOYidx( 179 ) : size( data, 1 );
+        data( idx, : ) = shift_data( data( idx, : ),  1.0 );
+      case 2011
+        data = shift_data( data,  1.0 );
+        
+    end
+
 end
 
 %==================================================

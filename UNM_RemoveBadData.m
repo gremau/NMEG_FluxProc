@@ -552,7 +552,7 @@ draw_plots = args.Results.draw_plots;
     % propagates through the rest of the calculations
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data );
+    %data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data );
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Read in Matlab processed ts data (these are in the same columns for all
