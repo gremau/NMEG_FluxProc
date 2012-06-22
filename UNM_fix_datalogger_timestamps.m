@@ -28,6 +28,14 @@ switch sitecode
         offset = -1.0;
         data( idx, : ) = shift_data( data( idx, : ),  offset );
     end
+    
+  case UNM_sites.MCon
+    switch year
+      case 2010
+        data = shift_data( data, -1.0 );
+      otherwise
+    
+end
 end
 
 %==================================================
