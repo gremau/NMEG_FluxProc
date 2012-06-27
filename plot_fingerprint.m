@@ -52,14 +52,22 @@ end
 % -----
 % create the fingerprint plot
 % -----
-data = padarray( data, [ 48 - mod( size( data, 1 ), 48 ), 0 ], NaN, 'post' );
+tstamp = datenum( 2004, 1, 0 ) + dtime;
+t_min = datenum( 2004, 1, 1 );
+t_max = datenum( 2004, 12, 31, 23, 59, 59 );
+tstamp = datenum_2_round30min( tstamp, 2, t_min );
+temp_data = dataset( { [ tstamp, data ], 'timestamp', 'data' } );
+temp_data = dataset_fill_timestamps( temp_data, 'timestamp', ...
+                                     't_min', t_min, 't_max', t_max );
 
-doy = sort( unique( floor( dtime ) ) );
+dtime = temp_data.timestamp - datenum( 2004, 1, 0 );
+data = temp_data.data;
+
 data_rect = reshape( data, 48, [] )';
 
 hours_of_day = (1:48) / 2;
 
-image( hours_of_day, 1:max( doy ), data_rect, ...
+image( hours_of_day, 1:366 , data_rect, ...
        'CDataMapping', 'scaled');
 set( h_ax, 'YDir', 'normal', 'XMinorTick', 'On' );
 colormap( fp_cmap );

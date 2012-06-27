@@ -70,10 +70,10 @@ year_arg = args.Results.year;
 iteration = int8( args.Results.iteration );
 
 %true to write "[sitename].._qc", -- file with all variables & bad data removed
-write_complete_out_file = args.Results.write_QC; 
+write_complete_out_file = args.Results.write_QC;
 %true to write file for Reichstein's online gap-filling. SET U* LIM (including
 %site- specific ones--comment out) TO 0!!!!!!!!!!
-write_gap_filling_out_file = args.Results.write_GF; 
+write_gap_filling_out_file = args.Results.write_GF;
 
 draw_plots = args.Results.draw_plots;
 
@@ -110,14 +110,14 @@ draw_plots = args.Results.draw_plots;
             lastcolumn='IC';
             ustar_lim = 0.06;
             winter_co2_min = -0.5;
-            co2_min_by_month = -10; 
+            co2_min_by_month = -10;
             co2_max_by_month = [2.5 2.5 2.5 2.5 2.5 2.5 2.5 2.5 2.5 2.5 2.5 2.5];
         elseif year == 2010;
             filelength_n = 17523;
             lastcolumn='IL';
             ustar_lim = 0.06;
             winter_co2_min = -0.5;
-            co2_min_by_month = [ -0.5, -0.5, repmat( -10, 1, 9 ), -0.5 ];; 
+            co2_min_by_month = [ -0.5, -0.5, repmat( -10, 1, 9 ), -0.5 ];;
             co2_max_by_month = 6;
         elseif year == 2011;
             filelength_n = 17523;
@@ -142,13 +142,13 @@ draw_plots = args.Results.draw_plots;
             filelength_n = 17523;
             lastcolumn='HA';
             ustar_lim = 0.08;
-            co2_min_by_month = [-0.7, -0.7, repmat( -4, 1, 9 ), -0.7 ]; 
+            co2_min_by_month = [-0.7, -0.7, repmat( -4, 1, 9 ), -0.7 ];
             co2_max_by_month = [ repmat( 1.5, 1, 6 ), repmat( 3.5, 1, 6 ) ];
         elseif year == 2008
             filelength_n = 17572;
             lastcolumn='GZ';
             ustar_lim = 0.08;
-            co2_min_by_month = -10; 
+            co2_min_by_month = -10;
             co2_max_by_month = repmat( 6, 1, 12 );
             co2_max_by_month( [ 7, 8 ] ) = 2.5; %remove some funny looking pts
                                                 %in Jul and Aug
@@ -185,14 +185,14 @@ draw_plots = args.Results.draw_plots;
             filelength_n = 11596;
             lastcolumn='HR';
             ustar_lim = 0.09;
-            co2_min_by_month = -11; 
+            co2_min_by_month = -11;
             co2_max_by_month = repmat( 7, 1, 12 );
             co2_max_by_month( 7 ) = 5; %remove some funny pts in July
         elseif year == 2008
             filelength_n = 17572;
             lastcolumn='HJ';
             ustar_lim = 0.08;
-            co2_min_by_month = -10; 
+            co2_min_by_month = -10;
             co2_max_by_month = repmat( 10, 1, 12 );
             co2_max_by_month( 9 ) = 5; %remove some funny pts in Sep
         elseif year == 2009
@@ -227,7 +227,7 @@ draw_plots = args.Results.draw_plots;
         n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
         wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
-        co2_min_by_month = -10; 
+        co2_min_by_month = -10;
         co2_max_by_month = 6;
         Tdry_min = 240; Tdry_max = 310;
         HS_min = -100; HS_max = 640;
@@ -240,7 +240,7 @@ draw_plots = args.Results.draw_plots;
             lastcolumn = 'HO';
             filelength_n = 2514;
             ustar_lim = 0.16;
-            co2_min_by_month = -5; 
+            co2_min_by_month = -5;
             co2_max_by_month = 2.5;
         elseif year == 2008
             lastcolumn = 'HO';
@@ -310,7 +310,7 @@ draw_plots = args.Results.draw_plots;
         
     elseif sitecode==6; % Mixed conifer
         site = 'MCon'
-        co2_min_by_month = [ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ]; 
+        co2_min_by_month = [ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ];
         co2_max_by_month = 6;
         n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -534,14 +534,14 @@ draw_plots = args.Results.draw_plots;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     disp('reading data...')
-    [num text] = xlsread(filein,headerrange);
-    headertext = text;
-    [num text] = xlsread(filein,range);  %does not read in first column because it's text!!!!!!!!
+    [num xls_text] = xlsread(filein,headerrange);
+    headertext = xls_text;
+    [num xls_text] = xlsread(filein,range);  %does not read in first column because it's text!!!!!!!!
     data = num;
     ncol = size(data,2)+1;
     datalength = size(data,1);
-    [num text] = xlsread(filein,time_stamp_range);
-    timestamp = text;
+    [num xls_text] = xlsread(filein,time_stamp_range);
+    timestamp = xls_text;
     [year month day hour minute second] = datevec(timestamp);
     datenumber = datenum(timestamp);
     disp('file read');
@@ -552,8 +552,9 @@ draw_plots = args.Results.draw_plots;
     % propagates through the rest of the calculations
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    %data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data );
-    
+    data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data );
+    shift_t_str = 'shifted';
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Read in Matlab processed ts data (these are in the same columns for all
     % sites, so they can be just hard-wired in by column number
@@ -648,7 +649,7 @@ draw_plots = args.Results.draw_plots;
 
         HL_raw = data(:,61);
         HL_wpl_massman = data(:,64);
-        HL_wpl_massman_un = data(:,63); 
+        HL_wpl_massman_un = data(:,63);
         % Half hourly data filler only produces uncorrected HL_wpl_massman, but use
         % these where available
         HL_wpl_massman(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un))=HL_wpl_massman_un(isnan(HL_wpl_massman)&~isnan(HL_wpl_massman_un));
@@ -735,7 +736,7 @@ draw_plots = args.Results.draw_plots;
                 strcmp('RH_Avg', headertext(i)) == 1
             rH = data(:,i-1) / 100.0;
         elseif strcmp( 'Ts_mean', headertext( i ) )
-            Tair_TOA5 = data(:,i-1);    
+            Tair_TOA5 = data(:,i-1);
         elseif  strcmp('5point_precip', headertext(i)) == 1 || ...
                 strcmp('rain_Tot', headertext(i)) == 1 || ...
                 strcmp('precip', headertext(i)) == 1 || ...
@@ -929,7 +930,7 @@ draw_plots = args.Results.draw_plots;
         soil_heat_flux_1 = repmat( NaN, size( data, 1 ), 1 );
         soil_heat_flux_2 = repmat( NaN, size( data, 1 ), 1 );
         SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2' };
-        soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];   
+        soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];
 
         % related lines 678-682: corrections for site 4 (PJ) soil_heat_flux_1 and soil_heat_flux_2
         Tsoil=sw_incoming.*NaN;  %MF: note, this converts all values in Tsoil to NaN. Not sure if this was intended.
@@ -959,10 +960,10 @@ draw_plots = args.Results.draw_plots;
         end
         Tsoil_2cm = (Tsoil_2cm_1 + Tsoil_2cm_2)/2;
         Tsoil_6cm = (Tsoil_6cm_1 + Tsoil_6cm_2)/2;
-        Tsoil = Tsoil_2cm;    
+        Tsoil = Tsoil_2cm;
 
         SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2', 'soil_heat_flux_3' };
-        soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2, soil_heat_flux_3 ];   
+        soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2, soil_heat_flux_3 ];
         
     elseif sitecode == 7 % Texas Freeman
         for i=1:ncol;
@@ -1441,7 +1442,7 @@ draw_plots = args.Results.draw_plots;
           (1+1.6077.*H2O_g./pd);
 
     if draw_plots
-        h_burba_fig = figure( 'Name', 'Burba' ); 
+        h_burba_fig = figure( 'Name', 'Burba' );
         plot(dFc,'.'); ylim([-1 1]);
         title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
         ylabel('Burba cold temp correction');
@@ -1610,9 +1611,8 @@ draw_plots = args.Results.draw_plots;
     if iteration > 2
         
         [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
-          HSdry, HSdry_massman, ...
-          CO2_mean, H2O_mean, atm_press, NR_tot, sw_outgoing, ...
-          lw_incoming, lw_outgoing ] = ...
+          HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
+          sw_incoming, sw_outgoing, lw_incoming, lw_outgoing ] = ...
             remove_specific_problem_periods( sitecode, year2, ...
                                              fc_raw_massman_wpl, ...
                                              E_wpl_massman, ...
@@ -1623,6 +1623,7 @@ draw_plots = args.Results.draw_plots;
                                              H2O_mean, ...
                                              atm_press, ...
                                              NR_tot, ...
+                                             sw_incoming, ...
                                              sw_outgoing, ...
                                              lw_incoming, ...
                                              lw_outgoing );
@@ -1665,7 +1666,7 @@ draw_plots = args.Results.draw_plots;
         co2_conc_filter_exceptions = repmat( false, size( CO2_mean ) );
         co2_conc_filter_exceptions = ...
             specify_siteyear_co2_conc_filter_exceptions( ...
-                sitecode, year, co2_conc_filter_exceptions ); 
+                sitecode, year, co2_conc_filter_exceptions );
 
         removed_highco2 = length(highco2flag);
         decimal_day_nan(highco2flag) = NaN;
@@ -1843,10 +1844,10 @@ draw_plots = args.Results.draw_plots;
                                'LineWidth', 3);
             h_co2_std = plot( decimal_day(xx), yyl, ...
                               'Color', pal( 3, : ), ...
-                              'linewidth', 3 ); 
+                              'linewidth', 3 );
             h_co2_std = plot( decimal_day(xx), yyu, ...
                               'Color', pal( 3, : ),...
-                              'linewidth', 3 ); 
+                              'linewidth', 3 );
             xx=linspace(1, length(CO2_mean), length(CO2_mean));
             ylim([300 450]);
             xlabel('day of year');
@@ -2053,7 +2054,7 @@ draw_plots = args.Results.draw_plots;
     qc = ones(datalength,1);
     %qc(dd_idx) = 2;
     qc( not( idx_NEE_good ) ) = 2;
-    NEE = fc_raw_massman_wpl; 
+    NEE = fc_raw_massman_wpl;
     NEE( not( idx_NEE_good ) ) = -9999;
     LE = HL_wpl_massman;
     %LE(dd_idx) = -9999;
@@ -2068,7 +2069,87 @@ draw_plots = args.Results.draw_plots;
     
     % -----
     % debug code to remove -- TWH
-    scratch;
+
+    h_fig = figure( 'Units', 'Normalized' );
+
+    ax1 = subplot( 2, 3, 1 );
+    pal = colormap( cbrewer( 'seq', 'YlOrRd', 9 ) );
+    Rg_cmap = [ interp1( 1:6, pal( 1:6, : ), linspace( 1, 6, 10 ) ); ...
+                interp1( 0:3, pal( 6:9, : ), linspace( 0, 3, 60 ) ) ];
+    plot_fingerprint( decimal_day, sw_incoming, ...
+                      sprintf( '%s %d Rg fingerprint', ...
+                               char( sitecode ), year_arg ), ...
+                      'h_fig', h_fig, ...
+                      'h_ax', ax1, ...
+                      'cmap', Rg_cmap );
+
+    ax2 = subplot( 2, 3, 2 );
+    plot_fingerprint( decimal_day, rH, ...
+                      sprintf( '%s %d RH fingerprint', ...
+                               char( sitecode ), year_arg ), ...
+                      'h_fig', h_fig, ...
+                      'h_ax', ax2 );
+
+    ax3 = subplot( 2, 3, 3 );
+    plot_fingerprint( decimal_day, Tair, ...
+                      sprintf( '%s %d T fingerprint', ...
+                               char( sitecode ), year_arg ), ...
+                      'h_fig', h_fig, ...
+                      'h_ax', ax3 );
+
+    ax4 = subplot( 2, 3, 4 );
+    NEE_nobad = replace_badvals( NEE, [ -9999 ], 1e-6 );
+    pal = colormap( cbrewer( 'div', 'PRGn', 9 ) );
+    NEE_cmap = [ interp1( 1:9, pal, linspace( 1, 9, 100 ) ) ];
+    NEE_cmap = flipud( NEE_cmap );
+    plot_fingerprint( decimal_day, NEE_nobad, ...
+                      sprintf( '%s %d NEE fingerprint', ...
+                               char( sitecode ), year_arg ), ...
+                      'h_fig', h_fig, ...
+                      'h_ax', ax4, ...
+                      'cmap', NEE_cmap, ...
+                      'center_caxis', true );
+
+    ax5 = subplot( 2, 3, 5 );
+    plot_fingerprint( decimal_day, LE, ...
+                      sprintf( '%s %d LE fingerprint', ...
+                               char( sitecode ), year_arg ), ...
+                      'h_fig', h_fig, ...
+                      'h_ax', ax5 );
+
+    ax6 = subplot( 2, 3, 6 );
+    plot_fingerprint( decimal_day, H_dry, ...
+                      sprintf( '%s %d H fingerprint', ...
+                               char( sitecode ), year_arg ), ...
+                      'h_fig', h_fig, ...
+                      'h_ax', ax6 ); 
+    
+    set( h_fig, 'Units', 'Normalized', ...
+                'outerposition', [ 0, 0, 1, 1 ], ...
+                'Name', shift_t_str );
+    
+    % create a "main" title above the six subplots
+    ha = axes( 'Position', [0 0 1 1], ...
+               'Xlim',[0 1], 'Ylim',[0 1],...
+               'Box','off','Visible','off',...
+               'Units','normalized', ...
+               'clipping' , 'off');
+    text(0.5, 1, strcat( '\bf ', ...
+                         strrep( shift_t_str, '_', '\_' ) ),...
+         'HorizontalAlignment' ,'center',...
+         'VerticalAlignment', 'top');
+    
+    %save the fingerprints plot to a PDF
+    fname = sprintf( 'fingerprint_%s_%s_%d.eps', ...
+                     shift_t_str, ...
+                     char( UNM_sites( sitecode ) ), ...
+                     year_arg );
+    fprintf( 'fname: %s\n', fname );
+    figure_2_eps( h_fig, ...
+                  fullfile( 'C:', 'Users', 'Tim', 'Plots', 'RadiationOffset', ...
+                            fname ) );
+    %close( h_fig );
+    
     % plot_fingerprint( jday, sw_incoming, ...
     %                   sprintf( '%s %d Rg fingerprint', ...
     %                            char( sitecode ), year_arg ) );
@@ -2426,9 +2507,8 @@ function [ doy_min, doy_max ] = get_daily_maxmin( data_month, ...
 %------------------------------------------------------------
 
 function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
-           HSdry, HSdry_massman, ...
-           CO2_mean, H2O_mean, atm_press, NR_tot, sw_outgoing, ...
-           lw_incoming, lw_outgoing ] = ...
+           HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
+           sw_incoming, sw_outgoing, lw_incoming, lw_outgoing ] = ...
     remove_specific_problem_periods( sitecode, year, ...
                                      fc_raw_massman_wpl, ...
                                      E_wpl_massman, ...
@@ -2439,6 +2519,7 @@ function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
                                      H2O_mean, ...
                                      atm_press, ...
                                      NR_tot, ...
+                                     sw_incoming, ...
                                      sw_outgoing, ...
                                      lw_incoming, ...
                                      lw_outgoing )
@@ -2471,7 +2552,10 @@ switch sitecode
         idx = DOYidx( 228.5 ) : DOYidx( 235.5 );
         fc_raw_massman_wpl( idx ) = NaN;
         H2O_mean( idx ) = NaN;
-
+        
+      case 2008
+        sw_incoming( DOYidx( 7 ) : DOYidx( 9 ) ) = NaN;
+        
       case 2010
         % IRGA problems
         idx = DOYidx( 102 ) : DOYidx( 119.5 );
@@ -2539,13 +2623,14 @@ switch sitecode
     
   case UNM_sites.MCon
     switch year
+      case 2009
+        sw_incoming( DOYidx( 342 ) : end ) = NaN;
       case 2010
         idx = DOYidx( 134.4 ) : DOYidx( 146.5 );
         CO2_mean( idx ) = CO2_mean( idx ) + 10;
         
         idx = DOYidx( 301.6 ) : DOYidx( 344.7 );
-        CO2_mean( idx ) = CO2_mean( idx ) - 17;
-        
+        CO2_mean( idx ) = CO2_mean( idx ) - 17;        
       case 2011
         idx = DOYidx( 225.4 ) : DOYidx( 237.8 );
         lw_incoming( idx ) = NaN;
@@ -2553,8 +2638,14 @@ switch sitecode
         E_wpl_massman( idx ) = NaN;
         HL_wpl_massman( idx ) = NaN;
         HSdry( idx ) = NaN;
-        HSdry_massman( idx ) = NaN;        
+        HSdry_massman( idx ) = NaN;
     end
+    
+  case UNM_sites.New_GLand
+    switch year
+      case 2010
+        sw_incoming( DOYidx( 355 ) : end ) = NaN;
+    end 
 end
 
 %------------------------------------------------------------
@@ -2573,7 +2664,7 @@ function [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
 std_exc_flag = repmat( false, size( DOY_co2_max ) );
 
 if isa( sitecode, 'double') | isa( sitecode, 'integer' )
-    sitecode = UNM_sites( sitecode )
+    sitecode = UNM_sites( sitecode );
 end
 
 switch sitecode
@@ -2678,7 +2769,7 @@ switch sitecode
         std_exc_flag( DOYidx( 17.4 ) : DOYidx( 17.6 ) ) = true;
         std_exc_flag( DOYidx( 20.4 ) : DOYidx( 20.7 ) ) = true;
         std_exc_flag( DOYidx( 58.4 ) : DOYidx( 58.6 ) ) = true;
-        std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;        
+        std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;
         std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
         std_exc_flag( DOYidx( 184.5 ) : DOYidx( 186 ) ) = true;
         std_exc_flag( DOYidx( 232.0 ) : DOYidx( 232.1 ) ) = true;
@@ -2801,7 +2892,7 @@ end
 
 function co2_conc_filter_exceptions = ...
     specify_siteyear_co2_conc_filter_exceptions( ...
-        sitecode, year, co2_conc_filter_exceptions ); 
+        sitecode, year, co2_conc_filter_exceptions );
 % Helper function for UNM_RemoveBadData (RBD for short).  Disables the high and
 % low CO2 concentration filters for specified time periods (noted in the code
 % below).  There are periods of incorrect [CO2] observations from the IRGA which
@@ -2819,7 +2910,7 @@ if ( sitecode == 1 ) & ( year(1) == 2010 )
     % these CO2 obs are bogus but the datalogger 30-min fluxes look OK.  TWH 27
     % Mar 2012
     co2_conc_filter_exceptions( 4128:5764 ) = true;
-    co2_conc_filter_exceptions( 7296:8064 ) = true;    
+    co2_conc_filter_exceptions( 7296:8064 ) = true;
     % days 253:257 -- bogus [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 218 ) : DOYidx( 223 ) ) = true;
     %co2_conc_filter_exceptions( DOYidx( 271 ) : DOYidx( 278 ) ) = true;
@@ -2859,7 +2950,7 @@ end
 
 par_max = 2500;
 doy = floor( doy );
-norm_factor = par_max / prctile( par, 99.8 )
+norm_factor = par_max / prctile( par, 99.8 );
 par_norm = par * norm_factor;
 
 if draw_plots
@@ -2870,9 +2961,9 @@ if draw_plots
 
     pal = brewer_palettes( 'Dark2' );
     h_par = plot( doy, par, 'ok' );
-    hold on
+    hold on;
     h_par_norm = plot( doy, par_norm, 'x', 'Color', pal( 1, : ) );
-    hold off
+    hold off;
     ylabel( 'PAR [W/m^2]' );
     xlabel( 'DOY' );
     legend( [ h_par, h_par_norm ], 'PAR (obs)', 'PAR (normalized)', ...
