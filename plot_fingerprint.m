@@ -35,18 +35,19 @@ h_ax = args.Results.h_ax;
 % define some defaults for cmap, h_fig, h_ax
 % -----
 
+% if figure or axes were not specified as arguments, create them now
+if isnan( h_fig )
+    h_fig = figure();
+    figure( h_fig );
+end
+if isnan( h_ax )
+    h_ax = axes();
+end
+
 % if colormap was not defined as an argument, define a default here
 if isempty( fp_cmap )
     pal = colormap( cbrewer( 'seq', 'YlGnBu', 9 ) );
     fp_cmap = [ interp1( 1:9, pal, linspace( 1, 9, 100 ) ) ];
-end
-
-% if figure or axes were not specified as arguments, create them now
-if isnan( h_fig )
-    h_fig = figure();
-end
-if isnan( h_ax )
-    h_ax = axes();
 end
 
 % -----
@@ -55,7 +56,7 @@ end
 tstamp = datenum( 2004, 1, 0 ) + dtime;
 t_min = datenum( 2004, 1, 1 );
 t_max = datenum( 2004, 12, 31, 23, 59, 59 );
-tstamp = datenum_2_round30min( tstamp, 2, t_min );
+tstamp = datenum_2_round30min( tstamp, 10, t_min );
 temp_data = dataset( { [ tstamp, data ], 'timestamp', 'data' } );
 temp_data = dataset_fill_timestamps( temp_data, 'timestamp', ...
                                      't_min', t_min, 't_max', t_max );
@@ -82,5 +83,8 @@ title( t_str );
 
 % make sure the colormap and colorbars for this plot don't change if
 % if a subsequent subplot changes the colormap
-freezeColors
-cbfreeze(colorbar)
+freezeColors_exists = not( isempty( which( 'freezeColors' ) ) );
+if freezeColors_exists
+    freezeColors;
+    cbfreeze(colorbar);
+end
