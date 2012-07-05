@@ -17,6 +17,7 @@ args.addRequired( 'dtime', @(x) ( isnumeric( x ) & ...
 args.addRequired( 'data', @isnumeric );
 args.addRequired( 't_str', @ischar );
 args.addParamValue( 'cmap', [], @isnumeric );
+args.addParamValue( 'clim', [], @isnumeric );
 args.addParamValue( 'h_fig', NaN, @isnumeric );
 args.addParamValue( 'h_ax', NaN, @isnumeric );
 args.addParamValue( 'center_caxis', false, @logical );
@@ -28,6 +29,7 @@ dtime = args.Results.dtime;
 data = args.Results.data;
 t_str = args.Results.t_str;
 fp_cmap = args.Results.cmap;
+fp_clim = args.Results.clim;
 h_fig = args.Results.h_fig;
 h_ax = args.Results.h_ax;
 
@@ -80,6 +82,10 @@ colorbar();
 xlabel( 'hour of day' );
 ylabel( 'day of year' );
 title( t_str );
+
+if not( isempty( fp_clim ) )
+    set( h_ax, 'CLim', fp_clim );
+end
 
 % make sure the colormap and colorbars for this plot don't change if
 % if a subsequent subplot changes the colormap
