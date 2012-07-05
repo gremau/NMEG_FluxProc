@@ -33,7 +33,8 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     [ ds_pt_GL, ds_pt_MR ] = ...
         UNM_parse_gapfilled_partitioned_output( sitecode, year );
     
-    %save( 'test_restart_01.mat' );
+    % save( sprintf( 'test_restart_%s_%d.mat', ...
+    %                char( UNM_sites( sitecode ) ), year ) );
 
     % make sure that QC, FluxAll, gapfilled, and partitioned have identical,
     % complete 30 minute timeseries
