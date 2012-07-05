@@ -5,6 +5,13 @@ doy = t - datenum( year, 1, 0 );
 idx_doy_start = min( find( floor( doy ) == this_doy ) );
 hours_12 = 24;  % observation interval is 30 mins; therefore 24 obs = 12 hours
 
+% if there aren't any data for this day, return NaN
+if ( ( this_doy < floor( min( doy ) ) ) | ...
+     ( this_doy > floor( max( doy ) ) ) )
+    optimal_offset = NaN;
+    return
+end
+
 % ----
 % search a +/- five hour range of potential time offsets
 n_obs = 10; % observation interval is 30 mins; therefore 10 obs = 5 hours
@@ -32,7 +39,7 @@ if ( isempty( optimal_offset ) )
     optimal_offset = NaN;
 end
 
-if numel( find( ~isnan( this_rad ) ) ) < 15
+if numel( find( ~isnan( this_rad ) ) ) < 5
     optimal_offset = NaN;
 end
 
