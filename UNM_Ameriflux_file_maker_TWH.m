@@ -12,6 +12,9 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
 %
 % Timothy W. Hilton, UNM, Dec 2011 - Jan 2012
 
+if isa( sitecode, 'UNM_sites' )
+    sitecode = int8( sitecode );
+end
 
     site = get_site_name( sitecode );
 
@@ -101,6 +104,39 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
     %% fix incorrect precipitation values
     ds_qc.precip = fix_incorrect_precip_factors( sitecode, year, ...
                                                  ds_qc.fjday, ds_qc.precip );
+    
+    if sitecode == int8( UNM_sites.JSav ) & ( year == 2007 )
+        % the gapfiller does some filling before the JSav tower was
+        % operational (4 May 2007 15:30), but the filled data do not look
+        % good (they are time-shifted).  Remove those data here.
+        row_idx = 1:DOYidx( 145 );
+        non_data_vars = { 'Day', 'Month', 'Year', 'Hour', ...
+                          'Minute', 'julday', 'Hr', 'timestamp' };
+
+        data_cols = find( not( ismember( ds_pt.Properties.VarNames, ...
+                                         non_data_vars ) ) );
+        temp_arr = double( ds_pt );
+        temp_arr( row_idx, data_cols ) = NaN;
+        ds_pt = replacedata( ds_pt, temp_arr );
+    elseif sitecode == int8( UNM_sites.MCon ) & ( year == 2009 )
+
+        NEE_vars = cellfun( @(x) not(isempty(x)), ...
+                            regexp( ds_pt_GL.Properties.VarNames, '.*NEE.*' ) );
+        GPP_vars = cellfun( @(x) not(isempty(x)), ...
+                            regexp( ds_pt_GL.Properties.VarNames, '.*GPP.*' ) );
+        RE_vars = cellfun( @(x) not(isempty(x)), ...
+                            regexp( ds_pt_GL.Properties.VarNames, '.*RE.*' ) );
+        LE_vars = cellfun( @(x) not(isempty(x)), ...
+                            regexp( ds_pt_GL.Properties.VarNames, '.*LE.*' ) );
+        H_vars = cellfun( @(x) not(isempty(x)), ...
+                            regexp( ds_pt_GL.Properties.VarNames, '.*H_.*' ) );
+        shift_vars = find( NEE_vars | GPP_vars | RE_vars | H_vars );
+        idx = 1:DOYidx( 20 );
+        temp_arr = double( ds_pt );
+        temp_arr( idx, : ) = shift_data( temp_arr( idx, : ), -1.0, ...
+                                         'cols_to_shift', shift_vars );
+        ds_pt = replacedata( ds_pt, temp_arr );
+    end
 
     %save( 'test_restart_02.mat' );
     % create dataset of soil properties.
