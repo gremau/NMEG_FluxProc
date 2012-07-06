@@ -27,12 +27,17 @@ plot_fingerprint( decimal_day, sw_incoming, ...
                   'clim', [ -10, 1400 ] );
 
 ax2 = subplot( 2, 3, 2 );
+if max( rH ) > 1
+    rH_max = 100;
+else
+    rH_max = 1.0;
+end
 plot_fingerprint( decimal_day, rH, ...
                   sprintf( '%s %d RH fingerprint', ...
                            char( sitecode ), year ), ...
                   'h_fig', h_fig, ...
                   'h_ax', ax2, ...
-                  'clim', [ 0, 1 ] );
+                  'clim', [ 0, rH_max ] );
 
 ax3 = subplot( 2, 3, 3 );
 plot_fingerprint( decimal_day, Tair, ...
@@ -101,6 +106,7 @@ pos( 3:4 ) = [ 10.0, 7.5 ]; %size for 8.5 x 11 paper with 0.5" margins
 set( h_fig, 'Position', pos ); 
 
 %full_fname = fullfile( 'C:', 'Users', 'Tim', 'Plots', 'RadiationOffset', fname )
-full_fname = fullfile( getenv( 'PLOTS' ), 'RBD_FPs_5Jul', fname );
+full_fname = fullfile( getenv( 'PLOTS' ), ...
+                       'RadiationOffset', 'AmerifluxFingerprints6Jul', fname );
 figure_2_eps( h_fig, full_fname  );
 %close( h_fig );

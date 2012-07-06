@@ -41,8 +41,8 @@ function ds = combine_and_fill_TOA5_files()
     
     % to save to file, use e.g.:
     fprintf( 1, 'saving csv file\n' );
-    idx = min( find( datenum(ds.timestamp(:))>= datenum( 2010, 1, 1)));
-    ds.timestamp = datestr( ds.timestamp );
+    idx = min( find( datenum(ds.timestamp(:))>= datenum( 2012, 1, 1)));
+    ds.timestamp = datestr( ds.timestamp, 'mm/dd/yyyy HH:MM:SS' );
     export(ds( idx:end, : ), 'FILE', ...
            fullfile( get_out_directory(), 'combined_TOA5.csv' ), ...
            'Delimiter', ',');
