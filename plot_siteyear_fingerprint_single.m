@@ -1,0 +1,19 @@
+function fh = plot_siteyear_fingerprint_single( sitecode, year, var, varargin )
+%   
+% wrapper for plot_fingerprint for a specific siteyear and variable.
+%
+% USAGE 
+%     fh = plot_siteyear_fingerprint_single( sitecode, year, var, varargin )
+%
+% INPUTS
+%     varargin passed directly to plot_fingerprint
+
+this_data = parse_ameriflux_file( ...
+    get_ameriflux_filename( int8( sitecode ), ...
+                            year, ...
+                            'gapfilled' ) );
+
+fh = plot_fingerprint( this_data.DTIME, ...
+                       this_data.( var ), ...
+                       sprintf( '%s %d %s', char( sitecode ), year, var ), ...
+                       varargin{ : });
