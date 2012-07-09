@@ -12,6 +12,8 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
 %
 % Timothy W. Hilton, UNM, Dec 2011 - Jan 2012
 
+result = -1;  %initialize to error; replace upon successful completion
+
 if isa( sitecode, 'UNM_sites' )
     sitecode = int8( sitecode );
 end
@@ -35,9 +37,6 @@ end
     %% parse gapfilled and partitioned fluxes
     [ ds_pt_GL, ds_pt_MR ] = ...
         UNM_parse_gapfilled_partitioned_output( sitecode, year );
-    
-    % save( sprintf( 'test_restart_%s_%d.mat', ...
-    %                char( UNM_sites( sitecode ) ), year ) );
 
     % make sure that QC, FluxAll, gapfilled, and partitioned have identical,
     % complete 30 minute timeseries
@@ -138,6 +137,15 @@ end
         ds_pt = replacedata( ds_pt, temp_arr );
     end
 
+    % save a file to restart just before soil calculations
+    save( fullfile( getenv( 'FLUXROOT' ), ...
+                    'FluxOut', ...
+                    'SoilRestartFiles', ...
+                    sprintf( 'soil_restart_%s_%d.mat', ...
+                             char( UNM_sites( sitecode ) ), year ) ) );
+    result = 0;
+    return;
+    
     %save( 'test_restart_02.mat' );
     % create dataset of soil properties.
     ds_soil = NaN; %UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
@@ -212,4 +220,4 @@ end
     % UNM_Ameriflux_plot_dataset_eps( ds_shf, fname, year, 2 );
     % fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
 
-    result = 1;
+    result = 0;
