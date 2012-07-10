@@ -12,6 +12,10 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
 t0 = now();
 fprintf( 1, 'Begin soil met properties...' );
 
+% some site-years have non-descriptive labels for soil data columns.  Replace
+% these with descriptive labels.
+data = UNM_assign_soil_data_labels( sitecode, year, data );
+
 %% create a column of -9999s to place in the dataset where a site does not
 %% record a particular variable
 dummy = repmat( -9999, size( data, 1 ), 1 );
@@ -25,7 +29,9 @@ n_shf_vars = numel( shf_vars );  % how many SHF columns are there?
 % -----
 
 switch sitecode
-  case { 1, 2, 3, 6, 7, 8, 9, 11 } 
+  case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, UNM_sites.MCon, ...
+         UNM_sites.TX, UNM_sites.TX_forest, UNM_sites.TX_grass, ...
+         UNM_sites.New_GLand }
     % all sites except PJ and PJ_girdle store their soil data in the
     % FluxAll file
 
@@ -44,7 +50,7 @@ switch sitecode
     TCAV = data( :, regexp_ds_vars( data, ...
                                      'TCAV_[A-Za-z]+.*' ) );
 
-  case { 4, 10 }
+  case { UNM_sites.PJ, UNM_sites.PJ_girdle }
     % PJ and PJ_girdle store their soil data outside of FluxAll.
     % These data are already converted to VWC.
 
@@ -164,24 +170,30 @@ SHF_pars.depth = 0.05;
 
 switch sitecode
     % bulk and depth vary across site-year
-  case 1 % GLand
+  case UNM_sites.GLand
     SHF_pars.bulk = 1398; 
-  case 2  % SLand
+  case UNM_sites.SLand
     SHF_pars.bulk=1327; 
-  case 3  % JSav
+  case UNM_sites.JSav
     SHF_pars.bulk=1720; 
-  case 4  % PJ
+  case UNM_sites.PJ
     SHF_pars.bulk=1437; 
-  case 5  % PPine
+  case UNM_sites.PPine
     warning( 'check PPine SHF parameters' );
     SHF_pars.bulk = 1071;
-  case 6  % MCon
+  case UNM_sites.MCon
     warning( 'check MCon SHF parameters' );
     SHF_pars.bulk = 1071;
-  case 7  % TX
+  case UNM_sites.TX
     SHF_pars.bulk = 1114;
-  case 10   % PJ girdle
+  case UNM_sites.TX_forest
+    warning( 'check TX_forest SHF parameters -- bulk is currently NaN' );
     SHF_pars.bulk = NaN;
-  case 11  % New_GLand
+  case UNM_sites.TX_grass
+    warning( 'check TX_grass SHF parameters -- bulk is currently NaN' );
+    SHF_pars.bulk = NaN;
+  case UNM_sites.PJ_girdle
+    SHF_pars.bulk = NaN;
+  case UNM_sites.New_GLand
     SHF_pars.bulk = 1398;
 end %switch sitecode -- soil heat flux parameters
