@@ -1,4 +1,4 @@
-function fluxall = UNM_assign_soil_data_labels( sitecode, year )
+function fluxall = UNM_assign_soil_data_labels( sitecode, year, fluxall )
 
 % UNM_ASSIGN_SOIL_DATA_LABELS - assign labels to soil measurements.
 %   Labels are of the format soilT_cover_index_depth_*, where cover, index, and
@@ -7,11 +7,22 @@ function fluxall = UNM_assign_soil_data_labels( sitecode, year )
 %   underscore, and then optional arbitrary text.
 %
 % USAGE:
-%   fluxall = UNM_assign_soil_data_labels( sitecode, year )
+%   fluxall = UNM_assign_soil_data_labels( sitecode, year, fluxall )
 %
 % INPUTS
-   
-fluxall = UNM_parse_fluxall_txt_file2( sitecode, year, true );
+%   sitecode: integer or UNM_sites object; site to consider
+%   year: integer; year to consider
+%   fluxall: matlab dataset object; parsed fluxall.xls data
+%
+% OUTPUTS
+%   fluxall: matlab dataset object; fluxall.xls data with relabeled soil data
+%       columns
+%
+% (c) Timothy W. Hilton, UNM, May-July 2012
+
+if ~isa( sitecode, 'UNM_sites' )
+    sitecode = UNM_sites( sitecode )
+end
 
 placeholder = 0;
 labels_template = struct( 'labels', { 'placeholder' }, ...
@@ -33,7 +44,7 @@ TCAV_labels = labels_template;
 switch sitecode
     
     % --------------------------------------------------
-  case 1  % GLand
+  case UNM_sites.GLand
     switch year
       case { 2009, 2010 }
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616' );
@@ -97,7 +108,7 @@ switch sitecode
     end   %switch GLand year
 
     % --------------------------------------------------
-  case 2 %SLand
+  case UNM_sites.SLand
     switch year
       case { 2009, 2010 }
         cs616_SWC_labels.columns = 157:176;
@@ -139,7 +150,7 @@ switch sitecode
     end    % switch SLand year
     
     % --------------------------------------------------
-  case 3  % JSav
+  case UNM_sites.JSav
     switch year
       case { 2009, 2010 }
         cs616_SWC_labels.columns = 162:179;
@@ -179,7 +190,7 @@ switch sitecode
     end   % switch JSav year
     
     % --------------------------------------------------
-  case 4  %PJ
+  case UNM_sites.PJ
     % note that PJ and PJ girdle do not report soil moisture or soil T in
     % their FluxAll files, so their soil data are parsed separately.
     switch year
@@ -192,7 +203,7 @@ switch sitecode
 
     % --------------------------------------------------
     
-  case 11  % unburned grass
+  case UNM_sites.New_GLand  % unburned grass
     
     cs616_SWC_labels.columns = [];
     cs616_SWC_labels.labels = {};
