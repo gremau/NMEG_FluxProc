@@ -29,7 +29,7 @@ function [ lastcolumn, filelength_n ] = ...
                                 % cols to the right 
           case 2011 % added by MF
             filelength_n = 14572;
-            lastcolumn='IL';
+            lastcolumn='IM';
         end
         
       case 2; % shrubland
