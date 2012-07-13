@@ -29,8 +29,9 @@ args.addOptional( 'PAR', [], @isnumeric );
 args.addOptional( 'Rg', [], @isnumeric );
 args.addOptional( 'NEE', [], @isnumeric );
 args.addOptional( 'doy', [], @isnumeric );
-args.addParamValue( 'source', '', @(x) ismember( lower( x ), ...
-                                                 { 'rbd', 'ameriflux' } ) );
+args.addParamValue( 'source', '', ...
+                    @(x) ismember( lower( x ), ...
+                                   { 'rbd', 'rbd_filled', 'ameriflux' } ) );
 % parse optional inputs
 args.parse( sitecode, year, varargin{ : } );
 
@@ -42,9 +43,16 @@ source = lower( args.Results.source );
 %%%%% get NEE, PAR, Rg, DOY from the arguments the user provided %%%%%
 switch source
   case 'rbd'
+    gf_suffix = '';
+  case 'rbd_filled'
+    gf_suffix = 'filled';
+end
+
+switch source
+  case { 'rbd', 'rbd_filled' }
     %%%%% get PAR, Rg, NEE from output of UNM_RemoveBadData %%%%%
     % parse for gapfill file (product of UNM_RemoveBadData)
-    data_GF  = parse_forgapfilling_file( sitecode, year, 'filled' );
+    data_GF  = parse_forgapfilling_file( sitecode, year, gf_suffix );
     % parse QC file (product of UNM_RemoveBadData)
     data_QC = UNM_parse_QC_txt_file( sitecode, year );
     [ y, ~, ~, ~, ~, ~ ] = datevec( data_QC.timestamp );
