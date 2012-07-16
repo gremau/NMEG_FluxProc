@@ -18,6 +18,13 @@ function [ avg_soil_data, avg_by_cover ] = soil_data_averager( soil_data )
 %
 % (c) Timothy W. Hilton, UNM, April 2012
 
+% if there is only one column of data, there is no averaging to do
+if ( size( soil_data, 2 ) == 1 )
+    avg_soil_data = soil_data;
+    avg_by_cover = soil_data;
+    return;
+end
+
 grp_vars = regexp( soil_data.Properties.VarNames, '_', 'split' );
 grp_vars = vertcat( grp_vars{ : } ); 
 

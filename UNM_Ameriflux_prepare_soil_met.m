@@ -40,11 +40,17 @@ switch sitecode
 
     % get the soil water content and soil T columns and labels
     
-    Tsoil = data( :, regexp_ds_vars( data, ...
-                                     'soilT_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
+    re_Tsoil = 'soilT_[A-Za-z]+_[0-9]+_[0-9]+.*'; %regexp to identify
+                                                  %"soilT_COVER_DEPTH"
+    Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
+    if isempty( Tsoil )
+        re_Tsoil_form2 = 'Tsoil_avg'; 
+        Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
+    end
 
     cs616 = data( :, regexp_ds_vars( data, ...
                                      'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
+    save( 'swc_restart.mat' );
     [ cs616, cs616_Tc ] = cs616_period2vwc( cs616, Tsoil );
 
     TCAV = data( :, regexp_ds_vars( data, ...
@@ -59,6 +65,7 @@ switch sitecode
     cs616_Tc = cs616;
 end
 
+% these sensors have problems with electrical noise -- remove noisy points
 [ Tsoil_hilo_removed, ...
   Tsoil_hilo_replaced, ...
   Tsoil_runmean ] = UNM_soil_data_smoother( Tsoil );
@@ -69,6 +76,7 @@ end
   cs616_Tc_hilo_replaced, ...
   cs616_Tc_runmean ] = UNM_soil_data_smoother( cs616_Tc );
 
+% calculate averages by cover type, depth
 [ Tsoil_cover_depth_avg, ...
   Tsoil_cover_avg ] = soil_data_averager( Tsoil_runmean );
 [ VWC_cover_depth_avg, ...
@@ -83,6 +91,8 @@ end
 SHF_pars = define_SHF_pars( sitecode, year );
 SHF = ds_qc( :, shf_vars );
 
+
+
 SHF = calculate_heat_flux( TCAV, ...
                            VWC_cover_avg, ...
                            SHF_pars, ...
@@ -94,51 +104,20 @@ SHF = calculate_heat_flux( TCAV, ...
 %% the caller
 %%======================================================================
 
-var_names = { 'Tsoil_1', 'Tsoil_2', 'Tsoil_3', ...
-              'SWC_1', 'SWC_2', 'SWC_3', ...
-              'SWC_21', 'SWC_22', 'SWC_23', ...
-              'par_down_Avg', ...
-              'bulk', 'scap', 'wcap', 'depth' };
+ds_out = horzcat( Tsoil_cover_avg, VWC_cover_avg, SHF );
 
-%% initialize the datset to NaNs
-ds_vals = repmat( NaN, size( data, 1 ), numel( var_names ) );
-ds_out = dataset( { ds_vals, var_names{:} } );
-
-%% assign values to the dataset
-%% soil temperature
-ds_out.Tsoil_1 = Tsoil_1;
-ds_out.Tsoil_2 = Tsoil_2;
-ds_out.Tsoil_3 = Tsoil_3;
-
-%% soil water content
-ds_out.SWC_1 = SWC_1;
-ds_out.SWC_2 = SWC_2;
-ds_out.SWC_3 = SWC_3;
-
-%% the following variables only exist at some sites, so check before
-%% assigning them
-vars = who();
-if exist( 'SWC_21' ) == 1
-    ds_out.SWC_21 = SWC_21;
-end
-if exist( 'SWC_22' ) == 1
-    ds_out.out.SWC_22 = SWC_22;
-end
-if exist( 'SWC_23' ) == 1
-    ds_outout.SWC_23 = SWC_23;
-end
-
-save hf_restart.mat
-
-ds_out = [ ds_out, ds_shf ];
-
-%% add timestamp
-
-ds_out.timestamp = data_timestamp;
+ds_out.timestamp = data.timestamp;
 
 %% calculate execution time and write status message
 t_tot = ( now() - t0 ) * 24 * 60 * 60;
 fprintf( 1, ' Done (%.0f secs)\n', t_tot );
+
+
+
+
+
+
+
 
 %----------------------------------------------------------------------    
 

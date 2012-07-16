@@ -67,6 +67,9 @@ SHF_wm2 = double( SHF ) .* repmat( SHF_conv_factor, size( SHF ) );
 % heat flux plus storage -- HFT3 manual eq. 4 (page 5)
 SHF_with_storage = SHF_wm2 + storage_wm2;
 
+SHF_labels = SHF.Properties.VarNames;
+SHF_with_storage = dataset( { SHF_with_storage, SHF_labels{ : } } );
+
 % --------------------------------------------------
 
 function [TCAV, VWC, SHF] = match_cover_types( TCAV, VWC, SHF )
