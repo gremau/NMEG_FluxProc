@@ -8,7 +8,8 @@ function met_data = UNM_parse_valles_met_data( year )
     
     fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
                       sprintf( 'valles_met_data_%d.dat', year ) );
-
+    
+    fprintf( 'parsing %s\n', fname );
     infile = fopen( fname, 'r' );
     headers = fgetl( infile );
     n_cols = numel( regexp( headers, '[ \t]+', 'split' ) );  %how many columns?
