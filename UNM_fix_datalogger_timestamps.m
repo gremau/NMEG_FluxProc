@@ -88,6 +88,23 @@ switch sitecode
         data = shift_data( data, 1.0 );
         data = shift_data( data, 0.5, 'cols_to_shift', all_10hz );
     end
+
+  case UNM_sites.PPine
+    switch year
+      case 2007
+        idx = DOYidx( 156.12 ) : DOYidx( 177.5 );
+        Tdry_col = 14;  %shift temperature record
+        data( idx, : ) = shift_data( data( idx, : ), -1.5, ...
+                                     'cols_to_shift', Tdry_col );
+      case 2009
+        data = shift_data( data, 1.0 );
+        idx = DOYidx( 260 ) : DOYidx( 267 );
+        data( idx, : ) = shift_data( data( idx, : ), -2.0 );
+        idx = DOYidx( 268 ) : DOYidx( 283 );
+        data( idx, : ) = shift_data( data( idx, : ), -3.5 );
+        idx = DOYidx( 283.0 ) : DOYidx( 293.5 );
+        data( idx, : ) = shift_data( data( idx, : ), -4.5 );
+    end
     
   case UNM_sites.MCon
     switch year

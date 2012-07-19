@@ -6,7 +6,7 @@ function [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
 %   
 
 
-pal = brewer_palettes( 'Dark2' );
+pal = cbrewer( 'qual', 'Dark2', 5 );
 
 fig_name = sprintf( 'NEE & filters, %s %d', ...
                     get_site_name( sitecode ), year( 1 ) );
@@ -23,10 +23,12 @@ box on;
 % plot all observations as black circles
 axes( ax_NEE );
 h_all = plot( decimal_day, fc_raw_massman_wpl, 'ok' );
+gray90 = [ 232, 232, 232 ] / 255;  %RGB specs for unix color "gray90"
+set( h_all, 'MarkerEdgeColor', gray90  );
 xlim( [ 0, 366 ] );
+
 % plot the "good" observations (that weren't filtered out) as red dots
 % find [CO2] observations that are (1) good or (2) excepted
-
 h_good = plot( decimal_day( idx_NEE_good  ), ...
                fc_raw_massman_wpl( idx_NEE_good ), ...
                'LineStyle', 'none', ...
@@ -46,6 +48,20 @@ h_SD_only = plot( decimal_day( idx_std  ), ...
                   'MarkerEdgeColor', 'k', ...
                   'MarkerFaceColor', pal( 3, : ) );
 
+idx_wd = repmat( false, size( decimal_day ) );
+idx_wd( windflag ) = true;
+idx_wd( unique( [ ustarflag ; precipflag ; nightnegflag ; ...
+                  find( stdflag ) ; maxminflag ; lowco2flag ; ...
+                  highco2flag ; nanflag ] ) ) = false;
+h_WD_only = plot( decimal_day( idx_wd  ), ...
+                  fc_raw_massman_wpl( idx_wd ), ...
+                  'LineStyle', 'none', ...
+                  'Marker', 'o', ...
+                  'MarkerEdgeColor', 'k', ...
+                  'MarkerFaceColor', pal( 4, : ) );
+set( h_WD_only, 'Visible', 'off' );
+set( h_all, 'Visible', 'on' );
+
 %plot std dev windows
 endbin( end ) = numel( decimal_day );
 for i = 1:n_bins
@@ -62,14 +78,14 @@ for i = 1:n_bins
            
 end
 
-legend( [ h_all, h_good, h_SD, h_SD_only ], ...
-        'all obs', '"good" obs', 'Std. Dev. window', 'SD only' );
+legend( [ h_all, h_good, h_SD, h_SD_only, h_WD_only ], ...
+        'all obs', '"good" obs', 'Std. Dev. window', 'SD only', 'WD only' );
 xlabel('decimal day'); 
-ylabel('CO_2 flux');
+ylabel('CO_2 flux, [ \mu mol m^{-2} s^{-1} ]');
 t_str = strrep( sprintf( '%s %d', get_site_name( sitecode ), year( 2 ) ), ...
                 '_', '\_' );
 title( t_str );
-ylim( [ -25, 25 ] );
+ylim( [ -25, 60 ] );
 hold off; 
 
 % -------

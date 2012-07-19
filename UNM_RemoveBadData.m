@@ -265,14 +265,14 @@ draw_plots = args.Results.draw_plots;
         site = 'PPine'
         % site default values
         co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -5];
-        co2_max_by_month = [4 4 4 5 8 8 8 8 8 8 5 4];
+        co2_max_by_month = 20; %[4 4 4 5 8 8 8 8 8 8 5 4];
         if year == 2006
             filelength_n = 11594;
         elseif year == 2007
             filelength_n = 17523;
             lastcolumn='FV';
             ustar_lim = 0.08;
-            co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -10];
+            co2_min_by_month = [-6 -6 -15 -20 -20 -20 -20 -20 -20 -20 -15 -10];
         elseif year == 2008;
             filelength_n = 17571;
             lastcolumn='FU';
@@ -284,15 +284,16 @@ draw_plots = args.Results.draw_plots;
             ustar_lim = 0.15;
             co2_min_by_month = [ -4, -10, -15, -20, -20, -20, ...
                                 -20, -20, -20, -20, -15, -10 ];
+            co2_max_by_month = 20;
             %co2_max_by_month = [ 8, 8, 8, repmat( 10, 1, 8 ), 4 ];
-            co2_max_by_month = repmat( 3, 1, 12 );
+            
         elseif year == 2010;
             filelength_n = 17523;
             lastcolumn='FW';
             ustar_lim = 0.08;
             co2_min_by_month = [ -15, -15, -15, -20, -20, -20, ...
                                 -20, -20, -20, -20, -15, -4 ];
-            co2_max_by_month = [ 4, 4, 4, 15, 15, 15, 20, 20, 20, 20, 15, 4 ];
+            
         elseif year == 2011;
             filelength_n = 17523;
             lastcolumn='FY';
@@ -1516,8 +1517,12 @@ draw_plots = args.Results.draw_plots;
     % PPINE EXTRA WIND DIRECTION REMOVAL
     % ppine has super high night respiration when winds come from ~ 50 degrees, so these must be excluded also:
     if sitecode == 5
-        ppine_night_wind = find((wnd_dir_compass > 30 & wnd_dir_compass < 65)& (hour <= 9 | hour > 18));
-        ppine_night_wind = find((wnd_dir_compass > 25 & wnd_dir_compass < 70));
+        ppine_night_wind = find( ( wnd_dir_compass > 30 & ...
+                                   wnd_dir_compass < 65 ) & ...
+                                 ( hour <= 9 | hour > 18 ) );
+        % ppine_night_wind = find( ( wnd_dir_compass > 30 & ...
+        %                            wnd_dir_compass < 65 ) );
+        windflag = unique( [ windflag; ppine_night_wind ] );
         removed_ppine_night_wind = length(ppine_night_wind);
         decimal_day_nan(ppine_night_wind) = NaN;
         record(ppine_night_wind) = NaN;
@@ -1876,6 +1881,8 @@ draw_plots = args.Results.draw_plots;
     save( restore_fname, save_vars{ : } );
 
     maxminflag = find( maxminflag );
+    
+    
     if draw_plots
         [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
             sitecode, ...
@@ -2058,11 +2065,56 @@ draw_plots = args.Results.draw_plots;
     NEE( not( idx_NEE_good ) ) = -9999;
     LE = HL_wpl_massman;
     %LE(dd_idx) = -9999;
-
+    
     H_dry = HSdry_massman;
     %H_dry(dd_idx) = -9999;
     Tair = Tdry - 273.15;
 
+    if draw_plots
+        figure('Name', 'NEE vs wind direction' );
+        ax1 = subplot( 2, 1, 1 );
+        idx = repmat( false, 1, size( fc_raw_massman_wpl, 1 ) );
+        idx( idx_NEE_good ) = true;
+        idx( sw_incoming < 10 ) = false;
+        idx( wnd_dir_compass < 180 | wnd_dir_compass > 260 ) = false;
+        plot( wnd_dir_compass( idx ), fc_raw_massman_wpl( idx ), '.' );
+        ylabel( 'NEE' ); xlabel( 'wind direction (daytime )' );
+        ax2 = subplot( 2, 1, 2 );
+        idx = repmat( false, 1, size( fc_raw_massman_wpl, 1 ) );
+        idx( idx_NEE_good ) = true;
+        idx( sw_incoming > 10 ) = false;
+        idx( wnd_dir_compass < 180 | wnd_dir_compass > 260 ) = false;
+        plot( wnd_dir_compass( idx ), fc_raw_massman_wpl( idx ), '.' );
+        ylabel( 'NEE' ); xlabel( 'wind direction (nighttime )' );
+
+        idx = repmat( false, 1, size( fc_raw_massman_wpl, 1 ) );
+        idx( idx_NEE_good ) = true;
+        %idx( wnd_dir_compass < 180 | wnd_dir_compass > 260 ) = false;
+        
+        figure('Name', 'NEE vs ustar' );
+        plot( u_star( idx ), fc_raw_massman_wpl( idx ), '.' );
+        ylabel( 'NEE' ); xlabel( 'ustar' );
+        
+        figure('Name', 'NEE vs wind speed' );
+        plot( wnd_spd( idx ), fc_raw_massman_wpl( idx ), '.' );
+        ylabel( 'NEE' ); xlabel( 'wind speed' );
+        
+        figure( 'Name', 'NEE and wind direction' );
+        ax1 = subplot( 4, 1, 1 );
+        plot( decimal_day( idx ), fc_raw_massman_wpl( idx ), '.' );
+        ylabel( 'NEE' ); xlabel( 'DOY' );
+        ax2 = subplot( 4, 1, 2 );
+        plot( decimal_day, Tair, '.' );
+        ylabel( 'T' ); xlabel( 'DOY' );
+        ax3 = subplot( 4, 1, 3 );
+        plot( decimal_day( idx ), CO2_mean( idx ), '.' );
+        ylabel( '[CO_2]' ); xlabel( 'DOY' );
+        ax4 = subplot( 4, 1, 4 );
+        plot( decimal_day( precip > 0 ), precip( precip > 0 ), '.' );
+        ylabel( 'pcp' ); xlabel( 'DOY' );
+        linkaxes( [ ax1, ax2, ax3, ax4 ], 'x' );
+    end
+    
     if sitecode == 1 & year == 2010
         Tair( 12993:end ) = Tair_TOA5(  12993:end );
     end
@@ -2539,6 +2591,25 @@ switch sitecode
         CO2_mean( DOYidx( 284 ) : DOYidx( 293.65 ) ) = NaN;
     end
     
+  case UNM_sites.PPine
+    switch year
+      case 2008
+        fc_raw_massman_wpl( DOYidx( 260 ) : DOYidx( 290 ) ) = NaN;
+      case 2009
+        fc_raw_massman_wpl( DOYidx( 157 ) : DOYidx( 159 ) ) = NaN;
+        idx = DOYidx( 157 ) : DOYidx( 183 );
+        fc_raw_massman_wpl( idx ) = NaN;
+        HL_wpl_massman( idx ) = NaN;
+        E_wpl_massman( idx ) = NaN;
+        HSdry( idx ) = NaN;
+        HSdry_massman( idx ) = NaN;
+      case 2011
+        idx = DOYidx( 186 ) : DOYidx( 200 );
+        fc_raw_massman_wpl( idx ) = NaN;
+        HL_wpl_massman( idx ) = NaN;
+        E_wpl_massman( idx ) = NaN;
+    end
+    
   case UNM_sites.MCon
     switch year
       case 2009
@@ -2698,6 +2769,7 @@ switch sitecode
     switch year    
       case 2008
         DOY_co2_max( 1 : DOYidx( 185 ) ) = 3.0;
+        DOY_co2_min( DOYidx( 260 ) : DOYidx( 290 ) ) = -18.0;
         DOY_co2_min( DOYidx( 335 ) : DOYidx( 365 ) ) = -6.5;
       
       case 2009
@@ -2716,6 +2788,16 @@ switch sitecode
 
   case UNM_sites.PPine
     switch year
+      case 2007
+        DOY_co2_max( DOYidx( 185 ) : DOYidx( 259.99 ) ) = 10.0;
+        DOY_co2_max( DOYidx( 260 ) : DOYidx( 276 ) ) = 15.0;
+        DOY_co2_max( DOYidx( 276 ) : DOYidx( 277 ) ) = 5.0;
+        DOY_co2_max( DOYidx( 277 ) : DOYidx( 279 ) ) = 10.0;
+        DOY_co2_max( DOYidx( 280 ) : end ) = 5.0;
+      case 2009
+        DOY_co2_max( : ) = 10;
+        DOY_co2_max( DOYidx( 64 ) : DOYidx( 67 ) ) = 15.0;
+        DOY_co2_max( DOYidx( 67 ) : DOYidx( 150 ) ) = 8.0;
       case 2011
         std_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
         DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;
