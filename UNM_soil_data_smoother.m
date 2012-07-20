@@ -14,6 +14,7 @@ end
 
 % calculate 6 hour running mean, standard deviation
 nobs = 13; % 6 hr filter on either side
+nobs = 25;
 run_avg = running_mean( vwc1, nobs );
 run_std = running_stddev( vwc1, nobs );
 

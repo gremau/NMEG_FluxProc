@@ -1,7 +1,11 @@
 function [ soilT, SWC ] = preprocess_PJ_soil_data( sitecode, year )
 % PREPROCESS_PJ_SOIL_DATA - 
 %   
-    
+
+if isa( sitecode, 'UNM_sites' )
+    sitecode = int8( sitecode );
+end
+
 % determine file path
     sitename = get_site_name( sitecode );
 
@@ -47,9 +51,8 @@ function [ soilT, SWC ] = preprocess_PJ_soil_data( sitecode, year )
     thirty_minutes = 1 / 48;  % 30 mins expressed in units of days
     soil_data = dataset_fill_timestamps( soil_data, ...
                                          'tstamps', ...
-                                         thirty_minutes, ...
-                                         datenum( year, 1, 1 ), ...
-                                         datenum( year, 12, 31, 23, 30, 0 ) );
+                                         't_min', datenum( year, 1, 1 ), ...
+                                         't_max', datenum( year, 12, 31, 23, 30, 0 ) );
     soil_data.tstamps = datenum( soil_data.tstamps );
 
     % replace -9999 and -99999 with NaN
@@ -75,5 +78,10 @@ function [ soilT, SWC ] = preprocess_PJ_soil_data( sitecode, year )
     % add timestamps to output datasets
     soilT.tstamps = soil_data.tstamps;
     SWC.tstamps = soil_data.tstamps;
+    
+    SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
+                                               '^WC_', 'cs616SWC_' );
+    SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
+                                               '_AVG$', '' );
     
     
