@@ -12,148 +12,143 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year )
 %
 % Timothy W. Hilton, UNM, Dec 2011 - Jan 2012
 
-load_t0 = now();
-
 result = -1;  %initialize to error; replace upon successful completion
-
-site = char( sitecode );
 
 if isa( sitecode, 'UNM_sites' )
     sitecode = int8( sitecode );
 end
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % parse Flux_All, Flux_All_qc, gapfilled fluxes, and partitioned fluxes
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+site = get_site_name( sitecode );
 
-% %% parse the annual Flux_All file
-% %data = UNM_assign_soil_data_labels( sitecode, year );
-% data = UNM_parse_fluxall_xls_file( sitecode, year );
-% % seems to be parsing header of NewGland_2011 to bogus dates -- temporary
-% % fix until I get the front end of processing away from excel files
-% data( data.timestamp < datenum( 2000, 1, 1 ), : ) = [];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% parse Flux_All, Flux_All_qc, gapfilled fluxes, and partitioned fluxes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% %% parse the QC file
-% ds_qc = UNM_parse_QC_txt_file( sitecode, year );
+%% parse the annual Flux_All file
+%data = UNM_assign_soil_data_labels( sitecode, year );
+data = UNM_parse_fluxall_xls_file( sitecode, year );
+% seems to be parsing header of NewGland_2011 to bogus dates -- temporary
+% fix until I get the front end of processing away from excel files
+data( data.timestamp < datenum( 2000, 1, 1 ), : ) = [];
 
-% %% parse gapfilled and partitioned fluxes
-% [ ds_pt_GL, ds_pt_MR ] = ...
-%     UNM_parse_gapfilled_partitioned_output( sitecode, year );
+%% parse the QC file
+ds_qc = UNM_parse_QC_txt_file( sitecode, year );
 
-% % make sure that QC, FluxAll, gapfilled, and partitioned have identical,
-% % complete 30 minute timeseries
-% fprintf( 'synchronizing timestamps... ');
-% t0 = now(); % record running time
+%% parse gapfilled and partitioned fluxes
+[ ds_pt_GL, ds_pt_MR ] = ...
+    UNM_parse_gapfilled_partitioned_output( sitecode, year );
 
-% t_min = min( [ ds_qc.timestamp; data.timestamp; ...
-%                ds_pt_GL.timestamp; ds_pt_MR.timestamp ] );
-% t_max = max( [ ds_qc.timestamp; data.timestamp; ...
-%                ds_pt_GL.timestamp; ds_pt_MR.timestamp ] );
+% make sure that QC, FluxAll, gapfilled, and partitioned have identical,
+% complete 30 minute timeseries
+fprintf( 'synchronizing timestamps... ');
+t0 = now(); % record running time
 
-% [ ds_qc, data ] = merge_datasets_by_datenum( ds_qc, data, ...
-%                                              'timestamp', 'timestamp', ...
-%                                              3, t_min, t_max );
-% [ ds_pt_GL, data ] = ...
-%     merge_datasets_by_datenum( ds_pt_GL, data, ...
-%                                'timestamp', 'timestamp', ...
-%                                3, t_min, t_max );
-% [ ds_pt_MR, data ] = ... 
-%     merge_datasets_by_datenum( ds_pt_MR, data, ...
-%                                'timestamp', 'timestamp', ...
-%                                3, t_min, t_max );
+t_min = min( [ ds_qc.timestamp; data.timestamp; ...
+               ds_pt_GL.timestamp; ds_pt_MR.timestamp ] );
+t_max = max( [ ds_qc.timestamp; data.timestamp; ...
+               ds_pt_GL.timestamp; ds_pt_MR.timestamp ] );
 
-% Jan1 = datenum( year, 1, 1, 0, 0, 0 );
-% Dec31 = datenum( year, 12, 31, 23, 59, 59 );
-% data = dataset_fill_timestamps( data, 'timestamp', ...
-%                                 't_min', Jan1, 't_max', Dec31 );
-% ds_qc = dataset_fill_timestamps( ds_qc, 'timestamp', ...
-%                                  't_min', Jan1, 't_max', Dec31 );
-% ds_pt_GL = dataset_fill_timestamps( ds_pt_GL, 'timestamp', ...
-%                                     't_min', Jan1, 't_max', Dec31 );
-% ds_pt_MR = dataset_fill_timestamps( ds_pt_MR, 'timestamp', ...
-%                                     't_min', Jan1, 't_max', Dec31 );
-% % merge gapfilling/partitioning output into one dataset so we don't have
-% % to worry about which variables are in which dataset
-% cols = setdiff( ds_pt_MR.Properties.VarNames, ...
-%                 ds_pt_GL.Properties.VarNames );
-% ds_pt = [ ds_pt_GL, ds_pt_MR( :, cols ) ];
+[ ds_qc, data ] = merge_datasets_by_datenum( ds_qc, data, ...
+                                             'timestamp', 'timestamp', ...
+                                             3, t_min, t_max );
+[ ds_pt_GL, data ] = ...
+    merge_datasets_by_datenum( ds_pt_GL, data, ...
+                               'timestamp', 'timestamp', ...
+                               3, t_min, t_max );
+[ ds_pt_MR, data ] = ... 
+    merge_datasets_by_datenum( ds_pt_MR, data, ...
+                               'timestamp', 'timestamp', ...
+                               3, t_min, t_max );
 
-% seconds_per_day = 60 * 60 * 24;
-% t_run = ceil( ( now() - t0 ) * seconds_per_day );
-% fprintf( 'done (%d seconds)\n', t_run ); %done sychronizing timestamps
+Jan1 = datenum( year, 1, 1, 0, 0, 0 );
+Dec31 = datenum( year, 12, 31, 23, 59, 59 );
+data = dataset_fill_timestamps( data, 'timestamp', ...
+                                't_min', Jan1, 't_max', Dec31 );
+ds_qc = dataset_fill_timestamps( ds_qc, 'timestamp', ...
+                                 't_min', Jan1, 't_max', Dec31 );
+ds_pt_GL = dataset_fill_timestamps( ds_pt_GL, 'timestamp', ...
+                                    't_min', Jan1, 't_max', Dec31 );
+ds_pt_MR = dataset_fill_timestamps( ds_pt_MR, 'timestamp', ...
+                                    't_min', Jan1, 't_max', Dec31 );
+% merge gapfilling/partitioning output into one dataset so we don't have
+% to worry about which variables are in which dataset
+cols = setdiff( ds_pt_MR.Properties.VarNames, ...
+                ds_pt_GL.Properties.VarNames );
+ds_pt = [ ds_pt_GL, ds_pt_MR( :, cols ) ];
 
-% %% parsing the excel files is slow -- this loads parsed data for testing
-% %%load( '/media/OS/Users/Tim/DataSandbox/GLand_2010_fluxall.mat' );
+seconds_per_day = 60 * 60 * 24;
+t_run = ceil( ( now() - t0 ) * seconds_per_day );
+fprintf( 'done (%d seconds)\n', t_run ); %done sychronizing timestamps
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % do some bookkeeping
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% parsing the excel files is slow -- this loads parsed data for testing
+%%load( '/media/OS/Users/Tim/DataSandbox/GLand_2010_fluxall.mat' );
 
-% % create a column of -9999s to place in the dataset where a site does not
-% % record a particular variable
-% dummy = repmat( -9999, size( data, 1 ), 1 );
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% do some bookkeeping
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% %% calculate fractional day of year (i.e. 3 Jan at 12:00 would be 3.5)
-% ds_qc.fjday = ( ds_qc.jday + ...
-%                 ( ds_qc.hour / 24.0 ) + ...
-%                 ( ds_qc.minute / ( 24.0 * 60.0) ) );
+% create a column of -9999s to place in the dataset where a site does not
+% record a particular variable
+dummy = repmat( -9999, size( data, 1 ), 1 );
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % data processing and fixing datalogger & instrument errors 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% calculate fractional day of year (i.e. 3 Jan at 12:00 would be 3.5)
+ds_qc.fjday = ( ds_qc.jday + ...
+                ( ds_qc.hour / 24.0 ) + ...
+                ( ds_qc.minute / ( 24.0 * 60.0) ) );
 
-% %% fix incorrect precipitation values
-% ds_qc.precip = fix_incorrect_precip_factors( sitecode, year, ...
-%                                              ds_qc.fjday, ds_qc.precip );
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% data processing and fixing datalogger & instrument errors 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% if sitecode == int8( UNM_sites.JSav ) & ( year == 2007 )
-%     % the gapfiller does some filling before the JSav tower was
-%     % operational (4 May 2007 15:30), but the filled data do not look
-%     % good (they are time-shifted).  Remove those data here.
-%     row_idx = 1:DOYidx( 145 );
-%     non_data_vars = { 'Day', 'Month', 'Year', 'Hour', ...
-%                       'Minute', 'julday', 'Hr', 'timestamp' };
+%% fix incorrect precipitation values
+ds_qc.precip = fix_incorrect_precip_factors( sitecode, year, ...
+                                             ds_qc.fjday, ds_qc.precip );
 
-%     data_cols = find( not( ismember( ds_pt.Properties.VarNames, ...
-%                                      non_data_vars ) ) );
-%     temp_arr = double( ds_pt );
-%     temp_arr( row_idx, data_cols ) = NaN;
-%     ds_pt = replacedata( ds_pt, temp_arr );
-% elseif sitecode == int8( UNM_sites.MCon ) & ( year == 2009 )
+if sitecode == int8( UNM_sites.JSav ) & ( year == 2007 )
+    % the gapfiller does some filling before the JSav tower was
+    % operational (4 May 2007 15:30), but the filled data do not look
+    % good (they are time-shifted).  Remove those data here.
+    row_idx = 1:DOYidx( 145 );
+    non_data_vars = { 'Day', 'Month', 'Year', 'Hour', ...
+                      'Minute', 'julday', 'Hr', 'timestamp' };
 
-%     NEE_vars = cellfun( @(x) not(isempty(x)), ...
-%                         regexp( ds_pt_GL.Properties.VarNames, '.*NEE.*' ) );
-%     GPP_vars = cellfun( @(x) not(isempty(x)), ...
-%                         regexp( ds_pt_GL.Properties.VarNames, '.*GPP.*' ) );
-%     RE_vars = cellfun( @(x) not(isempty(x)), ...
-%                        regexp( ds_pt_GL.Properties.VarNames, '.*RE.*' ) );
-%     LE_vars = cellfun( @(x) not(isempty(x)), ...
-%                        regexp( ds_pt_GL.Properties.VarNames, '.*LE.*' ) );
-%     H_vars = cellfun( @(x) not(isempty(x)), ...
-%                       regexp( ds_pt_GL.Properties.VarNames, '.*H_.*' ) );
-%     shift_vars = find( NEE_vars | GPP_vars | RE_vars | H_vars );
-%     idx = 1:DOYidx( 20 );
-%     temp_arr = double( ds_pt );
-%     temp_arr( idx, : ) = shift_data( temp_arr( idx, : ), -1.0, ...
-%                                      'cols_to_shift', shift_vars );
-%     ds_pt = replacedata( ds_pt, temp_arr );
-% end
+    data_cols = find( not( ismember( ds_pt.Properties.VarNames, ...
+                                     non_data_vars ) ) );
+    temp_arr = double( ds_pt );
+    temp_arr( row_idx, data_cols ) = NaN;
+    ds_pt = replacedata( ds_pt, temp_arr );
+elseif sitecode == int8( UNM_sites.MCon ) & ( year == 2009 )
+
+    NEE_vars = cellfun( @(x) not(isempty(x)), ...
+                        regexp( ds_pt_GL.Properties.VarNames, '.*NEE.*' ) );
+    GPP_vars = cellfun( @(x) not(isempty(x)), ...
+                        regexp( ds_pt_GL.Properties.VarNames, '.*GPP.*' ) );
+    RE_vars = cellfun( @(x) not(isempty(x)), ...
+                       regexp( ds_pt_GL.Properties.VarNames, '.*RE.*' ) );
+    LE_vars = cellfun( @(x) not(isempty(x)), ...
+                       regexp( ds_pt_GL.Properties.VarNames, '.*LE.*' ) );
+    H_vars = cellfun( @(x) not(isempty(x)), ...
+                      regexp( ds_pt_GL.Properties.VarNames, '.*H_.*' ) );
+    shift_vars = find( NEE_vars | GPP_vars | RE_vars | H_vars );
+    idx = 1:DOYidx( 20 );
+    temp_arr = double( ds_pt );
+    temp_arr( idx, : ) = shift_data( temp_arr( idx, : ), -1.0, ...
+                                     'cols_to_shift', shift_vars );
+    ds_pt = replacedata( ds_pt, temp_arr );
+end
 
 % save a file to restart just before soil calculations
-soil_restart_fname = sprintf( 'soil_restart_%s_%d.mat', ...
-                              char( UNM_sites( sitecode ) ), year );
-% save( fullfile( getenv( 'FLUXROOT' ), ...
-%                 'FluxOut', ...
-%                 'SoilRestartFiles', ...
-%                 soil_restart_fname ) );
-load( fullfile( getenv( 'DATASANDBOX' ), ...
+save( fullfile( getenv( 'FLUXROOT' ), ...
+                'FluxOut', ...
                 'SoilRestartFiles', ...
-                soil_restart_fname ) );
-fprintf( 'time to load: %0.1f\n', ( now() - load_t0 ) * 86400 );
+                sprintf( 'soil_restart_%s_%d.mat', ...
+                         char( UNM_sites( sitecode ) ), year ) ) );
+result = 0;
+return;
 
 %save( 'test_restart_02.mat' );
 % create dataset of soil properties.
-ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
+ds_soil = NaN; %UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create Ameriflux output dataset and write to ASCII files
