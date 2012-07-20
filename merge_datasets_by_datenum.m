@@ -22,8 +22,12 @@ days_per_30mins = 1 / 48;  %% 30 mins expressed in days
 
 %remove duplicate timestamps
 dup_tol = 0.00000001;  %floating point tolerance
+[ ~, idx1 ] = sort( ds_in1.( tvar1 ) );
+ds_in1 = ds_in1( idx1, : );
 dup_idx = find( diff( ds_in1.( tvar1 ) ) < dup_tol ) + 1;
 ds_in1( dup_idx, : ) = [];
+[ ~, idx2 ] = sort( ds_in2.( tvar2 ) );
+ds_in2 = ds_in2( idx2, : );
 dup_idx = find( diff( ds_in2.( tvar2 ) ) < dup_tol ) + 1;
 ds_in2( dup_idx, : ) = [];
 
