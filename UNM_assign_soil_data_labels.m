@@ -291,12 +291,17 @@ switch sitecode
     % --------------------------------------------------
   case UNM_sites.PJ
     % note that PJ and PJ girdle do not report soil moisture or soil T in
-    % their FluxAll files, so their soil data are parsed separately.
+    % their FluxAll files (except for 2008 ), so their soil data are parsed separately.
     switch year
-      case 2009
-        TCAV_labels.columns = 216:217;
-      case 2010
-        TCAV_labels.columns = 206:207;
+      case 2008
+        
+        [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'echo.*' );
+        swc_vars = arrayfun( @(x) { sprintf( 'echoSWC_%d', x ) }, ...
+                             1:numel( idx_echo ) );
+        fluxall.Properties.VarNames( idx_echo ) = swc_vars;
+        fluxall.Properties.VarNames( idx_echo ) = ...
+            strrep( fluxall.Properties.VarNames( idx_echo ), ...
+                    'SWC', 'echoSWC' );
     end
     TCAV_labels.labels = { 'TCAV_pinon_1_Avg', 'TCAV_juniper_1_Avg' };
 
