@@ -38,7 +38,32 @@ switch sitecode
     
     timestamp = this_data.timestamp;
     
-  case { UNM_sites.PJ, UNM_sites.PJ_girdle }
+  case UNM_sites.PJ
+    
+    if year == 2008
+
+        fname = fullfile( getenv( 'UNMDATA' ), ...
+                          'BinaryData', ...
+                          sprintf( '%s_%d_fluxall.mat', char( sitecode ), year ) );
+        load( fname );
+        
+        this_data = UNM_assign_soil_data_labels( sitecode, year, this_data );
+        fprintf( '%s %d -- SWC vars: %d\n', ...
+                 char( sitecode ), ...
+                 year, ...
+                 numel( regexp_ds_vars( this_data, 'echo' ) ) );
+        
+        SWC_vars = regexp_ds_vars( this_data, 'SWC' );
+        SWC = this_data( :, SWC_vars );
+        timestamp = this_data.timestamp;
+        
+    elseif year >= 2009
+        [ T, SWC ] = preprocess_PJ_soil_data( sitecode, year );
+        timestamp = SWC.tstamps;
+        SWC.tstamps = [];
+    end
+         
+  case UNM_sites.PJ_girdle 
     
     [ T, SWC ] = preprocess_PJ_soil_data( sitecode, year );
     timestamp = SWC.tstamps;
@@ -61,20 +86,33 @@ aflx_data = assemble_multi_year_ameriflux( sitecode, year:year, ...
 
 % combine fluxes and SWC into dataset and write ASCII file
 fluxes = aflx_data( :, { 'timestamp', 'FC', 'GPP', 'RE', 'LE', 'H' } );
-fluxes.Properties.VarNames = strrep( fluxes.Properties.VarNames, 'FC', 'NEE' );
+fluxes.Properties.VarNames = strrep( fluxes.Properties.VarNames, 'FC', 'NEE' ...
+                                     );
+fluxes.Properties.Units = { 'days', 'umol/m2/s', 'umol/m2/s', 'umol/m2/s', ...
+                    'W/m2', 'W/m2' };
 
-secs_per_day = 60 * 60 * 24;
-two_minutes = 120 / secs_per_day;
+two_minutes = 2;
 
 fprintf( 'sychronizing flux, SWC timestamps\n' )
 t0 = now();
 [ fluxes, SWC ] = merge_datasets_by_datenum( fluxes, SWC, ...
                                              'timestamp', 'timestamp', ...
                                              two_minutes, ...
-                                             datenum( year, 1, 1 ), ...
+                                             datenum( year, 1, 1, ...
+                                                  0, 30, 0 ), ...
                                              datenum( year, 12, 31, ...
                                                   23, 30, 00 ) );
 t_run = now() - t0;
-
+save( 'test.mat', 'fluxes', 'SWC', 'timestamp' );
 SWC.timestamp = [];
+SWC.Properties.Units = repmat( {'fraction'}, 1, size( SWC, 2 ) );
 fluxes_with_SWC = [ fluxes, SWC ];
+
+[ year, ~, ~, hour, minute, ~ ] = datevec( fluxes_with_SWC.timestamp );
+DOY = floor( fluxes_with_SWC.timestamp - datenum( year, 1, 0 ) );
+timestamp_ds = dataset( { [ year, DOY, hour, minute ], ...
+                    'year', 'DOY', 'hour', 'minute' } );
+timestamp_ds.Properties.Units = { 'year', 'days', 'hours', 'minutes' };
+fluxes_with_SWC.timestamp = [];
+fluxes_with_SWC = [ timestamp_ds, fluxes_with_SWC ];
+                    
