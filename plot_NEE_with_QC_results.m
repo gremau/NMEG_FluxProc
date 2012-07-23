@@ -85,7 +85,7 @@ ylabel('CO_2 flux, [ \mu mol m^{-2} s^{-1} ]');
 t_str = strrep( sprintf( '%s %d', get_site_name( sitecode ), year( 2 ) ), ...
                 '_', '\_' );
 title( t_str );
-ylim( [ -25, 60 ] );
+ylim( [ -25, 25 ] );
 hold off; 
 
 % -------
