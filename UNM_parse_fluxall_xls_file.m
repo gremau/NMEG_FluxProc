@@ -60,7 +60,7 @@ data = replace_badvals( data, [ -9999 ], 0.0001 );
 
 disp( 'file read' );
 
-headertext = genvarname( headertext )
+headertext = genvarname( headertext );
 ncols = numel( headertext );
 if ncols < size( data, 2 )
     data( :, ( ncols + 1 ):end ) = [];
