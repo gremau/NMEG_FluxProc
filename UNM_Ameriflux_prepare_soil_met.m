@@ -49,7 +49,7 @@ switch sitecode
     end
 
     cs616 = data( :, regexp_ds_vars( data, ...
-                                     'SWC.*' ) );
+                                     'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
     save( 'swc_restart.mat' );
     [ cs616, cs616_Tc ] = cs616_period2vwc( cs616, Tsoil );
 
