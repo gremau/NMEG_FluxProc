@@ -29,6 +29,8 @@ vwc2( idx ) = NaN;
 vwc3 = vwc1;
 vwc3( idx ) = run_avg( idx );
 
+run_avg = running_mean( vwc2, nobs );
+
 if input_is_dataset
     vwc2 = replacedata( vwc_input, vwc2 );
     vwc3 = replacedata( vwc_input, vwc3 );
