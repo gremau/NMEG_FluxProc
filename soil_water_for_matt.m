@@ -108,11 +108,16 @@ SWC.timestamp = [];
 SWC.Properties.Units = repmat( {'fraction'}, 1, size( SWC, 2 ) );
 fluxes_with_SWC = [ fluxes, SWC ];
 
-[ year, ~, ~, hour, minute, ~ ] = datevec( fluxes_with_SWC.timestamp );
-DOY = floor( fluxes_with_SWC.timestamp - datenum( year, 1, 0 ) );
-timestamp_ds = dataset( { [ year, DOY, hour, minute ], ...
+[ data_year, ~, ~, hour, minute, ~ ] = datevec( fluxes_with_SWC.timestamp );
+DOY = floor( fluxes_with_SWC.timestamp - datenum( data_year, 1, 0 ) );
+timestamp_ds = dataset( { [ data_year, DOY, hour, minute ], ...
                     'year', 'DOY', 'hour', 'minute' } );
 timestamp_ds.Properties.Units = { 'year', 'days', 'hours', 'minutes' };
 fluxes_with_SWC.timestamp = [];
 fluxes_with_SWC = [ timestamp_ds, fluxes_with_SWC ];
                     
+out_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'SWC_for_matt', ...
+                      sprintf( '%s_%d_fluxes_and_SWC.dat', ...
+                               char( sitecode ), year ) );
+fprintf( 1, 'writing %s\n', out_fname );
+export( fluxes_with_SWC, 'file', out_fname );

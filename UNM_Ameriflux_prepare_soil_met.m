@@ -9,6 +9,9 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
 % fluxallqc_2_dataset.m
 %   
 %
+
+sitecode = UNM_sites( sitecode );
+
 t0 = now();
 fprintf( 1, 'Begin soil met properties...' );
 
@@ -45,13 +48,17 @@ switch sitecode
     Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
     if isempty( Tsoil )
         re_Tsoil_form2 = 'Tsoil_avg'; 
-        Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
+        Tsoil = data( :, regexp_ds_vars( data, re_Tsoil_form2 ) );
     end
-
+    
     cs616 = data( :, regexp_ds_vars( data, ...
                                      'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
-    save( 'swc_restart.mat' );
-    [ cs616, cs616_Tc ] = cs616_period2vwc( cs616, Tsoil );
+    if size( Tsoil, 2 ) == size( cs616, 2 )
+        [ cs616, cs616_Tc ] = cs616_period2vwc( cs616, Tsoil, ...
+                                                'draw_plots', false );
+    else
+        cs616_Tc = cs616;
+    end
 
     TCAV = data( :, regexp_ds_vars( data, ...
                                      'TCAV_[A-Za-z]+.*' ) );
@@ -82,6 +89,12 @@ end
 [ VWC_cover_depth_avg, ...
   VWC_cover_avg ] = soil_data_averager( cs616_runmean );
 
+if numel( TCAV ) > 0
+    soil_surface_T = TCAV;
+else
+    soil_surface_T = Tsoil_runmean;
+end
+
 % -----
 % -----
 % now we have VWC and soil T. Calculate heat flux with storage.
@@ -91,7 +104,13 @@ end
 SHF_pars = define_SHF_pars( sitecode, year );
 SHF = ds_qc( :, shf_vars );
 
-
+%----- soil data for Matt -- remove this later -----
+soil_data_for_matt = horzcat( Tsoil_runmean, cs616_runmean );
+fname = fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'SoilForMatt', ...
+                  sprintf( '%s_%d_soil.mat', char( sitecode ), year ) );
+fprintf( 'saving %s\n', fname );
+save( fname, 'soil_data_for_matt' );
+%----- soil data for Matt -- remove this later -----
 
 SHF = calculate_heat_flux( TCAV, ...
                            VWC_cover_avg, ...
