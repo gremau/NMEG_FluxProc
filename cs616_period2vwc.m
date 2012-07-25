@@ -24,6 +24,7 @@ args = inputParser;
 args.addRequired( 'raw_swc', @(x) isnumeric(x) | isa( x, 'dataset' ) );
 args.addRequired( 'T_soil',  @(x) isnumeric(x) | isa( x, 'dataset' ) );
 args.addParamValue( 'draw_plots', true, @islogical );
+args.addParamValue( 'save_plots', false, @islogical );
 
 % parse optional inputs
 args.parse( raw_swc, T_soil, varargin{ : } );
@@ -46,31 +47,37 @@ T_soil = double( T_soil );
 % perform the conversion and temperature correction
 % -----
 
+% some fluxall files have echo SWC (already VWC) and cs616 SWC (cs616 period, in
+% microseconds) in the same column.  Valid cs616 periods are larger than about
+% 15 microseconds (see cs616 manual figure 4).  This is an approximate filter
+% so that we don't apply the cs616 calibration to echo data.
+is_cs616 = ( raw_swc > 14.0 );
+
 % non-temperature corrected: apply quadratic form of calibration equation
 % (section 6.3, p. 29, CS616 manual)
-vwc = repmat( -0.0663, ( size( raw_swc ) ) ) - ...
-      ( 0.0063 .* raw_swc ) + ...
-      ( 0.0007 .* ( raw_swc .* raw_swc ) );
+pd2vwc = @( pd ) repmat( -0.0663, size( pd ) ) - ...
+         ( 0.0063 .* pd ) + ...
+         ( 0.0007 .* ( pd .* pd ) );
 
-raw_swc_Tc_2 = ( 0.526 - ( 0.052 .* raw_swc ) + ...
-                 ( 0.00136 .* ( raw_swc .* raw_swc ) ) );
+vwc = raw_swc;
+vwc( is_cs616 ) = pd2vwc( raw_swc( is_cs616 ) );
 
-% if T_soil contains a single measurement, use it at all depths
-if size( T_soil, 2 ) == 1
-    T_soil = repmat( ( 20 - T_soil ), 1, size( raw_swc, 2 ) );
-end
+% perform temperature correction described in cs616 manual section 6.6 (p 33 )
+cs616_period_Tcorrect = @( pd, T )  pd +  ( ( 20 - T ) .* ...
+                                            ( 0.526 - ( 0.052 .* pd ) + ...
+                                              ( 0.00136 .* pd .* pd ) ) );
 
-raw_swc_Tc = ( raw_swc + T_soil ) .* raw_swc_Tc_2;
-
-vwc_Tc = repmat( -0.0663, ( size( raw_swc_Tc ) ) ) - ...
-         0.00636 .* raw_swc_Tc + ...
-         0.0007 .* ( raw_swc_Tc .* raw_swc_Tc );
+vwc_Tc = raw_swc;
+vwc_Tc( is_cs616 ) = cs616_period_Tcorrect( raw_swc( is_cs616 ), ...
+                                            T_soil( is_cs616 ) );
+vwc_Tc( is_cs616 ) = pd2vwc( vwc_Tc( is_cs616 ) );
 
 % Remove any negative SWC values
 vwc( vwc < 0 ) = nan;
 vwc( vwc > 1 ) = nan;
 vwc_Tc( vwc_Tc < 0 ) = nan;
 vwc_Tc( vwc_Tc > 1 ) = nan;
+
 
 % if inputs were datasets, keep the same variable names an replace the values
 % with the VWC and T-corrected VWC
@@ -85,10 +92,49 @@ if args.Results.draw_plots
     n_locations = size( raw_swc, 2 );  %how many measurment locations?
     
     for  i = 1:n_locations
-        h = figure( 'Name', 'SWC T corrections' );
-        plot( doy, vwc( :, i ), '.' );
+        h = figure( 'Name', 'SWC T corrections', ...
+                    'Units', 'Inches', ...
+                    'Position', [ 0, 0, 8.5, 11 ] );
+        ax = subplot( 4, 1, 1 );
+        h_vwc = plot( doy, vwc( :, i ), '.b' );
         hold on
-        plot( doy, vwc_Tc( :, i ), 'r.' );
-        waitfor( h );
+        h_vwc_tc = plot( doy, vwc_Tc( :, i ), 'ok' );
+        cov_num_depth = regexp( raw_swc_input.Properties.VarNames{ i }, ...
+                                '_', 'split' );
+        cov_num_depth = sprintf( 'VWC\\_%s\\_%s\\_%s', ...
+                                 cov_num_depth{ 2 }, ...
+                                 cov_num_depth{ 3 }, ...
+                                 cov_num_depth{ 4 } );
+        cov_num_depth = regexprep( cov_num_depth, '([0-9])p([0-9])', '$1.$2' );
+        ylabel( 'VWC' );
+        legend( [ h_vwc, h_vwc_tc ], 'not corrected', 'T-corrected', ...
+                'Location', 'best' );
+        title( cov_num_depth );
+        % % if all is well, all VWC values should be in range [0, 1].  Make the
+        % % y-limits of the plot at least this big
+        % y_lim = get( ax, 'YLim' );
+        % if ( y_lim( 1 ) > 0 )
+        %     y_lim( 1 )  = 0;
+        % end
+        % if ( y_lim( 2 ) < 1.0 )
+        %     y_lim( 2 ) = 1.0;
+        % end
+        % set( ax, 'YLim', y_lim );
+        
+        subplot( 4, 1, 2 );
+        plot( doy, ...
+              double( vwc( :, i ) ) - double( vwc_Tc( :, i ) ), ...
+              '.k' );
+        ylabel( 'VWC - VWC\_Tc' );
+        
+        subplot( 4, 1, 3 );
+        plot( doy, T_soil( :, i ), '.' );
+        ylabel( 'Tsoil' );
+
+        subplot( 4, 1, 4 );
+        plot( doy, raw_swc( :, i ), '.' );
+        ylabel( 'raw SWC' );
+        xlabel( 'day of year' )
+        
     end
 end
