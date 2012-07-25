@@ -19,8 +19,8 @@ fprintf( 1, 'Begin soil met properties...' );
 % these with descriptive labels.
 data = UNM_assign_soil_data_labels( sitecode, year, data );
 
-%% create a column of -9999s to place in the dataset where a site does not
-%% record a particular variable
+% create a column of -9999s to place in the dataset where a site does not
+% record a particular variable
 dummy = repmat( -9999, size( data, 1 ), 1 );
 
 % find any soil heat flux columns within QC data
@@ -104,13 +104,13 @@ end
 SHF_pars = define_SHF_pars( sitecode, year );
 SHF = ds_qc( :, shf_vars );
 
-%----- soil data for Matt -- remove this later -----
-soil_data_for_matt = horzcat( Tsoil_runmean, cs616_runmean );
-fname = fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'SoilForMatt', ...
-                  sprintf( '%s_%d_soil.mat', char( sitecode ), year ) );
-fprintf( 'saving %s\n', fname );
-save( fname, 'soil_data_for_matt' );
-%----- soil data for Matt -- remove this later -----
+% %----- soil data for Matt -- remove this later -----
+% soil_data_for_matt = horzcat( Tsoil_runmean, cs616_runmean );
+% fname = fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'SoilForMatt', ...
+%                   sprintf( '%s_%d_soil.mat', char( sitecode ), year ) );
+% fprintf( 'saving %s\n', fname );
+% save( fname, 'soil_data_for_matt' );
+% %----- soil data for Matt -- remove this later -----
 
 SHF = calculate_heat_flux( TCAV, ...
                            VWC_cover_avg, ...
@@ -118,16 +118,16 @@ SHF = calculate_heat_flux( TCAV, ...
                            SHF, ...
                            1.0 );
 
-%%======================================================================
-%% assign all the variables created above to a dataset to be returned to
-%% the caller
-%%======================================================================
+%======================================================================
+% assign all the variables created above to a dataset to be returned to
+% the caller
+%======================================================================
 
 ds_out = horzcat( Tsoil_cover_avg, VWC_cover_avg, SHF );
 
 ds_out.timestamp = data.timestamp;
 
-%% calculate execution time and write status message
+% calculate execution time and write status message
 t_tot = ( now() - t0 ) * 24 * 60 * 60;
 fprintf( 1, ' Done (%.0f secs)\n', t_tot );
 

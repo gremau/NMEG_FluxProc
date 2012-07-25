@@ -21,7 +21,7 @@ function fluxall = UNM_assign_soil_data_labels( sitecode, year, fluxall )
 % (c) Timothy W. Hilton, UNM, May-July 2012
 
 if ~isa( sitecode, 'UNM_sites' )
-    sitecode = UNM_sites( sitecode )
+    sitecode = UNM_sites( sitecode );
 end
 
 placeholder = 0;
