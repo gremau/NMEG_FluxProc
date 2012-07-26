@@ -102,7 +102,7 @@ if args.Results.draw_plots
         h = figure( 'Name', 'SWC T corrections', ...
                     'Units', 'Inches', ...
                     'Position', [ 0, 0, 8.5, 11 ] );
-        ax = subplot( 4, 1, 1 );
+        ax1 = subplot( 4, 1, 1 );
         h_vwc = plot( doy, vwc( :, i ), '.b' );
         hold on
         h_vwc_tc = plot( doy, vwc_Tc( :, i ), 'ok' );
@@ -128,16 +128,32 @@ if args.Results.draw_plots
         % set( ax, 'YLim', y_lim );
         
         subplot( 4, 1, 2 );
-        plot( doy, ...
-              double( vwc( :, i ) ) - double( vwc_Tc( :, i ) ), ...
-              '.k' );
-        ylabel( 'VWC - VWC\_Tc' );
+        d_vwc = double( vwc( :, i ) ) - double( vwc_Tc( :, i ) );
+        d_vwc_percent = d_vwc ./ double( vwc( :, i ) );
+        [ ax2, h_d_vwc, h_vwc_pct ] = plotyy( doy, d_vwc, ...
+                                              doy, d_vwc_percent );        
+        set( h_d_vwc, 'LineStyle', 'none', ...
+                      'Marker', '.', 'MarkerEdgeColor', 'k' );
+        set( h_vwc_pct, 'LineStyle', 'none', ...
+                    'Marker', 'o', 'MarkerFaceColor', 'none', ...
+                        'MarkerEdgeColor', 'b');
+        align_axes_zeros( ax2( 1 ), ax2( 2 ) );
+        ylabel( ax2( 1 ), '\Delta VWC [VWC]' );
+        ylabel( ax2( 2 ), '% change VWC' );
+        legend( [ h_d_vwc, h_vwc_pct ], ...
+                'VWC - VWC\_Tc', ...
+                '% change, VWC to VWC\_Tc', ...
+                'Location', 'best' );
+        uistack( ax2( 1 ), 'top' ); % bring the delta VWC ax2is ax2(1) to the
+                                   % front
+        set( ax2( 1 ), 'Color', 'none', 'YColor', 'black' );
+        set( ax2( 2 ), 'Color', 'white', 'YColor', 'blue' );
         
-        subplot( 4, 1, 3 );
+        ax3 = subplot( 4, 1, 3 );
         plot( doy, T_soil( :, i ), '.' );
         ylabel( 'Tsoil' );
 
-        subplot( 4, 1, 4 );
+        ax4 = subplot( 4, 1, 4 );
         plot( doy, raw_swc( :, i ), '.' );
         ylabel( 'raw SWC' );
         xlabel( 'day of year' )
@@ -154,8 +170,10 @@ if args.Results.draw_plots
             %figure_2_eps( h, fname );
             file_name_list{ i } = fname;
             close( h );
-        else 
+        else
+            linkaxes( [ ax1, ax2( 1 ), ax2( 2 ), ax3, ax4 ], 'x' );
             waitfor( h );
+            
         end
         
     end
@@ -179,7 +197,6 @@ if args.Results.draw_plots
             system( convert_cmd );
             cmd = sprintf( '%s %s.pdf', cmd, file_name_list{ i } );
         end
-        keyboard
         system( cmd );
     end
         
