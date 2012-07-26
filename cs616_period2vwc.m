@@ -23,6 +23,9 @@ function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 args = inputParser;
 args.addRequired( 'raw_swc', @(x) isnumeric(x) | isa( x, 'dataset' ) );
 args.addRequired( 'T_soil',  @(x) isnumeric(x) | isa( x, 'dataset' ) );
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'year', ...
+               @(x) ( isintval( x ) & ( x >= 2006 ) ) );
 args.addParamValue( 'draw_plots', true, @islogical );
 args.addParamValue( 'save_plots', false, @islogical );
 
@@ -90,6 +93,10 @@ if args.Results.draw_plots
     nrow = size( raw_swc, 1 );
     doy = ( 0:nrow-1 ) / 48;
     n_locations = size( raw_swc, 2 );  %how many measurment locations?
+
+    if args.Results.save_plots
+        file_name_list = cell( n_locations, 1 );
+    end
     
     for  i = 1:n_locations
         h = figure( 'Name', 'SWC T corrections', ...
@@ -105,11 +112,10 @@ if args.Results.draw_plots
                                  cov_num_depth{ 2 }, ...
                                  cov_num_depth{ 3 }, ...
                                  cov_num_depth{ 4 } );
-        cov_num_depth = regexprep( cov_num_depth, '([0-9])p([0-9])', '$1.$2' );
         ylabel( 'VWC' );
         legend( [ h_vwc, h_vwc_tc ], 'not corrected', 'T-corrected', ...
                 'Location', 'best' );
-        title( cov_num_depth );
+        title( regexprep( cov_num_depth, '([0-9])p([0-9])', '$1.$2' ) );
         % % if all is well, all VWC values should be in range [0, 1].  Make the
         % % y-limits of the plot at least this big
         % y_lim = get( ax, 'YLim' );
@@ -136,5 +142,45 @@ if args.Results.draw_plots
         ylabel( 'raw SWC' );
         xlabel( 'day of year' )
         
+        if ( args.Results.save_plots )
+            fdir = fullfile( tempdir(), ...
+                             'SWC_Plots' );
+            if not( exist( fdir ) )
+                mkdir( fdir );
+            end
+            fname = tempname( fdir );
+            set( h, 'PaperPositionMode', 'auto' );
+            print( h, '-dpng', fname );
+            %figure_2_eps( h, fname );
+            file_name_list{ i } = fname;
+            close( h );
+        else 
+            waitfor( h );
+        end
+        
     end
+    if args.Results.save_plots
+        combined_dir = fullfile( getenv( 'PLOTS' ), 'SWC_Plots' );
+        if not( exist( combined_dir ) )
+            mkdir( combined_dir );
+        end
+        combined_fname = fullfile( combined_dir, ...
+                                   sprintf( '%s_%d_VWC.pdf', ...
+                                            char( UNM_sites(args.Results.sitecode)), ...
+                                            args.Results.year ) );
+        cmd = sprintf( [ 'gs -q -dNOPAUSE -dBATCH ', ...
+                         '-sDEVICE=pdfwrite -sOutputFile=%s ' ], ...
+                       combined_fname );
+        for i = 1:numel( file_name_list )
+            convert_cmd = sprintf( 'convert %s.png %s.pdf', ...
+                             file_name_list{ i },...
+                             file_name_list{ i } )
+            fprintf( '%s\n',  convert_cmd );
+            system( convert_cmd );
+            cmd = sprintf( '%s %s.pdf', cmd, file_name_list{ i } );
+        end
+        keyboard
+        system( cmd );
+    end
+        
 end
