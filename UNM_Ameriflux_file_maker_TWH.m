@@ -226,8 +226,8 @@ end
 % ds_shf.Properties.Units = units;
 
 % amflux_shf = [ amflux_gaps, ds_shf ];
-% UNM_Ameriflux_write_file( sitecode, year, amflux_shf, ...
-%                           'mlitvak@unm.edu', 'SHF' );
+UNM_Ameriflux_write_file( sitecode, year, ds_soil, ...
+                          'mlitvak@unm.edu', 'SHF' );
 
 % % plot the soil heat flux variables
 % ds_shf = [ amflux_shf( :, 'DTIME' ), ds_shf ];
