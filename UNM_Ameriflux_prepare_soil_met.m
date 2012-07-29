@@ -24,7 +24,7 @@ data = UNM_assign_soil_data_labels( sitecode, year, data );
 dummy = repmat( -9999, size( data, 1 ), 1 );
 
 % find any soil heat flux columns within QC data
-shf_vars = regexp_ds_vars( ds_qc, '(SHF|soil_heat_flux).*' );
+shf_vars = regexp_ds_vars( ds_qc, '(SHF|soil_heat_flux|shf).*' );
 n_shf_vars = numel( shf_vars );  % how many SHF columns are there?    
 
 % -----
@@ -42,34 +42,41 @@ switch sitecode
     % measurements out of the FluxAll data.
 
     % get the soil water content and soil T columns and labels
-    
+
     re_Tsoil = 'soilT_[A-Za-z]+_[0-9]+_[0-9]+.*'; %regexp to identify
-                                                  %"soilT_COVER_DEPTH"
+                                                  %"soilT_COVER_NUMBER_DEPTH"
     Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
     if isempty( Tsoil )
         re_Tsoil_form2 = 'Tsoil_avg'; 
         Tsoil = data( :, regexp_ds_vars( data, re_Tsoil_form2 ) );
     end
-    
-    cs616 = data( :, regexp_ds_vars( data, ...
-                                     'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
-    if size( Tsoil, 2 ) == size( cs616, 2 )
-        [ cs616, cs616_Tc ] = cs616_period2vwc( cs616, Tsoil, ...
-                                                'draw_plots', false );
-    else
-        cs616_Tc = cs616;
-    end
 
+    cs616_pd = data( :, regexp_ds_vars( data, ...
+                                        'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
+
+    % if necessary, convert CS616 periods to volumetric water content
+    [ cs616, cs616_Tc ] = cs616_period2vwc( cs616_pd, Tsoil, ...
+                                            sitecode, year, ...
+                                            'draw_plots', false, ...
+                                            'save_plots', false );
+    fprintf( 'Tsoil probes detected: %d\n', size( Tsoil, 2 ) );
+
+    
     TCAV = data( :, regexp_ds_vars( data, ...
                                      'TCAV_[A-Za-z]+.*' ) );
 
   case { UNM_sites.PJ, UNM_sites.PJ_girdle }
     % PJ and PJ_girdle store their soil data outside of FluxAll.
     % These data are already converted to VWC.
-
     [ Tsoil, cs616 ] = preprocess_PJ_soil_data( sitecode, year );
-    %[ cs616, cs616_Tc ] = cs616_period2vwc( cs616,  Tsoil );
-    cs616_Tc = cs616;
+    if any( ( Tsoil.tstamps - data.timestamp ) > 1e-10 )
+        error( 'soil data timestamps do not match fluxall timestamps' );
+    end
+    Tsoil.tstamps = [];
+    cs616.tstamps = [];
+    cs616_Tc = replacedata( cs616, repmat( NaN, size( cs616 ) ) );
+    TCAV = [];
+    
 end
 
 % these sensors have problems with electrical noise -- remove noisy points
@@ -89,10 +96,10 @@ end
 [ VWC_cover_depth_avg, ...
   VWC_cover_avg ] = soil_data_averager( cs616_runmean );
 
-if numel( TCAV ) > 0
+if not( isempty( TCAV ) )
     soil_surface_T = TCAV;
 else
-    soil_surface_T = Tsoil_runmean;
+    soil_surface_T = Tsoil_cover_avg;
 end
 
 % -----
@@ -112,7 +119,7 @@ SHF = ds_qc( :, shf_vars );
 % save( fname, 'soil_data_for_matt' );
 % %----- soil data for Matt -- remove this later -----
 
-SHF = calculate_heat_flux( TCAV, ...
+SHF = calculate_heat_flux( soil_surface_T, ...
                            VWC_cover_avg, ...
                            SHF_pars, ...
                            SHF, ...

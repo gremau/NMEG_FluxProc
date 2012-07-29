@@ -169,31 +169,40 @@ switch sitecode
                         'cs616SWC_cover_2_37p5', ...
                         'cs616SWC_cover_2_52p5' };
     
+    descriptive_soilT_labels = { 'soilT_bare_1_2p5', 'soilT_bare_1_12p5', ...
+                        'soilT_bare_1_22p5', 'soilT_bare_1_37p5', ...
+                        'soilT_bare_1_52p5', 'soilT_cover_1_2p5', ...
+                        'soilT_cover_1_12p5', 'soilT_cover_1_22p5', ...
+                        'soilT_cover_1_37p5', 'soilT_cover_1_52p5', ...
+                        'soilT_bare_2_2p5', 'soilT_bare_2_12p5', ...
+                        'soilT_bare_2_22p5', 'soilT_bare_2_37p5', ...
+                        'soilT_bare_2_52p5', 'soilT_cover_2_2p5', ...
+                        'soilT_cover_2_12p5', 'soilT_cover_2_22p5', ...
+                        'soilT_cover_2_37p5', 'soilT_cover_2_52p5' };
+    
     switch year
       case { 2007, 2008, 2009, 2010 }
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616_wcr.*' );
         fluxall.Properties.VarNames( idx_cs616( 1:20 ) ) = ...
             descriptive_cs616_labels;
         fluxall( :, idx_cs616( 21:end ) )  = [];
-        %cs616_SWC_labels.columns = 157:176;
         
-        echo_SWC_labels.columns = [];
-        echo_SWC_labels.labels = {};
-        
-        soilT_labels.columns = 217:236;
-        soilT_labels.labels = { 'soilT_bare_1_2.5', 'soilT_bare_1_12.5', ...
-                            'soilT_bare_1_22.5', 'soilT_bare_1_37.5', ...
-                            'soilT_bare_1_52.5', 'soilT_cover_1_2.5', ...
-                            'soilT_cover_1_12.5', 'soilT_cover_1_22.5', ...
-                            'soilT_cover_1_37.5', 'soilT_cover_1_52.5', ...
-                            'soilT_bare_2_2.5', 'soilT_bare_2_12.5', ...
-                            'soilT_bare_2_22.5', 'soilT_bare_2_37.5', ...
-                            'soilT_bare_2_52.5', 'soilT_cover_2_2.5', ...
-                            'soilT_cover_2_12.5', 'soilT_cover_2_22.5', ...
-                            'soilT_cover_2_37.5', 'soilT_cover_2_52.5' };
+        % change mux25t... labels to descriptive soilT labels
+        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
+        if ~isempty( idx_Tsoil )
+            fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
+        end
+
       case 2011
+        % change soil_h2o... labels to descriptive SWC labels
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'soil_h2o_.*_Avg' );
         fluxall.Properties.VarNames( idx_cs616 ) = descriptive_cs616_labels;
+        
+        % change mux25t... labels to descriptive soilT labels
+        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
+        if ~isempty( idx_Tsoil )
+            fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
+        end
         
     end    % switch SLand year
     
@@ -227,9 +236,30 @@ switch sitecode
         fluxall.Properties.VarNames( idx_cs616 ) = ...
             cs616_descriptive_labels_preJul09;
       case 2008
+        vars = fluxall.Properties.VarNames;
+        
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
-        fluxall.Properties.VarNames( idx_cs616 ) = ...
-            cs616_descriptive_labels_preJul09;
+        vars( idx_cs616 ) = cs616_descriptive_labels_preJul09;
+
+        %soil T
+        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '[sS]oilT_' );
+        if ~isempty( idx_Tsoil )
+            vars( idx_Tsoil ) = regexprep( vars( idx_Tsoil ), ...
+                                           '[sS]oilT_Avg', 'soilT' );
+            vars( idx_Tsoil ) = replace_hex_chars( vars( idx_Tsoil ) );
+            vars( idx_Tsoil ) = JSav_format_probe_strings( vars( idx_Tsoil ) );
+        end
+
+        %TCAV
+        [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
+        if ~isempty( idx_TCAV )
+            vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
+            vars( idx_TCAV ) = JSav_format_probe_strings( vars( idx_TCAV ) );
+        end
+
+        fluxall.Properties.VarNames = vars;
+
+
       case 2009
         % there was a major SWC instrument changeover on 9 Jul 2009.  In the
         % 2009 Fluxall file, some columns appear to have data from one
@@ -257,19 +287,24 @@ switch sitecode
         echo_SWC_labels.labels = strrep( cs616_descriptive_labels_postJul09, ...
                                          'cs616SWC', 'echoSWC' );
 
-        soilT_labels.columns = 198:215;
-        soilT_labels.labels = { 'SoilT_J_1_2p5_Avg', 'SoilT_J_1_12p5_Avg', ...
-                            'SoilT_J_1_22p5_Avg', 'SoilT_J_2_2p5_Avg', ...
-                            'SoilT_J_2_12p5_Avg', 'SoilT_J_2_22p5_Avg', ...
-                            'SoilT_J_3_2p5_Avg', 'SoilT_J_3_12p5_Avg', ...
-                            'SoilT_J_3_22p5_Avg', 'SoilT_O_1_2p5_Avg', ...
-                            'SoilT_O_1_12p5_Avg', 'SoilT_O_1_22p5_Avg', ...
-                            'SoilT_O_2_2p5_Avg', 'SoilT_O_2_12p5_Avg', ...
-                            'SoilT_O_2_22p5_Avg', 'SoilT_O_3_2p5_Avg', ...
-                            'SoilT_O_3_12p5_Avg', 'SoilT_03_22p5_Avg' };
+        vars = fluxall.Properties.VarNames;
+        
+        %soil T
+        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '[sS]oilT_' );
+        if ~isempty( idx_Tsoil )
+            vars = regexprep( vars, '[sS]oilT_Avg', 'soilT' );
+            vars = replace_hex_chars( vars );
+            vars = JSav_format_probe_strings( vars );
+        end
 
-        TCAV_labels.columns = 216:217;
-        TCAV_labels.labels = { 'TCAV_Avg_1', 'TCAV_Avg_2' };
+        %TCAV
+        [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
+        if ~isempty( idx_TCAV )
+            vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
+            vars( idx_TCAV ) = JSav_format_probe_strings( vars( idx_TCAV ) );
+        end
+
+        fluxall.Properties.VarNames = vars;
         
         % remove fluxall SWC variables and replace with properly-labeled
         % variables defined above, with one probe's measurement in each column.
@@ -277,15 +312,43 @@ switch sitecode
         fluxall = [ fluxall, preJul09, postJul09 ];
         
       case { 2010, 2011 }
+        % echo SWC probes
+        vars = fluxall.Properties.VarNames;
         [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'SWC.*' );
-        fluxall.Properties.VarNames( idx_echo ) = ...
-            strrep( fluxall.Properties.VarNames( idx_echo ), ...
-                    'SWC', 'echoSWC' );
+        vars( idx_echo ) = strrep( vars( idx_echo ), 'SWC', 'echoSWC' );
+        vars( idx_echo ) = replace_hex_chars( vars( idx_echo ) );
+        vars( idx_echo ) = JSav_format_probe_strings( vars( idx_echo ) );
         
+        %CS616 SWC probes
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
-        fluxall.Properties.VarNames( idx_cs616 ) = ...
-            cs616_descriptive_labels_postJul09;
+        vars( idx_cs616 ) = cs616_descriptive_labels_postJul09;
+        vars( idx_cs616 ) = replace_hex_chars( vars( idx_cs616 ) );
+        vars( idx_cs616 ) = JSav_format_probe_strings( vars( idx_cs616 ) );
+        
+        %soil T
+        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'SoilT_' );
+        if ~isempty( idx_Tsoil )
+            vars = regexprep( vars, 'SoilT', 'soilT' );
+            vars( idx_Tsoil ) = replace_hex_chars( vars( idx_Tsoil ) );
+            vars( idx_Tsoil ) = JSav_format_probe_strings( vars( idx_Tsoil ) );
+        end
                     
+        %TCAV
+        [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
+        if ~isempty( idx_TCAV )
+            vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
+            vars( idx_TCAV ) = JSav_format_probe_strings( vars( idx_TCAV ) );
+        end
+        
+        % soil heat flux
+        [ ~, idx_shf ] = regexp_ds_vars( fluxall, 'shf' );
+        if ~isempty( idx_shf )
+            vars( idx_shf ) = replace_hex_chars( vars( idx_shf ) );
+            vars( idx_shf ) = JSav_format_probe_strings( vars( idx_shf ) );
+        end
+        
+        fluxall.Properties.VarNames = vars;
+        
     end   % switch JSav year
     
     % --------------------------------------------------
@@ -331,5 +394,12 @@ switch sitecode
 end
     
 
+%==================================================
+function str_out = JSav_format_probe_strings( str_in )
+% JSAV_FORMAT_PROBE_STRINGS - format "J3", "O2", etc. desinations to "J_3",
+% "O_2", etc.
 
-        
+% open pits are usually designated with "O", but sometimes 'o' or '0'
+str_out = regexprep( str_in, '_[Oo0]([0-9])_', '_O_$1_' );
+% add separating underscore to J1, etc. probe designations
+str_out = regexprep( str_out, '_([JO])([0-9])_', '_$1_$2_' );

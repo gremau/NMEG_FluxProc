@@ -35,6 +35,9 @@ end
                                                '^x[0-9]*_', '' );
     soil_data.Properties.VarNames = regexprep( soil_data.Properties.VarNames, ...
                                                '__[A-Z]$', '' );    
+    % replace T with Tsoil in var names
+    soil_data.Properties.VarNames = regexprep( soil_data.Properties.VarNames, ...
+                                               '^T', 'soilT' );    
     
     % build matlab datenums from year, day, hour, minute columns
     HH = floor( soil_data.Hour_Minute_RTM / 100 );
@@ -62,7 +65,7 @@ end
     
     % pull out soil water content and soil temperature
     T_vars = cellfun( @(x) ~isempty( x ), ...
-                      regexp( soil_data.Properties.VarNames, '^T_.*', 'once' ) );
+                      regexp( soil_data.Properties.VarNames, '^soilT_.*', 'once' ) );
     SWC_vars = cellfun( @(x) ~isempty( x ), ...
                         regexp( soil_data.Properties.VarNames, '^WC_.*', 'once' ) );
     

@@ -71,8 +71,10 @@ cs616_period_Tcorrect = @( pd, T )  pd +  ( ( 20 - T ) .* ...
                                               ( 0.00136 .* pd .* pd ) ) );
 
 vwc_Tc = raw_swc;
-vwc_Tc( is_cs616 ) = cs616_period_Tcorrect( raw_swc( is_cs616 ), ...
-                                            T_soil( is_cs616 ) );
+if ( size( T_soil, 2 ) == size( raw_swc, 2 ) )
+    vwc_Tc( is_cs616 ) = cs616_period_Tcorrect( raw_swc( is_cs616 ), ...
+                                                T_soil( is_cs616 ) );
+end
 vwc_Tc( is_cs616 ) = pd2vwc( vwc_Tc( is_cs616 ) );
 
 % Remove any negative SWC values
@@ -159,6 +161,8 @@ if args.Results.draw_plots
         xlabel( 'day of year' )
         
         if ( args.Results.save_plots )
+            % save plots as PNG images in temporary file, then combine to
+            % multi-page PDF outside of this loop
             fdir = fullfile( tempdir(), ...
                              'SWC_Plots' );
             if not( exist( fdir ) )
@@ -190,13 +194,16 @@ if args.Results.draw_plots
                          '-sDEVICE=pdfwrite -sOutputFile=%s ' ], ...
                        combined_fname );
         for i = 1:numel( file_name_list )
+            % convert png output to pdf so that ghostscript can combine to
+            % single-file multi-page pdf
             convert_cmd = sprintf( 'convert %s.png %s.pdf', ...
                              file_name_list{ i },...
-                             file_name_list{ i } )
-            fprintf( '%s\n',  convert_cmd );
+                             file_name_list{ i } );
+            %fprintf( '%s\n',  convert_cmd );
             system( convert_cmd );
             cmd = sprintf( '%s %s.pdf', cmd, file_name_list{ i } );
         end
+        % combine individual probe pdfs into single file
         system( cmd );
     end
         
