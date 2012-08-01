@@ -31,6 +31,11 @@ echo_SWC_labels = labels_template;
 cs616_SWC_labels = labels_template;
 soilT_labels = labels_template;
 TCAV_labels = labels_template;
+
+% regular expression to identify strings containing 'shf' or 'hfp',
+% case-insensitive
+re_SHF = '.*([Ss][Hh][Ff]).*|.*([Hh][Ff][Pp]).*';
+
 %place holders
 % cs616_SWC_labels.columns = [];
 % cs616_SWC_labels.labels = {};
@@ -87,8 +92,15 @@ switch sitecode
                         'cs616SWC_grass_3_12p5', ...
                         'cs616SWC_grass_3_22p5', ...
                         'cs616SWC_grass_3_37p5' };
+
+    % make sure there are two SHF measurements
+    [ ~, idx_SHF ] = regexp_ds_vars( fluxall, re_SHF );
+    if numel( idx_SHF ) ~= 2
+        error( 'unable to locate 2 SHF measurements, GLand 2007' );
+    else
     
     switch year
+        
       case { 2007, 2008 }
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616' );
 
@@ -98,9 +110,13 @@ switch sitecode
         idx_cs616 = idx_cs616( [ 1:16, 18:21 ] );
 
         fluxall.Properties.VarNames( idx_cs616 ) = descriptive_cs616_labels;
-        
         fluxall( :, idx_to_remove ) = [];
         
+
+        fluxall.Properties.VarNames( idx_SHF ) = { 'SHF_grass', 'SHF_open' }';
+        warning( [ 'check to make sure that GLand 2008 SHF vars are in ' ...
+                  'correct order' ] );
+      
       case { 2009, 2010 }
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616' );
 
@@ -120,6 +136,10 @@ switch sitecode
         [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV|tcav' );
         TCAV_labels.labels = { 'TCAV_open_Avg', 'TCAV_cover_Avg' };
         
+        fluxall.Properties.VarNames( idx_SHF ) = ...
+            regexprep( fluxall.Properties.VarNames( idx_SHF ), ...
+                       { 'hfp01', '_Avg' }, { 'SHF_', '' } );
+
       case 2011
         % this year cs616 SWC are labeled open1_12.5, grass2_2.5, etc.  They
         % are in columns 203 to 222
@@ -142,6 +162,10 @@ switch sitecode
         % change mux25t... labels to descriptive soilT labels
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
         fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
+        
+        fluxall.Properties.VarNames( idx_SHF ) = ...
+            regexprep( fluxall.Properties.VarNames( idx_SHF ), ...
+                       { 'hfp01', '_Avg' }, { 'SHF_', '' } );
         
     end   %switch GLand year
 
