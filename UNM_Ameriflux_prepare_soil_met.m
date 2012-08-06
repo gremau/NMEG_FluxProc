@@ -124,7 +124,14 @@ SHF.Properties.VarNames = shf_vars;
 [ SHF_cover_depth_avg, ...
   SHF_cover_avg ] = soil_data_averager( SHF );
 
-
+if sitecode == UNM_sites.SLand
+    % do not calculate SHF with storage at the "grass" pits -- we don't have
+    % SWC and soil T observations for SLand grass, and there isn't much grass
+    % there anyway (as per conversation with Marcy 6 Aug 2012).
+    [ ~, SHF_grass_idx ] = regexp_ds_vars( SHF_cover_avg, 'grass' );
+    SHF_cover_avg( :, SHF_grass_idx ) = [];
+end
+    
 % %----- soil data for Matt -- remove this later -----
 % soil_data_for_matt = horzcat( Tsoil_runmean, cs616_runmean );
 % fname = fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'SoilForMatt', ...
