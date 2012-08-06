@@ -24,7 +24,7 @@ data = UNM_assign_soil_data_labels( sitecode, year, data );
 dummy = repmat( -9999, size( data, 1 ), 1 );
 
 % find any soil heat flux columns within QC data
-shf_vars = regexp_ds_vars( ds_qc, '(SHF|soil_heat_flux|shf).*' );
+shf_vars = regexp_ds_vars( data, '(SHF|soil_heat_flux|shf).*' );
 n_shf_vars = numel( shf_vars );  % how many SHF columns are there?    
 
 % -----
@@ -101,6 +101,15 @@ if not( isempty( TCAV ) )
 else
     soil_surface_T = Tsoil_cover_avg;
 end
+% if there's only one soil temp measurement, use it for all SWC measurements
+if size( soil_surface_T, 2 ) == 1
+    soil_surface_T = ...
+        repmat( soil_surface_T, 1, size( VWC_cover_avg, 2 ) );
+    soil_surface_T.Properties.VarNames = ...
+        regexprep( VWC_cover_avg.Properties.VarNames, ...
+                   'VWC', ...
+                   'soilT' );
+end
 
 % -----
 % -----
@@ -109,7 +118,7 @@ end
 % -----
 
 SHF_pars = define_SHF_pars( sitecode, year );
-SHF = ds_qc( :, shf_vars );
+SHF = data( :, shf_vars );
 
 % %----- soil data for Matt -- remove this later -----
 % soil_data_for_matt = horzcat( Tsoil_runmean, cs616_runmean );
