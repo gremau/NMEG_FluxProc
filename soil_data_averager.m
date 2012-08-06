@@ -38,9 +38,12 @@ switch var{ 1 }
     prefix = 'VWC';
   case 'soilT'
     prefix = 'Tsoil';
+  case 'SHF'
+    prefix = 'SHF';
   otherwise
     error( sprintf( [ 'label prefix should be either' ...
-                      '"cs616SWC" or "soilT".  It is "%s".' ], var ) );
+                      '"cs616SWC", "soilT", or "SHF".  It is "%s".' ], ...
+                    var{ 1 } ) );
 end
 
 % -----

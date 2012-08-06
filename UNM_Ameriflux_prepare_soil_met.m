@@ -119,6 +119,11 @@ end
 
 SHF_pars = define_SHF_pars( sitecode, year );
 SHF = data( :, shf_vars );
+shf_vars = cellfun( @(x) [ x, '_0' ], shf_vars, 'UniformOutput', false );
+SHF.Properties.VarNames = shf_vars; 
+[ SHF_cover_depth_avg, ...
+  SHF_cover_avg ] = soil_data_averager( SHF );
+
 
 % %----- soil data for Matt -- remove this later -----
 % soil_data_for_matt = horzcat( Tsoil_runmean, cs616_runmean );
@@ -131,7 +136,7 @@ SHF = data( :, shf_vars );
 SHF = calculate_heat_flux( soil_surface_T, ...
                            VWC_cover_avg, ...
                            SHF_pars, ...
-                           SHF, ...
+                           SHF_cover_avg, ...
                            1.0 );
 
 %======================================================================
