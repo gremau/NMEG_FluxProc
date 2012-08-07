@@ -246,6 +246,7 @@ if size( grp_vars, 2 ) >= 4
     depths = grp_vars( :, 4 );
     depths = regexprep( depths, '([0-9])p([0-9])', '$1.$2' );
     depths = replace_hex_chars( depths );
+    depths = regexprep( depths, '[Cc][Mm]', '' ); %get rid of "cm"
     depths = cellfun( @str2num, depths );
 else
     depths = NaN;
