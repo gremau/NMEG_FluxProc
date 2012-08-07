@@ -6,7 +6,8 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
 % gathers/calculates all the soil met properties.  By modularizing it here it
 % should make it easier to streamline this going into the future.  I have gone
 % through and replaced QC columns with ds_qc -- the dataset created by
-% fluxallqc_2_dataset.m
+% fluxallqc_2_dataset.m.  Abbreviations: SWC: soil water content; VWC:
+% volumetric water content.
 %   
 %
 
@@ -94,7 +95,7 @@ end
 [ Tsoil_cover_depth_avg, ...
   Tsoil_cover_avg ] = soil_data_averager( Tsoil_runmean );
 [ VWC_cover_depth_avg, ...
-  VWC_cover_avg ] = soil_data_averager( cs616_runmean );
+  VWC_cover_avg ] = soil_data_averager( cs616_Tc_runmean );
 
 if not( isempty( TCAV ) )
     soil_surface_T = TCAV;
@@ -105,6 +106,7 @@ end
 if size( soil_surface_T, 2 ) == 1
     soil_surface_T = ...
         repmat( soil_surface_T, 1, size( VWC_cover_avg, 2 ) );
+    % give the replicated T values descriptive names
     soil_surface_T.Properties.VarNames = ...
         regexprep( VWC_cover_avg.Properties.VarNames, ...
                    'VWC', ...
@@ -113,7 +115,7 @@ end
 
 % -----
 % -----
-% now we have VWC and soil T. Calculate heat flux with storage.
+% now we have T-corrected VWC and soil T. Calculate heat flux with storage.
 % -----
 % -----
 
