@@ -40,14 +40,15 @@ T_soil = args.Results.T_soil;
 swc_is_ds = isa( raw_swc, 'dataset' );
 if swc_is_ds
     raw_swc_input = raw_swc;
+    swc_depths = extract_Tsoil_depths( raw_swc.Properties.VarNames );
+    shallow = repmat( false, size( raw_swc ) );
+    shallow( :, swc_depths < 10.0 ) = true;
     raw_swc = double( raw_swc );
 end
 
 % make sure T_soil is an array of doubles
 if isa( T_soil, 'dataset' )
-    T_soil_names = T_soil.Properties.VarNames;
     T_soil = double( T_soil );
-    T_soil_depths = extract_Tsoil_depths( T_soil_names );
 end
 
 % -----
@@ -75,11 +76,8 @@ cs616_period_Tcorrect = @( pd, T )  pd +  ( ( 20 - T ) .* ...
                                               ( 0.00136 .* pd .* pd ) ) );
 
 vwc_Tc = raw_swc;
-shallow = repmat( false, size( raw_swc ) );
-shallow( :, T_soil_depths < 10.0 ) = true;
 n_soil_T = size( T_soil, 2 ); %how many soil T observations?
 n_swc = size( raw_swc, 2 );   %how many soil water observations?
-
 if ( n_soil_T == n_swc )
     % if there is a soil T observation for each SWC observation, use each
     % soil T to correct its associated SWC
