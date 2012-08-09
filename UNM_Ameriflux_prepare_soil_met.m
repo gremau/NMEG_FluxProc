@@ -52,6 +52,12 @@ switch sitecode
         Tsoil = data( :, regexp_ds_vars( data, re_Tsoil_form2 ) );
     end
 
+    if ( sitecode == UNM_sites.JSav ) & ( year == 2008 )
+        % Jsav 2008 has more Tsoil observations than SWC observations.
+        % Remove the observations that don't correspond to a SWC observation.
+        Tsoil = JSav_match_soilT_SWC( Tsoil );
+    end
+    
     cs616_pd = data( :, regexp_ds_vars( data, ...
                                         'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
 
@@ -102,6 +108,11 @@ if not( isempty( TCAV ) )
 else
     soil_surface_T = Tsoil_cover_avg;
 end
+
+if sitecode == UNM_sites.JSav
+    soil_surface_T = Tsoil_cover_avg;
+end
+
 % if there's only one soil temp measurement, use it for all SWC measurements
 if size( soil_surface_T, 2 ) == 1
     soil_surface_T = ...
@@ -126,14 +137,19 @@ SHF.Properties.VarNames = shf_vars;
 [ SHF_cover_depth_avg, ...
   SHF_cover_avg ] = soil_data_averager( SHF );
 
-if sitecode == UNM_sites.SLand
+switch sitecode
+  case UNM_sites.SLand
     % do not calculate SHF with storage at the "grass" pits -- we don't have
     % SWC and soil T observations for SLand grass, and there isn't much grass
     % there anyway (as per conversation with Marcy 6 Aug 2012).
     [ ~, SHF_grass_idx ] = regexp_ds_vars( SHF_cover_avg, 'grass' );
     SHF_cover_avg( :, SHF_grass_idx ) = [];
+  case UNM_sites.JSav
+    % similarly, ignore "edge" pits at JSav
+    [ ~, JSav_edge_idx ] = regexp_ds_vars( SHF_cover_avg, 'edge' );
+    SHF_cover_avg( :, JSav_edge_idx ) = [];
 end
-    
+
 % %----- soil data for Matt -- remove this later -----
 % soil_data_for_matt = horzcat( Tsoil_runmean, cs616_runmean );
 % fname = fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'SoilForMatt', ...
@@ -164,10 +180,10 @@ fprintf( 1, ' Done (%.0f secs)\n', t_tot );
 
 
 
-
-
-
-
+%----------------------------------------------------------------------    
+%----------------------------------------------------------------------    
+% helper functions start here
+%----------------------------------------------------------------------    
 %----------------------------------------------------------------------    
 
 function [ ds ] = soildata_2_dataset(fluxall, columns, labels)
@@ -225,3 +241,12 @@ switch sitecode
   case UNM_sites.New_GLand
     SHF_pars.bulk = 1398;
 end %switch sitecode -- soil heat flux parameters
+
+%----------------------------------------------------------------------
+% Jsav 2008 has more Tsoil observations than SWC observations.  Remove the
+% observations that don't correspond to a SWC observation.
+function Tsoil = JSav_match_soilT_SWC( Tsoil )
+
+[ ~, discard_idx ] = regexp_ds_vars( Tsoil, '62' );
+Tsoil( :, discard_idx ) = [];
+
