@@ -138,6 +138,13 @@ switch sitecode
         data( idx, : ) = shift_data( data( idx, : ),  2.5, ...
                                      'cols_to_shift', col_idx );
     end
+
+  case UNM_sites.TX
+    switch year
+      case 2009
+        idx = DOYidx( 314 ) : size( data, 1 );
+        data( idx, : ) = shift_data( data( idx, : ), 1.0 );
+    end
     
   case UNM_sites.New_GLand
     switch year

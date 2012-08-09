@@ -265,7 +265,7 @@ draw_plots = args.Results.draw_plots;
         site = 'PPine'
         % site default values
         co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -5];
-        co2_max_by_month = 20; %[4 4 4 5 8 8 8 8 8 8 5 4];
+        co2_max_by_month = 10; %[4 4 4 5 8 8 8 8 8 8 5 4];
         if year == 2006
             filelength_n = 11594;
         elseif year == 2007
@@ -277,7 +277,7 @@ draw_plots = args.Results.draw_plots;
             filelength_n = 17571;
             lastcolumn='FU';
             ustar_lim = 0.08;
-            co2_min_by_month = [-6 -6 -15 -15 -15 -15 -20 -20 -25 -25 -15 -10];
+            co2_min_by_month = -18 %[-6 -6 -15 -15 -15 -15 -20 -20 -25 -25 -15 -10];
         elseif year == 2009;
             filelength_n = 17523;
             lastcolumn='FY';
@@ -1617,7 +1617,7 @@ draw_plots = args.Results.draw_plots;
         
         [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
           HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
-          sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip ] = ...
+          sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, rH ] = ...
             remove_specific_problem_periods( sitecode, year2, ...
                                              fc_raw_massman_wpl, ...
                                              E_wpl_massman, ...
@@ -1632,7 +1632,8 @@ draw_plots = args.Results.draw_plots;
                                              sw_outgoing, ...
                                              lw_incoming, ...
                                              lw_outgoing, ...
-                                             precip );
+                                             precip, ...
+                                             rH );
 
         [ DOY_co2_min, DOY_co2_max ] = get_daily_maxmin( month, ...
                                                          co2_min_by_month, ...
@@ -2479,7 +2480,7 @@ function [ doy_min, doy_max ] = get_daily_maxmin( data_month, ...
 
 function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
            HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
-           sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip ] = ...
+           sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, rH ] = ...
     remove_specific_problem_periods( sitecode, year, ...
                                      fc_raw_massman_wpl, ...
                                      E_wpl_massman, ...
@@ -2494,7 +2495,7 @@ function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
                                      sw_outgoing, ...
                                      lw_incoming, ...
                                      lw_outgoing, ...
-                                     precip )
+                                     precip, rH )
 
 % Helper function for UNM_RemoveBadData (RBD for short).  Specifies periods
 % where various flux observations did not activate any of the RBD filters,
@@ -2597,6 +2598,8 @@ switch sitecode
     switch year
       case 2008
         fc_raw_massman_wpl( DOYidx( 260 ) : DOYidx( 290 ) ) = NaN;
+        rH( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;  %these observation are way
+                                                    %too small
       case 2009
         fc_raw_massman_wpl( DOYidx( 157 ) : DOYidx( 159 ) ) = NaN;
         idx = DOYidx( 157 ) : DOYidx( 183 );
@@ -2804,8 +2807,9 @@ switch sitecode
         DOY_co2_max( : ) = 10;
         DOY_co2_max( DOYidx( 64 ) : DOYidx( 67 ) ) = 15.0;
         DOY_co2_max( DOYidx( 67 ) : DOYidx( 150 ) ) = 8.0;
+        DOY_co2_max( DOYidx( 300 ) : end ) = 10.0;
       case 2011
-        std_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
+        istd_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
         DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;
     end
     
@@ -2847,7 +2851,14 @@ switch sitecode
         DOY_co2_max( DOYidx( 95 ) : DOYidx( 166 ) ) = 4.0;
         DOY_co2_max( DOYidx( 180 ) : end ) = 4.0;
     end  % MCon
-    
+
+  case UNM_sites.TX
+    switch year 
+      case 2009
+        DOY_co2_max( DOYidx( 163 ) : DOYidx( 163.5 ) ) = 9.0;
+        DOY_co2_max( DOYidx( 265 ) : DOYidx( 305 ) ) = 12.0;
+    end
+        
   case UNM_sites.PJ_girdle
     switch year
       case 2009

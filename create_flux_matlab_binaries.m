@@ -12,8 +12,10 @@ all_sites = [ UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, UNM_sites.PJ, ..
 for this_site = all_sites
     for year = 2007:2011
         fprintf( '%s %d\n', char( this_site ), year );
-        if ameriflux
+        if ameriflux            
             % Ameriflux binaries
+            update_combined_mat_file = false; 
+            
             for suffix = { 'gapfilled', 'with_gaps' }
                 ascii_fname = get_ameriflux_filename( this_site, ...
                                                       year, ...
@@ -26,12 +28,30 @@ for this_site = all_sites
                                                   year, ...
                                                   suffix{ 1 } ) );
                 
-                success = success & write_binary_if_necessary( this_site, ...
-                                                               year, ...
-                                                               ascii_fname, ...
-                                                               binary_fname );
-                
-            end 
+                [ this_success, wrote_file ] = ...
+                    write_binary_if_necessary( this_site, ...
+                                               year, ...
+                                               ascii_fname, ...
+                                               binary_fname );
+                sucess = success & this_success;
+                update_combined_mat_file = update_combined_mat_file | wrote_file;
+            end
+            
+            if update_combined_mat_file
+                % if any of the site-years were updated, write a new combined 
+                % file
+                this_data = assemble_multi_year_ameriflux( this_site, ...
+                                                           2006:2011 );
+                fname = fullfile( getenv( 'FLUXROOT' ), ...
+                                  'FluxOut', ...
+                                  'BinaryData', ...
+                                  sprintf( '%s_all_%s.mat', ...
+                                           char( this_site ), ...
+                                           suffix{ 1 } ) )
+                fprintf( 'saving %s\n', fname );
+                save( fname, 'this_data' );
+            end
+                                
         end
         
         if fluxall
@@ -54,23 +74,25 @@ for this_site = all_sites
                                                       char( this_site ), ...
                                                       year ) );
             
-            success = success & ...
-                      write_binary_if_necessary( this_site, ...
-                                                 year, ...
-                                                 fluxall_fname, ...
-                                                 fluxall_binary_fname );
+            [ this_success, wrote_file ] = ...
+                write_binary_if_necessary( this_site, ...
+                                           year, ...
+                                           fluxall_fname, ...
+                                           fluxall_binary_fname );
+            success = success & this_success;
             
         end
     end
 end
 
 %--------------------------------------------------            
-function success = write_binary_if_necessary(  sitecode, year, ...
+function [ success, wrote ] = write_binary_if_necessary(  sitecode, year, ...
                                                orig_fname, binary_fname)
 % WRITE_BINARY_IF_NECESSARY - determine whether binary file is older, or binary does not exist
 %   
 
 success = false;
+wrote = false;
 
 if exist( orig_fname )
     
@@ -96,7 +118,7 @@ if exist( orig_fname )
         fprintf( '\tsaving %s\n', binary_fname );
         save( binary_fname, 'this_data' );
     end
-
+    wrote = write_binary_now;
 end
 
 success = true;
