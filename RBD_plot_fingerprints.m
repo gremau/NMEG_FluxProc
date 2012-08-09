@@ -106,7 +106,7 @@ pos( 3:4 ) = [ 10.0, 7.5 ]; %size for 8.5 x 11 paper with 0.5" margins
 set( h_fig, 'Position', pos ); 
 
 %full_fname = fullfile( 'C:', 'Users', 'Tim', 'Plots', 'RadiationOffset', fname )
-full_fname = fullfile( getenv( 'PLOTS' ), ...
-                       'RadiationOffset', 'AmerifluxFingerprints6Jul', fname );
-figure_2_eps( h_fig, full_fname  );
+% full_fname = fullfile( getenv( 'PLOTS' ), ...
+%                        'RadiationOffset', 'AmerifluxFingerprints6Jul', fname );
+% figure_2_eps( h_fig, full_fname  );
 %close( h_fig );
