@@ -1,9 +1,22 @@
-function hf = plot_CZO_Valles_figure( sitecode, years )
+function hf = plot_CZO_Valles_figure( sitecode, years, binary_data )
 % PLOT_CZO_VALLES_FIGURE - 
+%
+% USAGE
+%    hf = plot_CZO_Valles_figure( sitecode, years, binary_data )
+%
+% (c) Timothy W. Hilton, UNM, July 2012
 
 % load ameriflux data for requested years
 aflx_data = assemble_multi_year_ameriflux( sitecode, years, ...
-                                           'binary_data', true);
+                                           'binary_data', binary_data );
+
+if sitecode == UNM_sites.PPine
+    idx = ( aflx_data.YEAR == 2009 ) & ...
+          ( aflx_data.DTIME > 149 ) & ...
+          ( aflx_data.DTIME < 195 );
+    aflx_data.RE( idx ) = aflx_data.RE( idx ) * 0.5;
+    aflx_data.FC( idx ) = aflx_data.RE( idx ) - aflx_data.GPP( idx );
+end
 
 %convert C fluxes to gC / m2
 aflx_data.FCgc = umolPerSecPerM2_2_gcPerMSq( aflx_data.FC );
@@ -22,6 +35,19 @@ tstamp = datenum( aflx_data.YEAR, 1, 0 ) + aflx_data.DTIME;
     double( aflx_data( :, { 'PRECIP', 'FCgc', ...
                     'GPPgc', 'REgc', 'ETmm' } ) ), ...
     @nansum );
+
+if sitecode == UNM_sites.MCon
+    % sub in Redondo pcp for Mcon pcp as per conversation with Marcy 30 Jul 2012
+    valles = UNM_parse_valles_met_data( 2011 );
+    redondo = valles( valles.sta == 14, : );
+    redondo.timestamp = datenum( redondo.year, 1, 0 ) +  redondo.day;
+    [ ~, red_month, ~, ~, ~, ~ ] = datevec( redondo.timestamp );
+    [ ~, monthly_pcp_11, ~ ] = consolidator( red_month, ...
+                                             redondo.ppt, ...
+                                             @nansum );
+    agg_sums( end-11:end, 1 ) = monthly_pcp_11;
+end
+    
 
 % calculate monthly means for air T
 [ year_mon, T_mean, idx ] = consolidator( ...
@@ -71,6 +97,7 @@ set( ax1, 'XLim', x_limits, ...
 ylabel( 'NEE [ gC m^{-2} ]' );
 info = parse_UNM_site_table();
 title( info.SITE_NAME( sitecode ) );
+ylim( [ -150, 250 ] );
 
 %--
 % RE and GPP
@@ -78,10 +105,12 @@ ax2 = subplot( 4, 1, 2 );
 h_GPP = bar( agg.timestamp, agg.GPP, 'FaceColor', med_blue );
 hold( ax2, 'on' );
 h_RE = bar( agg.timestamp, agg.RE * -1.0 );
+ylim( [ -400, 250 ] );
 set( ax2, 'XLim', x_limits, ...
           'XTick', x_ticks, ...
           'XTickLabel', [] );
 ylabel( 'GPP & RE [ gC m^{-2} ]' );
+legend( [ h_GPP, h_RE ], 'GPP', 'RE', 'Location', 'best' );
 
 pal = cbrewer( 'div', 'PRGn', 9 );
 set( h_GPP, 'FaceColor', pal( end, : ) );  %plot GPP in green
@@ -100,7 +129,7 @@ ylabel('ET [ mm ]')
 set( ax3L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...
            'XTickLabel', [], ...
-           'YLim', [ 0, 250 ], ...
+           'YLim', [ 0, 110 ], ...
            'YColor', get( h_ET, 'FaceColor' ) );
 
 ax3R = axes( 'Position', get( ax3L, 'Position' ) );
@@ -129,7 +158,7 @@ h_pcp = bar( agg.timestamp, agg.PCP, ...
 ylabel('precipitation [ mm ]')
 set( ax4L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...
-           'YLim', [ 0, 250 ], ...
+           'YLim', [ 0, 110 ], ...
            'YColor', get( h_ET, 'FaceColor' ), ...
            'XTickLabel', datestr( x_ticks, 'mmm yy' ) );
 
@@ -148,3 +177,4 @@ ylabel( 'Air temp [ ^{\circ}C ]' );
 set( ax4L, 'box', 'off' );
 set( ax4R, 'box', 'off' );
 
+linkaxes( [ ax1, ax2, ax3L, ax3R, ax4L, ax4R ], 'x' );
