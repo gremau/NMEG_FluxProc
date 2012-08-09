@@ -95,6 +95,7 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     
     % title string
     t_str = replace_hex_chars( this_var );
+    t_str = regexprep( t_str, '_', '\\_' );
     ylabel( axh, t_str );
     
     % just backed up, so can't be on last column
@@ -129,6 +130,7 @@ function cur_col = next_but_cbk( source, eventdata, ...
     
     % title string
     t_str = replace_hex_chars( this_var );
+    t_str = regexprep( t_str, '_', '\\_' );
     ylabel( axh, t_str );
 
     % just advanced, so can't be on first column
