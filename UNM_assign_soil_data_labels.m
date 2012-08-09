@@ -88,7 +88,6 @@ switch sitecode
     fluxall.Properties.VarNames( idx_SHF ) = SHF_vars;
     
   case UNM_sites.JSav
-    SHF_vars = replace_hex_chars( SHF_vars ); 
     SHF_vars = regexprep( SHF_vars, ...
                           { 'shf_Avg.*1.*', 'shf_Avg.*2.*', ...
                         'shf_Avg.*3.*', 'shf_Avg.*4.*' }, ...
@@ -100,6 +99,16 @@ switch sitecode
   case UNM_sites.PJ
     % capitalize "shf" and remove trailing "_Avg" 
     SHF_vars = regexprep( SHF_vars, { 'shf', '_Avg' },  { 'SHF', '' } );
+    
+  case UNM_sites.New_GLand
+    vars = fluxall.Properties.VarNames; 
+    vars = regexprep( vars, ...
+                      { 'grass_1_Avg', 'grass_2_Avg', ...
+                        'open_1_Avg', 'open_2_Avg' }, ...
+                      { 'SHF_open_1', 'SHF_open_2', ...
+                        'SHF_grass_1', 'SHF_grass_2'  }, ...
+                      'once' );
+    fluxall.Properties.VarNames = vars;
     
 end
         
@@ -337,6 +346,13 @@ switch sitecode
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'VWC.*' );
         vars( idx_cs616 ) = cs616_descriptive_labels_preJul09;
         
+        %soil T
+        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '[sS]oilT_' );
+        if ~isempty( idx_Tsoil )
+            vars( idx_Tsoil ) = soilT_descriptive_labels_2008;
+        end
+        
+        
         warning( 'temperature data not yet labeled for JSav 2007' );
         
       case 2008 
@@ -355,7 +371,7 @@ switch sitecode
         [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
         if ~isempty( idx_TCAV )
             vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
-            vars( idx_TCAV ) = JSav_format_probe_strings( vars( idx_TCAV ) );
+            vars( idx_TCAV ) = format_probe_strings( vars( idx_TCAV ) );
         end
 
         fluxall.Properties.VarNames = vars;
@@ -395,14 +411,14 @@ switch sitecode
         if ~isempty( idx_Tsoil )
             vars = regexprep( vars, '[sS]oilT_Avg', 'soilT' );
             vars = replace_hex_chars( vars );
-            vars = JSav_format_probe_strings( vars );
+            vars = format_probe_strings( vars );
         end
 
         %TCAV
         [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
         if ~isempty( idx_TCAV )
             vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
-            vars( idx_TCAV ) = JSav_format_probe_strings( vars( idx_TCAV ) );
+            vars( idx_TCAV ) = format_probe_strings( vars( idx_TCAV ) );
         end
 
         fluxall.Properties.VarNames = genvarname( vars );
@@ -418,13 +434,13 @@ switch sitecode
         [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'SWC.*' );
         vars( idx_echo ) = strrep( vars( idx_echo ), 'SWC', 'echoSWC' );
         vars( idx_echo ) = replace_hex_chars( vars( idx_echo ) );
-        vars( idx_echo ) = JSav_format_probe_strings( vars( idx_echo ) );
+        vars( idx_echo ) = format_probe_strings( vars( idx_echo ) );
         
         %CS616 SWC probes
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
         vars( idx_cs616 ) = cs616_descriptive_labels_postJul09;
         vars( idx_cs616 ) = replace_hex_chars( vars( idx_cs616 ) );
-        vars( idx_cs616 ) = JSav_format_probe_strings( vars( idx_cs616 ) );
+        vars( idx_cs616 ) = format_probe_strings( vars( idx_cs616 ) );
         
         %soil T
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'SoilT_' );
@@ -433,21 +449,21 @@ switch sitecode
                                            'SoilT', 'soilT' );
             vars( idx_Tsoil ) = regexprep( vars( idx_Tsoil ), '_Avg', '' );
             vars( idx_Tsoil ) = replace_hex_chars( vars( idx_Tsoil ) );
-            vars( idx_Tsoil ) = JSav_format_probe_strings( vars( idx_Tsoil ) );
+            vars( idx_Tsoil ) = format_probe_strings( vars( idx_Tsoil ) );
         end
                     
         %TCAV
         [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
         if ~isempty( idx_TCAV )
             vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
-            vars( idx_TCAV ) = JSav_format_probe_strings( vars( idx_TCAV ) );
+            vars( idx_TCAV ) = format_probe_strings( vars( idx_TCAV ) );
         end
         
         % soil heat flux
         [ ~, idx_shf ] = regexp_ds_vars( fluxall, 'shf' );
         if ~isempty( idx_shf )
             vars( idx_shf ) = replace_hex_chars( vars( idx_shf ) );
-            vars( idx_shf ) = JSav_format_probe_strings( vars( idx_shf ) );
+            vars( idx_shf ) = format_probe_strings( vars( idx_shf ) );
         end
         
         fluxall.Properties.VarNames = vars;
@@ -478,40 +494,44 @@ switch sitecode
     [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'Soilwcr.*' );
     swc_vars = fluxall.Properties.VarNames( idx_cs616 );
     swc_vars = strrep( swc_vars, 'Soilwcr', 'cs616SWC' );
-    % replace the 'g' in _g1 or _g2 with "grass_"
-    swc_vars = regexprep( swc_vars, '_g([12])', '_grass_$1' );
-    % replace the 'o, O, or 0' in e.g. _o1 or _02 with "open_"
-    swc_vars = regexprep( swc_vars, '_[oO0]([12])', '_open_$1' );
-    %swc_vars = repexprep
+    swc_vars = replace_hex_chars( swc_vars );
+    swc_vars = format_probe_strings( swc_vars );
     fluxall.Properties.VarNames( idx_cs616 ) = swc_vars;
     
-    echo_SWC_labels.columns = []; 
-    echo_SWC_labels.labels = {}; 
+    [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'SoilT.*' );
+    T_vars = fluxall.Properties.VarNames( idx_soilT );
+    T_vars = regexprep( T_vars, 'SoilT', 'soilT' );
+    T_vars = regexprep( T_vars, '_Avg$', '' );
+    T_vars = replace_hex_chars( T_vars );
+    T_vars = format_probe_strings( T_vars );
+    fluxall.Properties.VarNames( idx_soilT ) = T_vars;
     
-    soilT_labels.columns = [];
-    soilT_labels.labels = {};
-    
-    TCAV_labels.columns = [];
-    TCAV_labels.labels = {};
+    vars = fluxall.Properties.VarNames;
+    [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
+    vars( idx_TCAV ) = regexprep( vars( idx_TCAV ), '_Avg', '_1' );
+    fluxall.Properties.VarNames = vars;
 
 end
     
 
 %==================================================
-function str_out = JSav_format_probe_strings( str_in )
-% JSAV_FORMAT_PROBE_STRINGS - format "J3", "O2", etc. desinations to "J_3",
+function str_out = format_probe_strings( str_in )
+% FORMAT_PROBE_STRINGS - format "J3", "O2", etc. desinations to "J_3",
 % "O_2", etc.
 
 % open pits are usually designated with "O", but sometimes 'o' or '0'
 str_out = regexprep( str_in, '_[Oo0]([0-9])_', '_O_$1_' );
+% grass pits are usually designated with "g"
+str_out = regexprep( str_out, '_g([0-9])_', '_G_$1_' );
 % add separating underscore to J1, etc. probe designations
-str_out = regexprep( str_out, '_([JO])([0-9])_', '_$1_$2_' );
+str_out = regexprep( str_out, '_([GJO])([0-9])_', '_$1_$2_' );
 % remove any parens that made it this far
 str_out = regexprep( str_out, '[\(\)]', '_' );
 % remove trailing underscores
 str_out = regexprep( str_out, '_$', '' );
 % change decimal points to "p" (for legal Matlab variable names)
 str_out = regexprep( str_out, '([0-9])\.([0-9])', '$1p$2' );
-% change _O_ to _open_ and _J_ to _juniper_
+% change _O_ to _open_, _J_ to _juniper_, _G_ to _grass_
 str_out = regexprep( str_out, '_O_', '_open_' );
 str_out = regexprep( str_out, '_J_', '_juniper_' );
+str_out = regexprep( str_out, '_G_', '_grass_' );

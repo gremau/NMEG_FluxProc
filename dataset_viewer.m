@@ -66,8 +66,8 @@ function fh =  dataset_viewer( ds )
 plot( axh, ds( :, 1 ), '.k' );
 xlabel( axh, 'index' );
 t_str = ds.Properties.VarNames{ 1 };
-t_str = strrep( t_str, '_', '\_');
-t_str = strrep( t_str, '0x2E', '.');
+t_str = replace_hex_chars( t_str );
+t_str = regexprep( t_str, '_', '\\_' );
 ylabel( axh, t_str );
 
 %--------------------------
