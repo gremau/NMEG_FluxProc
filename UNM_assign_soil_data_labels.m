@@ -90,8 +90,8 @@ switch sitecode
   case UNM_sites.JSav
     SHF_vars = replace_hex_chars( SHF_vars ); 
     SHF_vars = regexprep( SHF_vars, ...
-                          { 'shf_Avg.*1', 'shf_Avg.*2', ...
-                        'shf_Avg.*3', 'shf_Avg.*4' }, ...
+                          { 'shf_Avg.*1.*', 'shf_Avg.*2.*', ...
+                        'shf_Avg.*3.*', 'shf_Avg.*4.*' }, ...
                           { 'SHF_open_1', 'SHF_open_2', ...
                         'SHF_edge_1', 'SHF_juniper_1'  }, ...
                           'once' );
@@ -333,10 +333,13 @@ switch sitecode
     
     switch year
       case 2007
+        vars = fluxall.Properties.VarNames;
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'VWC.*' );
-        fluxall.Properties.VarNames( idx_cs616 ) = ...
-            cs616_descriptive_labels_preJul09;
-      case 2008
+        vars( idx_cs616 ) = cs616_descriptive_labels_preJul09;
+        
+        warning( 'temperature data not yet labeled for JSav 2007' );
+        
+      case 2008 
         vars = fluxall.Properties.VarNames;
         
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );

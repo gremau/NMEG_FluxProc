@@ -145,9 +145,11 @@ switch sitecode
     [ ~, SHF_grass_idx ] = regexp_ds_vars( SHF_cover_avg, 'grass' );
     SHF_cover_avg( :, SHF_grass_idx ) = [];
   case UNM_sites.JSav
-    % similarly, ignore "edge" pits at JSav
-    [ ~, JSav_edge_idx ] = regexp_ds_vars( SHF_cover_avg, 'edge' );
-    SHF_cover_avg( :, JSav_edge_idx ) = [];
+    if year > 2009
+        % similarly, ignore "edge" pits at JSav
+        [ ~, JSav_edge_idx ] = regexp_ds_vars( SHF_cover_avg, 'edge' );
+        SHF_cover_avg( :, JSav_edge_idx ) = [];
+    end
 end
 
 % %----- soil data for Matt -- remove this later -----
