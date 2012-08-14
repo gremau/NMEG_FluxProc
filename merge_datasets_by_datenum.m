@@ -2,12 +2,34 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
                                                       tvar1, tvar2, ...
                                                       tol, ...
                                                       t_start, t_end )
-% MERGE_DATASETS_BY_DATENUM - fills in two 30-minute timeseries datasets so
-% that both have identical timestamps.  Where a timestamp is present in A but
-% not B, adds the timestamp to B and fills data with NaNs.  Timestamps within
-% tol minutes of a "round" half hour (e.g. 00 or 30 minutes past the hour)
-% are rounded to the nearest half hour.  Rows with timestamps not within tol
-% minutes of a "round" half hour are discarded.
+% MERGE_DATASETS_BY_DATENUM - fills in two 30-minute timeseries datasets so that
+% both have identical timestamps.  Where a timestamp is present in A but not B
+% or vice versa , adds the timestamp to B and fills data with NaNs.
+%
+% USAGE
+%    [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
+%                                                      tvar1, tvar2, ...
+%                                                      tol, ...
+%                                                      t_start, t_end )
+% INPUTS
+%     ds_in1, ds_in2: matlab dataset objects containing data to be merged
+%     tvar1, tvar2: strings containing names of dataset variables containing
+%         the timestamps in ds_in1 and ds_in2.  These timestamps must be matlab
+%         datenum objects.
+%     tol: tolerance for rounding timestamps to "round 30-minute" values.
+%         Timestamps within tol minutes of a "round" half hour (e.g. 00 or 30
+%         minutes past the hour) are rounded to the nearest half hour.  Rows
+%         with timestamps not within tol minutes of a "round" half hour are
+%         discarded.
+%     t_start, t_end: matlab datenums.  Start and stop times for the merge.
+%         The output datasets will be filled in to contain a complete set of
+%         30-minute timestamps between t_start and t_end.  Timestamps outside
+%         this range are discarded.
+%
+% OUTPUTS
+%     ds_out1, ds_out2: matlab dataset objects containing the filled data.
+%
+% (c) Timothy W. Hilton, UNM, October 2011
 
 discard_idx = ( ( ds_in1.( tvar1 ) < t_start ) | ...
                 ( ds_in1.( tvar1 ) > t_end ) ); 
