@@ -35,7 +35,6 @@ fluxall = format_SHF_labels( sitecode, year, fluxall );
 function fluxall =  format_SHF_labels( sitecode, year, fluxall )
 %  SHF_COLUMNS - identifies soil heat flux (SHF) columns and assigns descriptive
 %   labels.
-
 % regular expression to identify strings containing 'shf' or 'hfp',
 % case-insensitive
 re_SHF = '.*([Ss][Hh][Ff]).*|.*([Hh][Ff][Pp]).*';
@@ -99,6 +98,16 @@ switch sitecode
   case UNM_sites.PJ
     % capitalize "shf" and remove trailing "_Avg" 
     SHF_vars = regexprep( SHF_vars, { 'shf', '_Avg' },  { 'SHF', '' } );
+
+  case UNM_sites.MCon
+    SHF_vars = replace_hex_chars( SHF_vars );
+    SHF_vars = regexprep( SHF_vars, ...
+                          { 'shf_Avg.*1.*', 'shf_Avg.*2.*', ...
+                        'shf_Avg.*3.*' }, ...
+                          { 'SHF_mcon_1', 'SHF_mcon_2', ...
+                        'SHF_mcon_3' }, ...
+                          'once' );
+    fluxall.Properties.VarNames( idx_SHF ) = SHF_vars;
     
   case UNM_sites.New_GLand
     vars = fluxall.Properties.VarNames; 
@@ -488,6 +497,21 @@ switch sitecode
     TCAV_labels.labels = { 'TCAV_pinon_1_Avg', 'TCAV_juniper_1_Avg' };
 
     % --------------------------------------------------
+
+  case UNM_sites.MCon
+    
+    % MCon soil water content is in another file, parsed separately from
+    % UNM_Ameriflux_prepare_soil_met.m
+    [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
+    fluxall.Properties.VarNames( idx_soilT ) = ...
+        { 'soilT_mcon_1_5', ...
+          'soilT_mcon_2_5', ...
+          'soilT_mcon_3_5', ... 
+          'soilT_mcon_4_5' };
+    
+    [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
+
+    fluxall.Properties.VarNames{ idx_TCAV } = 'TCAV_mcon_1';
     
   case UNM_sites.New_GLand  % unburned grass
     

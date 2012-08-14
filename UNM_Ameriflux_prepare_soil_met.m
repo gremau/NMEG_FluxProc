@@ -33,7 +33,7 @@ n_shf_vars = numel( shf_vars );  % how many SHF columns are there?
 % -----
 
 switch sitecode
-  case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, UNM_sites.MCon, ...
+  case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, ...
          UNM_sites.TX, UNM_sites.TX_forest, UNM_sites.TX_grass, ...
          UNM_sites.New_GLand }
     % all sites except PJ and PJ_girdle store their soil data in the
@@ -71,7 +71,17 @@ switch sitecode
     
     TCAV = data( :, regexp_ds_vars( data, ...
                                      'TCAV_[A-Za-z]+.*' ) );
+  case { UNM_sites.MCon }
+    cs616 = preprocess_MCon_soil_data( sitecode, year );
+    cs616.timestamp = [];
+    cs616_Tc = cs616;  % MCon SWC data are already in VWC form
 
+    re_Tsoil = 'soilT.*';
+    Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
+    
+    TCAV = data( :, regexp_ds_vars( data, ...
+                                    'TCAV_[A-Za-z]+.*' ) );
+        
   case { UNM_sites.PJ, UNM_sites.PJ_girdle }
     % PJ and PJ_girdle store their soil data outside of FluxAll.
     % These data are already converted to VWC.
@@ -150,6 +160,14 @@ switch sitecode
         [ ~, JSav_edge_idx ] = regexp_ds_vars( SHF_cover_avg, 'edge' );
         SHF_cover_avg( :, JSav_edge_idx ) = [];
     end
+  case UNM_sites.MCon
+    % here there is only one soil heat flux plate, so use the average T and
+    % VWC of all soil covers for calculating storage
+    VWC_cover_avg_out = VWC_cover_avg;...
+    VWC_cover_avg = dataset( { nanmean( double( VWC_cover_avg ), 2 ), ...
+                        'VWC_mcon_1' } );
+    soil_surface_T = dataset( { nanmean( double( soil_surface_T ), 2 ), ...
+                        'soilT_mcon_1' } );
 end
 
 % %----- soil data for Matt -- remove this later -----
@@ -171,9 +189,18 @@ SHF = calculate_heat_flux( soil_surface_T, ...
 % the caller
 %======================================================================
 
-ds_out = horzcat( Tsoil_cover_avg, VWC_cover_avg, SHF );
+switch sitecode
+  case UNM_sites.MCon
+    VWC_cover_avg = VWC_cover_avg_out;
+end
 
-ds_out.timestamp = data.timestamp;
+ds_out = horzcat( Tsoil_cover_avg, VWC_cover_avg, SHF );
+% add timestamp columns
+[ YEAR, ~, ~, ~, ~, ~ ] = datevec( data.timestamp );
+DTIME = data.timestamp - datenum( YEAR, 1, 0, 0, 0, 0 );
+DOY = floor( DTIME );
+HRMIN = str2num( datestr( data.timestamp, 'HHMM' ) );
+ds_out = [ dataset( YEAR, DOY, HRMIN, DTIME ), ds_out ];
 
 % calculate execution time and write status message
 t_tot = ( now() - t0 ) * 24 * 60 * 60;
