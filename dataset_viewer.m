@@ -66,8 +66,8 @@ function fh =  dataset_viewer( ds )
 plot( axh, ds( :, 1 ), '.k' );
 xlabel( axh, 'index' );
 t_str = ds.Properties.VarNames{ 1 };
+t_str = replace_hex_chars( t_str );
 t_str = strrep( t_str, '_', '\_');
-t_str = strrep( t_str, '0x2E', '.');
 ylabel( axh, t_str );
 
 %--------------------------
@@ -95,7 +95,7 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     
     % title string
     t_str = strrep( this_var, '_', '\_');
-    t_str = strrep( t_str, '0x2E', '.');
+    t_str = replace_hex_chars( t_str );
     ylabel( axh, t_str );
     
     % just backed up, so can't be on last column
@@ -130,7 +130,7 @@ function cur_col = next_but_cbk( source, eventdata, ...
     
     % title string
     t_str = strrep( this_var, '_', '\_');
-    t_str = strrep( t_str, '0x2E', '.');
+    t_str = replace_hex_chars( t_str );
     ylabel( axh, t_str );
 
     % just advanced, so can't be on first column
