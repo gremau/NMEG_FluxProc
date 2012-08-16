@@ -12,6 +12,13 @@ if input_is_dataset
     vwc1 = double( vwc1 );
 end
 
+% remove extreme values
+vwc1( abs( vwc1 ) > 100 ) = NaN; 
+
+% replace measurements of exactly zero with NaN
+zero_idx = ( vwc1 < 1e-6 ) & ( vwc1 > -1e-6 );
+vwc1( zero_idx ) = NaN;
+
 % calculate 6 hour running mean, standard deviation
 nobs = 13; % 6 hr filter on either side
 nobs = 25;

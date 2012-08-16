@@ -510,8 +510,9 @@ switch sitecode
           'soilT_mcon_4_5' };
     
     [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
-
-    fluxall.Properties.VarNames{ idx_TCAV } = 'TCAV_mcon_1';
+    if ~isempty( idx_TCAV )
+        fluxall.Properties.VarNames{ idx_TCAV } = 'TCAV_mcon_1';
+    end
     
   case UNM_sites.New_GLand  % unburned grass
     

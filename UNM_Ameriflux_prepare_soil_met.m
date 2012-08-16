@@ -26,6 +26,7 @@ dummy = repmat( -9999, size( data, 1 ), 1 );
 
 % find any soil heat flux columns within QC data
 shf_vars = regexp_ds_vars( data, '(SHF|soil_heat_flux|shf).*' );
+SHF = [];
 n_shf_vars = numel( shf_vars );  % how many SHF columns are there?    
 
 % -----
@@ -85,15 +86,27 @@ switch sitecode
   case { UNM_sites.PJ, UNM_sites.PJ_girdle }
     % PJ and PJ_girdle store their soil data outside of FluxAll.
     % These data are already converted to VWC.
-    [ Tsoil, cs616 ] = preprocess_PJ_soil_data( sitecode, year );
+    
+    [ Tsoil, cs616, SHF ] = preprocess_PJ_soil_data( sitecode, year );
     if any( ( Tsoil.tstamps - data.timestamp ) > 1e-10 )
         error( 'soil data timestamps do not match fluxall timestamps' );
     end
     Tsoil.tstamps = [];
     cs616.tstamps = [];
-    cs616_Tc = replacedata( cs616, repmat( NaN, size( cs616 ) ) );
+    SHF.tstamps = [];
+    cs616_Tc = cs616; %replacedata( cs616, repmat( NaN, size( cs616 ) ) );
     TCAV = [];
     
+end
+
+switch sitecode
+  case UNM_sites.SLand
+    switch year
+      case 2009
+        temp = double( Tsoil );
+        temp( 1:DOYidx( 201.5 ), : ) = NaN;
+        Tsoil = replacedata( Tsoil, temp );
+    end
 end
 
 % these sensors have problems with electrical noise -- remove noisy points
@@ -109,9 +122,11 @@ end
 
 % calculate averages by cover type, depth
 [ Tsoil_cover_depth_avg, ...
-  Tsoil_cover_avg ] = soil_data_averager( Tsoil_runmean );
+  Tsoil_cover_avg, ...
+  Tsoil_depth_avg ] = soil_data_averager( Tsoil_runmean );
 [ VWC_cover_depth_avg, ...
-  VWC_cover_avg ] = soil_data_averager( cs616_Tc_runmean );
+  VWC_cover_avg, ...
+  VWC_depth_avg ] = soil_data_averager( cs616_Tc_runmean );
 
 if not( isempty( TCAV ) )
     soil_surface_T = TCAV;
@@ -141,11 +156,20 @@ end
 % -----
 
 SHF_pars = define_SHF_pars( sitecode, year );
-SHF = data( :, shf_vars );
-shf_vars = cellfun( @(x) [ x, '_0' ], shf_vars, 'UniformOutput', false );
-SHF.Properties.VarNames = shf_vars; 
-[ SHF_cover_depth_avg, ...
-  SHF_cover_avg ] = soil_data_averager( SHF );
+if not( ismember( sitecode, [ UNM_sites.PJ, UNM_sites.PJ_girdle ] ) )
+    SHF = data( :, shf_vars );
+    shf_vars = cellfun( @(x) [ x, '_0' ], shf_vars, 'UniformOutput', false );
+    SHF.Properties.VarNames = shf_vars; 
+end
+if not( isempty( SHF ) )
+    [ SHF_cover_depth_avg, ...
+      SHF_cover_avg, ...
+      SHF_depth_avg ] = soil_data_averager( SHF );
+else
+    SHF_cover_depth_avg = [];
+    SHF_cover_avg = [];
+    SHF_depth_avg = [];
+end
 
 switch sitecode
   case UNM_sites.SLand
@@ -178,11 +202,15 @@ end
 % save( fname, 'soil_data_for_matt' );
 % %----- soil data for Matt -- remove this later -----
 
-SHF = calculate_heat_flux( soil_surface_T, ...
-                           VWC_cover_avg, ...
-                           SHF_pars, ...
-                           SHF_cover_avg, ...
-                           1.0 );
+if not( isempty( SHF_cover_avg ) )
+    SHF = calculate_heat_flux( soil_surface_T, ...
+                               VWC_cover_avg, ...
+                               SHF_pars, ...
+                               SHF_cover_avg, ...
+                               1.0 );
+else
+    SHF = dataset( { repmat( NaN, size( data, 1 ), 1 ), 'SHF_MCon' } );
+end
 
 %======================================================================
 % assign all the variables created above to a dataset to be returned to
@@ -194,7 +222,19 @@ switch sitecode
     VWC_cover_avg = VWC_cover_avg_out;
 end
 
-ds_out = horzcat( Tsoil_cover_avg, VWC_cover_avg, SHF );
+% create output dataset with attention to any duplicated data names
+out_names = genvarname( [ Tsoil_runmean.Properties.VarNames, ...
+                        Tsoil_depth_avg.Properties.VarNames, ...
+                        cs616_Tc_runmean.Properties.VarNames, ...
+                        VWC_depth_avg.Properties.VarNames, ...
+                        SHF.Properties.VarNames ] );
+out_data = [ double( Tsoil_runmean ), ...
+             double( Tsoil_depth_avg ), ...
+             double( cs616_Tc_runmean ) , ...
+             double( VWC_depth_avg ) , ...
+             double( SHF ) ];
+ds_out = dataset( { out_data, out_names{ : } } );
+
 % add timestamp columns
 [ YEAR, ~, ~, ~, ~, ~ ] = datevec( data.timestamp );
 DTIME = data.timestamp - datenum( YEAR, 1, 0, 0, 0, 0 );
@@ -267,6 +307,9 @@ switch sitecode
     SHF_pars.bulk = NaN;
   case UNM_sites.PJ_girdle
     SHF_pars.bulk = NaN;
+    SHF_pars.bulk=1437; 
+    warning( ['check PJ_girdle SHF parameters -- bulk is currently set to PJ ' ...
+              'value (1437)'] );
   case UNM_sites.New_GLand
     SHF_pars.bulk = 1398;
 end %switch sitecode -- soil heat flux parameters
@@ -278,4 +321,11 @@ function Tsoil = JSav_match_soilT_SWC( Tsoil )
 
 [ ~, discard_idx ] = regexp_ds_vars( Tsoil, '62' );
 Tsoil( :, discard_idx ) = [];
+
+% %----------------------------------------------------------------------
+% % horizontally concatenate datasets, taking care to deal with duplicate
+% % variable names (unlike dataset\horzcat)
+% function ds = horzcat_ds_gennames( varargin )
+
+
 

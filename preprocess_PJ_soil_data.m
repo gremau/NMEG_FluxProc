@@ -1,4 +1,4 @@
-function [ soilT, SWC ] = preprocess_PJ_soil_data( sitecode, year )
+function [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, year )
 % PREPROCESS_PJ_SOIL_DATA - 
 %   
 
@@ -68,23 +68,45 @@ end
                       regexp( soil_data.Properties.VarNames, '^soilT_.*', 'once' ) );
     SWC_vars = cellfun( @(x) ~isempty( x ), ...
                         regexp( soil_data.Properties.VarNames, '^WC_.*', 'once' ) );
+    SHF_vars = cellfun( @(x) ~isempty( x ), ...
+                        regexp( soil_data.Properties.VarNames, '^shf_.*', 'once' ) );
     
     soilT = soil_data( :, T_vars );
     SWC = soil_data(  :, SWC_vars );
+    SHF = soil_data(  :, SHF_vars );
 
     % separate cover type from index in variable names -- e.g. O1 becomes O_1
     soilT.Properties.VarNames = regexprep( soilT.Properties.VarNames, ...
                                            '([OJP])([123])', '$1_$2' );
     SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
                                          '([OJP])([123])', '$1_$2' );
+    SHF.Properties.VarNames = regexprep( SHF.Properties.VarNames, ...
+                                         '([OJP])([123])', '$1_$2' );
+
+    % remove SWC < 0 or > 1
+    SWC_temp = double( SWC );
+    idx_bogus = ( SWC_temp < 0.0 ) | ( SWC_temp > 1.0 );
+    SWC_temp( idx_bogus ) = NaN;
+    SWC = replacedata( SWC, SWC_temp );
     
     % add timestamps to output datasets
     soilT.tstamps = soil_data.tstamps;
     SWC.tstamps = soil_data.tstamps;
+    SHF.tstamps = soil_data.tstamps;
     
     SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
-                                               '^WC_', 'cs616SWC_' );
+                                         '^WC_', 'cs616SWC_' );
     SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
-                                               '_AVG$', '' );
+                                         '_AVG$', '' );
     
+    SHF.Properties.VarNames = regexprep( SHF.Properties.VarNames, ...
+                                         '_AVG$', '' );
+    SHF.Properties.VarNames = regexprep( SHF.Properties.VarNames, ...
+                                         '^shf', 'SHF' );
+
+    all_but_timestamps = 1:( size( SHF, 2 ) - 1 );
+    SHF.Properties.VarNames( all_but_timestamps ) = ...
+        cellfun( @(x) [ x, '_0' ], ...
+                 SHF.Properties.VarNames( all_but_timestamps ), ...
+                 'UniformOutput', false );
     

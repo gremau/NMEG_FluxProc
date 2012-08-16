@@ -1,9 +1,11 @@
-function [ avg_soil_data, avg_by_cover ] = soil_data_averager( soil_data )
+function [ avg_soil_data, avg_by_cover, avg_by_depth ] = ...
+    soil_data_averager( soil_data )
 % SOIL_DATA_AVERAGER - calculates average soil data (moisture or temperature)
 % within cover type, depth groups.  Also computes average by cover type.
 %   
 % USAGE:
-%    avg_soil_data = soil_data_averager( soil_data )
+%    [ avg_soil_data, avg_by_cover, avg_by_depth ] = ...
+%         soil_data_averager( soil_data )
 %
 % INPUTS:
 %    soil_data: dataset; one column per soil observation.  Variables must be
@@ -15,6 +17,7 @@ function [ avg_soil_data, avg_by_cover ] = soil_data_averager( soil_data )
 %    avg_soil_data: dataset containing average observations for each
 %         cover/depth pair.
 %    avg_by_cover: average across all depths by cover type
+%    avg_by_depth: average across all covers by depth
 %
 % (c) Timothy W. Hilton, UNM, April 2012
 
@@ -22,6 +25,7 @@ function [ avg_soil_data, avg_by_cover ] = soil_data_averager( soil_data )
 if ( size( soil_data, 2 ) == 1 )
     avg_soil_data = soil_data;
     avg_by_cover = soil_data;
+    avg_by_depth = soil_data;
     return;
 end
 
@@ -91,5 +95,17 @@ end
 
 avg_by_cover = dataset( { avg_by_cover, avg_by_cover_vars{ : } } );
 
+for this_depth = 1:numel( depths )
+    idx = strcmp( grp_vars( :, 4 ), depths( this_depth ) );
 
+    % % display the groupings for debugging 
+    % disp( grp_vars( find( idx ) , : ) );
+    % disp( '----------' );
+    
+    avg_by_depth( :, this_depth ) = nanmean( soil_data( :, idx ), 2 );
 
+    avg_by_depth_vars{ this_depth } = sprintf( '%s_%s_Avg', ...
+                                             prefix, depths{ this_depth } );
+end
+
+avg_by_depth = dataset( { avg_by_depth, avg_by_depth_vars{ : } } );
