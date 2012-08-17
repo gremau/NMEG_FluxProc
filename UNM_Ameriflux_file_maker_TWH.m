@@ -34,9 +34,9 @@ if isa( sitecode, 'UNM_sites' )
     sitecode = int8( sitecode );
 end
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % parse Flux_All, Flux_All_qc, gapfilled fluxes, and partitioned fluxes
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% parse Flux_All, Flux_All_qc, gapfilled fluxes, and partitioned fluxes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % %% parse the annual Flux_All file
 % data = UNM_parse_fluxall_xls_file( sitecode, year );
@@ -165,7 +165,6 @@ load( fullfile( getenv( 'FLUXROOT' ), ...
                 soil_restart_fname ) );
 fprintf( 'time to load: %0.1f\n', ( now() - load_t0 ) * 86400 );
 
-%save( 'test_restart_02.mat' );
 % create dataset of soil properties.
 ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
 
@@ -178,8 +177,6 @@ ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, data, ds_qc );
     UNM_Ameriflux_prepare_output_data( sitecode, year, ...
                                        data, ds_qc, ...
                                        ds_pt, ds_soil );
-
-save( 'amflux_datasets_only.mat');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot the data before writing out to files

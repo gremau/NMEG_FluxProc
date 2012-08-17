@@ -98,7 +98,17 @@ switch sitecode
   case UNM_sites.PJ
     % capitalize "shf" and remove trailing "_Avg" 
     SHF_vars = regexprep( SHF_vars, { 'shf', '_Avg' },  { 'SHF', '' } );
-
+    
+  case UNM_sites.PPine
+    SHF_vars = replace_hex_chars( SHF_vars );
+    SHF_vars = regexprep( SHF_vars, ...
+                          { 'shf_Avg.*1.*', 'shf_Avg.*2.*', ...
+                        'shf_Avg.*3.*' }, ...
+                          { 'SHF_ponderosa_1', 'SHF_ponderosa_2', ...
+                        'SHF_ponderosa_3' }, ...
+                          'once' );
+    fluxall.Properties.VarNames( idx_SHF ) = SHF_vars;
+    
   case UNM_sites.MCon
     SHF_vars = replace_hex_chars( SHF_vars );
     SHF_vars = regexprep( SHF_vars, ...
@@ -498,7 +508,7 @@ switch sitecode
 
     % --------------------------------------------------
 
-  case UNM_sites.MCon
+  case { UNM_sites.PPine, UNM_sites.MCon }
     
     % MCon soil water content is in another file, parsed separately from
     % UNM_Ameriflux_prepare_soil_met.m

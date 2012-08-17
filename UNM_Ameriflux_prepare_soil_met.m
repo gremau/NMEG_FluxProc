@@ -72,6 +72,18 @@ switch sitecode
     
     TCAV = data( :, regexp_ds_vars( data, ...
                                      'TCAV_[A-Za-z]+.*' ) );
+  case { UNM_sites.PPine }
+    cs616 = preprocess_PPine_soil_data( sitecode, year );
+    cs616 = cs616( find_unique( cs616.timestamp ), : );
+    cs616.timestamp = [];
+    cs616_Tc = cs616;  % PPine SWC data are already in VWC form
+
+    re_Tsoil = 'soilT.*';
+    Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
+    
+    TCAV = data( :, regexp_ds_vars( data, ...
+                                    'TCAV_[A-Za-z]+.*' ) );
+        
   case { UNM_sites.MCon }
     cs616 = preprocess_MCon_soil_data( sitecode, year );
     cs616.timestamp = [];
@@ -110,15 +122,16 @@ switch sitecode
 end
 
 % these sensors have problems with electrical noise -- remove noisy points
+win = 7;  % moving average window of six elements => six hours total window
 [ Tsoil_hilo_removed, ...
   Tsoil_hilo_replaced, ...
-  Tsoil_runmean ] = UNM_soil_data_smoother( Tsoil );
+  Tsoil_runmean ] = UNM_soil_data_smoother( Tsoil, win, [ -100, 100 ] );
 [ cs616_hilo_removed, ...
   cs616_hilo_replaced, ...
-  cs616_runmean ] = UNM_soil_data_smoother( cs616 );
+  cs616_runmean ] = UNM_soil_data_smoother( cs616, win, [ 0, 1 ] );
 [ cs616_Tc_hilo_removed, ...
   cs616_Tc_hilo_replaced, ...
-  cs616_Tc_runmean ] = UNM_soil_data_smoother( cs616_Tc );
+  cs616_Tc_runmean ] = UNM_soil_data_smoother( cs616_Tc, win, [ 0, 1 ] );
 
 % calculate averages by cover type, depth
 [ Tsoil_cover_depth_avg, ...

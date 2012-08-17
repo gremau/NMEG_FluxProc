@@ -1,46 +1,63 @@
-function [ vwc2, vwc3, run_avg ] = UNM_soil_data_smoother( vwc1 )
+function [ data2, data3, run_avg ] = UNM_soil_data_smoother( data1, win, minmax )
+%
+% Smooths its input data by removing outliers and applying a running
+% average.  NaNs in input are ignored when calculating running average.
 %
 % USAGE
-%   [ vwc2, vwc3, run_avg ] = UNM_soil_data_smoother( vwc1 )
+%   [ data2, data3, run_avg ] = UNM_soil_data_smoother( data1 )
+%
+% INPUTS
+%   data1: input data; matrix or dataset object.  If data1 is
+%       two-dimensional, operates on each column separately. 
+%   win: 1/2 the moving average window (number of elements on either side to
+%       consider when calculating average).
+%   minmax: 2-element matrix.  values outside of minmax are removed before
+%       smoothing.
+%
+% OUTPUTS
+%   data2: data with elements more than three standard deviations from the
+%       mean removed.
+%   data3: the running mean of data2
+%   run_avg: the running mean of the input
 %
 % (c) Timothy W. Hilton, UNM, Apr 2012
 
-input_is_dataset = isa( vwc1, 'dataset' );
+input_is_dataset = isa( data1, 'dataset' );
 
 if input_is_dataset
-    vwc_input = vwc1;
-    vwc1 = double( vwc1 );
+    data_input = data1;
+    data1 = double( data1 );
 end
 
 % remove extreme values
-vwc1( abs( vwc1 ) > 100 ) = NaN; 
+data1( data1 < min( minmax ) ) = NaN;
+data1( data1 > max( minmax ) ) = NaN;
 
 % replace measurements of exactly zero with NaN
-zero_idx = ( vwc1 < 1e-6 ) & ( vwc1 > -1e-6 );
-vwc1( zero_idx ) = NaN;
+zero_idx = ( data1 < 1e-6 ) & ( data1 > -1e-6 );
+data1( zero_idx ) = NaN;
 
-% calculate 6 hour running mean, standard deviation
-nobs = 13; % 6 hr filter on either side
-nobs = 25;
-run_avg = running_mean( vwc1, nobs );
-run_std = running_stddev( vwc1, nobs );
+columnwise = 1;
+fillnans = 1;
+run_avg = nanmoving_average( data1, win, columnwise, fillnans );
+run_std = running_stddev( run_avg, win );
 
 % return 3 different smoothing approaches:
 
 % remove points greater than +- 3 SD from mean
-idx = abs( vwc1 - run_avg ) > ( 3 * run_std );
-vwc2 = vwc1;
-vwc2( idx ) = NaN;
+idx = abs( data1 - run_avg ) > ( 3 * run_std );
+data2 = data1;
+data2( idx ) = NaN;
 
 % replace points greater than +- 3 SD from mean with mean
-vwc3 = vwc1;
-vwc3( idx ) = run_avg( idx );
+data3 = data1;
+data3( idx ) = run_avg( idx );
 
-run_avg = running_mean( vwc2, nobs );
+run_avg = nanmoving_average( data2, win, columnwise, fillnans );
 
 if input_is_dataset
-    vwc2 = replacedata( vwc_input, vwc2 );
-    vwc3 = replacedata( vwc_input, vwc3 );
-    run_avg = replacedata( vwc_input, run_avg );
+    data2 = replacedata( data_input, data2 );
+    data3 = replacedata( data_input, data3 );
+    run_avg = replacedata( data_input, run_avg );
 end
         
