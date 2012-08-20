@@ -70,7 +70,7 @@ for this_cov = 1:numel( covers )
         idx = strcmp( grp_vars( :, 4 ), depths( this_depth ) ) & ...
               strcmp( grp_vars( :, 2 ), covers( this_cov ) );
         
-        avg_soil_data( :, count ) = nanmean( soil_data( :, idx ), 2 );
+        avg_soil_data( :, count ) = soil_probe_mean( soil_data( :, idx ) );
         count = count + 1;
     end
 end
@@ -86,9 +86,7 @@ avg_by_cover = repmat( NaN, size( soil_data, 1 ), numel( covers ) );
 
 for this_cov = 1:numel( covers )
     idx = strcmp( grp_vars( :, 2 ), covers( this_cov ) );
-
-    avg_by_cover( :, this_cov ) = nanmean( soil_data( :, idx ), 2 );
-
+    avg_by_cover( :, this_cov ) = soil_probe_mean( soil_data( :, idx ) );
     avg_by_cover_vars{ this_cov } = sprintf( '%s_%s_Avg', ...
                                              prefix, covers{ this_cov } );
 end
@@ -96,16 +94,41 @@ end
 avg_by_cover = dataset( { avg_by_cover, avg_by_cover_vars{ : } } );
 
 for this_depth = 1:numel( depths )
+
     idx = strcmp( grp_vars( :, 4 ), depths( this_depth ) );
 
     % % display the groupings for debugging 
     % disp( grp_vars( find( idx ) , : ) );
     % disp( '----------' );
-    
-    avg_by_depth( :, this_depth ) = nanmean( soil_data( :, idx ), 2 );
 
+    keyboard
+    avg_by_depth( :, this_depth ) = soil_probe_mean( soil_data( :, idx ) );
     avg_by_depth_vars{ this_depth } = sprintf( '%s_%s_Avg', ...
                                              prefix, depths{ this_depth } );
 end
 
 avg_by_depth = dataset( { avg_by_depth, avg_by_depth_vars{ : } } );
+
+
+%==================================================
+function soil_probe_mean = soil_probe_mean( this_data)
+% SOIL_PROBE_MEAN - calculate the mean among a number of soil probes.  Where not
+%   all of the probes have a valid observations, takes the six-hour running mean
+%   of the average.  By doing this, a long gap results in a gap in the mean, but
+%   a short gap caused by one or two probes allows the average to continue
+%   smoothly (unlike simply using nanmean, which causes a step change in the
+%   average when one or more probes drops out.
+
+% number of probes with valid readings at each time step
+n_valid = reshape( sum( not( isnan( this_data' ) ) ), [], 1 );
+
+this_avg = mean( this_data, 2 );  %row-wise mean
+window = 7;
+row_wise = 1;
+fill_NaNs = 1;
+run_avg = nanmoving_average( this_avg, window, row_wise, fill_NaNs );
+fill_idx = isnan( this_avg ) & ( n_valid > 0 );
+this_avg( fill_idx ) = run_avg( fill_idx );
+
+soil_probe_mean = this_avg;
+
