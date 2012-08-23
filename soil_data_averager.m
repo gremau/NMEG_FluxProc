@@ -125,9 +125,9 @@ all_nan = find( all( isnan( this_data ) ) );
 this_data( :, all_nan ) = [];
 
 this_avg = nanmean( this_data, 2 );  %row-wise mean
-window = 25;
+window = 50;
 row_wise = 1;
-fill_NaNs = 0;
+fill_NaNs = 1;
 run_avg = nanmoving_average( this_avg, window, row_wise, fill_NaNs );
 fill_idx = any( isnan( this_data ), 2 ) & ( n_valid > 0 );
 this_avg( fill_idx ) = run_avg( fill_idx );
@@ -135,10 +135,13 @@ this_avg( fill_idx ) = run_avg( fill_idx );
 soil_probe_mean = run_avg;
 
 h = figure();
-%plot( this_data, '.' );
+set( h, 'DefaultAxesColorOrder', cbrewer( 'qual', 'Dark2', 8 ) );
+plot( this_data, '.' );
 hold on;
-plot( this_avg, '.r' );
-plot( run_avg, 'ok' );
+h_nanmean = plot( this_avg, '*r' );
+h_runmean = plot( run_avg, 'ok' );
+legend( [ h_nanmean, h_runmean ], 'nanmean', 'runmean', ...
+        'location', 'best' );
 waitfor( h );
 
 
