@@ -101,7 +101,6 @@ for this_depth = 1:numel( depths )
     % disp( grp_vars( find( idx ) , : ) );
     % disp( '----------' );
 
-    keyboard
     avg_by_depth( :, this_depth ) = soil_probe_mean( soil_data( :, idx ) );
     avg_by_depth_vars{ this_depth } = sprintf( '%s_%s_Avg', ...
                                              prefix, depths{ this_depth } );
@@ -122,13 +121,48 @@ function soil_probe_mean = soil_probe_mean( this_data)
 % number of probes with valid readings at each time step
 n_valid = reshape( sum( not( isnan( this_data' ) ) ), [], 1 );
 
-this_avg = mean( this_data, 2 );  %row-wise mean
-window = 7;
+all_nan = find( all( isnan( this_data ) ) );
+this_data( :, all_nan ) = [];
+
+this_avg = nanmean( this_data, 2 );  %row-wise mean
+window = 25;
 row_wise = 1;
-fill_NaNs = 1;
+fill_NaNs = 0;
 run_avg = nanmoving_average( this_avg, window, row_wise, fill_NaNs );
-fill_idx = isnan( this_avg ) & ( n_valid > 0 );
+fill_idx = any( isnan( this_data ), 2 ) & ( n_valid > 0 );
 this_avg( fill_idx ) = run_avg( fill_idx );
 
-soil_probe_mean = this_avg;
+soil_probe_mean = run_avg;
+
+h = figure();
+%plot( this_data, '.' );
+hold on;
+plot( this_avg, '.r' );
+plot( run_avg, 'ok' );
+waitfor( h );
+
+
+
+function soil_probe_fit = soil_probe_fit_curve(this_data)
+% SOIL_PROBE_FIT_CURVE - 
+%   
+
+% do not consider probes with no valid measurements
+all_nan = find( all( isnan( this_data ) ) );
+this_data( :, all_nan ) = [];
+
+% number of probes with valid readings at each time step
+n_valid = reshape( sum( not( isnan( this_data' ) ) ), [], 1 );
+
+data_mean = nanmean( this_data, 2 );
+
+coeff = glmfit( this_data, data_mean );
+soil_probe_fit = glmval( coeff, this_data, 'identity' );
+
+h = figure();
+plot( this_data, '.' );
+hold on;
+plot( data_mean, '.r' );
+plot( soil_probe_fit, 'ok' );
+waitfor( h );
 

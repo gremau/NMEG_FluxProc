@@ -508,7 +508,24 @@ switch sitecode
 
     % --------------------------------------------------
 
-  case { UNM_sites.PPine, UNM_sites.MCon }
+  case UNM_sites.PPine
+
+    % PPine soil water content is in another file, parsed separately from
+    % UNM_Ameriflux_prepare_soil_met.m
+    [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
+    fluxall.Properties.VarNames( idx_soilT ) = ...
+        { 'soilT_ponderosa_1_5', ...
+          'soilT_ponderosa_2_5', ...
+          'soilT_ponderosa_3_5', ... 
+          'soilT_ponderosa_4_5' };
+    
+    [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
+    if ~isempty( idx_TCAV )
+        fluxall.Properties.VarNames{ idx_TCAV } = 'TCAV_ponderosa_1';
+    end
+
+    
+  case UNM_sites.MCon
     
     % MCon soil water content is in another file, parsed separately from
     % UNM_Ameriflux_prepare_soil_met.m
