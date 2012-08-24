@@ -2809,7 +2809,7 @@ switch sitecode
         DOY_co2_max( DOYidx( 67 ) : DOYidx( 150 ) ) = 8.0;
         DOY_co2_max( DOYidx( 300 ) : end ) = 10.0;
       case 2011
-        istd_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
+        std_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
         DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;
     end
     
@@ -2996,4 +2996,16 @@ if draw_plots
 end
 
 %------------------------------------------------------------
+
+function SHF_labels = format_SHF_labels( SHF_labels)
+% FORMAT_SHF_LABELS - remove extraneous text from heat flux plate labels and
+% format a common prefix of "SHF"
+%   
+
+SHF_labels = regexprep( SHF_labels, 'hfp01_(.*)', 'SHF_$1'); % hfp01 -> SHF
+SHF_labels = regexprep( SHF_labels, 'shf_(.*)', 'SHF_$1'); % capitalize SHF
+SHF_labels = regexprep( SHF_labels, '[Aa]vg', ''); %remove "Avg" (case
+                                                   %insensitive)
+SHF_labels = regexprep( SHF_labels, '[()]', ''); % remove parens
+SHF_labels = regexprep( SHF_labels, '_$', '');  %remove trailing _
 

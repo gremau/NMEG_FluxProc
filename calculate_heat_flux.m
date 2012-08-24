@@ -95,16 +95,20 @@ grp_vars = vertcat( grp_vars{ : } );
 %cover is 2nd '_'-delimited field
 [ VWC_cov, idx_VWC, ~ ] = unique( grp_vars( :, 2 ) );  
 
+make_error_msg = @( ds, name ) ...
+    sprintf( '%s contains duplicate cover types: %s\n', ...
+             name, cellstrcat( ds.Properties.VarNames, ', ' ) );
+
 if numel( SHF_cov ) ~= size( SHF, 2 )
-    error( 'SHF contains duplicate cover types' );
+    error( make_error_msg( SHF, 'SHF' ) );
 end
 
 if numel( TCAV_cov ) ~= size( TCAV, 2 )
-    error( 'TCAV contains duplicate cover types' );
+    error( make_error_msg( TCAV, 'TCAV' ) );
 end
 
 if numel( VWC_cov ) ~= size( VWC, 2 )
-    error( 'VWC contains duplicate cover types' );
+    error( make_error_msg( VWC, 'VWC' ) );
 end
 
 % -----
