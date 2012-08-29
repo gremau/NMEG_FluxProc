@@ -62,7 +62,7 @@ switch sitecode
     
     cs616_pd = data( :, regexp_ds_vars( data, ...
                                         'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
-
+    
     win = 25;
     cs616_pd = UNM_soil_data_smoother( cs616_pd, ...
                                        win, ...
@@ -74,6 +74,9 @@ switch sitecode
                                              win, ...
                                              [ -100, 100 ], ...
                                              [ NaN, NaN ] );
+    
+    % plot_soil_pit_data( Tsoil_smoothed, ds_qc.precip );
+    % plot_soil_pit_data( cs616_pd, ds_qc.precip );
     
     % if necessary, convert CS616 periods to volumetric water content
     [ cs616_hilo_removed, ...
@@ -96,7 +99,7 @@ switch sitecode
     
     TCAV = data( :, regexp_ds_vars( data, ...
                                     'TCAV_[A-Za-z]+.*' ) );
-        
+    
   case { UNM_sites.MCon }
     cs616 = preprocess_MCon_soil_data( sitecode, year );
     cs616.timestamp = [];
@@ -155,6 +158,11 @@ if not( SWC_smoothed )
                                                     SWC_min_max, ...
                                                     SWC_delta_filter );
 end
+
+% Tsoil_hilo_removed = fill_soil_temperature_gaps( Tsoil_hilo_removed, ...
+%                                                  ds_qc.precip );
+cs616_hilo_removed = fill_soil_water_gaps( cs616_hilo_removed, ds_qc.precip );
+
 
 % calculate averages by cover type, depth
 [ Tsoil_cover_depth_avg, ...
@@ -364,10 +372,4 @@ function Tsoil = JSav_match_soilT_SWC( Tsoil )
 [ ~, discard_idx ] = regexp_ds_vars( Tsoil, '62' );
 Tsoil( :, discard_idx ) = [];
 
-% %----------------------------------------------------------------------
-% % horizontally concatenate datasets, taking care to deal with duplicate
-% % variable names (unlike dataset\horzcat)
-% function ds = horzcat_ds_gennames( varargin )
-
-
-
+%--------------------------------------------------

@@ -177,10 +177,14 @@ this_data = args.Results.this_data;
 % number of probes with valid readings at each time step
 n_valid = reshape( sum( not( isnan( this_data' ) ) ), [], 1 );
 
+% if a probe has no valid data, do not consider it
 all_nan = find( all( isnan( this_data ) ) );
 this_data( :, all_nan ) = [];
 
 this_avg = nanmean( this_data, 2 );  %row-wise mean
+rle_avg = rle( isnan( this_avg ) );
+
+% fill in gaps of less than three days in the averaged probe
 window = 25;
 row_wise = 1;
 fill_NaNs = 1;
@@ -188,6 +192,15 @@ run_avg = nanmoving_average( this_avg, window, row_wise, fill_NaNs );
 this_avg = inpaint_nans( this_avg, 4 );
 %fill_idx = any( isnan( this_avg ), 2 ); % & ( n_valid > 0 );
 %this_avg( fill_idx ) = run_avg( fill_idx );
+
+% replace interpolated data with NaN where gaps > 5 days
+orig_size = size( this_avg );
+rle_filled = rle( reshape( this_avg, [], 1 ) );
+five_days = 48 * 5;  % five days in units of 30-minute periods
+rle_filled{ 1 }( rle_avg{ 1 } & rle_avg{ 2 } > five_days ) = NaN;
+nan_idx = rle( rle_filled );
+this_avg = reshape( rle( rle_filled ), orig_size );
+
 
 switch args.Results.fill_type
   case 'interp'
