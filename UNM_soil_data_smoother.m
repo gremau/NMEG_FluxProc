@@ -9,8 +9,9 @@ function data_out = UNM_soil_data_smoother( data_in, win, minmax, delta_filter )
 % INPUTS
 %   data_in: input data; matrix or dataset object.  If data_in is
 %       two-dimensional, operates on each column separately. 
-%   win: 1/2 the moving average window (number of elements on either side to
-%       consider when calculating average).
+%   win: 3-element vector.  1/2 the moving average window (number of elements on
+%       either side to consider when calculating average) for each of three
+%       smoothing passes.
 %   minmax: 2-element matrix.  values outside of minmax are removed before
 %       smoothing.
 %   delta_filter: 1x2 array: maximum decrease and maximum increase to allow
@@ -22,7 +23,7 @@ function data_out = UNM_soil_data_smoother( data_in, win, minmax, delta_filter )
 %
 % (c) Timothy W. Hilton, UNM, Apr 2012
 
-debug_plots = false;  % if true, draw some plots ford debugging
+debug_plots = true;  % if true, draw some plots for debugging
 %debug_plots = any( isnan( delta_filter ) );  %draw plots for T, not SWC
 
 input_is_dataset = isa( data_in, 'dataset' );
@@ -49,19 +50,19 @@ columnwise = 1;
 fillnans = 1;
 
 % return 3 different smoothing approaches:
-% pass on
+% pass one
 n_std = 1.5;
 mov_avg = column_inpaint_nans( nanmoving_average( data_in, ...
-                                                  win, ...
+                                                  win( 1 ), ...
                                                   columnwise, ...
                                                   fillnans ) );
-mov_std = real( column_movingstd( data_in, win ) );
+mov_std = real( column_movingstd( data_in, win( 1 ) ) );
 idx1 = ( data_in > ( mov_avg + ( n_std * mov_std ) ) ) | ...
        ( data_in < ( mov_avg - ( n_std * mov_std ) ) );
 
 if debug_plots
     col_idx = size( data_in, 2 );
-    h = figure()
+    h = figure();
     ax1 = subplot( 2, 1, 1 );
     plot( find( idx1( :, col_idx ) == false ), ...
           data_in( ~idx1( :, col_idx ), col_idx ), '.k' );
@@ -79,23 +80,22 @@ data_in( idx1 ) = NaN;
 % pass two
 n_std = 2.0;
 mov_avg = column_inpaint_nans( nanmoving_average( data_in, ...
-                                                  win, ...
+                                                  win( 2 ), ...
                                                   columnwise, ...
                                                   fillnans ) );
-mov_std = real( column_movingstd( mov_avg, win ) );
+mov_std = real( column_movingstd( mov_avg, win( 2 ) ) );
 idx2 = ( data_in > ( mov_avg + ( n_std * mov_std ) ) ) | ...
        ( data_in < ( mov_avg - ( n_std * mov_std ) ) );
 
 data_in( idx2 ) = NaN;
 
 % pass three
-win = 300;
 n_std = 2.0;
 mov_avg = column_inpaint_nans( nanmoving_average( data_in, ...
-                                                  win, ...
+                                                  win( 3 ), ...
                                                   columnwise, ...
                                                   fillnans ) );
-mov_std = real( column_movingstd( mov_avg, win ) );
+mov_std = real( column_movingstd( mov_avg, win( 3 ) ) );
 idx3 = ( data_in > ( mov_avg + ( n_std * mov_std ) ) ) | ...
        ( data_in < ( mov_avg - ( n_std * mov_std ) ) );
 data_in( idx3 ) = NaN;

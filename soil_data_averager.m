@@ -40,6 +40,7 @@ args.addParamValue( 'draw_plots', false, @(x) ( islogical(x) & ...
                                                 numel( x ) ==  1 ) );
 args.addParamValue( 'fill_type', 'interp', ...
                     @(x) ismember( lower( x ), { 'interp', 'run_avg' } ) );
+args.addParamValue( 't_str', 'soil\_data', @ischar );
 args.parse( soil_data, varargin{ : } );
 soil_data = args.Results.soil_data;
 %-----
@@ -94,10 +95,13 @@ for this_cov = 1:numel( covers )
         idx = strcmp( grp_vars( :, 4 ), depths( this_depth ) ) & ...
               strcmp( grp_vars( :, 2 ), covers( this_cov ) );
         
+        t_str = regexprep( avg_soil_data_vars{ count }, '_', '\\_' );
+        
         avg_soil_data( :, count ) = ...
             soil_probe_mean( soil_data( :, idx ),...
                              'draw_plots', args.Results.draw_plots, ...
-                             'fill_type', args.Results.fill_type );
+                             'fill_type', args.Results.fill_type, ...
+                             't_str', t_str );
         count = count + 1;
     end
 end
@@ -113,13 +117,16 @@ avg_by_cover = repmat( NaN, size( soil_data, 1 ), numel( covers ) );
 
 for this_cov = 1:numel( covers )
     idx = strcmp( grp_vars( :, 2 ), covers( this_cov ) );
+    avg_by_cover_vars{ this_cov } = sprintf( '%s_%s_Avg', ...
+                                             prefix, covers{ this_cov } );
+    t_str = regexprep( avg_by_cover_vars{ this_cov }, '_', '\\_' );
     avg_by_cover( :, this_cov ) = ...
         soil_probe_mean( soil_data( :, idx ),...
                          'draw_plots', args.Results.draw_plots, ...
-                         'fill_type', args.Results.fill_type );
+                         'fill_type', args.Results.fill_type, ...
+                         't_str', t_str );
 
-    avg_by_cover_vars{ this_cov } = sprintf( '%s_%s_Avg', ...
-                                             prefix, covers{ this_cov } );
+    
 end
 
 avg_by_cover = dataset( { avg_by_cover, avg_by_cover_vars{ : } } );
@@ -132,13 +139,15 @@ for this_depth = 1:numel( depths )
     % disp( grp_vars( find( idx ) , : ) );
     % disp( '----------' );
 
+    avg_by_depth_vars{ this_depth } = sprintf( '%s_%s_Avg', ...
+                                             prefix, depths{ this_depth } );
+    t_str = regexprep( avg_by_depth_vars{ this_depth }, '_', '\\_' );
+    
     avg_by_depth( :, this_depth ) = ...
         soil_probe_mean( soil_data( :, idx ),...
                          'draw_plots', args.Results.draw_plots, ...
-                         'fill_type', args.Results.fill_type );
-    
-    avg_by_depth_vars{ this_depth } = sprintf( '%s_%s_Avg', ...
-                                             prefix, depths{ this_depth } );
+                         'fill_type', args.Results.fill_type, ...
+                         't_str', t_str );
 end
 
 avg_by_depth = dataset( { avg_by_depth, avg_by_depth_vars{ : } } );
@@ -170,6 +179,7 @@ args.addParamValue( 'draw_plots', false, @(x) ( islogical(x) & ...
                                                numel( x ) ==  1 ) );
 args.addParamValue( 'fill_type', 'interp', ...
                     @(x) ismember( lower( x ), { 'interp', 'run_avg' } ) );
+args.addParamValue( 't_str', 'soil\_data', @ischar );
 args.parse( this_data, varargin{ : } );
 this_data = args.Results.this_data;
 %-----
@@ -213,12 +223,14 @@ end
 if args.Results.draw_plots
     h = figure();
     set( h, 'DefaultAxesColorOrder', cbrewer( 'qual', 'Dark2', 8 ) );
-    plot( this_data, '.' );
+    h_data = plot( this_data, '.' );
+    set( h_data, 'MarkerSize', 12 );
     hold on;    
     h_runmean = plot( run_avg, 'ok' );
     h_nanmean = plot( this_avg, '+r', 'MarkerSize', 8 );
     legend( [ h_nanmean, h_runmean ], 'nanmean', 'runmean', ...
             'location', 'best' );
+    title( args.Results.t_str );
     waitfor( h );
 end
 
