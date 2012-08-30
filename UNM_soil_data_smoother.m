@@ -1,4 +1,8 @@
-function data_out = UNM_soil_data_smoother( data_in, win, minmax, delta_filter )
+function data_out = UNM_soil_data_smoother( data_in, ...
+                                            win, ...
+                                            minmax, ...
+                                            delta_filter, ...
+                                            debug_plots )
 %
 % Smooths its input data by removing outliers and applying a running
 % average.  NaNs in input are ignored when calculating running average.
@@ -17,14 +21,12 @@ function data_out = UNM_soil_data_smoother( data_in, win, minmax, delta_filter )
 %   delta_filter: 1x2 array: maximum decrease and maximum increase to allow
 %       between consecutive data points.  decrease should be negative,
 %       increase should be positive.  [ NaN, NaN ] turns this filter off. 
+%   debug_plots: logical: if true, draws plots after pass one and pass three.
 %
 % OUTPUTS
 %   data_out: data with outlier elements removed.
 %
 % (c) Timothy W. Hilton, UNM, Apr 2012
-
-debug_plots = true;  % if true, draw some plots for debugging
-%debug_plots = any( isnan( delta_filter ) );  %draw plots for T, not SWC
 
 input_is_dataset = isa( data_in, 'dataset' );
 
