@@ -1,4 +1,4 @@
-function swc = fill_soil_water_gaps( swc, pcp )
+function swc = fill_soil_water_gaps( swc, pcp, draw_plots )
 % FILL_SOIL_WATER_GAPS - fills gaps in soil water content time series.  Gaps are
 % filled by linear interpolation where no precipitation occurred during the gap.
 % Where precipitation occured during the gap, the last valid soil water content
@@ -47,8 +47,10 @@ for this_col = 1:size( swc_dbl, 2 )
 end
 
 swc = replacedata( swc, swc_dbl );
-    
-plot_soil_pit_data( swc, nan_idx, pcp );
+
+if draw_plots
+    plot_soil_pit_data( swc, nan_idx, pcp );
+end
     
 %-----------------------------------------------------------------
 function swc_probe = fill_one_probe( swc_probe, pcp )

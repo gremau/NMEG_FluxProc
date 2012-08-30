@@ -1,4 +1,4 @@
-function Tsoil = fill_soil_temperature_gaps( Tsoil, pcp )
+function Tsoil = fill_soil_temperature_gaps( Tsoil, pcp, draw_plots )
 % FILL_SOIL_TEMPERATURE_GAPS - 
 %   
 
@@ -20,6 +20,8 @@ Tsoil_dbl( nan_idx ) = NaN;
 
 Tsoil = replacedata( Tsoil, Tsoil_dbl );
 
-plot_soil_pit_data( Tsoil, ...
-                    nan_idx, ...
-                    pcp );
+if draw_plots
+    plot_soil_pit_data( Tsoil, ...
+                        nan_idx, ...
+                        pcp );
+end

@@ -189,6 +189,7 @@ window = 25;
 row_wise = 1;
 fill_NaNs = 1;
 run_avg = nanmoving_average( this_avg, window, row_wise, fill_NaNs );
+%fprintf( 'this_avg: %d %d\n', size( this_avg ) )
 this_avg = inpaint_nans( this_avg, 4 );
 %fill_idx = any( isnan( this_avg ), 2 ); % & ( n_valid > 0 );
 %this_avg( fill_idx ) = run_avg( fill_idx );
@@ -213,9 +214,9 @@ if args.Results.draw_plots
     h = figure();
     set( h, 'DefaultAxesColorOrder', cbrewer( 'qual', 'Dark2', 8 ) );
     plot( this_data, '.' );
-    hold on;
-    h_nanmean = plot( this_avg, '+r', 'MarkerSize', 8 );
+    hold on;    
     h_runmean = plot( run_avg, 'ok' );
+    h_nanmean = plot( this_avg, '+r', 'MarkerSize', 8 );
     legend( [ h_nanmean, h_runmean ], 'nanmean', 'runmean', ...
             'location', 'best' );
     waitfor( h );
