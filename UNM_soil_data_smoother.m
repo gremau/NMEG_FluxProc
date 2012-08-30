@@ -1,5 +1,6 @@
 function data_out = UNM_soil_data_smoother( data_in, ...
                                             win, ...
+                                            n_std, ...
                                             minmax, ...
                                             delta_filter, ...
                                             debug_plots )
@@ -13,6 +14,8 @@ function data_out = UNM_soil_data_smoother( data_in, ...
 % INPUTS
 %   data_in: input data; matrix or dataset object.  If data_in is
 %       two-dimensional, operates on each column separately. 
+%   n_std: 3-element vector.  How many standard deviations from the mean to
+%       allow through each of three passes.
 %   win: 3-element vector.  1/2 the moving average window (number of elements on
 %       either side to consider when calculating average) for each of three
 %       smoothing passes.
@@ -53,17 +56,17 @@ fillnans = 1;
 
 % return 3 different smoothing approaches:
 % pass one
-n_std = 1.5;
 mov_avg = column_inpaint_nans( nanmoving_average( data_in, ...
                                                   win( 1 ), ...
                                                   columnwise, ...
                                                   fillnans ) );
 mov_std = real( column_movingstd( data_in, win( 1 ) ) );
-idx1 = ( data_in > ( mov_avg + ( n_std * mov_std ) ) ) | ...
-       ( data_in < ( mov_avg - ( n_std * mov_std ) ) );
+idx1 = ( data_in > ( mov_avg + ( n_std( 1 ) * mov_std ) ) ) | ...
+       ( data_in < ( mov_avg - ( n_std( 1 ) * mov_std ) ) );
 
 if debug_plots
     col_idx = size( data_in, 2 );
+    col_idx = 1;
     h = figure();
     ax1 = subplot( 2, 1, 1 );
     plot( find( idx1( :, col_idx ) == false ), ...
@@ -72,34 +75,32 @@ if debug_plots
     plot( find( idx1( :, col_idx ) ), ...
           data_in( idx1( :, col_idx ), col_idx ), '*b' );
     plot( mov_avg( :, col_idx ), '-k' )
-    plot( mov_avg( :, col_idx ) + ( n_std * mov_std( :, col_idx ) ), '-r' )
-    plot( mov_avg( :, col_idx ) - ( n_std * mov_std( :, col_idx ) ), '-r' )
+    plot( mov_avg( :, col_idx ) + ( n_std( 1 ) * mov_std( :, col_idx ) ), '-r' )
+    plot( mov_avg( :, col_idx ) - ( n_std( 1 ) * mov_std( :, col_idx ) ), '-r' )
     title( 'pass one' );
 end
 
 data_in( idx1 ) = NaN;
 
 % pass two
-n_std = 2.0;
 mov_avg = column_inpaint_nans( nanmoving_average( data_in, ...
                                                   win( 2 ), ...
                                                   columnwise, ...
                                                   fillnans ) );
 mov_std = real( column_movingstd( mov_avg, win( 2 ) ) );
-idx2 = ( data_in > ( mov_avg + ( n_std * mov_std ) ) ) | ...
-       ( data_in < ( mov_avg - ( n_std * mov_std ) ) );
+idx2 = ( data_in > ( mov_avg + ( n_std( 2 ) * mov_std ) ) ) | ...
+       ( data_in < ( mov_avg - ( n_std( 2 ) * mov_std ) ) );
 
 data_in( idx2 ) = NaN;
 
 % pass three
-n_std = 2.0;
 mov_avg = column_inpaint_nans( nanmoving_average( data_in, ...
                                                   win( 3 ), ...
                                                   columnwise, ...
                                                   fillnans ) );
 mov_std = real( column_movingstd( mov_avg, win( 3 ) ) );
-idx3 = ( data_in > ( mov_avg + ( n_std * mov_std ) ) ) | ...
-       ( data_in < ( mov_avg - ( n_std * mov_std ) ) );
+idx3 = ( data_in > ( mov_avg + ( n_std( 3 ) * mov_std ) ) ) | ...
+       ( data_in < ( mov_avg - ( n_std( 3 ) * mov_std ) ) );
 data_in( idx3 ) = NaN;
 
 if debug_plots
@@ -110,8 +111,8 @@ if debug_plots
     plot( find( idx2( :, col_idx ) ), ...
           data_in( idx2( :, col_idx ), col_idx ), '*b' );
     plot( mov_avg( :, col_idx ), '-k' )
-    plot( mov_avg( :, col_idx ) + ( n_std * mov_std( :, col_idx ) ), '-r' )
-    plot( mov_avg( :, col_idx ) - ( n_std * mov_std( :, col_idx ) ), '-r' )
+    plot( mov_avg( :, col_idx ) + ( n_std( 3 ) * mov_std( :, col_idx ) ), '-r' )
+    plot( mov_avg( :, col_idx ) - ( n_std( 3 ) * mov_std( :, col_idx ) ), '-r' )
     title( 'pass three' );
     linkaxes( [ ax1, ax2 ], 'xy' );
     waitfor( h );
