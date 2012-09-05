@@ -10,6 +10,13 @@ function main_success = process_card_main( this_site )
 %    * compresses the raw data on the internal hard drive
 %    * FTPs the compressed raw data to EDAC
 %
+% SEE ALSO:
+%    process_card_partial: designed to pick up processing part way through the
+%    pipeline, requiring some by-hand intervention in the code to setup how far
+%    through the pipeline to pickup.  This can be useful if, for example, there
+%    is a garbled file on a card so that process_card_main crashes, or if the
+%    network connection dies so that FTP transfer does not complete.
+%
 % Timothy W. Hilton, UNM, Dec 2011
 
     %--------------------------------------------------------------------------
