@@ -243,7 +243,7 @@ switch sitecode
     [ ~, SHF_grass_idx ] = regexp_ds_vars( SHF_cover_avg, 'grass' );
     SHF_cover_avg( :, SHF_grass_idx ) = [];
   case UNM_sites.JSav
-    if year > 2009
+    if year >= 2009
         % similarly, ignore "edge" pits at JSav
         [ ~, JSav_edge_idx ] = regexp_ds_vars( SHF_cover_avg, 'edge' );
         SHF_cover_avg( :, JSav_edge_idx ) = [];
@@ -273,7 +273,8 @@ if not( isempty( SHF_cover_avg ) )
                                SHF_cover_avg, ...
                                1.0 );
 else
-    SHF = dataset( { repmat( NaN, size( data, 1 ), 1 ), 'SHF_MCon' } );
+    SHF = dataset( { repmat( NaN, size( data, 1 ), 1 ), ...
+                     sprintf( 'SHF_%s', char( sitecode ) ) } );
 end
 
 %======================================================================

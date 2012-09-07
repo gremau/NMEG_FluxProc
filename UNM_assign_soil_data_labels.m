@@ -398,38 +398,25 @@ switch sitecode
 
 
       case 2009
-        % there was a major SWC instrument changeover on 9 Jul 2009.  In the
-        % 2009 Fluxall file, some columns appear to have data from one
-        % instrument prior to 9 July, and from another after 9 July.  These
-        % columns appear to have two headers at the top, one for each
-        % instrument.  --TWH 
-        jul09 = datenum( 2009, 7, 9 ) - datenum( 2009, 1, 0 );
-        
-        % pull out pre-July 9 SWC data        
-        preJul09 = double( fluxall( :, [ 171:173, 174:176, ...
-                            162:164, 177:179 ] ) );
-        preJul09 ( DOYidx( jul09 ):end, : ) = NaN;
-        
-        preJul09 = dataset( { preJul09, ...
-                            cs616_descriptive_labels_preJul09{ [1:3, 5:7, ...
-                            9:11, 13:15] } } );
 
-        % pull out post-July 9 SWC data
-        postJul09 = double( fluxall( :, 162:179 ) );
-        postJul09( 1:DOYidx( jul09 ), : ) = NaN;
-        postJul09 = dataset( { postJul09, ...
-                             cs616_descriptive_labels_postJul09{ : } } );
-        
-        echo_SWC_labels.columns = 180:197;
-        echo_SWC_labels.labels = strrep( cs616_descriptive_labels_postJul09, ...
-                                         'cs616SWC', 'echoSWC' );
-
+        % echo SWC probes
         vars = fluxall.Properties.VarNames;
+        [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'SWC.*' );
+        vars( idx_echo ) = strrep( vars( idx_echo ), 'SWC', 'echoSWC' );
+        vars( idx_echo ) = replace_hex_chars( vars( idx_echo ) );
+        vars( idx_echo ) = format_probe_strings( vars( idx_echo ) );
+        
+        %CS616 SWC probes
+        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
+        vars( idx_cs616 ) = strrep( vars( idx_cs616 ), 'cs616', 'cs616SWC' );
+        vars( idx_cs616 ) = replace_hex_chars( vars( idx_cs616 ) );
+        vars( idx_cs616 ) = format_probe_strings( vars( idx_cs616 ) );
         
         %soil T
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '[sS]oilT_' );
         if ~isempty( idx_Tsoil )
             vars = regexprep( vars, '[sS]oilT_Avg', 'soilT' );
+            vars = regexprep( vars, '[sS]oilT', 'soilT' );
             vars = replace_hex_chars( vars );
             vars = format_probe_strings( vars );
         end
@@ -442,12 +429,7 @@ switch sitecode
         end
 
         fluxall.Properties.VarNames = genvarname( vars );
-        
-        % remove fluxall SWC variables and replace with properly-labeled
-        % variables defined above, with one probe's measurement in each column.
-        fluxall( :, 162:197 ) = [];
-        fluxall = [ fluxall, preJul09, postJul09 ];
-        
+
       case { 2010, 2011 }
         % echo SWC probes
         vars = fluxall.Properties.VarNames;
@@ -573,9 +555,13 @@ function str_out = format_probe_strings( str_in )
 % "O_2", etc.
 
 % open pits are usually designated with "O", but sometimes 'o' or '0'
+% make sure they are all "O"
 str_out = regexprep( str_in, '_[Oo0]([0-9])_', '_O_$1_' );
-% grass pits are usually designated with "g"
+% grass pits are usually designated with "g" -- make sure they are all "G"
 str_out = regexprep( str_out, '_g([0-9])_', '_G_$1_' );
+% juniper pits are usually designated with "J", but sometimes "j" -- make
+% sure they are all "J"
+str_out = regexprep( str_out, '_[jJ]([0-9])_', '_J_$1_' );
 % add separating underscore to J1, etc. probe designations
 str_out = regexprep( str_out, '_([GJO])([0-9])_', '_$1_$2_' );
 % remove any parens that made it this far
