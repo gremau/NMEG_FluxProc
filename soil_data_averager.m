@@ -199,10 +199,7 @@ window = 25;
 row_wise = 1;
 fill_NaNs = 1;
 run_avg = nanmoving_average( this_avg, window, row_wise, fill_NaNs );
-%fprintf( 'this_avg: %d %d\n', size( this_avg ) )
 this_avg = inpaint_nans( this_avg, 4 );
-%fill_idx = any( isnan( this_avg ), 2 ); % & ( n_valid > 0 );
-%this_avg( fill_idx ) = run_avg( fill_idx );
 
 % replace interpolated data with NaN where gaps > 5 days
 orig_size = size( this_avg );

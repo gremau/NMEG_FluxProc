@@ -238,6 +238,23 @@ switch sitecode
         fluxall.Properties.VarNames( idx_TCAV ) = ...
             { 'TCAV_open_Avg', 'TCAV_cover_Avg' };
 
+        % echo SWC probes: The CS616 SWC probes at GLand perished in the fire in August
+        % 2009.  In May 2010 echo SWC probes were installed at GLand, and in
+        % June 2011 CS616s were reinstalled alongside the echos.  From May 2010
+        % to June 2011 the echos are labeled "grassN_X.Xcm" and "openN_X.Xcm"
+        % with N the pit number and X.X the depth.  In June 2011 the CS616s were
+        % re-installed and the echo probes were relabeled "echo_...".  So - from
+        % May 2010 to June 2011, we need to prepend "echoSWC_" to labels that
+        % are in the form "open..." or "grass..." to speicify the echo probes.
+        vars = fluxall.Properties.VarNames;
+        re_echo = '^(open|grass)[12]_[0-9]{1,2}p5cm';
+        [ ~, idx_echo ] = regexp_ds_vars( fluxall, re_echo );
+        vars( idx_echo ) = strcat( 'echoSWC_', vars( idx_echo ) );
+        vars( idx_echo ) = replace_hex_chars( vars( idx_echo ) );
+        vars( idx_echo ) = format_probe_strings( vars( idx_echo ) );
+        
+        fluxall.Properties.VarNames = vars;
+        
       case 2011
         % this year cs616 SWC are labeled open1_12.5, grass2_2.5, etc.  They
         % are in columns 203 to 222
@@ -260,6 +277,18 @@ switch sitecode
         % change mux25t... labels to descriptive soilT labels
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
         fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
+                
+        % label echo probes with "echoSWC" -- see note above in the 2010
+        % section regarding the echo probes.
+        vars = fluxall.Properties.VarNames;
+        re_echo = '^echo.*';
+        [ ~, idx_echo ] = regexp_ds_vars( fluxall, re_echo );
+        vars( idx_echo ) = regexprep( vars( idx_echo ), '(grass|open)', '$1_');
+        vars( idx_echo ) = strrep( vars( idx_echo ), 'echo', 'echoSWC' );
+        vars( idx_echo ) = replace_hex_chars( vars( idx_echo ) );
+        vars( idx_echo ) = format_probe_strings( vars( idx_echo ) );
+        
+        fluxall.Properties.VarNames = vars;
                 
     end   %switch GLand year
 
@@ -304,6 +333,8 @@ switch sitecode
         fluxall.Properties.VarNames( idx_cs616( 1:20 ) ) = ...
             descriptive_cs616_labels;
         fluxall( :, idx_cs616( 21:end ) )  = [];
+        
+        [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'cs616_wcr.*' );
         
         % change mux25t... labels to descriptive soilT labels
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
