@@ -36,40 +36,50 @@ cs616_varnames = strrep( cs616_varnames, '_Avg', '' );
 Tsoil_varnames = strrep( cs616_varnames, 'cs616SWC_', 'soilT_' );
 
 echo_data = double( data( :, echo_varnames ) );
-echo_data = reshape( echo_data, [], 1 );
+%echo_data = reshape( echo_data, [], 1 );
 
 cs616_data = double( data( :, cs616_varnames ) );
 orig_size = size( cs616_data );
-cs616_data = reshape( cs616_data, [], 1 );
+%cs616_data = reshape( cs616_data, [], 1 );
 
 Tsoil_data = double( data( :, cs616_varnames ) );
-Tsoil_data = reshape( Tsoil_data, [], 1 );
+%Tsoil_data = reshape( Tsoil_data, [], 1 );
 
-cs616_data = cs616_period2vwc( cs616_data, Tsoil_data, 'draw_plots', false );
+cs616_data = cs616_period2vwc( double( cs616_data ), ...
+                               double( Tsoil_data ), ...
+                               'draw_plots', false );
 
-valid_idx = not( isnan( cs616_data ) ) & not( isnan( echo_data ) );
+coeff = repmat( NaN, size( echo_data, 2 ), 2 );
 
-linear = 1;  % degree of polynomial to fit
-coeff = polyfit( echo_data( valid_idx ), ...
-                 cs616_data( valid_idx ), ...
-                 linear );
+for i = 1:size( echo_data, 2 )
+    linear = 1;  % degree of polynomial to fit
+    valid_idx = ( not( isnan( cs616_data( :, i ) ) ) & ...
+                  not( isnan( echo_data( :, i ) ) ) );
+    coeff( i, : ) = polyfit( echo_data( valid_idx, i ), ...
+                             cs616_data( valid_idx, i ), ...
+                             linear );
+end
 
 if args.Results.draw_plots
 
+    pal = cbrewer( 'qual', 'Dark2', 3 );
+    
     echo_data = reshape( echo_data, orig_size );
     cs616_data = reshape( cs616_data, orig_size );
 
     figure();
     plot( echo_data, cs616_data, '.' );
 
-    echo_data_adj = ( echo_data * coeff( 1 ) ) + coeff( 2 );
+    echo_data_adj = ( echo_data * coeff( i, 1 ) ) + coeff( i, 2 );
 
     for i = 1:size( echo_data, 2 ) 
         h = figure();
-        h_echo = plot( echo_data( :, i ), 'Marker', 's' );
+        h_echo = plot( echo_data( :, i ), 'Marker', 's', 'Color', pal( 1, : ) );
         hold on;
-        h_echo_adj = plot( echo_data_adj( :, i ), 'Marker', '+' );
-        h_cs616 = plot( cs616_data( :, i ), 'Marker', '.' );
+        h_echo_adj = plot( echo_data_adj( :, i ), 'Marker', '+', ...
+                           'Color', pal( 3, : )  );
+        h_cs616 = plot( cs616_data( :, i ), 'Marker', '.', 'Color', ...
+                        pal( 2, : ) );
         legend( [ h_echo, h_echo_adj, h_cs616 ], ...
                 { 'echo', 'echo adj.', 'CS616' } );
         waitfor( h );
