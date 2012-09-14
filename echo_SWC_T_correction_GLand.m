@@ -1,31 +1,65 @@
-function VWC_Tc = echo_SWC_T_correction( VWC, T, pcp, tstamp )
-% ECHO_SWC_T_CORRECTION - 
+function VWC_Tc = echo_SWC_T_correction_GLand( VWC, T, pcp, tstamp, year, ...
+                                               debug_plots )
+% echo_SWC_T_correction_GLand: applies temperature correction for ECH2O soil
+% water content probes installed at GLand between May 2010 and June 2011.
+% For details of the temperature correction, see documentation for
+% echo_SWC_T_correction_single_probe, below.
 %   
+% USAGE: 
+%     VWC_Tc = echo_SWC_T_correction_GLand( VWC, T, pcp, tstamp, year, ...
+%                                           debug_plots )
+%
+% INPUTS
+%     VWC: NxM dataset array; the echo SWC probe data for M probes
+%     T: NxM dataset array; the soil T data for M probes
+%     pcp: N-element numeric or dataset arry; precipitation
+%     tstamp: N-element numeric or dataset arry; observation timestamps as
+%         matlab datenums
+%     t_str: a labeling string for progress updates and plots, e.g. the probe ID
+%     debug_plots: logical; if true, produce plots showing various terms in
+%         the temperature correction.
+%
+% (c) Timothy W. Hilton, UNM, Sep 2012
 
-VWC_varnames = strrep( VWC.Properties.VarNames, 'echoSWC_', '' );
-VWC_varnames = strrep( VWC_varnames, 'cm_Avg', '' );
+VWC_varnames = strrep( VWC.Properties.VarNames, 'cs616SWC_', '' );
+VWC_varnames = strrep( VWC_varnames, 'cm', '' );
 T_varnames = strrep( T.Properties.VarNames, 'soilT_', '' );
 
-%VWC_Tc = repmat( NaN, size( VWC ) );
+%corrected = repmat( NaN, size( VWC ) );
+VWC_Tc = VWC;
 
-for i = 1:size( VWC, 2 )
-    Tcol = find( strcmp( VWC_varnames( i ), T_varnames ) );
-    if not( isempty( Tcol ) )
-        this_probe = ...
-            echo_SWC_T_correction_single_probe( double( VWC( :, i ) ), ...
-                                                double( T( :, Tcol ) ), ...
-                                                pcp, ...
-                                                tstamp,...
-                                                VWC_varnames{ i } );
-        
-        corrected( :, i ) = this_probe;
-    else
-        corrected( :, i ) = NaN;
-    end
-
+% determine which rows (i.e. timestamps) need to be corrected
+if year == 2011
+    idx = repmat( false, size( tstamp ) );
+    idx_9jun = DOYidx( datenum( 2011, 6, 9 ) - datenum( 2011, 1, 0 ) );
+    idx( 1:idx_9jun ) = true;
+    idx( isnan( tstamp ) ) = false;
+    idx = find( idx );
+    
+elseif year == 2010
+    idx = find( not( isnan( tstamp ) ) );
 end
 
-VWC_Tc = replacedata( VWC, corrected );
+if isempty( idx )
+    keyboard
+end
+
+for i = 1:size( VWC, 2 )
+
+    Tcol = find( strcmp( VWC_varnames( i ), T_varnames ) );
+
+    if not( isempty( Tcol ) )
+        this_probe = ...
+            echo_SWC_T_correction_single_probe( double( VWC( idx, i ) ), ...
+                                                double( T( idx, Tcol ) ), ...
+                                                pcp( idx ), ...
+                                                tstamp( idx ),...
+                                                VWC_varnames{ i }, ...
+                                                debug_plots );
+        
+        VWC_Tc( idx, i ) = replacedata( VWC_Tc( idx, i ), this_probe );
+    end
+end
 
 %--------------------------------------------------
 % function VWC_Tc = echo_SWC_T_correction( )
@@ -43,7 +77,9 @@ VWC_Tc = replacedata( VWC, corrected );
 % VWC_Tc = echo_SWC_T_correction_single_probe( VWC_obs, T, pcp, tstamp, t_str )
 
 %--------------------------------------------------
-function VWC_Tc = echo_SWC_T_correction_single_probe( VWC, T, pcp, tstamp, t_str )
+function VWC_Tc = echo_SWC_T_correction_single_probe( VWC, T, pcp, ...
+                                                  tstamp, t_str, ...
+                                                  debug_plots )
 % ECHO_SWC_T_CORRECTION - Implements the temperature correction method for ECH2O
 %   soil water probes described in the Decagon Devices application note entitled
 %   "Correcting temperature sensitivity of ECHO soil moisture sensors", by Doug
@@ -63,11 +99,12 @@ function VWC_Tc = echo_SWC_T_correction_single_probe( VWC, T, pcp, tstamp, t_str
 %
 % (c) Timothy W. Hilton, UNM, Sep 2012
 
-idx = find( isnan( tstamp ) );
-VWC( idx ) = [];
-T( idx ) = [];
-pcp( idx ) = [];
-tstamp( idx ) = [];
+fprintf( 'temperature correcting ECH2O soil water: %s\n', t_str );
+
+if all( isnan( VWC ) )
+    VWC_Tc = VWC;
+    return
+end
 
 % identify 24-hour periods with no precipitation
 int_day = floor( tstamp );
@@ -90,11 +127,13 @@ VWC_interp = interp1( tstamp( idx ), VWC( idx ), tstamp, 'linear' );
 coeff = glmfit( [ VWC, T ], VWC_interp, 'normal' );
 VWC_Tc = glmval( coeff, [ VWC, T ], 'identity' );
 
-fprintf( '%s coefficients:', t_str); disp( coeff' );
+if debug_plots
+    result = echo_T_correct_debug_plot( tstamp, VWC, VWC_interp, ...
+                                        idx, int_day, pcp_idx, ...
+                                        VWC_Tc, T, t_str );
+    waitfor( result );
+end
 
-result = echo_T_correct_debug_plot( tstamp, VWC, VWC_interp, ...
-                                    idx, int_day, pcp_idx, VWC_Tc, T, t_str );
-%waitfor( result );
 
 
 %------------------------------------------------------------

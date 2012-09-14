@@ -82,6 +82,7 @@ if args.Results.draw_plots
                         pal( 2, : ) );
         legend( [ h_echo, h_echo_adj, h_cs616 ], ...
                 { 'echo', 'echo adj.', 'CS616' } );
+        title( strrep( echo_varnames( i ), '_', '\_' ) );
         waitfor( h );
     end
 end

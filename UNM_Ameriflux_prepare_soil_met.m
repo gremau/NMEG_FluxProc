@@ -63,22 +63,14 @@ switch sitecode
     cs616_pd = data( :, regexp_ds_vars( data, ...
                                         'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
     
-    % adjust echo SWC data at GLand between May 2010 and June 2011 according
-    % to a regression of post-June 2011 echos to post-June 2011 CS616
-    if ( sitecode == UNM_sites.GLand ) 
-        if year == 2010
-            cs616_pd = replacedata( cs_616pd, ...
-                                    ( double( cs_616pd ) * 8.5512e-1 ) + ...
-                                    1.3643e-2 );
-            
-        elseif year == 2011
-            idx = 1:DOYidx( 144 ); %CS616s reinstalled on 24 May 2011
-            cs616_pd( idx, : ) = ...
-                replacedata( cs616_pd( idx, : ), ...
-                             ( double( cs616_pd( idx, : ) ) * 8.5512e-1 ) + 1.3643e-2 );
-        end
+    if ( sitecode == UNM_sites.GLand ) & ( year == 2011 )
+        % GLand SWC probes were reinstalled on 22 Mar 2011, introducing an
+        % artificial discontinuity in most of the probes.  Correct that by
+        % raising signal after 22 Mar to its pre-22 Mar level.
+        draw_plots = false;  % set to true to see the corrections
+        cs616_pd = GLand_2011_correct_22Mar( cs616_pd, draw_plots );
     end
-    
+
     win = [ 25, 25, 300 ];
     minmax = [ 0, 40 ]; % spans valid range of echo (0-1) and cs616 (15ish-40ish)
                         % probes
@@ -107,8 +99,8 @@ switch sitecode
                                                   'save_plots', false, ...
                                                   'sitecode', sitecode, ...
                                                   'year', year );
-    fprintf( 'Tsoil probes detected: %d\n', size( Tsoil, 2 ) );
-
+    fprintf( 'Tsoil probes detected: %d\n', size( Tsoil, 2 ) );    
+    
     TCAV = data( :, regexp_ds_vars( data, ...
                                      'TCAV_[A-Za-z]+.*' ) );
   case { UNM_sites.PPine }
@@ -215,6 +207,11 @@ cs616_Tc_hilo_removed = fill_soil_water_gaps( cs616_hilo_removed, ...
                                         'draw_plots', false, ...
                                         'fill_type', 'interp' );
 
+if ( sitecode == UNM_sites.GLand ) & ( year == 2011 )
+    [ VWC_depth_avg, VWC_cover_depth_avg ] = ...
+        fill_JunJul_2011_GLand_SWC_gap( VWC_depth_avg, VWC_cover_depth_avg );
+end
+
 if not( isempty( TCAV ) )
     soil_surface_T = TCAV;
 else
@@ -314,17 +311,23 @@ end
 
 % create output dataset with attention to any duplicated data names
 out_names = genvarname( [ Tsoil_hilo_removed.Properties.VarNames, ...
-                        Tsoil_depth_avg.Properties.VarNames, ...
-                        cs616_Tc_hilo_removed.Properties.VarNames, ...
-                        VWC_depth_avg.Properties.VarNames, ...
-                        VWC_cover_avg.Properties.VarNames, ...
-                        SHF.Properties.VarNames ] );
+                    Tsoil_depth_avg.Properties.VarNames, ...
+                    Tsoil_cover_depth_avg.Properties.VarNames, ...
+                    cs616_Tc_hilo_removed.Properties.VarNames, ...
+                    VWC_depth_avg.Properties.VarNames, ...
+                    VWC_cover_depth_avg.Properties.VarNames, ...
+                    SHF.Properties.VarNames ] );
 out_data = [ double( Tsoil_hilo_removed ), ...
              double( Tsoil_depth_avg ), ...
+             double( Tsoil_cover_depth_avg ), ...
              double( cs616_Tc_hilo_removed ), ...
              double( VWC_depth_avg ), ...
-             double( VWC_cover_avg ), ...
+             double( VWC_cover_depth_avg ), ...
              double( SHF ) ];
+% out_names = genvarname( [ VWC_cover_depth_avg.Properties.VarNames, ...
+%                     SHF.Properties.VarNames ] );
+% out_data = [ double( VWC_cover_depth_avg ), ...
+%              double( SHF ) ];
 ds_out = dataset( { out_data, out_names{ : } } );
 
 % add timestamp columns
@@ -415,3 +418,158 @@ function Tsoil = JSav_match_soilT_SWC( Tsoil )
 Tsoil( :, discard_idx ) = [];
 
 %--------------------------------------------------
+
+function VWC = GLand_2011_correct_22Mar( VWC, draw_plots )
+% GLAND_2011_CORRECT_22MAR - GLand SWC probes were reinstalled on 22 Mar 2011,
+% introducing an artificial discontinuity in most of the probes.  Correct that
+% by raising signal after 22 Mar to its pre-22 Mar level.
+%   
+
+if draw_plots
+    figure();
+    plot( VWC, '.-' );
+    xlim( [ 3800, 4000 ] );
+    ylim( [ 0, 0.1 ] );
+    ylabel( 'VWC (m^3 m^{-3})');
+    xlabel( '30-minute array index' );
+    title( 'before' );
+end
+
+% index for 14 Jun 00:00
+jun_14 = DOYidx( datenum( 2011, 6, 14 ) - datenum( 2011, 1, 0 ) );
+
+delta_22mar = ( nanmean( double( VWC( 3812:3912, : ) ) ) - ...
+                nanmean( double( VWC( 3920:4020, : ) ) ) );
+
+% shift the post-22 Mar data to make them continuous with the pre-22 Mar data
+temp = double( VWC( 3920 : jun_14, : ) );
+temp = temp + repmat( delta_22mar, size( temp, 1 ), 1 );
+VWC( 3920 : jun_14, : )  = ...
+    replacedata( VWC( 3920 : jun_14, : ), temp );
+
+% remove and fill by interpolation two periods of two and four hours,
+% respectively, where all the probes were going haywire
+temp = double( VWC( 1 : 4000, : ) );
+temp( 3912:3920, : ) = NaN;
+temp( 3815:3820, : ) = NaN;
+temp = column_inpaint_nans( temp, 4 );
+VWC( 1:4000, : )  = ...
+    replacedata( VWC( 1:4000, : ), temp );
+
+if draw_plots
+    figure();
+    plot( VWC, '.-' );
+    xlim( [ 3800, 4000 ] );
+    ylim( [ 0, 0.1 ] );
+    ylabel( 'VWC (m^3 m^{-3})');
+    xlabel( '30-minute array index' );
+    title( 'after' );
+end
+
+%--------------------------------------------------
+
+function [ VWC_depth_avg, VWC_cover_depth_avg ] = ...
+    fill_JunJul_2011_GLand_SWC_gap( VWC_depth_avg, VWC_cover_depth_avg )
+% FILL_JUNJUL_2011G_LAND_SWC_GAP - there was a datalogger malfunction at GLand
+% from 13 June to 27 July 2011 that resulted in the loss of all data.  Here
+% we fill the cover--depth average volumetric water content using the same
+% averages from New_GLand.
+
+varnames = { 'VWC_grass_2p5cm_Avg', 'VWC_grass_12p5cm_Avg', ...
+             'VWC_grass_22p5cm_Avg', 'VWC_grass_37p5cm_Avg', ...
+             'VWC_grass_52p5cm_Avg', ...
+             'VWC_open_2p5cm_Avg', 'VWC_open_12p5cm_Avg', ... 
+             'VWC_open_22p5cm_Avg', 'VWC_open_37p5cm_Avg' };
+
+VWC = VWC_cover_depth_avg;
+
+temp = double( VWC( 7401:10201, varnames ) );
+temp(:) = NaN;
+VWC( 7401:10201, varnames ) = replacedata( VWC( 7401:10201, varnames ), temp );
+
+%-----
+grass pit adjustments
+
+% grass 2.5cm
+VWC.VWC_grass_2p5cm_Avg( 8670 ) = VWC.VWC_grass_2p5cm_Avg( 7400 );
+VWC.VWC_grass_2p5cm_Avg( 8676 ) = VWC.VWC_grass_2p5cm_Avg( 8670 ) + 0.025;
+VWC.VWC_grass_2p5cm_Avg( 8880 ) = VWC.VWC_grass_2p5cm_Avg( 8670 ) + 0.024;
+VWC.VWC_grass_2p5cm_Avg( 9198 ) = VWC.VWC_grass_2p5cm_Avg( 8670 ) + 0.007;
+VWC.VWC_grass_2p5cm_Avg( 9300 ) = VWC.VWC_grass_2p5cm_Avg( 8670 ) + 0.014;
+VWC.VWC_grass_2p5cm_Avg( 10000 ) = VWC.VWC_grass_2p5cm_Avg( 8670 ) + 0.0075;
+
+% grass 12.5 cm
+VWC.VWC_grass_12p5cm_Avg( 8670 ) = VWC.VWC_grass_12p5cm_Avg( 7400 ) - 0.003;
+VWC.VWC_grass_12p5cm_Avg( 8920 ) = VWC.VWC_grass_12p5cm_Avg( 8670 ) + 0.004;
+VWC.VWC_grass_12p5cm_Avg( 10190 ) = VWC.VWC_grass_12p5cm_Avg( 8670 ) - 0.002;
+
+% grass 22.5 cm
+VWC.VWC_grass_22p5cm_Avg( 8700 ) = VWC.VWC_grass_22p5cm_Avg( 7395 ) - 0.01;
+VWC.VWC_grass_22p5cm_Avg( 9500 ) = VWC.VWC_grass_22p5cm_Avg( 8700 ) + 0.001;
+VWC.VWC_grass_22p5cm_Avg( 10200 ) = VWC.VWC_grass_22p5cm_Avg( 7395 ) - 0.015;
+
+% grass 37.5 cm
+VWC.VWC_grass_37p5cm_Avg( 8670 ) = VWC.VWC_grass_37p5cm_Avg( 7395 ) - 0.008;
+VWC.VWC_grass_37p5cm_Avg( 9100 ) = VWC.VWC_grass_37p5cm_Avg( 8670 ) + 0.001;
+VWC.VWC_grass_37p5cm_Avg( 10200 ) = VWC.VWC_grass_37p5cm_Avg( 10300 );
+
+% grass 52.5 cm
+% linear interpolation of entire gap should be ok here
+
+%-----
+% open pits
+
+% open 2.5 cm
+VWC.VWC_open_2p5cm_Avg( 8670 ) = VWC.VWC_open_2p5cm_Avg( 7400 );
+VWC.VWC_open_2p5cm_Avg( 8775 ) = VWC.VWC_open_2p5cm_Avg( 8670 ) + 0.0175;
+VWC.VWC_open_2p5cm_Avg( 8925 ) = VWC.VWC_open_2p5cm_Avg( 8670 ) + 0.0175;
+VWC.VWC_open_2p5cm_Avg( 9200 ) = VWC.VWC_open_2p5cm_Avg( 8670 ) + 0.003;
+VWC.VWC_open_2p5cm_Avg( 9300 ) = VWC.VWC_open_2p5cm_Avg( 8670 ) + 0.015;
+VWC.VWC_open_2p5cm_Avg( 10000 ) = VWC.VWC_open_2p5cm_Avg( 8670 ) + 0.004;
+
+% open 12.5 cm
+VWC.VWC_open_12p5cm_Avg( 8670 ) = VWC.VWC_open_12p5cm_Avg( 7400 ) - 0.002;
+VWC.VWC_open_12p5cm_Avg( 9100 ) = VWC.VWC_open_12p5cm_Avg( 8670 ) + 0.009;
+VWC.VWC_open_12p5cm_Avg( 10200 ) = VWC.VWC_open_12p5cm_Avg( 8670 );
+
+% open 22.5 cm
+VWC.VWC_open_22p5cm_Avg( 8670 ) = VWC.VWC_open_22p5cm_Avg( 7400 ) - 0.008;
+VWC.VWC_open_22p5cm_Avg( 9100 ) = VWC.VWC_open_22p5cm_Avg( 7400 );
+VWC.VWC_open_22p5cm_Avg( 9600 ) = VWC.VWC_open_22p5cm_Avg( 9100 );
+VWC.VWC_open_22p5cm_Avg( 10200 ) = VWC.VWC_open_22p5cm_Avg( 9600 ) - 0.008;
+
+% open 37.5 cm
+% linear interpolation of entire gap should be ok here
+
+% open 52.5 cm
+% linear interpolation of entire gap should be ok here
+
+% fill the gap by linear interpolation between the inflection points
+% specified above
+temp = VWC( 7400:10202, varnames );
+temp = double( temp );
+temp = column_inpaint_nans( temp, 4 );
+
+% replace the gap in the input dataset with the interpolated data
+VWC( 7400:10202, varnames ) = ...
+    replacedata( VWC( 7400:10202, varnames ),  temp );
+
+VWC_cover_depth_avg = VWC;
+
+% recalculate the site-wide-by-depth averages with the filled data
+VWC_depth_avg( :, 'VWC_2p5cm_Avg' ) = replacedata( ...
+    VWC_depth_avg( :, 'VWC_2p5cm_Avg' ), ...
+    mean( [ double( VWC_cover_depth_avg( :, 'VWC_grass_2p5cm_Avg' ) ), ...
+            double( VWC_cover_depth_avg( :, 'VWC_open_2p5cm_Avg' ) ) ], 2 ) );
+VWC_depth_avg( :, 'VWC_12p5cm_Avg' ) = replacedata( ...
+    VWC_depth_avg( :, 'VWC_12p5cm_Avg' ), ...
+    mean( [ double( VWC_cover_depth_avg( :, 'VWC_grass_12p5cm_Avg' ) ), ...
+            double( VWC_cover_depth_avg( :, 'VWC_open_12p5cm_Avg' ) ) ], 2 ) );
+VWC_depth_avg( :, 'VWC_37p5cm_Avg' ) = replacedata( ...
+    VWC_depth_avg( :, 'VWC_37p5cm_Avg' ), ...
+    mean( [ double( VWC_cover_depth_avg( :, 'VWC_grass_37p5cm_Avg' ) ),...
+            double( VWC_cover_depth_avg( :, 'VWC_open_37p5cm_Avg' ) ) ], 2 ) );
+VWC_depth_avg( :, 'VWC_52p5cm_Avg' ) = replacedata( ...
+    VWC_depth_avg( :, 'VWC_52p5cm_Avg' ), ...
+    mean( [ double( VWC_cover_depth_avg( :, 'VWC_grass_52p5cm_Avg' ) ), ...
+            double( VWC_cover_depth_avg( :, 'VWC_open_52p5cm_Avg' ) ) ], 2 ) );
