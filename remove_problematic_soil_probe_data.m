@@ -39,7 +39,9 @@ switch sitecode
                                                       % good value
         SWC.cs616SWC_open_2_22p5( 7480:7672 ) = 0.086; % fill from previous
         SWC.cs616SWC_grass_3_12p5( : ) = NaN;
-        SWC.cs616SWC_grass_3_37p5( 1:7672 ) = NaN;
+        SWC.cs616SWC_grass_3_37p5( 1:7763 ) = NaN;
+        SWC.cs616SWC_open_3_37p5( 1:7758 ) = NaN;
+        
       case 2009
         % remove all data after index 2800
         data = double( SWC );

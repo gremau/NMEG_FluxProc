@@ -15,7 +15,7 @@ sitecode = UNM_sites( sitecode );
 SWC_smoothed = false; % will set to true after SWC data have been smoothed
 
 t0 = now();
-fprintf( 1, 'Begin soil met properties...' );
+fprintf( 1, 'Begin soil met properties...\n' );
 
 % some site-years have non-descriptive labels for soil data columns.  Replace
 % these with descriptive labels.
@@ -59,47 +59,41 @@ switch sitecode
         % Remove the observations that don't correspond to a SWC observation.
         Tsoil = JSav_match_soilT_SWC( Tsoil );
     end
+    fprintf( 'Tsoil probes detected: %d\n', size( Tsoil, 2 ) );        
     
     cs616_pd = data( :, regexp_ds_vars( data, ...
-                                        'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );
+                                        'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );   
+
+    t0 = now();
+    cs616_pd_smoothed = UNM_soil_data_smoother( cs616_pd, 6, false );
+    SWC_smoothed = true;
+    fprintf( 'smooth cs616: %0.2f mins\n', ( now() - t0 ) * 24 * 60 );
     
     if ( sitecode == UNM_sites.GLand ) & ( year == 2011 )
         % GLand SWC probes were reinstalled on 22 Mar 2011, introducing an
         % artificial discontinuity in most of the probes.  Correct that by
         % raising signal after 22 Mar to its pre-22 Mar level.
         draw_plots = false;  % set to true to see the corrections
-        cs616_pd = GLand_2011_correct_22Mar( cs616_pd, draw_plots );
+        cs616_pd_smoothed = GLand_2011_correct_22Mar( cs616_pd_smoothed, ...
+                                                      draw_plots );
     end
 
-    win = [ 25, 25, 300 ];
-    minmax = [ 0, 40 ]; % spans valid range of echo (0-1) and cs616 (15ish-40ish)
-                        % probes
-    cs616_pd = UNM_soil_data_smoother( cs616_pd, ...
-                                       win, ...
-                                       [ 1.5, 2.0, 2.0 ], ...
-                                       minmax, ...
-                                       [ -0.1, 0.07 ], ...
-                                       false );
-    SWC_smoothed = true;
-    %dataset_viewer( cs616_pd );
-    Tsoil_smoothed = UNM_soil_data_smoother( Tsoil, ...
-                                             [ 25, 25, 25 ], ...
-                                             [ 3.0, 2.0, 3.0 ], ...
-                                             [ -100, 100 ], ...
-                                             [ NaN, NaN ], ...
-                                             false );
-    
-    % plot_soil_pit_data( Tsoil_smoothed, ds_qc.precip );
-    % plot_soil_pit_data( cs616_pd, ds_qc.precip );
-    
     % if necessary, convert CS616 periods to volumetric water content
-    [ cs616_hilo_removed, ...
-      cs616_Tc_hilo_removed ] = cs616_period2vwc( cs616_pd, Tsoil_smoothed, ...
-                                                  'draw_plots', false, ...
-                                                  'save_plots', false, ...
-                                                  'sitecode', sitecode, ...
-                                                  'year', year );
-    fprintf( 'Tsoil probes detected: %d\n', size( Tsoil, 2 ) );    
+    [ cs616_smoothed, ...
+      cs616_Tc_smoothed ] = cs616_period2vwc( cs616_pd_smoothed, ...
+                                              Tsoil, ...
+                                              'draw_plots', false, ...
+                                              'save_plots', false, ...
+                                              'sitecode', sitecode, ...
+                                              'year', year );
+    
+    % t0 = now();
+    % cs616_Tc_smoothed = UNM_soil_data_smoother( cs616_Tc, 6, false );
+    % fprintf( 'smooth T-corrected SWC: %0.2f mins\n', ( now() - t0 ) * 24 * 60 );
+    
+    if ( year == 2011 ) & sitecode == ( UNM_sites.SLand )
+        cs616_Tc_smoothed = fix_2011_SLand_SWC( cs616_Tc_smoothed );
+    end
     
     TCAV = data( :, regexp_ds_vars( data, ...
                                      'TCAV_[A-Za-z]+.*' ) );
@@ -153,57 +147,35 @@ switch sitecode
 end
 
 % these sensors have problems with electrical noise -- remove noisy points
-win = [ 7, 7, 7 ];  % moving average window of six elements => six hours total window
-T_min_max = [ -100, 100 ];
-T_delta_filter = [ NaN, NaN ];  %do not filter soil T on delta(T)
-Tsoil_hilo_removed = UNM_soil_data_smoother( Tsoil, ...
-                                             win, ...
-                                             [ 3.0, 2.0, 3.0 ], ...
-                                             T_min_max, ...
-                                             T_delta_filter, ...
-                                             false );
+Tsoil_smoothed = UNM_soil_data_smoother( Tsoil, 12, false );
 if not( SWC_smoothed )
     fprintf( 'smoothing soil water\n' );
-    SWC_delta_filter = [ -0.1, 0.07 ];
-    SWC_min_max = [ 0, 1 ];
-    cs616_hilo_removed = UNM_soil_data_smoother( cs616, ...
-                                                 [ 25, 25, 300 ], ...
-                                                 [ 1.5, 2.0, 2.0 ], ...
-                                                 SWC_min_max, ...
-                                                 SWC_delta_filter, ...
-                                                 false );
-    cs616_Tc_hilo_removed = UNM_soil_data_smoother( cs616_Tc, ...
-                                                    [ 25, 25, 25 ], ...
-                                                    [ 1.5, 2.0, 2.0 ], ...
-                                                    SWC_min_max, ...
-                                                    SWC_delta_filter, ...
-                                                    false );
+    cs616_Tc_smoothed = UNM_soil_data_smoother( cs616_Tc, 12, false );
 end
-
 draw_plots = false;
-Tsoil_hilo_removed = fill_soil_temperature_gaps( Tsoil_hilo_removed, ...
-                                                 ds_qc.precip, ...
-                                                 draw_plots );
-cs616_Tc_hilo_removed = fill_soil_water_gaps( cs616_hilo_removed, ...
-                                           ds_qc.precip, ...
-                                           draw_plots );
+Tsoil_smoothed = fill_soil_temperature_gaps( Tsoil_smoothed, ...
+                                             ds_qc.precip, ...
+                                             draw_plots );
+cs616_Tc_smoothed = fill_soil_water_gaps( cs616_Tc_smoothed, ...
+                                          ds_qc.precip, ...
+                                          draw_plots );
 
 % remove data from specific periods at specific probes that are obviously bogus
-[ Tsoil_hilo_removed, cs616_Tc_hilo_removed ] = ...
+[ Tsoil_smoothed, cs616_Tc_smoothed ] = ...
     remove_problematic_soil_probe_data( sitecode, ...
                                         year, ...
-                                        Tsoil_hilo_removed, ...
-                                        cs616_Tc_hilo_removed );
+                                        Tsoil_smoothed, ...
+                                        cs616_Tc_smoothed );
 
 % calculate averages by cover type, depth
 [ Tsoil_cover_depth_avg, ...
   Tsoil_cover_avg, ...
-  Tsoil_depth_avg ] = soil_data_averager( Tsoil_hilo_removed, ...
+  Tsoil_depth_avg ] = soil_data_averager( Tsoil_smoothed, ...
                                           'draw_plots', false, ...
                                           'fill_type', 'interp' );
 [ VWC_cover_depth_avg, ...
   VWC_cover_avg, ...
-  VWC_depth_avg ] = soil_data_averager( cs616_Tc_hilo_removed, ...
+  VWC_depth_avg ] = soil_data_averager( cs616_Tc_smoothed, ...
                                         'draw_plots', false, ...
                                         'fill_type', 'interp' );
 
@@ -232,6 +204,10 @@ if size( soil_surface_T, 2 ) == 1
                    'VWC', ...
                    'soilT' );
 end
+
+fprintf( 'second smoothing pass\n' );
+Tsoil_smoothed = UNM_soil_data_smoother( Tsoil_smoothed, 12, false );
+cs616_Tc_smoothed = UNM_soil_data_smoother( cs616_Tc_smoothed, 12, false );
 
 % -----
 % -----
@@ -310,23 +286,27 @@ switch sitecode
 end
 
 % create output dataset with attention to any duplicated data names
-out_names = genvarname( [ Tsoil_hilo_removed.Properties.VarNames, ...
+out_names = genvarname( [ Tsoil_smoothed.Properties.VarNames, ...
                     Tsoil_depth_avg.Properties.VarNames, ...
                     Tsoil_cover_depth_avg.Properties.VarNames, ...
-                    cs616_Tc_hilo_removed.Properties.VarNames, ...
+                    cs616_Tc_smoothed.Properties.VarNames, ...
                     VWC_depth_avg.Properties.VarNames, ...
                     VWC_cover_depth_avg.Properties.VarNames, ...
                     SHF.Properties.VarNames ] );
-out_data = [ double( Tsoil_hilo_removed ), ...
+out_data = [ double( Tsoil_smoothed ), ...
              double( Tsoil_depth_avg ), ...
              double( Tsoil_cover_depth_avg ), ...
-             double( cs616_Tc_hilo_removed ), ...
+             double( cs616_Tc_smoothed ), ...
              double( VWC_depth_avg ), ...
              double( VWC_cover_depth_avg ), ...
              double( SHF ) ];
-% out_names = genvarname( [ VWC_cover_depth_avg.Properties.VarNames, ...
+% out_names = genvarname( [ cs616_Tc_smoothed.Properties.VarNames, ...
+%                     VWC_depth_avg.Properties.VarNames, ...
+%                     VWC_cover_depth_avg.Properties.VarNames, ...
 %                     SHF.Properties.VarNames ] );
-% out_data = [ double( VWC_cover_depth_avg ), ...
+% out_data = [ double( cs616_Tc_smoothed ), ...
+%              double( VWC_depth_avg ), ...
+%              double( VWC_cover_depth_avg ), ...
 %              double( SHF ) ];
 ds_out = dataset( { out_data, out_names{ : } } );
 
@@ -488,7 +468,7 @@ temp(:) = NaN;
 VWC( 7401:10201, varnames ) = replacedata( VWC( 7401:10201, varnames ), temp );
 
 %-----
-grass pit adjustments
+% grass pit adjustments
 
 % grass 2.5cm
 VWC.VWC_grass_2p5cm_Avg( 8670 ) = VWC.VWC_grass_2p5cm_Avg( 7400 );
@@ -514,7 +494,7 @@ VWC.VWC_grass_37p5cm_Avg( 9100 ) = VWC.VWC_grass_37p5cm_Avg( 8670 ) + 0.001;
 VWC.VWC_grass_37p5cm_Avg( 10200 ) = VWC.VWC_grass_37p5cm_Avg( 10300 );
 
 % grass 52.5 cm
-% linear interpolation of entire gap should be ok here
+
 
 %-----
 % open pits
@@ -542,7 +522,13 @@ VWC.VWC_open_22p5cm_Avg( 10200 ) = VWC.VWC_open_22p5cm_Avg( 9600 ) - 0.008;
 % linear interpolation of entire gap should be ok here
 
 % open 52.5 cm
-% linear interpolation of entire gap should be ok here
+New_GLand11 = parse_ameriflux_file( ...
+    get_ameriflux_filename( UNM_sites.New_GLand, 2011, 'soil' ) );
+offset = New_GLand11.VWC_open_520x2E5_Avg( 10000 ) - ...
+         VWC.VWC_open_52p5cm_Avg( 10000 );
+
+VWC.VWC_open_52p5cm_Avg( 1:10000 ) = ...
+    New_GLand11.VWC_open_520x2E5_Avg( 1:10000 ) - offset;
 
 % fill the gap by linear interpolation between the inflection points
 % specified above
@@ -573,3 +559,142 @@ VWC_depth_avg( :, 'VWC_52p5cm_Avg' ) = replacedata( ...
     VWC_depth_avg( :, 'VWC_52p5cm_Avg' ), ...
     mean( [ double( VWC_cover_depth_avg( :, 'VWC_grass_52p5cm_Avg' ) ), ...
             double( VWC_cover_depth_avg( :, 'VWC_open_52p5cm_Avg' ) ) ], 2 ) );
+
+
+%--------------------------------------------------
+
+function VWC = fix_2011_SLand_SWC( VWC )
+% FIX_2011_SLAND_SWC - there is an obviously-incorrect step change in many of
+%   the SLand 2011 soil water probes around 22 May, perhaps from a lightnig
+%   strike or other electrical anomaly.  Using GLand and New_GLand as guides,
+%   here we implement best-approximation fixes to the SWC records for SLand
+%   2011.
+
+figure(); h0 = plot( VWC.cs616SWC_open_1_2p5, '.k' );
+VWC.cs616SWC_open_1_2p5( 6800:7200 ) = NaN;
+idx = 7200:9500;
+VWC.cs616SWC_open_1_2p5( idx ) = VWC.cs616SWC_open_1_2p5( idx ) - 0.0125;
+hold on; h1 = plot( VWC.cs616SWC_open_1_2p5, '-ob' ); 
+title( 'open\_1\_2.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_open_1_12p5, '.k' );
+VWC.cs616SWC_open_1_12p5( 6800:7200 ) = NaN;
+idx = 7200:10063;
+VWC.cs616SWC_open_1_12p5( idx ) = VWC.cs616SWC_open_1_12p5( idx ) - 0.01;
+hold on; h1 = plot( VWC.cs616SWC_open_1_12p5, '-ob' ); 
+title( 'open\_1\_12.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_open_1_22p5, '.k' );
+idx = 6800:13276;
+VWC.cs616SWC_open_1_22p5( idx ) = VWC.cs616SWC_open_1_22p5( idx ) + 0.01;
+hold on; h1 = plot( VWC.cs616SWC_open_1_22p5, '-ob' ); 
+title( 'open\_1\_22.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_open_1_37p5, '.k' );
+VWC.cs616SWC_open_1_37p5( 6800:end ) = ...
+    VWC.cs616SWC_open_1_37p5( 6800:end ) + 0.065;
+VWC.cs616SWC_open_1_37p5( 6750:6910 ) = NaN;
+hold on; h1 = plot( VWC.cs616SWC_open_1_37p5, '-ob' ); 
+title( 'open\_1\_37.5' );legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_open_1_52p5, '.k' );
+idx = 6891:size( VWC, 1 );
+VWC.cs616SWC_open_1_52p5( idx ) = VWC.cs616SWC_open_1_52p5( idx ) + 0.032;
+hold on; h1 = plot( VWC.cs616SWC_open_1_52p5, '-ob' ); 
+title( 'open\_1\_52.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_cover_1_2p5, '.k' );
+VWC.cs616SWC_cover_1_2p5( 6800:7200 ) = NaN;
+idx = 6890:9140;
+VWC.cs616SWC_cover_1_2p5( idx ) = VWC.cs616SWC_cover_1_2p5( idx ) + 0.0137;
+hold on; h1 = plot( VWC.cs616SWC_cover_1_2p5, '-ob' ); 
+title( 'cover\_1\_2.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_cover_1_12p5, '.k' );
+VWC.cs616SWC_cover_1_12p5( 6800:7200 ) = NaN;
+idx = 6890:10034;
+VWC.cs616SWC_cover_1_12p5( idx ) = VWC.cs616SWC_cover_1_12p5( idx ) + 0.0388;
+hold on; h1 = plot( VWC.cs616SWC_cover_1_12p5, '-ob' ); 
+title( 'cover\_1\_12.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_cover_1_22p5, '.k' );
+VWC.cs616SWC_cover_1_22p5( 6800:7200 ) = NaN;
+idx = 6890:16903;
+VWC.cs616SWC_cover_1_22p5( idx ) = VWC.cs616SWC_cover_1_22p5( idx ) + 0.0388;
+hold on; h1 = plot( VWC.cs616SWC_cover_1_22p5, '-ob' ); 
+title( 'cover\_1\_22.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_cover_1_37p5, '.k' );
+VWC.cs616SWC_cover_1_37p5( 6800:end ) = ...
+    VWC.cs616SWC_cover_1_37p5( 6800:end ) + 0.045;
+VWC.cs616SWC_cover_1_37p5( 6750:6910 ) = NaN;
+hold on; h1 = plot( VWC.cs616SWC_cover_1_37p5, '-ob' ); 
+title( 'cover\_1\_37.5' );legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_cover_1_52p5, '.k' );
+VWC.cs616SWC_cover_1_52p5( 6800:end ) = ...
+    VWC.cs616SWC_cover_1_52p5( 6800:end ) + 0.0225;
+VWC.cs616SWC_cover_1_52p5( 6750:6910 ) = NaN;
+hold on; h1 = plot( VWC.cs616SWC_cover_1_52p5, '-ob' ); 
+title( 'cover\_1\_52.5' );legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_open_2_2p5, '.k' );
+idx = 7156:7848;
+VWC.cs616SWC_open_2_2p5( idx ) = VWC.cs616SWC_open_2_2p5( idx ) - 0.02;
+hold on; h1 = plot( VWC.cs616SWC_open_2_2p5, '-ob' ); 
+title( 'open\_1\_2.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_open_2_12p5, '.k' );
+idx = 7172:7995;
+VWC.cs616SWC_open_2_12p5( idx ) = VWC.cs616SWC_open_2_12p5( idx ) + 0.02057;
+hold on; h1 = plot( VWC.cs616SWC_open_2_12p5, '-ob' ); 
+title( 'open\_1\_12.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_open_2_22p5, '.k' );
+VWC.cs616SWC_open_2_22p5( 6900:end ) = ...
+    VWC.cs616SWC_open_2_22p5( 6900:end ) + 0.019027;
+hold on; h1 = plot( VWC.cs616SWC_open_2_22p5, '-ob' ); 
+title( 'cover\_1\_22.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_open_2_37p5, '.k' );
+VWC.cs616SWC_open_2_37p5( 6901:end ) = ...
+    VWC.cs616SWC_open_2_37p5( 6901:end ) + 0.035248;
+hold on; h1 = plot( VWC.cs616SWC_open_2_37p5, '-ob' ); 
+title( 'cover\_1\_37.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_open_2_52p5, '.k' );
+VWC.cs616SWC_open_2_52p5( 6683:8600 ) = NaN;
+VWC.cs616SWC_open_2_52p5( 8601:end ) = ...
+    VWC.cs616SWC_open_2_52p5( 8601:end ) + 0.026436;
+hold on; h1 = plot( VWC.cs616SWC_open_2_52p5, '-ob' ); 
+title( 'cover\_1\_52.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+
+figure(); h0 = plot( VWC.cs616SWC_cover_2_2p5, '.k' );
+idx = 6982:9200;
+VWC.cs616SWC_cover_2_2p5( idx ) = VWC.cs616SWC_cover_2_2p5( idx ) - 0.083827;
+hold on; h1 = plot( VWC.cs616SWC_cover_2_2p5, '-ob' ); 
+title( 'open\_1\_2.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+% cover_2_12.5 actually looks ok
+
+figure(); h0 = plot( VWC.cs616SWC_cover_2_22p5, '.k' );
+VWC.cs616SWC_cover_2_22p5( 6741:end ) = ...
+    VWC.cs616SWC_cover_2_22p5( 6741:end ) + 0.028255;
+hold on; h1 = plot( VWC.cs616SWC_cover_2_22p5, '-ob' ); 
+title( 'cover\_1\_22.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+figure(); h0 = plot( VWC.cs616SWC_cover_2_37p5, '.k' );
+VWC.cs616SWC_cover_2_37p5( 6901:end ) = ...
+    VWC.cs616SWC_cover_2_37p5( 6901:end ) + 0.054706;
+hold on; h1 = plot( VWC.cs616SWC_cover_2_37p5, '-ob' ); 
+title( 'cover\_1\_37.5' ); legend( [ h0, h1 ], 'before', 'after' );
+
+
+figure(); h0 = plot( VWC.cs616SWC_cover_2_52p5, '.k' );
+VWC.cs616SWC_cover_2_52p5( 6683:8600 ) = NaN;
+VWC.cs616SWC_cover_2_52p5( 8601:end ) = ...
+    VWC.cs616SWC_cover_2_52p5( 8601:end ) + 0.027;
+hold on; h1 = plot( VWC.cs616SWC_cover_2_52p5, '-ob' ); 
+title( 'cover\_1\_52.5' ); legend( [ h0, h1 ], 'before', 'after' );
+

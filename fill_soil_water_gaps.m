@@ -68,21 +68,22 @@ function swc_probe = fill_one_probe( swc_probe, pcp )
 if all( isnan( swc_probe ) )
     return
 end
-
-if isnan( swc_probe( 1 ) ) 
-    leading_nans = 1:find( not( isnan( swc_probe ) ), 1, 'first' );
-else
-    leading_nans = [];
-end
     
-% find beginnign and end of all SWC gaps in the record
+% find beginning and end of all SWC gaps in the record
 d_nan = diff( isnan( swc_probe ) );
 gap_start = find( d_nan == 1 );
 gap_end = find( d_nan == -1 );
 
-% if the time series starts with NaNs ignore the first gap_end found
-if ( gap_end( 1 ) < gap_start( 1 ) )
-    gap_end = gap_end( 2:end );
+if isnan( swc_probe( 1 ) ) 
+    leading_nans = 1:find( not( isnan( swc_probe ) ), 1, 'first' );
+    % if the time series starts with NaNs ignore the first gap_end found
+    if not( isempty( gap_start ) ) & not( isempty( gap_end ) )
+        if ( gap_end( 1 ) < gap_start( 1 ) )
+            gap_end = gap_end( 2:end );
+        end
+    end
+else
+    leading_nans = [];
 end
     
 % fill each gap
