@@ -54,6 +54,8 @@ if ( size( soil_data, 2 ) == 1 )
     return;
 end
 
+original_vars = soil_data.Properties.VarNames;
+
 grp_vars = regexp( soil_data.Properties.VarNames, '_', 'split' );
 grp_vars = vertcat( grp_vars{ : } ); 
 
@@ -85,6 +87,7 @@ avg_soil_data = repmat( NaN, ...
                         numel( avg_soil_data_vars ) );
 
 soil_data = double( soil_data );
+fprintf( 'AVERAGING BY COVER AND DEPTH\n' );
 count = 1;
 for this_cov = 1:numel( covers )
     for this_depth = 1:numel( depths )
@@ -102,6 +105,13 @@ for this_cov = 1:numel( covers )
                              'draw_plots', args.Results.draw_plots, ...
                              'fill_type', args.Results.fill_type, ...
                              't_str', t_str );
+
+        fprintf( '%s: \t', avg_soil_data_vars{ count } );
+        for i = find( idx )
+            fprintf( '%s ', original_vars{ i } );
+        end
+        fprintf( '\n--------------------------------------------------\t' );
+        
         count = count + 1;
     end
 end
@@ -115,6 +125,7 @@ avg_soil_data = dataset( { avg_soil_data, avg_soil_data_vars{ : } } );
 avg_by_cover_vars = cell( 1, numel( covers ) );
 avg_by_cover = repmat( NaN, size( soil_data, 1 ), numel( covers ) );
 
+fprintf( 'AVERAGING BY COVER\n' );
 for this_cov = 1:numel( covers )
     idx = strcmp( grp_vars( :, 2 ), covers( this_cov ) );
     avg_by_cover_vars{ this_cov } = sprintf( '%s_%s_Avg', ...
@@ -126,11 +137,16 @@ for this_cov = 1:numel( covers )
                          'fill_type', args.Results.fill_type, ...
                          't_str', t_str );
 
-    
+    fprintf( '%s: \t', avg_by_cover_vars{ this_cov } );
+    for i = find( idx )        
+        fprintf( '%s ', original_vars{ i } );
+    end
+    fprintf( '\n--------------------------------------------------\t' );
 end
-
+keyboard
 avg_by_cover = dataset( { avg_by_cover, avg_by_cover_vars{ : } } );
 
+fprintf( 'AVERAGING BY DEPTH\n' );
 for this_depth = 1:numel( depths )
 
     idx = strcmp( grp_vars( :, 4 ), depths( this_depth ) );
@@ -148,6 +164,12 @@ for this_depth = 1:numel( depths )
                          'draw_plots', args.Results.draw_plots, ...
                          'fill_type', args.Results.fill_type, ...
                          't_str', t_str );
+    
+    fprintf( '%s: \t', avg_by_depth_vars{ this_depth } );
+    for i = find( idx )
+        fprintf( '%s ', original_vars{ i } );
+    end
+    fprintf( '\n--------------------------------------------------\t' );
 end
 
 avg_by_depth = dataset( { avg_by_depth, avg_by_depth_vars{ : } } );
