@@ -1,4 +1,4 @@
-function result = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
+function varargout = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
 % UNM_PROCESS_10HZ_MAIN: top-level function for matlab processing of 10-hz data
 % from flux towers to 30-minute average.  t_start and t_end may not span two
 % different calendar years.
@@ -7,6 +7,7 @@ function result = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end )
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end, lag)
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end, ..., rotation)
+%    [ result, data ] = UNM_process_10hz_main( sitecode, t_start, t_end, ... )
 %
 %INPUTS
 %    sitecode ( integer ): sitecode to process
@@ -18,6 +19,8 @@ function result = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
 %
 % OUTPUTS:
 %    result: 0 on success
+%    data: the dataset array object containing the 10-hz data processed to
+%    30-minute averages
 %
 % (c) Timothy W. Hilton, UNM, April 2012
 
@@ -42,6 +45,12 @@ t_start = p.Results.t_start;
 t_end = p.Results.t_end;
 lag = p.Results.lag;
 rotation = p.Results.rotation;
+
+% -----
+% if called with more than two output arguments, throw exception
+% -----
+nargoutchk( 0, 2 );
+
 
 % -----
 % start processing
@@ -140,3 +149,8 @@ save( strrep( outfile, '.mat', '_filled.mat' ), 'all_data' );
 fprintf( 1, 'done (%d seconds)\n', int32( ( now() - t0 ) * 86400 ) );
 
 result = 0;
+
+varargout = { result };
+if nargout == 2
+    varargout = { result, all_data };
+end
