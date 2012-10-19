@@ -1,4 +1,7 @@
-function varargout = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
+function [ result, all_data ] = UNM_process_10hz_main( sitecode, ...
+                                                  t_start, ...
+                                                  t_end, ...
+                                                  varargin )
 % UNM_PROCESS_10HZ_MAIN: top-level function for matlab processing of 10-hz data
 % from flux towers to 30-minute average.  t_start and t_end may not span two
 % different calendar years.
@@ -18,9 +21,8 @@ function varargout = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
 %        sonic_rotation.threeD (default threeD)
 %
 % OUTPUTS:
-%    result: 0 on success
-%    data: the dataset array object containing the 10-hz data processed to
-%    30-minute averages
+%    result: 0 on success, non-zero on failure
+%    all_data: matlab dataset array containing the averaged data
 %
 % (c) Timothy W. Hilton, UNM, April 2012
 
@@ -28,7 +30,7 @@ function varargout = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
 % define inputs, with defaults for optionals, and with type-checking
 % -----
 p = inputParser;
-p.addRequired( 'sitecode', @isnumeric ); 
+p.addRequired( 'sitecode', @( x ) ( isnumeric( x ) | isa( x, 'UNM_sites' ) ) ); 
 p.addRequired( 't_start', @isnumeric );
 p.addRequired( 't_end', @isnumeric );
 p.addParamValue( 'lag', ...
