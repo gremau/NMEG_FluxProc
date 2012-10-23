@@ -31,7 +31,9 @@ for i = 1:nfiles
     fprintf( 1, 'reading %s\n', filename{ i } );
     
     if numel( pathname ) == 1 
-        this_path = pathname;
+        if iscell( pathname )
+            this_path = pathname{ 1 };
+        end
     else
         this_path = pathname{ i };
     end
@@ -40,7 +42,7 @@ for i = 1:nfiles
 end
 
 % combine ds_array to single dataset
-ds = vertcat( ds_array{ : } );
+ds = dataset_append_common_vars( ds_array{ : } );
 
 fprintf( 1, 'filling missing timestamps\n' );
 thirty_mins = 1 / 48;  %thirty minutes expressed in units of days
@@ -56,11 +58,12 @@ one_minute = 1 / ( 60 * 24 ); %one minute expressed in units of days
 non_dup_idx = find( diff( ts ) > one_minute );
 ds = ds( non_dup_idx, : );
 
-
 % to save to file, use e.g.:
 fprintf( 1, 'saving csv file\n' );
 idx = min( find( datenum(ds.timestamp(:))>= datenum( 2012, 1, 1)));
+tstamps_numeric = ds.timestamp;
 ds.timestamp = datestr( ds.timestamp, 'mm/dd/yyyy HH:MM:SS' );
 export(ds( idx:end, : ), 'FILE', ...
        fullfile( get_out_directory(), 'combined_TOA5.csv' ), ...
        'Delimiter', ',');
+ds.timestamp = tstamps_numeric;

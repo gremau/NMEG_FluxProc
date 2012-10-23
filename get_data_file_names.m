@@ -41,6 +41,11 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
 
     % find the files that are within the date range requested
     idx = find( ( dns >= date_start ) & ( dns <= date_end ) );
+    % if looking at TOA5 files, included the latest file dated *before* the 
+    % start date -- it could contain data from the requested range
+    if ( type == 'TOA5' ) & ( idx( 1 ) ~= 1 )
+        idx = [ idx( 1 ) - 1, idx ];
+    end
     fnames = fnames( idx );
 
 %------------------------------------------------------------

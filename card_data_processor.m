@@ -28,11 +28,11 @@ methods
                      [], ...
                      @isnumeric );
     p.addParamValue( 'rotation', ...
-                     0, ...
-                     @( x ) ismember( x, [ 0, 1 ] ) );
-    p.addParamValue( 'lag', ...
                      sonic_rotation.threeD, ...
                      @( x ) isa( x, 'sonic_rotation' ) );
+    p.addParamValue( 'lag', ...
+                     0, ...
+                     @( x ) ismember( x, [ 0, 1 ] ) );
     args = p.parse( sitecode, varargin{ : } );
     
     % -----
@@ -42,7 +42,7 @@ methods
     obj.date_start = p.Results.date_start;
     obj.date_end = p.Results.date_end;
     obj.lag = p.Results.lag;
-    obj.rotation = p.Results.rotation;
+    obj.rotation = sonic_rotation( p.Results.rotation );
     obj.data_10hz_avg = [];
     obj.data_30min = [];
    
@@ -69,7 +69,7 @@ methods
 
 % --------------------------------------------------
 
-    function files = get_30min_data( obj )
+    function [ obj, toa5_files ] = get_30min_data( obj )
     
     toa5_files = get_data_file_names( obj.date_start, ...
                                       obj.date_end, ...
@@ -82,13 +82,27 @@ methods
 
 % --------------------------------------------------
 
-    function files = process_10hz_data( obj )
+    function obj = process_10hz_data( obj )
     
-    [ result, obj.data_10hz ] = UNM_process_10hz_main( obj.sitecode, ...
-                                                      obj.date_start, ...
-                                                      obj.date_end, ...
-                                                      'lag', obj.lag, ...
-                                                      'rotation', obj.rotation);
+    tob1_files = get_data_file_names( obj.date_start, ...
+                                      obj.date_end, ...
+                                      obj.sitecode, ...
+                                      'TOB1' );
+    tstamps = cellfun( @get_TOA5_TOB1_file_date, tob1_files );
+    obj.date_end = min( max( tstamps ), obj.date_end );
+    
+    load( ['C:\Research_Flux_Towers\FluxOut\TOB1_data\' ...
+           'JSav_TOB1_2012_filled.mat'] )
+    all_data.date = str2num( all_data.date );
+    all_data = all_data( all_data.timestamp < obj.date_end, : );
+    obj.data_10hz_avg = all_data;
+
+    
+    % [ result, obj.data_10hz_avg ] = UNM_process_10hz_main( obj.sitecode, ...
+    %                                                   obj.date_start, ...
+    %                                                   obj.date_end, ...
+    %                                                   'lag', obj.lag, ...
+    %                                                   'rotation', obj.rotation);
     
     end  % process_10hz_data
 
@@ -96,18 +110,62 @@ methods
 
     function obj = process_data( obj )
     % Force reprocessing of all data between obj.date_start and obj.date_end.
+    
+    warning( 'This method not yet implemented\n' );
+    
     end  % process_data
 
 % --------------------------------------------------
 
     function obj = update_data( obj )
     
+    [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
+    fprintf( '---------- parsing fluxall file ----------\n' );
+    flux_all = UNM_parse_fluxall_txt_file( obj.sitecode, year );
+    
+    %obj.date_end = min( max( flux_all.timestamp ), now() );
+    
+    fprintf( '---------- concatenating 30-minute data ----------\n' );
+    [ obj, TOA5_files ] = get_30min_data( obj );
+    fprintf( '---------- processing 10-hz data ----------\n' );
+    obj = process_10hz_data( obj );
+        
+    save( 'CDP_test_restart.mat' )
+    
+    % align 30-minute timestamps and fill in missing timestamps
+    two_mins_tolerance = 2; % for purposes of joining averaged 10 hz and 30-minute
+                            % data, treat 30-min timestamps within two mins of
+                            % each other as equal
+    t_max = max( [ reshape( obj.data_30min.timestamp, [], 1 ); ...
+                   reshape( obj.data_10hz_avg.timestamp, [], 1 ) ] );
+
+    [ obj.data_30min, obj.data_10hz_avg ] = ...
+        merge_datasets_by_datenum( obj.data_30min, ...
+                                   obj.data_10hz_avg, ...
+                                   'timestamp', ...
+                                   'timestamp', ...
+                                   two_mins_tolerance, ...
+                                   obj.date_start, ...
+                                   t_max );
+    
+    new_data = horzcat( obj.data_30min, obj.data_10hz_avg );
+    flux_all = dataset_append_common_vars( flux_all, new_data );
+    
+    fprintf( '---------- writing FLUX_all file ----------\n' );
+    write_fluxall( obj, flux_all );
+    
     end   % update_data
 
 % --------------------------------------------------
 
-    function obj = write_fluxall( obj )
-    
+    function write_fluxall( obj, fluxall_data )
+    [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
+    fname = sprintf( '%s_FLUX_all_%d_new.txt', char( obj.sitecode ), year );
+    full_fname = fullfile( get_site_directory( obj.sitecode ), fname );
+    t0 = now();
+    export( fluxall_data, 'file', full_fname );
+    t_elapsed = round( ( now() - t0 ) * 24 * 60 * 60 );
+    fprintf( 'wrote %s (%d seconds)\n', full_fname, t_elapsed );
     end   % write_fluxall
 
 % --------------------------------------------------
