@@ -1,5 +1,9 @@
 function data = UNM_fix_datalogger_timestamps( sitecode, year, data )
-% UNM_FIX_DATALOGGER_TIMESTAMPS - 
+% UNM_FIX_DATALOGGER_TIMESTAMPS - called from UNM_RemoveBadData to correct
+% shifts in the timestamps for particular periods.  This file simply contains
+% the periods that need to be shifted (identified by running
+% UNM_site_plot_fullyear_time_offsets and visually examining the plots it draws)
+% and calls shift_data to correct them.
 %   
 
 all_10hz = 1:74;  %column indices for 10 hz ("matlab") data
@@ -104,6 +108,10 @@ switch sitecode
         data( idx, : ) = shift_data( data( idx, : ), -3.5 );
         idx = DOYidx( 283.0 ) : DOYidx( 293.5 );
         data( idx, : ) = shift_data( data( idx, : ), -4.5 );
+        
+      case 2012
+        idx = DOYidx( 204 ) : DOYidx( 233 );
+        data( idx, : ) = shift_data( data( idx, : ), -2.0 );
     end
     
   case UNM_sites.MCon
