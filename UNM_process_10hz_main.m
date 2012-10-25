@@ -10,6 +10,7 @@ function [ result, all_data ] = UNM_process_10hz_main( sitecode, ...
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end )
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end, lag)
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end, ..., rotation)
+%    result = UNM_process_10hz_main( sitecode, t_start, t_end, ..., ts_data_dir)
 %    [ result, data ] = UNM_process_10hz_main( sitecode, t_start, t_end, ... )
 %
 %INPUTS
@@ -19,6 +20,8 @@ function [ result, all_data ] = UNM_process_10hz_main( sitecode, ...
 %    lag (integer): optional, 1 or 0 (default 0)
 %    rotation (sonic_rotation object): sonic_rotation.planar or 
 %        sonic_rotation.threeD (default threeD)
+%    ts_data_dir: directory containing the TOB1 files.  Defaults to
+%        $FLUXROOT/SITENAME/ts_data 
 %
 % OUTPUTS:
 %    result: 0 on success, non-zero on failure
@@ -39,6 +42,10 @@ p.addParamValue( 'lag', ...
 p.addParamValue( 'rotation', ...
                  sonic_rotation.threeD, ...
                  @( x ) isa( x, 'sonic_rotation' ) );
+p.addParamValue( 'ts_data_dir', ...
+                 [], ...
+                 @ischar );
+    
 % parse optional inputs
 p.parse( sitecode, t_start, t_end, varargin{ : } );
     
@@ -47,6 +54,7 @@ t_start = p.Results.t_start;
 t_end = p.Results.t_end;
 lag = p.Results.lag;
 rotation = p.Results.rotation;
+ts_data_dir = p.Results.ts_data_dir;
 
 % -----
 % if called with more than two output arguments, throw exception
@@ -85,12 +93,17 @@ for i = 1 : n_pds
     this_t_start = process_periods( i );
     this_t_end = process_periods( i + 1 );
 
+    if( isempty( ts_data_dir ) )
+        ts_data_dir = fullfile( get_site_directory( sitecode ), 'ts_data' );
+    end
+    
     % process 30-minute averages
     chunks_cell{ i } = process_TOB1_chunk( sitecode, ...
                                           this_t_start, ...
                                           this_t_end, ...
                                           lag, ...
-                                          rotation );
+                                          rotation, ...
+                                           ts_data_dir );
 
     if isempty( chunks_cell{ i } )
         chunks_cell( i ) = [];

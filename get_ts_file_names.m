@@ -1,4 +1,4 @@
-function fnames = get_ts_file_names( site, date_start, date_end )
+function fnames = get_ts_file_names( site, date_start, date_end, data_dir );
 % GET_TS_FILE_NAMES - returns the full paths of all TOB1 time series data files
 %   in the site's directory that contain data recorded between start_date and
 %   end_date
@@ -10,19 +10,19 @@ function fnames = get_ts_file_names( site, date_start, date_end )
 %   site: site name *string* -- e.g. GLand, MCon, etc.
 %   date_start: matlab datenum
 %   date_end: matlab datenum
+%   data_dir: path to the directory containing the TOB1 files 
 %
 % OUTPUTS
 %   fnames: cell array of file names (with full paths)
 %
 % (c) Timothy W. Hilton, UNM
 
-    data_dir = get_site_directory(get_site_code(site));
     if exist(data_dir) ~= 7
         error('get_ts_file_names:dir_not_found',...
               'the requested data directory does not exist');
     else
-        fnames = list_files( fullfile( data_dir, 'ts_data' ), ...
-                             'TOB1.*(\.DAT$|\.dat$)');
+        fnames = list_files( data_dir, ...
+                             'TOB1.*(\.DAT$|\.dat$)' );
     end
 
     %-----

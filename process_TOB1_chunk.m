@@ -1,4 +1,5 @@
-function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, rotation)
+function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, ...
+                                           rotation, ts_data_dir )
 % PROCESS_TOB1_CHUNK - process 10 hz data within a specified time window to
 % 30-minute averages.  Returns a matlab dataset, each row of which contains
 % the processed and averaged 10-hz data for a 30 minute window.  If no data
@@ -15,7 +16,8 @@ function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, rotati
     fprintf( 1, 'reading TOB1 files (%s - %s):\n\t', ...
              datestr( t_start, fmt ), datestr( t_end, fmt ) );
     
-    file_list = get_ts_file_names( get_site_name( sitecode ), t_start, t_end );
+    file_list = get_ts_file_names( get_site_name( sitecode ), t_start, t_end, ...
+                                                ts_data_dir );
 
     if isempty( file_list )
         ds_avg_30min = dataset( [] );

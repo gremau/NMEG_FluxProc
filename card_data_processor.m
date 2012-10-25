@@ -33,6 +33,12 @@ methods
     p.addParamValue( 'lag', ...
                      0, ...
                      @( x ) ismember( x, [ 0, 1 ] ) );
+    p.addParamValue( 'data_10hz_avg', ...
+                     dataset([]), ...
+                     @( x ) isa( x, 'dataset' ) );
+    p.addParamValue( 'data_30min', ...
+                     dataset([]), ...
+                     @( x ) isa( x, 'dataset' ) );
     args = p.parse( sitecode, varargin{ : } );
     
     % -----
@@ -43,8 +49,8 @@ methods
     obj.date_end = p.Results.date_end;
     obj.lag = p.Results.lag;
     obj.rotation = sonic_rotation( p.Results.rotation );
-    obj.data_10hz_avg = [];
-    obj.data_30min = [];
+    obj.data_10hz_avg = p.Results.data_10hz_avg;
+    obj.data_30min = p.Results.data_30min;
    
     % if start date not specified, default to 1 Jan of current year
     [ year, ~, ~, ~, ~, ~ ] = datevec( now() );
@@ -91,8 +97,10 @@ methods
     tstamps = cellfun( @get_TOA5_TOB1_file_date, tob1_files );
     obj.date_end = min( max( tstamps ), obj.date_end );
     
-    load( ['C:\Research_Flux_Towers\FluxOut\TOB1_data\' ...
-           'JSav_TOB1_2012_filled.mat'] )
+    fname = fullfile( 'C:\Research_Flux_Towers\FluxOut\TOB1_data\', ...
+                      sprintf( '%s_TOB1_2012_filled.mat', ...
+                               char( obj.sitecode ) ) );
+    load( fname );
     all_data.date = str2num( all_data.date );
     all_data = all_data( all_data.timestamp < obj.date_end, : );
     obj.data_10hz_avg = all_data;
@@ -117,21 +125,90 @@ methods
 
 % --------------------------------------------------
 
-    function obj = update_data( obj )
+    function obj = update_fluxall( obj, varargin )
+    
+
+    % -----
+    % parse and typecheck inputs
+    p = inputParser;
+    p.addRequired( 'obj', @( x ) isa( x, 'card_data_processor' ) );
+    p.addParamValue( 'parse_30min', false, @islogical );
+    p.addParamValue( 'parse_10hz', false, @islogical );
+    parse_result = p.parse( obj, varargin{ : } );
+    
+    obj = p.Results.obj;
+    parse_30min = p.Results.parse_30min; 
+    parse_10hz = p.Results.parse_10hz;
+    % -----
+    
+    % -----
+    % if obj has no new data, we must parse the TOA5 and TOB1 data files for
+    % the date range requested
+    if isempty( obj.data_10hz_avg )
+        parse_10hz = true;
+    end
+    
+    if isempty( obj.data_30min )
+        parse_30min = true;
+    end
+    % -----
     
     [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
     fprintf( '---------- parsing fluxall file ----------\n' );
-    flux_all = UNM_parse_fluxall_txt_file( obj.sitecode, year );
+    try
+        flux_all = UNM_parse_fluxall_txt_file( obj.sitecode, year );
+    catch err
+        % if flux_all file does not exist, build it starting 1 Jan
+        if strcmp( err.identifier, 'MATLAB:FileIO:InvalidFid' )
+            % complete the 'reading fluxall...' message from UNM_parse_fluxall
+            fprintf( 'not found.\nBuilding fluxall from scratch\n' );
+            flux_all = [];
+            obj.date_start = datenum( year, 1, 1 );
+        else
+            % display all other errors as usual
+            rethrow( err );
+        end
+    end
     
-    %obj.date_end = min( max( flux_all.timestamp ), now() );
-    
-    fprintf( '---------- concatenating 30-minute data ----------\n' );
-    [ obj, TOA5_files ] = get_30min_data( obj );
-    fprintf( '---------- processing 10-hz data ----------\n' );
-    obj = process_10hz_data( obj );
+    if parse_30min
+        fprintf( '---------- concatenating 30-minute data ----------\n' );
+        [ obj, TOA5_files ] = get_30min_data( obj );
+    end
+    if parse_10hz
+        fprintf( '---------- processing 10-hz data ----------\n' );
+        obj = process_10hz_data( obj );
+    end
         
     save( 'CDP_test_restart.mat' )
     
+    new_data = merge_data( obj );
+    
+    if isempty( flux_all )
+        flux_all = new_data;
+    else
+        flux_all = insert_new_data_into_fluxall( new_data, flux_all );
+    end
+    
+    % remove timestamp columns -- they're redundant (because there are
+    % already year, month, day, hour, min, sec columns), serial datenumbers
+    % aren't human-readable, and character string dates are a pain to parse
+    % in matlab
+    [ tstamp_cols, t_idx ] = regexp_ds_vars( flux_all, 'timestamp.*' );
+    flux_all( :, t_idx ) = [];
+    
+    fprintf( '---------- writing FLUX_all file ----------\n' );
+    write_fluxall( obj, flux_all );
+    
+    end   % update_data
+
+% --------------------------------------------------
+
+    function new_data = merge_data( obj )
+    % MERGE_DATA - merges the 10hz data and the datalogger data together
+    %   
+
+    [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
+
     % align 30-minute timestamps and fill in missing timestamps
     two_mins_tolerance = 2; % for purposes of joining averaged 10 hz and 30-minute
                             % data, treat 30-min timestamps within two mins of
@@ -147,24 +224,67 @@ methods
                                    two_mins_tolerance, ...
                                    obj.date_start, ...
                                    t_max );
+    % -----
+    % make sure time columns are complete (no NaNs)
     
-    new_data = horzcat( obj.data_30min, obj.data_10hz_avg );
-    flux_all = dataset_append_common_vars( flux_all, new_data );
+    % if 30-minute data extends later than the 10hx data, fill in the time
+    % columns 
+    [ y, mon, d, h, minute, s ] =  datevec( obj.data_10hz_avg.timestamp );
+    obj.data_10hz_avg.year = y;
+    obj.data_10hz_avg.month = mon;
+    obj.data_10hz_avg.day = d;
+    obj.data_10hz_avg.hour = h;
+    obj.data_10hz_avg.min = minute;
+    obj.data_10hz_avg.second = s;
+
+    % make sure all jday and 'date' values are filled in
+    obj.data_10hz_avg.jday = ( obj.data_10hz_avg.timestamp - ...
+                               datenum( year, 1, 0 ) );
+    obj.data_10hz_avg.date = ( obj.data_10hz_avg.month * 1e4 + ...
+                          obj.data_10hz_avg.day * 1e2 + ...
+                          mod( obj.data_10hz_avg.year, 1000 ) );
+    % -----
     
-    fprintf( '---------- writing FLUX_all file ----------\n' );
-    write_fluxall( obj, flux_all );
-    
-    end   % update_data
+    new_data = horzcat( obj.data_10hz_avg, obj.data_30min );
+
+end
+
 
 % --------------------------------------------------
 
     function write_fluxall( obj, fluxall_data )
+    % write fluxall data to a tab-delimited text fluxall file
+    % USAGE
+    %    obj.write_fluxall( fluxall_data )
+    
     [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
-    fname = sprintf( '%s_FLUX_all_%d_new.txt', char( obj.sitecode ), year );
+    t_str = datestr( now(), 'yyyymmdd_HHMM' );
+    fname = sprintf( '%s_FLUX_all_%d_%s.txt', ...
+                     char( obj.sitecode ), ...
+                     year, ...
+                     t_str );
     full_fname = fullfile( get_site_directory( obj.sitecode ), fname );
+
+    % write the headers 
     t0 = now();
-    export( fluxall_data, 'file', full_fname );
+    fid = fopen( full_fname, 'w' );
+    headers = replace_hex_chars( fluxall_data.Properties.VarNames );
+    fprintf( fid, '%s\t', headers{ : } );
+    fprintf( fid, '\n' );
+    fclose( fid );
+    
+    % replace NaNs with -9999
+    fluxall_dbl = double( fluxall_data );
+    fluxall_dbl( isnan( fluxall_dbl ) ) = -9999;
+
+    % write the data
+    dlmwrite( full_fname, ...
+              fluxall_dbl, ...
+              '-append', ...
+              'Delimiter', '\t' );
+
     t_elapsed = round( ( now() - t0 ) * 24 * 60 * 60 );
+
     fprintf( 'wrote %s (%d seconds)\n', full_fname, t_elapsed );
     end   % write_fluxall
 

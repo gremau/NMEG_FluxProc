@@ -41,6 +41,7 @@ function ds  = UNM_parse_fluxall_txt_file( sitecode, year )
     data = textscan( fid, ...
                      fmt, ...
                      'Delimiter', '\t' );
+    fclose( fid );
     data = cell2mat( data );
 
     %% replace -9999s with NaN using floating point test with tolerance of 0.0001

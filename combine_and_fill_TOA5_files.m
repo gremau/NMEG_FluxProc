@@ -59,11 +59,11 @@ non_dup_idx = find( diff( ts ) > one_minute );
 ds = ds( non_dup_idx, : );
 
 % to save to file, use e.g.:
-fprintf( 1, 'saving csv file\n' );
-idx = min( find( datenum(ds.timestamp(:))>= datenum( 2012, 1, 1)));
-tstamps_numeric = ds.timestamp;
-ds.timestamp = datestr( ds.timestamp, 'mm/dd/yyyy HH:MM:SS' );
-export(ds( idx:end, : ), 'FILE', ...
-       fullfile( get_out_directory(), 'combined_TOA5.csv' ), ...
-       'Delimiter', ',');
-ds.timestamp = tstamps_numeric;
+% fprintf( 1, 'saving csv file\n' );
+% idx = min( find( datenum(ds.timestamp(:))>= datenum( 2012, 1, 1)));
+% tstamps_numeric = ds.timestamp;
+% ds.timestamp = datestr( ds.timestamp, 'mm/dd/yyyy HH:MM:SS' );
+% export(ds( idx:end, : ), 'FILE', ...
+%        fullfile( get_out_directory(), 'combined_TOA5.csv' ), ...
+%        'Delimiter', ',');
+% ds.timestamp = tstamps_numeric;
