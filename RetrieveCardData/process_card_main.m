@@ -107,5 +107,40 @@ fprintf(1, 'Done transferring.\n');
 
 save( 'card_restart_01.mat' );
 
+% --------------------------------------------------
+% the data are now copied from the card and backed up.
 
+% merge the new data into the fluxall file
+fprintf(1, '\n----------\n');
+fprintf(1, 'merging new data into FLUXALL file...\n');
+dates = cellfun( @get_TOA5_TOB1_file_date, ts_data_fnames );...
+cdp = card_data_processor( UNM_sites( this_site ), ...
+                           'date_start', min( dates ), ...
+                           'date_end', max( dates ) + 1 );
+cdp.update_fluxall();
+
+% run RemoveBadData to create for gapfilling file, qc file.  
+fprintf(1, '\n----------\n');
+fprintf(1, 'starting UNM_RemoveBadData...\n');
+[ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
+UNM_RemoveBadData( UNM_sites( this_site ), year, 'draw_plots', false );
+
+% compare sunrise as measured by observed solar radiation to runrise as
+% calculated by solar angle
+fprintf(1, '\n----------\n');
+fprintf(1, 'make sure timestamps rise the sun at the correct time...\n');
+UNM_site_plot_fullyear_time_offsets( UNM_sites( this_site ), year );
+
+% fill missing temperature, PAR, relative humidity from nearby sites if
+% available.
+fprintf(1, '\n----------\n');
+fprintf(1, ['attempting to fill missing temperature, PAR, relative humidity ' ...
+            'from nearby sites...\n'] );
+UNM_fill_met_gaps_from_nearby_site( UNM_sites( this_site ), 2012, true );
+
+% run RemoveBadData again to check visually that the filters did OK
+fprintf(1, '\n----------\n');
+fprintf(1, 'starting UNM_RemoveBadData...\n');
+[ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
+UNM_RemoveBadData( UNM_sites( this_site ), year, 'draw_plots', true );
 

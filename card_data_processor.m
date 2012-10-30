@@ -6,6 +6,7 @@ properties
     lag;
     rotation;
     data_10hz_avg;
+    data_10hz_already_processed;
     data_30min;
 end
 
@@ -39,6 +40,9 @@ methods
     p.addParamValue( 'data_30min', ...
                      dataset([]), ...
                      @( x ) isa( x, 'dataset' ) );
+    p.addParamValue( 'data_10hz_already_processed', ...
+                     false, ...
+                     @islogical );
     args = p.parse( sitecode, varargin{ : } );
     
     % -----
@@ -51,7 +55,8 @@ methods
     obj.rotation = sonic_rotation( p.Results.rotation );
     obj.data_10hz_avg = p.Results.data_10hz_avg;
     obj.data_30min = p.Results.data_30min;
-   
+    obj.data_10hz_already_processed  = p.Results.data_10hz_already_processed;
+    
     % if start date not specified, default to 1 Jan of current year
     [ year, ~, ~, ~, ~, ~ ] = datevec( now() );
     if isempty( p.Results.date_start )
@@ -90,28 +95,30 @@ methods
 
     function obj = process_10hz_data( obj )
     
-    tob1_files = get_data_file_names( obj.date_start, ...
-                                      obj.date_end, ...
-                                      obj.sitecode, ...
-                                      'TOB1' );
-    tstamps = cellfun( @get_TOA5_TOB1_file_date, tob1_files );
-    obj.date_end = min( max( tstamps ), obj.date_end );
-    
-    fname = fullfile( 'C:\Research_Flux_Towers\FluxOut\TOB1_data\', ...
-                      sprintf( '%s_TOB1_2012_filled.mat', ...
-                               char( obj.sitecode ) ) );
-    load( fname );
-    all_data.date = str2num( all_data.date );
-    all_data = all_data( all_data.timestamp < obj.date_end, : );
-    obj.data_10hz_avg = all_data;
+    if obj.data_10hz_already_processed
+        tob1_files = get_data_file_names( obj.date_start, ...
+                                          obj.date_end, ...
+                                          obj.sitecode, ...
+                                          'TOB1' );
+        tstamps = cellfun( @get_TOA5_TOB1_file_date, tob1_files );
+        obj.date_end = min( max( tstamps ), obj.date_end );
+        
+        fname = fullfile( 'C:\Research_Flux_Towers\FluxOut\TOB1_data\', ...
+                          sprintf( '%s_TOB1_2012_filled.mat', ...
+                                   char( obj.sitecode ) ) );
+        load( fname );
+        all_data.date = str2num( all_data.date );
+        all_data = all_data( all_data.timestamp < obj.date_end, : );
+        obj.data_10hz_avg = all_data;
+    else
 
-    
-    % [ result, obj.data_10hz_avg ] = UNM_process_10hz_main( obj.sitecode, ...
-    %                                                   obj.date_start, ...
-    %                                                   obj.date_end, ...
-    %                                                   'lag', obj.lag, ...
-    %                                                   'rotation', obj.rotation);
-    
+        [ result, obj.data_10hz_avg ] = ...
+            UNM_process_10hz_main( obj.sitecode, ...
+                                   obj.date_start, ...
+                                   obj.date_end, ...
+                                   'lag', obj.lag, ...
+                                   'rotation', obj.rotation);
+    end        
     end  % process_10hz_data
 
 % --------------------------------------------------
@@ -181,6 +188,8 @@ methods
         
     save( 'CDP_test_restart.mat' )
     
+    fprintf( '---------- merging 30-min, 10-hz, and fluxall ----------\n' );
+    
     new_data = merge_data( obj );
     
     if isempty( flux_all )
@@ -210,12 +219,13 @@ methods
     [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
 
     % align 30-minute timestamps and fill in missing timestamps
-    two_mins_tolerance = 2; % for purposes of joining averaged 10 hz and 30-minute
+    two_mins_tolerance = 6.5; % for purposes of joining averaged 10 hz and 30-minute
                             % data, treat 30-min timestamps within two mins of
                             % each other as equal
     t_max = max( [ reshape( obj.data_30min.timestamp, [], 1 ); ...
                    reshape( obj.data_10hz_avg.timestamp, [], 1 ) ] );
 
+    save( 'cdp226.mat' );
     [ obj.data_30min, obj.data_10hz_avg ] = ...
         merge_datasets_by_datenum( obj.data_30min, ...
                                    obj.data_10hz_avg, ...
@@ -259,33 +269,20 @@ end
     
     [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
     t_str = datestr( now(), 'yyyymmdd_HHMM' );
-    fname = sprintf( '%s_FLUX_all_%d_%s.txt', ...
+    fname = sprintf( '%s_FLUX_all_%d.txt', ...
                      char( obj.sitecode ), ...
-                     year, ...
-                     t_str );
+                     year );
+    
+    if exist( fname )
+        bak_fname = regexprep( fname, '\.txt', '_bak.txt' );
+        fprintf( 'backing up %s to %s\n', fname, bak_fname );
+        [copy_success, msg, msgid] = copyfile(fname, dest_dir);
+    end
+    
     full_fname = fullfile( get_site_directory( obj.sitecode ), fname );
 
-    % write the headers 
-    t0 = now();
-    fid = fopen( full_fname, 'w' );
-    headers = replace_hex_chars( fluxall_data.Properties.VarNames );
-    fprintf( fid, '%s\t', headers{ : } );
-    fprintf( fid, '\n' );
-    fclose( fid );
+    export_dataset_tim( full_fname, fluxall_data, '\t' )
     
-    % replace NaNs with -9999
-    fluxall_dbl = double( fluxall_data );
-    fluxall_dbl( isnan( fluxall_dbl ) ) = -9999;
-
-    % write the data
-    dlmwrite( full_fname, ...
-              fluxall_dbl, ...
-              '-append', ...
-              'Delimiter', '\t' );
-
-    t_elapsed = round( ( now() - t0 ) * 24 * 60 * 60 );
-
-    fprintf( 'wrote %s (%d seconds)\n', full_fname, t_elapsed );
     end   % write_fluxall
 
 % --------------------------------------------------

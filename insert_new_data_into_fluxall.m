@@ -24,6 +24,9 @@ t_new_max = max( new_data.timestamp );
 % reason). 
 [ ~, idx_sort ] = sort( fluxall.timestamp );
 fluxall = fluxall( idx_sort, : );
+dup_tol = 0.00000001;  %floating point tolerance
+dup_idx = find( diff( fluxall.timestamp ) < dup_tol ) + 1;
+fluxall( dup_idx, : ) = [];
 
 idx_replace = find( ( fluxall.timestamp >= t_new_min ) & ...
                     ( fluxall.timestamp <= t_new_max ) );

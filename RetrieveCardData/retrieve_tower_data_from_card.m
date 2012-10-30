@@ -29,7 +29,7 @@ switch data_location
     %data_path = locate_drive( 'Removable Disk' );
     %% would like a more flexible way to 
     data_location = 'g:\'; 
-    tower_files = dir( fullfile( sprintf( '%c:', data_path ), ...
+    tower_files = dir( fullfile( sprintf( '%s', data_location ), ...
                                  '*.dat') );
   otherwise
     tower_files = dir( fullfile( data_location, '*.dat' ) );    

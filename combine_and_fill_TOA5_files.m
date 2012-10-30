@@ -39,7 +39,24 @@ for i = 1:nfiles
     end
     
     ds_array{ i } = toa5_2_dataset( fullfile( this_path, filename{ i } ) );
+    
+    toks = regexp( filename{ i }, '_', 'split' );
+    % deal with the two sites that have an '_' in the sitename
+    if any( strcmp( toks{ 3 }, { 'girdle', 'GLand' }  ) )
+        sitecode = UNM_sites.( [ toks{ 2 }, '_', toks{ 3 } ] );
+        year = str2num( toks{ 4 } );
+    else
+        sitecode = UNM_sites.( toks{ 2 } );
+        year = str2num( toks{ 3 } );
+    end
+    ds_array{ i } = UNM_assign_soil_data_labels( sitecode, ...
+                                                 year, ...
+                                                 ds_array{ i } );
+    
 end
+
+
+
 
 % combine ds_array to single dataset
 ds = dataset_append_common_vars( ds_array{ : } );

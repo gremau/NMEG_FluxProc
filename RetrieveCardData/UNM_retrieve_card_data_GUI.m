@@ -76,7 +76,7 @@ function UNM_retrieve_card_data_GUI(varargin)
         pause( initial_pause_status ); %reset pause state to where it was
         
         fprintf( 1, '\nProcessing card for %s\n', this_site );
-        process_card_main( this_site );
+        process_card_main( selected_site_num );
         
         
     end
