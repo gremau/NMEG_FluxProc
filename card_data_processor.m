@@ -281,7 +281,7 @@ end
         [copy_success, msg, msgid] = copyfile( full_fname, bak_fname );
     end
 
-    export_dataset_tim( full_fname, fluxall_data, '\t' )
+    export_dataset_tim( full_fname, fluxall_data )
     
     end   % write_fluxall
 

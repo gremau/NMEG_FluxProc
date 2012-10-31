@@ -481,7 +481,7 @@ switch sitecode
         fluxall( :, 162:197 ) = [];
         fluxall = [ fluxall, preJul09, postJul09 ];
         
-      case { 2010, 2011 }
+      case { 2010, 2011, 2012 }
         % echo SWC probes
         vars = fluxall.Properties.VarNames;
         [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'SWC.*' );
