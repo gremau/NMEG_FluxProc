@@ -1,4 +1,4 @@
-function h_fig = plots_for_PJgirdle_report_15Oct2012()
+function plots_for_PJgirdle_report_15Oct2012()
 % PLOTS_FOR_PJGIRDLE_REPORT_15OCT2012
 %   
 
@@ -15,7 +15,6 @@ load( fullfile( getenv( 'FLUXROOT' ), ...
                 'FluxOut', 'BinaryData', 'JSav_all_gapfilled.mat' ) );
 jsav = this_data;
 
-
 pj( pj.timestamp < datenum( 2009, 1, 1 ), : ) = [];
 pjg( pjg.timestamp < datenum( 2009, 1, 1 ), : ) = [];
 jsav( jsav.timestamp < datenum( 2009, 1, 1 ), : ) = [];
@@ -28,59 +27,69 @@ pj_d = get_daily( pj, 'NEEg' );
 pjg_d = get_daily( pjg, 'NEEg' );
 jsav_d = get_daily( jsav, 'NEEg' );
 
-h_cumu = plot_cumulative( pj_d, pjg_d, jsav_d );
-figure_2_eps( h_cumu, fullfile( getenv( 'PLOTS' ), 'PJ_PJg_JSav_Cumu_NEE.eps' ) );
+% -----
+% draw the plots
 
-% h_Re_GPP_ratio = plot_Re_GPP_ratio( pj, pjg  );
-% figure_2_eps( h_Re_GPP_ratio, ...
-%               fullfile( getenv( 'PLOTS' ), 'PJ_PJg_RE_GPP_ratio.eps' ) );
+% h_fluxes = plot_PJ_PJg_C_fluxes( pj, pjg );
+% figure_2_eps( h_fluxes, fullfile( getenv( 'PLOTS' ), 'PJ_PJg_fluxes.eps' ) );
 
-% h_fig = figure();
+% h_cumu = plot_cumulative( pj_d, pjg_d, jsav_d );
+% figure_2_eps( h_cumu, fullfile( getenv( 'PLOTS' ), 'PJ_PJg_JSav_Cumu_NEE.eps' ) );
 
-% % -----
-% % NEE plot
+h_Re_GPP_ratio = plot_Re_GPP_ratio( pj, pjg  );
+figure_2_eps( h_Re_GPP_ratio, ...
+              fullfile( getenv( 'PLOTS' ), 'PJ_PJg_RE_GPP_ratio.eps' ) );
 
-% pj.NEEg = umolPerSecPerM2_2_gcPerMSq( pj.FC );
-% pjg.NEEg = umolPerSecPerM2_2_gcPerMSq( pjg.FC );
+% --------------------------------------------------
+function h_fig = plot_PJ_PJg_C_fluxes( pj, pjg )
+% PLOT_PJ_PJG_C_FLUXES - 
+%   
 
-% pj_d = get_daily( pj, 'NEEg' );
-% pjg_d = get_daily( pjg, 'NEEg' );
 
-% ax_NEE = subplot( 3, 1, 1 );
-% plot_site_fluxes( pj_d, pjg_d, ax_NEE );
-% ylabel( 'NEE (gC / m^{-2} / d^{-1} )' );
-% ylim( [ -3, 3 ] );
-% legend( 'off' );
+h_fig = figure();
 
-% % -----
-% % GPP plot
-% pj.GPPg = umolPerSecPerM2_2_gcPerMSq( pj.GPP );
-% pjg.GPPg = umolPerSecPerM2_2_gcPerMSq( pjg.GPP );
+% -----
+% NEE plot
 
-% pj_d = get_daily( pj, 'GPPg' );
-% pjg_d = get_daily( pjg, 'GPPg' );
+pj.NEEg = umolPerSecPerM2_2_gcPerMSq( pj.FC );
+pjg.NEEg = umolPerSecPerM2_2_gcPerMSq( pjg.FC );
 
-% ax_GPP = subplot( 3, 1, 2 );
-% plot_site_fluxes( pj_d, pjg_d, ax_GPP );
-% ylabel( 'GPP (gC / m^{-2} / d^{-1} )' );
-% ylim( [ 0, 7 ] );
+pj_d = get_daily( pj, 'NEEg' );
+pjg_d = get_daily( pjg, 'NEEg' );
 
-% % -----
-% % RE plot
-% pj.REg = umolPerSecPerM2_2_gcPerMSq( pj.RE );
-% pjg.REg = umolPerSecPerM2_2_gcPerMSq( pjg.RE );
+ax_NEE = subplot( 3, 1, 1 );
+plot_site_fluxes( pj_d, pjg_d, ax_NEE );
+ylabel( 'NEE (gC / m^{-2} / d^{-1} )' );
+ylim( [ -3, 3 ] );
+legend( 'off' );
 
-% pj_d = get_daily( pj, 'REg' );
-% pjg_d = get_daily( pjg, 'REg' );
+% -----
+% GPP plot
+pj.GPPg = umolPerSecPerM2_2_gcPerMSq( pj.GPP );
+pjg.GPPg = umolPerSecPerM2_2_gcPerMSq( pjg.GPP );
 
-% ax_RE = subplot( 3, 1, 3 );
-% plot_site_fluxes( pj_d, pjg_d, ax_RE );
-% ylabel( 'RE (gC / m^{-2} / d^{-1} )' );
-% ylim( [ 0, 7 ] );
-% xlabel( 'year' );
+pj_d = get_daily( pj, 'GPPg' );
+pjg_d = get_daily( pjg, 'GPPg' );
 
-% %set( h_fig, 'Units', 'inches', 'Position', [ 0, 0, 6, 4 ] );
-% figure_2_eps( h_fig, fullfile( getenv( 'PLOTS' ), 'PJ_PJg_fluxes.eps' ) );
+ax_GPP = subplot( 3, 1, 2 );
+plot_site_fluxes( pj_d, pjg_d, ax_GPP );
+ylabel( 'GPP (gC / m^{-2} / d^{-1} )' );
+ylim( [ 0, 7 ] );
+
+% -----
+% RE plot
+pj.REg = umolPerSecPerM2_2_gcPerMSq( pj.RE );
+pjg.REg = umolPerSecPerM2_2_gcPerMSq( pjg.RE );
+
+pj_d = get_daily( pj, 'REg' );
+pjg_d = get_daily( pjg, 'REg' );
+
+ax_RE = subplot( 3, 1, 3 );
+plot_site_fluxes( pj_d, pjg_d, ax_RE );
+ylabel( 'RE (gC / m^{-2} / d^{-1} )' );
+ylim( [ 0, 7 ] );
+xlabel( 'year' );
+
 
 % --------------------------------------------------
 function daily = get_daily( data, fld )
@@ -102,7 +111,7 @@ flux_d( ( doy == 366 ) & not( isleapyear( yr ) ) ) = [];
 
 daily = dataset( { [ reshape( tstamp, [], 1 ), ...
                     reshape( flux_d, [], 1 ) ], ...
-                   'date', 'NEE' } );
+                   'date', 'flux' } );
 
 % --------------------------------------------------
 function plot_site_fluxes( pj, pjg, ax, col )
@@ -114,16 +123,16 @@ dark_grey = [ 100, 100, 100 ] / 255;
 
 hold( ax, 'on' );
 
-h_pj = plot( ax, pj.date, pj.NEE, '.' );
+h_pj = plot( ax, pj.date, pj.flux, '.' );
 set( h_pj, 'MarkerSize', 8, 'MarkerEdgeColor', grey );
 
-h_line = plot( ax, pj.date, running_mean( pj.NEE, 7 ), '-' );
+h_line = plot( ax, pj.date, running_mean( pj.flux, 7 ), '-' );
 set( h_line, 'Color', grey );
 
-h_pjg = plot( ax, pjg.date, pjg.NEE, '.' );
+h_pjg = plot( ax, pjg.date, pjg.flux, '.' );
 set( h_pjg, 'MarkerSize', 8, 'MarkerEdgeColor', 'black' );
 
-h_line = plot( ax, pjg.date, running_mean( pjg.NEE, 7 ), '-' );
+h_line = plot( ax, pjg.date, running_mean( pjg.flux, 7 ), '-' );
 set( h_line, 'Color', 'black' );
 
 datetick( ax, 'x' );
@@ -173,11 +182,10 @@ t_girdle = datenum( 2009, 9, 1 );
 idx0 = min( find( pj_d.date >= t_min ) );
 idxg = min( find( pj_d.date >= t_girdle ) );
 
-pj_d.NEE( idx0 : idxg ) = ...
-    ( pj_d.NEE( idx0 : idxg ) * 1.33735165150817 ) - 0.0706699297513139; 
+pj_d.flux = ( pj_d.flux * 1.33735165150817 ) - 0.0706699297513139; 
 
 h_pj = plot( pj_d.date( idx0:end ), ...
-             cumsum( pj_d.NEE( idx0:end ) ) );
+             cumsum( pj_d.flux( idx0:end ) ) );
 set( h_pj, 'LineStyle', '--', 'Color', 'black', 'LineWidth', 2 );
 hold on;
 
@@ -185,17 +193,17 @@ hold on;
 % PJ girdle
 idx0 = min( find( pjg_d.date >= t_min ) );
 h_pjg = plot( pj_d.date( idx0 : end ), ...
-              cumsum( pjg_d.NEE( idx0 : end ) ) );
+              cumsum( pjg_d.flux( idx0 : end ) ) );
 set( h_pjg, 'LineStyle', '-', 'Color', grey , 'LineWidth', 2 );
 
 % -----
 % JSav
 idx_pjg = min( find( jsav_d.date >= datenum( 2009, 9, 1 ) ) );
-pjg_adjustment = nansum( pjg_d.NEE( idx0:idx_pjg ) );
+pjg_adjustment = nansum( pjg_d.flux( idx0:idx_pjg ) );
 
 idx0 = min( find( jsav_d.date >= datenum( 2009, 9, 1 ) ) );
 h_jsav = plot( jsav_d.date( idx0 : end ), ...
-               cumsum( jsav_d.NEE( idx0 : end ) ) + pjg_adjustment );
+               cumsum( jsav_d.flux( idx0 : end ) ) + pjg_adjustment );
 set( h_jsav, 'LineStyle', '-', 'Color', 'black' , 'LineWidth', 2 );
 
 % -----
@@ -241,29 +249,42 @@ pjg_GPPd = get_daily( pjg, 'GPPg' );
 % -----
 % plot the data
 
-h_fig = figure();
-ax = axes();
+pal = cbrewer( 'qual', 'Dark2', 3 );
 
-grey = [ 190, 190, 190 ] / 255;
+h_fig = figure( 'Units', 'Normalized' );
+pos = get( h_fig, 'Position' );
+pos( 4 ) = pos( 4 ) / 2;
+set( h_fig, 'Position', pos );
 
-ratio = pj_REd.NEE ./ pj_GPPd.NEE;
+% ax2 = subplot( 'Position', [ 0.65, 0.1, 0.2, 0.8 ] );
+% ax1 = subplot( 'Position', [ 0.1, 0.1, 0.6, 0.8 ] );
+ax1 = axes();
 
-h_pj = plot( pj_REd.date, ratio, '.', ...
-             'MarkerEdgeColor', grey, 'MarkerSize', 8 );
-hold( ax, 'on' );
+grey = [ 120, 120, 120 ] / 255;
 
-h_line = plot( ax, pj_REd.date, running_mean( ratio, 7 ), '-' );
-set( h_line, 'Color', grey );
+ratio = pj_REd.flux ./ pj_GPPd.flux;
+ratio( ratio > 10 ) = NaN;
 
-ratio = pjg_REd.NEE ./ pjg_GPPd.NEE;
+h_pj = plot( pj_REd.date, ratio, ...
+             'Marker', '.', ...
+             'LineStyle', 'None', ...
+             'MarkerEdgeColor', 'blue', ...
+             'MarkerSize', 10 );
+hold( ax1, 'on' );
+
+h_line = plot( ax1, pj_REd.date, running_mean( ratio, 7 ), '-' );
+set( h_line, 'Color', 'blue' );
+
+ratio = pjg_REd.flux ./ pjg_GPPd.flux;
+ratio( ratio > 10 ) = NaN;
 h_pjg = plot( pjg_REd.date, ratio, '.', ...
-              'MarkerEdgeColor', 'black', 'MarkerSize', 8 );
+              'MarkerEdgeColor', 'red', 'MarkerSize', 10 );
 
-h_line = plot( ax, pjg_REd.date, running_mean( ratio, 7 ), '-' );
-set( h_line, 'Color', 'black' );
+h_line = plot( ax1, pjg_REd.date, running_mean( ratio, 7 ), '-' );
+set( h_line, 'Color', 'red' );
 
-datetick( ax, 'x', 'mmm yyyy' );
-ylim( ax, [ 0, 15 ] );
+datetick( ax1, 'x', 'mmm yyyy' );
+ylim( ax1, [ 0, 4.5 ] );
 xlim( [ datenum( 2009, 3, 15 ), datenum( 2012, 6, 10 ) ] );
 
 xlabel( 'date' );
@@ -273,4 +294,5 @@ legend( [ h_pj, h_pjg ], ...
         { 'control', 'manipulation' }, ...
         'Location', 'best');
 
+h_line = refline( 0, 1 );
 
