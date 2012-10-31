@@ -88,7 +88,7 @@ switch sitecode
 
   case UNM_sites.PJ
     switch year
-      case { 2009, 2010, 2011 }
+      case { 2009, 2010, 2011, 2012 }
         data = shift_data( data, 1.0 );
         data = shift_data( data, 0.5, 'cols_to_shift', all_10hz );
     end
@@ -145,6 +145,22 @@ switch sitecode
         idx = DOYidx( 12.0 ) : DOYidx( 48.0 );
         data( idx, : ) = shift_data( data( idx, : ),  2.5, ...
                                      'cols_to_shift', col_idx );
+        
+      case 2012
+        col_idx = 1:size( data, 2 );
+        idx = DOYidx( 133 ) : DOYidx( 224.0 );
+        data( idx, : ) = shift_data( data( idx, : ), 4.5, ...
+                                     'cols_to_shift', col_idx );
+        
+        % compensate for the 11 Aug 2012 datalogger clock reset so that the clock would
+        % match the Ameriflux tech's clock.  From Skyler: "I swapped the card
+        % beforehand then changed the clock from Aug 11, 2012 20:54 to Aug 11,
+        % 2012 17:10."
+        Aug11_1710 = datenum( 2012, 8, 11, 17, 10, 0 ) - datenum( 2012, 1, 0 );
+        idx = DOYidx( Aug11_1710 );
+        data( idx:end, : ) = shift_data( data( idx:end, : ), 4.5, ...
+                                     'cols_to_shift', col_idx );
+
     end
 
   case UNM_sites.TX
@@ -164,6 +180,11 @@ switch sitecode
       case 2011
         data = shift_data( data,  1.0 );
         data = shift_data( data, 0.5, 'cols_to_shift', all_10hz );
+      case 2012
+        idx = 1 : DOYidx( 103 );
+        data( idx, : ) = shift_data( data( idx, : ), 1.0 );
+        idx = DOYidx( 104 ) : DOYidx( 220 );
+        data( idx, : ) = shift_data( data( idx, : ), 2.0 );
     end
 
 end

@@ -1,6 +1,4 @@
-function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
-                                                      draw_plots, ...
-                                                      linfit )
+function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, varargin )
 % UNM_FILL_MET_GAPS_FROM_NEARBY_SITE - fills gaps in site's meteorological data
 %   from the closest nearby site
 %
@@ -11,7 +9,8 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
 % INPUTS
 %     sitecode [ integer ]: code of site to be filled
 %     year [ integer ]: year to be filled
-%     draw_plots [ logical ]: if true, plot observed and filled T, Rg, RH
+%     draw_plots [ logical ]: if true, plot observed and filled T, Rg, RH.
+%         Default is true
 %     linfit [ logical ]: if true, use a linear regression model to fill from
 %                            the nearby Rg rather than a simple replacement.  If
 %                            1x3 logical array, turns regression on/off for T,
@@ -22,6 +21,25 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
 %
 % (c) Timothy W. Hilton, UNM, March 2012
   
+% -----
+% define optional inputs, with defaults and typechecking
+% -----
+[ this_year, ~, ~ ] = datevec( now() );
+args = inputParser;
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'year', ...
+                  @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
+args.addParamValue( 'draw_plots', true, ...
+                    @(x) ( islogical( x ) & numel( x ) == 1 ) );
+args.parse( sitecode, year, varargin{ : } );
+% -----
+
+sitecode = args.Results.sitecode;
+year = args.Results.year;
+draw_plots = args.Results.draw_plots;
+
+linfit = specify_site_linfits( sitecode );
+
 if isintval( sitecode )
     sitecode = UNM_sites( sitecode )
 else
@@ -44,10 +62,20 @@ this_data = parse_forgapfilling_file( sitecode, year, filled_file_false );
 % parse data with which to fill T & RH
                 
 switch sitecode    
-  case UNM_sites.GLand    % fill GLand from SLand, then Sev Deep Well station (# 40)
-    fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
-             get_site_name( 2 ), year );  %
-    nearby_data = parse_forgapfilling_file( 2, year, filled_file_false );
+  case UNM_sites.GLand    % fill GLand from SLand, then Sev Deep Well station
+                          % (# 40)
+    try
+        fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
+                 get_site_name( 2 ), year );  %
+        nearby_data = parse_forgapfilling_file( 2, year, filled_file_false );
+    catch err
+        if strcmp( err.identifier, 'MATLAB:FileIO:InvalidFid' )
+            error( ['unable to open SLand for gapfill file -- cannot fill ' ...
+                    'GLand'] );
+            rethrow( err )
+        end
+    end
+        
     if ( year < 2011 )  
         % no sev met data available for 2011 yet - TWH 21 May 2012
         nearby_2 = UNM_parse_sev_met_data( year );
@@ -179,7 +207,7 @@ outfile = fullfile( get_site_directory( sitecode ), ...
                              get_site_name( sitecode ), year ) );
 fprintf( 'writing %s\n', outfile );
 this_data.timestamp = [];
-export( this_data, 'file', outfile );
+export_dataset_tim( outfile, this_data );
 %export( this_data( :, 2:end ), 'file', outfile );
 
 result = 0;
@@ -367,3 +395,19 @@ function result = linfit_var2( x, y, idx )
     result = x;
     result( idx ) = ( x( idx ) * linfit( 1 ) ) + linfit( 2 );
     
+function linfit = specify_site_linfits( sitecode )
+% SPECIFY_SITE_LINFITS - defines which variables (temp, relative humidity, and
+%   PAR) to perform a regression for data from a nearby site
+
+switch sitecode
+  case { UNM_sites.GLand, UNM_sites.SLand, ...
+         UNM_sites.PJ, UNM_sites.PJ_girdle }
+    linfit = [ false false false ];
+  case UNM_sites.JSav
+    linfit = [ true true true ];
+  case { UNM_sites.PPine, UNM_sites.MCon }
+    linfit = [ false false true ];
+  otherwise
+    error( sprintf( 'Not implemented for %s\n', char( sitecode ) ) );
+end
+

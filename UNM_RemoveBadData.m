@@ -200,7 +200,7 @@ obs_per_day = 48;  % half-hourly observations
         h2o_max = 30; h2o_min = 0;
         press_min = 70; press_max = 130;
         
-    elseif sitecode == TX_grassland;
+    elseif sitecode == UNM_sites.TX_grass;
         ustar_lim = 0.11;
         n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -229,7 +229,7 @@ obs_per_day = 48;  % half-hourly observations
         co2_min_by_month = -10; 
         co2_max_by_month = [ 1, 1.5, 2, 2, 2, 2, 2, repmat( 6, 1, 5 ) ];
 
-    elseif sitecode == UNM_sites.New_Gland; % new Grassland
+    elseif sitecode == UNM_sites.New_GLand; % new Grassland
         ustar_lim = 0.06;
         n_SDs_filter_hi = 4.5; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -503,17 +503,12 @@ obs_per_day = 48;  % half-hourly observations
         SHF_labels = headertext( SHF_idx );
         SHF_labels = regexprep( SHF_labels, 'hfp01_(.*)', 'SHF_$1');
 
-    elseif sitecode == 2 %SLand   added TWH, 4 Nov 2011
-        for i=1:ncol;
-            if strcmp( 'shf_sh_1_Avg', headertext( i ) ) == 1
-                soil_heat_flux_1 = data(:,i-1);
-            end    
-            if strcmp( 'shf_sh_2_Avg', headertext( i ) ) == 1
-                soil_heat_flux_2 = data(:,i-1);
-            end
-        end
-        SHF_labels = { 'shf_sh_1_Avg', 'shf_sh_2_Avg' };
-        soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_1 ];
+    elseif sitecode == 2 %SLand   changed TWH, 30 Oct 2012
+        % regular expression to identify SHF variables
+        re_SHF = '.*([Ss][Hh][Ff]).*|.*([Hh][Ff][Pp]).*';
+        SHF_idx = find( ~cellfun( @isempty, regexp( headertext, re_SHF ) ) );
+        SHF_labels = headertext( SHF_idx );
+        soil_heat_flux = data( :, SHF_idx );
 
     elseif sitecode == 3 %JSav   added TWH, 7 May 2012
         SHF_cols = find( ~cellfun( @isempty, regexp( headertext, 'shf_Avg.*' ) ) );
@@ -713,7 +708,7 @@ obs_per_day = 48;  % half-hourly observations
             % estimate par from sw_incoming
             Par_Avg(find(decimal_day < 150.729)) = sw_incoming(find(decimal_day < 150.729)).*2.0292 + 3.6744;
             
-        elseif any( intersect ( year_arg, 2008:2011 ) )
+        elseif year_arg > 2007
             % calibration and unit conversion into W per m^2 for CNR1 variables
             % adjust for program error and convert into W per m^2
             sw_incoming = sw_incoming./136.99.*(1000./12.34);
@@ -893,6 +888,8 @@ obs_per_day = 48;  % half-hourly observations
             NR_lw = lw_incoming - lw_outgoing;
             NR_sw = sw_incoming - sw_outgoing;
             NR_tot = NR_lw + NR_sw;
+        else
+            error( 'radition not implemented for year %d', year_arg );
         end
         
     elseif sitecode == 8 
@@ -902,6 +899,8 @@ obs_per_day = 48;  % half-hourly observations
         if year == 2009
             Par_Avg(find(Par_Avg > 13.5)) = NaN;
             Par_Avg = Par_Avg.*1000./(6.16.*0.604);
+        else
+            error( 'radition not implemented for year %d', year_arg );
         end
         NR_lw = lw_incoming - lw_outgoing;
         NR_sw = sw_incoming - sw_outgoing;
@@ -1205,7 +1204,8 @@ obs_per_day = 48;  % half-hourly observations
         
         [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
           HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
-          sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, rH ] = ...
+          sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, ...
+          rH, Par_Avg ] = ...
             remove_specific_problem_periods( sitecode, year_arg, ...
                                              fc_raw_massman_wpl, ...
                                              E_wpl_massman, ...
@@ -1221,7 +1221,7 @@ obs_per_day = 48;  % half-hourly observations
                                              lw_incoming, ...
                                              lw_outgoing, ...
                                              precip, ...
-                                             rH );
+                                             rH, Par_Avg );
 
         [ DOY_co2_min, DOY_co2_max ] = get_daily_maxmin( month, ...
                                                          co2_min_by_month, ...
@@ -1716,7 +1716,9 @@ obs_per_day = 48;  % half-hourly observations
                                        shift_t_str );
     end
     
+    filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );
     if write_gap_filling_out_file
+        Tsoil=ones(size(qc)).*-999;
         if (sitecode>7 && sitecode<10) % || 9);
             disp('writing gap-filling file...')
             header = {'day' 'month' 'year' 'hour' 'minute' ...
@@ -1903,10 +1905,12 @@ obs_per_day = 48;  % half-hourly observations
                            rH, Par_Avg, sw_incoming, sw_outgoing, lw_incoming, ...
                            lw_outgoing,NR_sw,NR_lw,NR_tot];
         end
-
-        outfilename_csv = strcat( outfolder, filename, '_qc.txt' );
+        
+        outfilename_csv = fullfile( outfolder, ...
+                                    sprintf( '%s_qc.txt', filename ) );
         out_data = dataset( { datamatrix2, header2{ 2:end } } );
-        export( out_data, 'file', outfilename_csv );
+        export_dataset_tim( outfilename_csv, out_data );
+        %export( out_data, 'file', outfilename_csv );
 
         if iteration > 4
             
@@ -2067,7 +2071,8 @@ function [ doy_min, doy_max ] = get_daily_maxmin( data_month, ...
 
 function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
            HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
-           sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, rH ] = ...
+           sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, ...
+           rH, Par_Avg ] = ...
     remove_specific_problem_periods( sitecode, year, ...
                                      fc_raw_massman_wpl, ...
                                      E_wpl_massman, ...
@@ -2082,7 +2087,9 @@ function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
                                      sw_outgoing, ...
                                      lw_incoming, ...
                                      lw_outgoing, ...
-                                     precip, rH )
+                                     precip, ...
+                                     rH, ...
+                                     Par_Avg )
 
 % Helper function for UNM_RemoveBadData (RBD for short).  Specifies periods
 % where various flux observations did not activate any of the RBD filters,
@@ -2224,6 +2231,12 @@ switch sitecode
         % met station (Redondo-Redonito) shows none.  
         precip( DOYidx( 80 ):DOYidx( 81 ) ) = 0.0;
         precip( DOYidx( 309 ):DOYidx( 310 ) ) = 0.0;
+      case 2012
+        idx = DOYidx( 254.5 ) : min( DOYidx( 263.7 ), numel( NR_tot ) );
+        NR_tot( idx ) = NaN;
+        sw_incoming( idx ) = NaN;
+        sw_outgoing( idx ) = NaN;
+        Par_Avg( DOYidx( 101 ) : DOYidx( 160 ) ) = NaN;
     end
     
   case UNM_sites.New_GLand
@@ -2292,6 +2305,8 @@ switch sitecode
         DOY_co2_max( DOYidx( 261 ) : end ) = 2.0;
         DOY_co2_max( DOYidx( 250 ) : DOYidx( 260 ) ) = 0.8;
         DOY_co2_max( DOYidx( 280 ) : DOYidx( 285 ) ) = 1.2;
+      case 2012
+        DOY_co2_min( DOYidx( 100 ) : DOYidx( 150 ) ) = -2.5;
     end %GLand
 
   case UNM_sites.SLand
@@ -2530,6 +2545,9 @@ end
 if ( sitecode == 1 ) & ( year(1) == 2011 )
     co2_conc_filter_exceptions( DOYidx( 153 ) : DOYidx( 160 ) ) = true;
 end 
+if ( sitecode == 1 ) & ( year == 2012 )
+    co2_conc_filter_exceptions( DOYidx( 78 ) : DOYidx( 94 ) ) = true;
+end
 if ( sitecode == 2 ) & ( year == 2007 )
     % days 253:257 -- bogus [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 253 ) : DOYidx( 257 ) ) = true;
@@ -2539,6 +2557,9 @@ if ( sitecode == 3 ) & ( year(1) == 2011 )
 end 
 if ( sitecode == 4 ) & ( year(1) == 2011 )
     co2_conc_filter_exceptions( DOYidx( 358  ) : end ) = true;
+end 
+if ( sitecode == 4 ) & ( year(1) == 2012 )
+    co2_conc_filter_exceptions( 1 : DOYidx( 10 ) ) = true;
 end 
 if (sitecode == 5 ) & ( year == 2007 )
     % days 290:335 -- bogus [CO2] but fluxes look ok

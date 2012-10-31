@@ -16,8 +16,8 @@ end
 % search a +/- five hour range of potential time offsets
 n_obs = 10; % observation interval is 30 mins; therefore 10 obs = 5 hours
 
-this_rad = rad( idx_doy_start : idx_doy_start + hours_12 );
-this_sol = sol( idx_doy_start : idx_doy_start + hours_12 );
+this_rad = rad( idx_doy_start : min( idx_doy_start + hours_12, numel( rad ) ) );  
+this_sol = sol( idx_doy_start : min( idx_doy_start + hours_12, numel( sol ) ) );
 
 % if any( diff( this_sol ) < 0 )
 %     warning( sprintf( 'solar angle is not monotonically increasing: doy %d', ...
