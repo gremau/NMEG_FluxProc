@@ -138,7 +138,7 @@ UNM_site_plot_fullyear_time_offsets( UNM_sites( this_site ), year );
 fprintf(1, '\n----------\n');
 fprintf(1, ['attempting to fill missing temperature, PAR, relative humidity ' ...
             'from nearby sites...\n'] );
-UNM_fill_met_gaps_from_nearby_site( UNM_sites( this_site ), 2012, true );
+UNM_fill_met_gaps_from_nearby_site( UNM_sites( this_site ), 2012 );
 
 % run RemoveBadData again to check visually that the filters did OK
 fprintf(1, '\n----------\n');

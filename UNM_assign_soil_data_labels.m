@@ -61,7 +61,8 @@ switch sitecode
           case { 2009, 2010, 2011 }
             % these SHF variables are labeled "hfp01_COVER_Avg" -- reformat these to
             % SHF_COVER_1       
-            SHF_vars = regexprep( SHF_vars, 'hfp01', 'SHF' );
+            SHF_vars = regexprep( SHF_vars, 'hfp(01)?', 'SHF' );
+            SHF_vars = regexprep( SHF_vars, '([0-9])_Avg', '$1' );
             SHF_vars = regexprep( SHF_vars, '_Avg', '_1' );
             fluxall.Properties.VarNames( idx_SHF ) = SHF_vars;
         end

@@ -86,11 +86,9 @@ function ds = toa5_2_dataset( fname )
     
     % was genvarnames, not clean_up_varnames -- TWH
     var_names = clean_up_varnames( var_names( 2:end ) );
-        
-    ds = dataset( { data, var_names{ : } } );
+
+    ds = dataset( { data, var_names{ : } } );    
     ds.Properties.Units = var_units( 2:end );
     % add timestamp
     ds.timestamp = dn;
-    
-    
     

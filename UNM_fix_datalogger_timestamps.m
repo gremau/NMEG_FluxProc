@@ -46,6 +46,8 @@ switch sitecode
       case 2011
         data = shift_data( data, 1.0 );
         data = shift_data( data, 0.5, 'cols_to_shift', all_10hz );
+      case 2012
+        data = shift_data( data, 1.0 );
     end
 
   case UNM_sites.SLand
