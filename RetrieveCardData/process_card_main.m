@@ -102,6 +102,8 @@ fprintf(1, 'Done compressing\n');
 % transfer the compressed raw data to edac
 fprintf(1, '\n----------\n');
 fprintf(1, 'transfering compressed raw data to edac...\n');
+h = msgbox( 'click to begin FTP transfer', '' );
+waitfor( h );
 transfer_2_edac(this_site, sprintf('%s.7z', raw_data_dir))
 fprintf(1, 'Done transferring.\n');
 
