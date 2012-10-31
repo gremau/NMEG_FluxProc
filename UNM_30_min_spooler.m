@@ -285,7 +285,7 @@ elseif sitecode == 9 % TX_grassland
         UNM_30min_flux_processor_071610(9,2009,13033,16894);
     end
     
-elseif sitecode == 10 % PJ_control
+elseif sitecode == 10 % PJ_girdle
     if year == 2010
         UNM_30min_flux_processor_071610(10,2010,1309,1322);
         UNM_30min_flux_processor_071610(10,2010,1340,1353);
@@ -296,7 +296,8 @@ elseif sitecode == 10 % PJ_control
       %UNM_30min_flux_processor_071610(10,2011,1537,1607);
       %UNM_30min_flux_processor_071610(10,2011,2814,2906);
       UNM_30min_flux_processor_Tim(10,2011,10660,11026);
-      
+    elseif year == 2012
+        UNM_30min_flux_processor_Tim(10,2012,DOYidx(220.4), DOYidx( 242.5));
     end   
     
 elseif sitecode == 11 % New GLand

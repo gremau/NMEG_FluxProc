@@ -5,10 +5,13 @@ syntax: glob
 *.pdf
 *.ps
 *.mat
+*.fig
+*.dat
 *.txt
 \#*\#
 scratch.m
 test_batch.m
+script*
 
 syntax: regexp
 

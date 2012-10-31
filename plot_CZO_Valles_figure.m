@@ -1,4 +1,8 @@
+<<<<<<< local
+function hf = plot_CZO_Valles_figure( sitecode, years, ylims )
+=======
 function hf = plot_CZO_Valles_figure( sitecode, years, binary_data )
+>>>>>>> other
 % PLOT_CZO_VALLES_FIGURE - 
 %
 % USAGE
@@ -8,6 +12,9 @@ function hf = plot_CZO_Valles_figure( sitecode, years, binary_data )
 
 % load ameriflux data for requested years
 aflx_data = assemble_multi_year_ameriflux( sitecode, years, ...
+<<<<<<< local
+                                           'binary_data', false);
+=======
                                            'binary_data', binary_data );
 
 if sitecode == UNM_sites.PPine
@@ -17,6 +24,7 @@ if sitecode == UNM_sites.PPine
     aflx_data.RE( idx ) = aflx_data.RE( idx ) * 0.5;
     aflx_data.FC( idx ) = aflx_data.RE( idx ) - aflx_data.GPP( idx );
 end
+>>>>>>> other
 
 %convert C fluxes to gC / m2
 aflx_data.FCgc = umolPerSecPerM2_2_gcPerMSq( aflx_data.FC );
@@ -72,9 +80,10 @@ agg.timestamp = datenum( agg.year, agg.month, 1 );
 
 hf = figure( 'Units', 'Inches' );
 % set figure dimensions to US letter paper, landscape orientation
-pos = get( hf, 'Position' );
-pos( 3:4 ) = [ 11, 8.5 ];
-set( hf, 'Position', pos );
+% pos = get( hf, 'Position' );
+% pos( 3:4 ) = [ 11, 8.5 ];
+set( hf, 'Position', [ 0, 0, 11, 8.5 ] );
+ylim( ylims( 1, : ) );
 
 % set horizontal axis limit to time frame requested +- 30 days
 x_limits = [ datenum( agg.year( 1 ), agg.month( 1 ), 1 ) - 30, ...
@@ -93,7 +102,8 @@ ax1 = subplot( 4, 1, 1 );
 h_NEE = bar( agg.timestamp, agg.NEE );
 set( ax1, 'XLim', x_limits, ...
           'XTick', x_ticks, ...
-          'XTickLabel', [] );
+          'XTickLabel', [], ...
+          'YLim', ylims( 1, : ) );
 ylabel( 'NEE [ gC m^{-2} ]' );
 info = parse_UNM_site_table();
 title( info.SITE_NAME( sitecode ) );
@@ -108,7 +118,8 @@ h_RE = bar( agg.timestamp, agg.RE * -1.0 );
 ylim( [ -400, 250 ] );
 set( ax2, 'XLim', x_limits, ...
           'XTick', x_ticks, ...
-          'XTickLabel', [] );
+          'XTickLabel', [], ...
+          'YLim', ylims( 2, : ) );
 ylabel( 'GPP & RE [ gC m^{-2} ]' );
 legend( [ h_GPP, h_RE ], 'GPP', 'RE', 'Location', 'best' );
 
@@ -129,7 +140,11 @@ ylabel('ET [ mm ]')
 set( ax3L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...
            'XTickLabel', [], ...
+<<<<<<< local
+           'YLim', ylims( 3, : ), ...
+=======
            'YLim', [ 0, 110 ], ...
+>>>>>>> other
            'YColor', get( h_ET, 'FaceColor' ) );
 
 ax3R = axes( 'Position', get( ax3L, 'Position' ) );
@@ -142,7 +157,7 @@ set(ax3R, 'YAxisLocation', 'right', ...
           'XAxisLocation', 'top', ...
           'XTick', x_ticks, ...
           'XTickLabel', [], ...
-          'YLim', [ 0, 500 ] );
+          'YLim', ylims( 4, : ) );
 ylabel( 'Rg [ W m^{-2} ]' );
 
 set( ax3L, 'box', 'off' );
@@ -158,7 +173,11 @@ h_pcp = bar( agg.timestamp, agg.PCP, ...
 ylabel('precipitation [ mm ]')
 set( ax4L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...
+<<<<<<< local
+           'YLim', ylims( 5, : ), ...
+=======
            'YLim', [ 0, 110 ], ...
+>>>>>>> other
            'YColor', get( h_ET, 'FaceColor' ), ...
            'XTickLabel', datestr( x_ticks, 'mmm yy' ) );
 
@@ -171,7 +190,8 @@ set(ax4R, 'YAxisLocation', 'right', ...
           'XTick', x_ticks, ...
           'Layer', 'top', ...
           'XAxisLocation', 'top', ...
-          'XTickLabel', [] );
+          'XTickLabel', [], ...
+          'YLim', ylims( 6, : ) );
 ylabel( 'Air temp [ ^{\circ}C ]' );
 
 set( ax4L, 'box', 'off' );

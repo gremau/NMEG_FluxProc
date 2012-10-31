@@ -10,7 +10,7 @@ function [ lastcolumn, filelength_n ] = ...
         get_FluxAll_File_Properties( sitecode, year )
     
     switch sitecode
-      case 1 % grassland
+      case UNM_sites.GLand
         switch year
           case 2006
             filelength_n = 11594;
@@ -32,7 +32,7 @@ function [ lastcolumn, filelength_n ] = ...
             lastcolumn='IM';
         end
         
-      case 2; % shrubland
+      case UNM_sites.SLand
         switch year
           case 2006
             
@@ -53,7 +53,7 @@ function [ lastcolumn, filelength_n ] = ...
             lastcolumn='IQ';
         end
         
-      case 3; % Juniper savanna
+      case UNM_sites.JSav
         switch year 
           case 2007
             filelength_n = 11595;
@@ -70,9 +70,12 @@ function [ lastcolumn, filelength_n ] = ...
           case 2011   % added by MF
             filelength_n = 14381;
             lastcolumn='IE';
+          case 2012
+            filelength_n = 7749;
+            lastcolumn='FE';
         end
         
-      case 4 % Pinyon Juniper
+      case UNM_sites.PJ
         switch year 
           case 2007
             lastcolumn = 'HO';
@@ -89,9 +92,12 @@ function [ lastcolumn, filelength_n ] = ...
           case 2011
             lastcolumn = 'HA';
             filelength_n = 14674;
+          case 2012
+            lastcolumn = 'EZ';
+            filelength_n = 11893;
         end
         
-      case 5 % Ponderosa Pine
+      case UNM_sites.PPine
         switch year 
           case 2006
             filelength_n = 11594;
@@ -110,11 +116,11 @@ function [ lastcolumn, filelength_n ] = ...
             filelength_n = 17517;
             lastcolumn='FW';
           case 2011;
-            filelength_n = 13705;
+            filelength_n = 17524;
             lastcolumn='FY';
         end
         
-      case 6 % Mixed conifer
+      case UNM_sites.MCon
         switch year 
           case 2006
             filelength_n = 4420;
@@ -136,7 +142,7 @@ function [ lastcolumn, filelength_n ] = ...
             lastcolumn='GI';
         end
         
-      case 7;
+      case UNM_sites.TX
         switch year
           case 2005
             filelength_n = 17523;
@@ -155,7 +161,7 @@ function [ lastcolumn, filelength_n ] = ...
             lastcolumn='GP';
         end
         
-      case 8;
+      case UNM_sites.TX_forest
         switch year 
           case 2005
             filelength_n = 17523;
@@ -174,7 +180,7 @@ function [ lastcolumn, filelength_n ] = ...
             lastcolumn='ET';
         end
         
-      case 9;
+      case UNM_sites.TX_grass
         switch year
           case 2005
             filelength_n = 17524;
@@ -193,7 +199,7 @@ function [ lastcolumn, filelength_n ] = ...
             lastcolumn='GP';
         end
         
-      case 10; % Pinyon Juniper girdle
+      case UNM_sites.PJ_girdle
         lastcolumn = 'FE';
         switch year 
           case 2009
@@ -202,9 +208,11 @@ function [ lastcolumn, filelength_n ] = ...
             filelength_n = 17523; 
           case 2011
             filelength_n = 14595; 
+          case 2012
+            filelength_n = 7752;
         end
         
-      case 11; % new Grassland
+      case UNM_sites.New_GLand
         switch year 
           case 2010
             lastcolumn = 'HF';

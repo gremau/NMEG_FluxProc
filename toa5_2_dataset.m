@@ -83,12 +83,12 @@ function ds = toa5_2_dataset( fname )
     % reject lines with fewer than n_numeric_vars readable numbers
     full_line = cellfun( @(x) size( x, 1 ), data ) == n_numeric_vars;
     data = [ data{ find(full_line) } ]';
+    
+    % was genvarnames, not clean_up_varnames -- TWH
+    var_names = clean_up_varnames( var_names( 2:end ) );
 
-    var_names = genvarname( var_names( 2:end ) );
-    ds = dataset( { data, var_names{ : } } );
+    ds = dataset( { data, var_names{ : } } );    
     ds.Properties.Units = var_units( 2:end );
     % add timestamp
     ds.timestamp = dn;
-    
-    
     

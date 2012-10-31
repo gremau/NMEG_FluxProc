@@ -1,12 +1,10 @@
-function ds  = UNM_parse_fluxall_xls_file( sitecode, year )
-% UNM_PARSE_FLUXALL_XLS_FILE - parse fluxall data and timestamps from excel
-% file to matlab matrices
+function ds  = UNM_parse_fluxall_txt_file( sitecode, year )
+% UNM_PARSE_FLUXALL_TXT_FILE - parse fluxall data and timestamps from
+% tab-delimited text file to matlab dataset
 %   
 % ds  = UNM_parse_fluxall_xls_file( sitecode, year )
 %
 % Timothy W. Hilton, UNM, January 2012
-    
-    [ lastcolumn, filelength_n ] = get_FluxAll_File_Properties( sitecode, year );
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Set up file name and file path
@@ -26,8 +24,6 @@ function ds  = UNM_parse_fluxall_xls_file( sitecode, year )
     
     fid = fopen( full_fname, 'r' );
     headers = fgetl( fid );
-    discard = fgetl( fid );
-    discard = fgetl( fid );
     
     % split the headers on tab characters
     headers = regexp( headers, '\t', 'split' );
@@ -45,6 +41,7 @@ function ds  = UNM_parse_fluxall_xls_file( sitecode, year )
     data = textscan( fid, ...
                      fmt, ...
                      'Delimiter', '\t' );
+    fclose( fid );
     data = cell2mat( data );
 
     %% replace -9999s with NaN using floating point test with tolerance of 0.0001

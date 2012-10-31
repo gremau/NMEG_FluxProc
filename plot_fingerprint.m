@@ -66,6 +66,11 @@ temp_data = dataset_fill_timestamps( temp_data, 'timestamp', ...
 dtime = temp_data.timestamp - datenum( 2004, 1, 0 );
 data = temp_data.data;
 
+% pad data so number of rows is a multiple of 48 (that is, if there is an
+% imcomplete day at the end, pad to a complete day.)
+padded_nrow = ceil( size( data, 1 ) / 48.0 ) * 48.0;
+data( end:padded_nrow, : ) = NaN;
+
 data_rect = reshape( data, 48, [] )';
 
 hours_of_day = (1:48) / 2;

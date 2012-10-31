@@ -464,8 +464,8 @@ elseif sitecode == 10 % here for PJ_girdle
   z_CSAT = 5.5; sep2 = 0.194; angle = 13.3; h_canopy = 4;
   % adjust instrument height and angle starting 11 Aug 2011
   if datenum(year_ts(1), month_ts(1), day_ts(1)) >= datenum(2011, 8, 11)
-    fprintf(1, 'using instrument angle & height for 11 Aug 2011 onward\n');
-    z_CSAT = 6.5; sep2 = 0.194; angle = 16.71; h_canopy = 4;
+      %fprintf(1, 'using instrument angle & height for 11 Aug 2011 onward\n');
+      z_CSAT = 6.5; sep2 = 0.194; angle = 16.71; h_canopy = 4;
   end
 elseif sitecode == 11 % for New_GLand
     z_CSAT = 3.2; sep2 = 0.142; angle = 21.67; h_canopy = 0.25; %z_CSAT unknown as of 100610

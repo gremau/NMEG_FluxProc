@@ -43,24 +43,32 @@ SHF_vars = fluxall.Properties.VarNames( idx_SHF );
 
 switch sitecode
   case UNM_sites.GLand
-    % all GLand years should have two SHF observations (grass and open)    
-    if numel( idx_SHF ) ~= 2
-        error( 'unable to locate 2 SHF measurements, GLand 2007' );
-    end
-    switch year
-      case 2007
+    if year < 2012
+        % 2007-2011 GLand should have two SHF observations (grass and open)
+        if numel( idx_SHF ) < 2
+            error( sprintf( [ 'unable to locate 2 SHF measurements for ', ...
+                              'GLand %d' ], year ) );
+        end
+        switch year
+          case 2007
             fluxall.Properties.VarNames( idx_SHF ) = ...
                 { 'SHF_grass_1', 'SHF_open_1' }';
-        
-      case 2008
-        fluxall.Properties.VarNames( idx_SHF ) = ...
-            { 'SHF_open_1', 'SHF_grass_1' }';
-        
-      case { 2009, 2010, 2011, 2012 }
-        % these SHF variables are labeled "hfp01_COVER_Avg" -- reformat these to
-        % SHF_COVER_1       
-        SHF_vars = regexprep( SHF_vars, 'hfp01', 'SHF' );
-        SHF_vars = regexprep( SHF_vars, '_Avg', '_1' );
+            
+          case 2008
+            fluxall.Properties.VarNames( idx_SHF ) = ...
+                { 'SHF_open_1', 'SHF_grass_1' }';
+            
+          case { 2009, 2010, 2011 }
+            % these SHF variables are labeled "hfp01_COVER_Avg" -- reformat these to
+            % SHF_COVER_1       
+            SHF_vars = regexprep( SHF_vars, 'hfp(01)?', 'SHF' );
+            SHF_vars = regexprep( SHF_vars, '([0-9])_Avg', '$1' );
+            SHF_vars = regexprep( SHF_vars, '_Avg', '_1' );
+            fluxall.Properties.VarNames( idx_SHF ) = SHF_vars;
+        end
+    else
+        SHF_vars = regexprep( SHF_vars, 'hfp', 'SHF' );
+        SHF_vars = regexprep( SHF_vars, '_Avg', '' );
         fluxall.Properties.VarNames( idx_SHF ) = SHF_vars;
     end
     
@@ -238,7 +246,7 @@ switch sitecode
         fluxall.Properties.VarNames( idx_TCAV ) = ...
             { 'TCAV_open_Avg', 'TCAV_cover_Avg' };
 
-      case 2011
+      case { 2011, 2012 }
         % this year cs616 SWC are labeled open1_12.5, grass2_2.5, etc.  They
         % are in columns 203 to 222
         re = '^(open|grass)[12]_[0-9]{1,2}p5cm';  % regular expression to
@@ -260,7 +268,20 @@ switch sitecode
         % change mux25t... labels to descriptive soilT labels
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
         fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
-                
+        
+        % some files in late 2012 are labeled "soilt..." not "soilT..."
+        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'soilt' );
+        fluxall.Properties.VarNames( idx_Tsoil ) = ...
+            regexprep( fluxall.Properties.VarNames( idx_Tsoil ), ...
+                       'soilt', ...
+                       'soilT' );
+        fluxall.Properties.VarNames( idx_Tsoil ) = ...
+            regexprep( fluxall.Properties.VarNames( idx_Tsoil ), ...
+                       '_Avg', ...
+                       '' );
+        fluxall.Properties.VarNames( idx_Tsoil ) = ...
+            format_probe_strings( fluxall.Properties.VarNames( idx_Tsoil ) ); 
+        
     end   %switch GLand year
 
     % --------------------------------------------------
@@ -311,7 +332,7 @@ switch sitecode
             fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
         end
 
-      case 2011
+      case { 2011, 2012 }
         % change soil_h2o... labels to descriptive SWC labels
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'soil_h2o_.*_Avg' );
         fluxall.Properties.VarNames( idx_cs616 ) = descriptive_cs616_labels;
@@ -321,6 +342,19 @@ switch sitecode
         if ~isempty( idx_Tsoil )
             fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
         end
+        
+        % some files in late 2012 are labeled "soilt..._Avg" not "soilT..."
+        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'soilt' );
+        fluxall.Properties.VarNames( idx_Tsoil ) = ...
+            regexprep( fluxall.Properties.VarNames( idx_Tsoil ), ...
+                       'soilt', ...
+                       'soilT' );
+        fluxall.Properties.VarNames( idx_Tsoil ) = ...
+            regexprep( fluxall.Properties.VarNames( idx_Tsoil ), ...
+                       '_Avg', ...
+                       '' );
+        fluxall.Properties.VarNames( idx_Tsoil ) = ...
+            format_probe_strings( fluxall.Properties.VarNames( idx_Tsoil ) );
         
     end    % switch SLand year
     
@@ -448,7 +482,7 @@ switch sitecode
         fluxall( :, 162:197 ) = [];
         fluxall = [ fluxall, preJul09, postJul09 ];
         
-      case { 2010, 2011 }
+      case { 2010, 2011, 2012 }
         % echo SWC probes
         vars = fluxall.Properties.VarNames;
         [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'SWC.*' );
@@ -531,11 +565,13 @@ switch sitecode
     % MCon soil water content is in another file, parsed separately from
     % UNM_Ameriflux_prepare_soil_met.m
     [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
-    fluxall.Properties.VarNames( idx_soilT ) = ...
-        { 'soilT_mcon_1_5', ...
-          'soilT_mcon_2_5', ...
-          'soilT_mcon_3_5', ... 
-          'soilT_mcon_4_5' };
+    if not( isempty( idx_soilT ) )
+        fluxall.Properties.VarNames( idx_soilT ) = ...
+            { 'soilT_mcon_1_5', ...
+              'soilT_mcon_2_5', ...
+              'soilT_mcon_3_5', ... 
+              'soilT_mcon_4_5' };
+    end
     
     [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
     if ~isempty( idx_TCAV )
@@ -577,7 +613,7 @@ str_out = regexprep( str_in, '_[Oo0]([0-9])_', '_O_$1_' );
 % grass pits are usually designated with "g"
 str_out = regexprep( str_out, '_g([0-9])_', '_G_$1_' );
 % add separating underscore to J1, etc. probe designations
-str_out = regexprep( str_out, '_([GJO])([0-9])_', '_$1_$2_' );
+str_out = regexprep( str_out, '_([GJOS])([0-9])_', '_$1_$2_' );
 % remove any parens that made it this far
 str_out = regexprep( str_out, '[\(\)]', '_' );
 % remove trailing underscores
@@ -588,3 +624,4 @@ str_out = regexprep( str_out, '([0-9])\.([0-9])', '$1p$2' );
 str_out = regexprep( str_out, '_O_', '_open_' );
 str_out = regexprep( str_out, '_J_', '_juniper_' );
 str_out = regexprep( str_out, '_G_', '_grass_' );
+str_out = regexprep( str_out, '_S_', '_cover_' );
