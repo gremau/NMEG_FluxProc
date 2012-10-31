@@ -100,7 +100,8 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     set( fh, 'UserData', ud );
 
     % label x axis on lower plot
-    xlabel( axh, 'index' );
+    xlabel( axh, 'date' );
+    datetick( 'x', 'dd-mmm-yy' );
     
     % title string
     t_str = strrep( this_var, '_', '\_');
