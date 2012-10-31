@@ -35,7 +35,9 @@ function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, ...
     % convert datalogger timestamp (seconds since 1990) to matlab datenum 
     dn =  datenum( 1990, 1, 1) + ( all_data.SECONDS / secs_per_day );
 
-    % index each timestamp to a 30 minute time period beginning with t_start
+    % index each timestamp to a 30 minute time period beginning with the next even
+    % half-hour after t_start 
+    t_start = datenum_2_round30min( t_start, 14.99, floor( t_start ) );
     edges = t_start:(1/48):t_end;
     [ count, idx30min ] = histc( dn, edges );
 

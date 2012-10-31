@@ -219,7 +219,7 @@ methods
     [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
 
     % align 30-minute timestamps and fill in missing timestamps
-    two_mins_tolerance = 6.5; % for purposes of joining averaged 10 hz and 30-minute
+    two_mins_tolerance = 2; % for purposes of joining averaged 10 hz and 30-minute
                             % data, treat 30-min timestamps within two mins of
                             % each other as equal
     t_max = max( [ reshape( obj.data_30min.timestamp, [], 1 ); ...
