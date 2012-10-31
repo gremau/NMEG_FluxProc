@@ -91,14 +91,23 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     ud.cur_col = max( ud.cur_col - 1, 1 );
     % get the new variable names
     this_var = ds.Properties.VarNames{ ud.cur_col };
+    this_data = ds.( this_var );
+    idx_huge = find( abs( this_data ) > 1e12 );
+    if ( numel( idx_huge ) <= 5 )
+        this_data( idx_huge ) = NaN;
+    end
     if isnumeric( ds.( this_var ) )
-        plot( axh, ds.( this_var ), '.k' );
+        plot( axh, this_data, '.k' );
         this_units = ds.Properties.Units{ ud.cur_col };
     else
         cla( axh );
     end
     set( fh, 'UserData', ud );
 
+    if ( numel( idx_huge ) <=5 )
+        title( sprintf( '%d extreme points (< or > 10^{12}) not shown' ) );
+    end
+    
     % label x axis on lower plot
     xlabel( axh, 'date' );
     datetick( 'x', 'dd-mmm-yy' );
@@ -127,13 +136,23 @@ function cur_col = next_but_cbk( source, eventdata, ...
     ud.cur_col = min( ud.cur_col + 1, nfields );
     % get the new variable names
     this_var = ds.Properties.VarNames{ ud.cur_col };
+    this_data = ds.( this_var );
+    idx_huge = find( abs( this_data ) > 1e12 );
+    if ( numel( idx_huge ) <= 5 )
+        this_data( idx_huge ) = NaN;
+    end
+       
     if isnumeric( ds.( this_var ) )
-        plot( axh, ds.timestamp, ds.( this_var ), '.k' );
+        plot( axh, ds.timestamp, this_data, '.k' );
         this_units = ds.Properties.Units{ ud.cur_col };
     else
         cla( axh );
     end
 
+    if ( numel( idx_huge ) <=5 )
+        title( sprintf( '%d extreme points (< or > 10^{12}) not shown' ) );
+    end
+    
     set( fh, 'UserData', ud );
 
     % label x axis on lower plot
