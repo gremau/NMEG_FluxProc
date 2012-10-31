@@ -1718,14 +1718,14 @@ obs_per_day = 48;  % half-hourly observations
     
     filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );
     if write_gap_filling_out_file
-        Tsoil=ones(size(qc)).*-999;
+        Tsoil=ones(size(qc)).*-9999;
         if (sitecode>7 && sitecode<10) % || 9);
             disp('writing gap-filling file...')
             header = {'day' 'month' 'year' 'hour' 'minute' ...
                       'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
                       'rH' 'precip' 'Ustar'};
             %sw_incoming=ones(size(qc)).*-999;
-            Tsoil=ones(size(qc)).*-999;
+            Tsoil=ones(size(qc)).*-9999;
             datamatrix = [day month year hour minute qc NEE LE H_dry sw_incoming Tair Tsoil rH precip u_star];
             for n = 1:filelength_n
                 for k = 1:15;
@@ -1745,7 +1745,7 @@ obs_per_day = 48;  % half-hourly observations
                       'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
                       'rH' 'precip' 'Ustar'};
             if sitecode == 3
-                Tsoil = ones(size(qc)).*-999;
+                Tsoil = ones(size(qc)).*-9999;
             end
             datamatrix = [day month year hour minute qc NEE ...
                           LE H_dry sw_incoming Tair Tsoil rH precip u_star];

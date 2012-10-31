@@ -125,25 +125,7 @@ function cur_col = next_but_cbk( source, eventdata, ...
     % decrement cur_col
     ud = get( fh, 'UserData' );
     ud.cur_col = min( ud.cur_col + 1, nfields );
-    % get the new variable names
-    this_var = ds.Properties.VarNames{ ud.cur_col };
-    if isnumeric( ds.( this_var ) )
-        plot( axh, ds.timestamp, ds.( this_var ), '.k' );
-        this_units = ds.Properties.Units{ ud.cur_col };
-    else
-        cla( axh );
-    end
-
     set( fh, 'UserData', ud );
-
-    % label x axis on lower plot
-    xlabel( axh, 'date' );
-    datetick( 'x', 'dd-mmm-yy' );
-    
-    % title string
-    t_str = strrep( this_var, '_', '\_');
-    t_str = strrep( t_str, '0x2E', '.');
-    ylabel( axh, sprintf( '%s [%s]', t_str, this_units ) );
 
     % just advanced, so can't be on first column
     set( pbh_prev, 'enable', 'on' );
@@ -186,3 +168,27 @@ switch eventdata.Key
     zoom_but_cbk( source, eventdata, nfields, axh, fh, ds );
     
 end
+
+%==================================================
+
+function plot_fluxraw_field( axh, ds, cur_col )
+% PLOT_FLUXRAW_FIELD - plot_fluxraw_field - plots one field of data to specified axes
+%   
+
+% get the new variable names
+this_var = ds.Properties.VarNames{ cur_col };
+if isnumeric( ds.( this_var ) )
+    plot( axh, ds.timestamp, ds.( this_var ), '.k' );
+    this_units = ds.Properties.Units{ cur_col };
+else
+    cla( axh );
+end
+
+% label x axis on lower plot
+xlabel( axh, 'date' );
+datetick( 'x', 'dd-mmm-yy' );
+
+% title string
+t_str = strrep( this_var, '_', '\_');
+t_str = strrep( t_str, '0x2E', '.');
+ylabel( axh, sprintf( '%s [%s]', t_str, this_units ) );
