@@ -1,4 +1,7 @@
-function result = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
+function [ result, all_data ] = UNM_process_10hz_main( sitecode, ...
+                                                  t_start, ...
+                                                  t_end, ...
+                                                  varargin )
 % UNM_PROCESS_10HZ_MAIN: top-level function for matlab processing of 10-hz data
 % from flux towers to 30-minute average.  t_start and t_end may not span two
 % different calendar years.
@@ -7,6 +10,8 @@ function result = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end )
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end, lag)
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end, ..., rotation)
+%    result = UNM_process_10hz_main( sitecode, t_start, t_end, ..., ts_data_dir)
+%    [ result, data ] = UNM_process_10hz_main( sitecode, t_start, t_end, ... )
 %
 %INPUTS
 %    sitecode ( integer ): sitecode to process
@@ -15,9 +20,12 @@ function result = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
 %    lag (integer): optional, 1 or 0 (default 0)
 %    rotation (sonic_rotation object): sonic_rotation.planar or 
 %        sonic_rotation.threeD (default threeD)
+%    ts_data_dir: directory containing the TOB1 files.  Defaults to
+%        $FLUXROOT/SITENAME/ts_data 
 %
 % OUTPUTS:
-%    result: 0 on success
+%    result: 0 on success, non-zero on failure
+%    all_data: matlab dataset array containing the averaged data
 %
 % (c) Timothy W. Hilton, UNM, April 2012
 
@@ -25,7 +33,7 @@ function result = UNM_process_10hz_main( sitecode, t_start, t_end, varargin )
 % define inputs, with defaults for optionals, and with type-checking
 % -----
 p = inputParser;
-p.addRequired( 'sitecode', @isnumeric ); 
+p.addRequired( 'sitecode', @( x ) ( isnumeric( x ) | isa( x, 'UNM_sites' ) ) ); 
 p.addRequired( 't_start', @isnumeric );
 p.addRequired( 't_end', @isnumeric );
 p.addParamValue( 'lag', ...
@@ -34,6 +42,10 @@ p.addParamValue( 'lag', ...
 p.addParamValue( 'rotation', ...
                  sonic_rotation.threeD, ...
                  @( x ) isa( x, 'sonic_rotation' ) );
+p.addParamValue( 'ts_data_dir', ...
+                 [], ...
+                 @ischar );
+    
 % parse optional inputs
 p.parse( sitecode, t_start, t_end, varargin{ : } );
     
@@ -42,6 +54,13 @@ t_start = p.Results.t_start;
 t_end = p.Results.t_end;
 lag = p.Results.lag;
 rotation = p.Results.rotation;
+ts_data_dir = p.Results.ts_data_dir;
+
+% -----
+% if called with more than two output arguments, throw exception
+% -----
+nargoutchk( 0, 2 );
+
 
 % -----
 % start processing
@@ -74,12 +93,17 @@ for i = 1 : n_pds
     this_t_start = process_periods( i );
     this_t_end = process_periods( i + 1 );
 
+    if( isempty( ts_data_dir ) )
+        ts_data_dir = fullfile( get_site_directory( sitecode ), 'ts_data' );
+    end
+    
     % process 30-minute averages
     chunks_cell{ i } = process_TOB1_chunk( sitecode, ...
                                           this_t_start, ...
                                           this_t_end, ...
                                           lag, ...
-                                          rotation );
+                                          rotation, ...
+                                           ts_data_dir );
 
     if isempty( chunks_cell{ i } )
         chunks_cell( i ) = [];
@@ -98,7 +122,7 @@ all_data.timestamp = datenum( all_data.year, all_data.month, all_data.day, ...
                               all_data.hour, all_data.min, all_data.second );
 all_data = dataset_fill_timestamps( all_data, ...
                                     'timestamp', ...
-                                    't_min', t_start, ...
+                                    't_min', min( all_data.timestamp ), ...
                                     't_max', t_end );
 [ all_data.year, all_data.month, all_data.day, ...
   all_data.hour, all_data.min, all_data.second ] = ...
@@ -140,3 +164,8 @@ save( strrep( outfile, '.mat', '_filled.mat' ), 'all_data' );
 fprintf( 1, 'done (%d seconds)\n', int32( ( now() - t0 ) * 86400 ) );
 
 result = 0;
+
+varargout = { result };
+if nargout == 2
+    varargout = { result, all_data };
+end
