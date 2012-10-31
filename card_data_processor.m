@@ -273,13 +273,13 @@ end
                      char( obj.sitecode ), ...
                      year );
     
-    if exist( fname )
-        bak_fname = regexprep( fname, '\.txt', '_bak.txt' );
-        fprintf( 'backing up %s to %s\n', fname, bak_fname );
-        [copy_success, msg, msgid] = copyfile(fname, dest_dir);
-    end
-    
     full_fname = fullfile( get_site_directory( obj.sitecode ), fname );
+
+    if exist( full_fname )
+        bak_fname = regexprep( full_fname, '\.txt', '_bak.txt' );
+        fprintf( 'backing up %s\n', fname );
+        [copy_success, msg, msgid] = copyfile( full_fname, bak_fname );
+    end
 
     export_dataset_tim( full_fname, fluxall_data, '\t' )
     
