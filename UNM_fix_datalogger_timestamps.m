@@ -153,6 +153,15 @@ switch sitecode
         idx = DOYidx( 133 ) : DOYidx( 224.0 );
         data( idx, : ) = shift_data( data( idx, : ), 4.5, ...
                                      'cols_to_shift', col_idx );
+
+        col_idx = 1:size( data, 2 );
+        Sep19 = datenum( 2012, 9, 19, 17, 0, 0 ) - datenum( 2012, 1, 0 );
+        Oct26 = datenum( 2012, 10, 26, 11, 0, 0 ) - datenum( 2012, 1, 0 );
+        idx = DOYidx( Sep19 ) : DOYidx( Oct26 );
+        data( idx, : ) = shift_data( data( idx, : ), -3.5, ...
+                                     'cols_to_shift', col_idx );
+
+        
         
         % compensate for the 11 Aug 2012 datalogger clock reset so that the clock would
         % match the Ameriflux tech's clock.  From Skyler: "I swapped the card
@@ -162,7 +171,6 @@ switch sitecode
         idx = DOYidx( Aug11_1710 );
         data( idx:end, : ) = shift_data( data( idx:end, : ), 4.5, ...
                                      'cols_to_shift', col_idx );
-
     end
 
   case UNM_sites.TX

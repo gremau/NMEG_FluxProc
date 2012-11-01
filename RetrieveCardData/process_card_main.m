@@ -13,7 +13,7 @@ function main_success = process_card_main( this_site, varargin )
 % USAGE: 
 %    process_card_main( this_site )
 %    process_card_main( this_site, 'card' )
-%    process_card_miain( this_site, 'disk', 'C:\path\to\data' );
+%    process_card_miain( this_site, 'disk', 'data_location', 'C:\path\to\data' );
 %
 % INPUTS:
 %   this_site: UNM_sites object or integer code; the site being processed

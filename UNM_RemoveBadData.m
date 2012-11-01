@@ -2481,6 +2481,11 @@ switch sitecode
         DOY_co2_max( idx ) = 6.5;
     
         DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
+        
+      case 2012
+        DOY_co2_max( DOYidx( 260 ) : DOYidx( 280 ) ) = 2.0;
+        DOY_co2_max( DOYidx( 285 ) : DOYidx( 290 ) ) = 1.5;
+        
     end
     
   case UNM_sites.New_GLand
