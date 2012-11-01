@@ -44,12 +44,30 @@ fprintf(1, 'processing tower data files: ');
 fprintf(1, '%s ', tower_files.name);
 fprintf(1, '\n');
 
-for i = 1:length(tower_files)
+mod_date_arr = [];
+
+for i = 1:numel(tower_files)
     src = fullfile( data_location, ...
                     tower_files( i ).name );
-    mod_date = datenum(tower_files(i).date); %modification date for the
-                                             %data file
+    mod_date_arr( i )  = datenum(tower_files(i).date); %modification date for ...
+                                                       % the data file
+    mod_date = mod_date_arr( i );
+    if any( mod_date_arr > now() )
+        error( 'Raw data has modification date in the future' );
+    end
+    if any( diff( mod_date_arr ) > 1e-6 )
+        % if the raw data files have different modification dates, issue
+        % warning and use the most recent
+        warning( sprintf( [ 'Raw data files have different modification dates.'...
+                            '  Using %s (the most recent).\n' ], ...
+                          datestr( max( mod_date_arr ) ) ) );
+        mod_date = max( mod_date_arr );
+    end
+end
 
+for i = 1:numel(tower_files)
+    src = fullfile( data_location, ...
+                    tower_files( i ).name );
     %create directory for files if it doesn't already exist
     dest_dir = get_local_raw_data_dir( site, mod_date);
     if exist(dest_dir) ~= 7
