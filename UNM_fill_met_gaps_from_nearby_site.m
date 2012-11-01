@@ -207,7 +207,7 @@ outfile = fullfile( get_site_directory( sitecode ), ...
                              get_site_name( sitecode ), year ) );
 fprintf( 'writing %s\n', outfile );
 this_data.timestamp = [];
-export_dataset_tim( outfile, this_data );
+export_dataset_tim( outfile, this_data, 'write_units', true );
 %export( this_data( :, 2:end ), 'file', outfile );
 
 result = 0;

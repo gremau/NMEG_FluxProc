@@ -53,6 +53,8 @@ if sitecode == 1 % GLand
     elseif year == 2011
 %        UNM_30min_flux_processor_071610(1,2011,1899,1999);
         UNM_30min_flux_processor_071610(1,2011,10587,10588);
+    elseif year == 2012
+        UNM_30min_flux_processor_Tim(1,2012, DOYidx( 196 ), DOYidx( 216 ) );
     end
     
 elseif sitecode == 2 % SLand

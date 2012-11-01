@@ -8,12 +8,17 @@ function success = export_dataset_tim( fname, ds, varargin )
 %     success = export_dataset_tim( fname, ds )
 %     success = export_dataset_tim( fname, ds, 'delimiter', dlm )
 %     success = export_dataset_tim( fname, ds, ..., 'replace_NaNs', rplc )
+%     success = export_dataset_tim( fname, ds, ..., 'write_units', write_units )
 %
 % INPUTS
 %     fname: char; full path of file to write.
 %     ds: dataset array
 %     dlm: character; the delimiter to use.  Optional, defaults to tab.
-%     rplc: logical; if true, NaNs are replaced with -9999.  Defaults to false.
+%     rplc: logical; if true, NaNs are replaced with -9999.  Defaults to
+%     false.
+%     write_units: logical; if true, the write a line of units
+%         beneath the variable names (on line 2).  If ds.Properties.Units is
+%         empty, writes '--' for each units.  Defaults to false.
 %
 % OUTPUTS
 %     success: 0 if file written successfully; non-zero otherwise
@@ -25,9 +30,16 @@ args.addRequired( 'fname', @ischar );
 args.addRequired( 'ds', @( x ) isa( x, 'dataset' ) );
 args.addParamValue( 'delimiter', '\t', @ischar );
 args.addParamValue( 'replace_nans', false, @islogical ); %
+args.addParamValue( 'write_units', false, @islogical ); %
 
 % parse optional inputs
 args.parse( fname, ds, varargin{ : } );
+
+if args.Results.write_units
+    if isempty( ds.Properties.Units )
+        ds.Properties.Units = regexprep( ds.Properties.VarNames, '.*', '--' );
+    end
+end
 
 % write the headers 
 t0 = now();
@@ -35,6 +47,11 @@ fid = fopen( args.Results.fname, 'w' );
 headers = replace_hex_chars( args.Results.ds.Properties.VarNames );
 fprintf( fid, '%s\t', headers{ : } );
 fprintf( fid, '\n' );
+if args.Results.write_units
+    var_units = ds.Properties.Units;
+    fprintf( fid, '%s\t', var_units{ : } );
+    fprintf( fid, '\n' );
+end
 fclose( fid );
 
 ds_dbl = double( args.Results.ds );

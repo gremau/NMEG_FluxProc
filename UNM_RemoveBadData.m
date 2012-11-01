@@ -1770,10 +1770,13 @@ obs_per_day = 48;  % half-hourly observations
                                            sprintf( '%s_for_gap_filling.txt', ...
                                                     filename ) );
         
+        units = regexprep( header, '.*', '--' );
+        
         fid = fopen( outfilename_forgapfill, 'w' );
         fmt = repmat('%s\t', 1, numel( header ) - 1 );
         fmt = [ fmt, '%s\n' ];
         fprintf( fid, fmt, header{ : } );
+        fprintf( fid, fmt, units{ : } );
         fclose( fid );
         dlmwrite( outfilename_forgapfill, ...
                   datamatrix, ...
@@ -2306,7 +2309,8 @@ switch sitecode
         DOY_co2_max( DOYidx( 250 ) : DOYidx( 260 ) ) = 0.8;
         DOY_co2_max( DOYidx( 280 ) : DOYidx( 285 ) ) = 1.2;
       case 2012
-        DOY_co2_min( DOYidx( 100 ) : DOYidx( 150 ) ) = -2.5;
+        DOY_co2_max( DOYidx( 113 ) : DOYidx( 137 ) ) = 1.0;
+        std_exc_flag( DOYidx( 174 ) : DOYidx( 175 ) ) = true;
     end %GLand
 
   case UNM_sites.SLand
@@ -2617,3 +2621,4 @@ SHF_labels = regexprep( SHF_labels, '[Aa]vg', ''); %remove "Avg" (case
 SHF_labels = regexprep( SHF_labels, '[()]', ''); % remove parens
 SHF_labels = regexprep( SHF_labels, '_$', '');  %remove trailing _
 
+ 
