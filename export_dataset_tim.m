@@ -45,12 +45,12 @@ end
 t0 = now();
 fid = fopen( args.Results.fname, 'w' );
 headers = replace_hex_chars( args.Results.ds.Properties.VarNames );
-fprintf( fid, '%s\t', headers{ : } );
-fprintf( fid, '\n' );
+fprintf( fid, '%s\t', headers{ 1:end - 1 } );
+fprintf( fid, '%s\n', headers{ end } );
 if args.Results.write_units
     var_units = ds.Properties.Units;
-    fprintf( fid, '%s\t', var_units{ : } );
-    fprintf( fid, '\n' );
+    fprintf( fid, '%s\t', var_units{ 1:end-1 } );
+    fprintf( fid, '%s\n', var_units{ end } );
 end
 fclose( fid );
 
