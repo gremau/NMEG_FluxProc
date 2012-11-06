@@ -11,19 +11,32 @@ end
 
     fpath = fullfile( getenv( 'FLUXROOT' ), ...
                       'Flux_Tower_Data_by_Site', ...
-                      sitename );
+                      sitename,  ...
+                      'soil' );
     switch sitecode
       case 4
-        fname =  'PJC-23x-Compiled-04-24-12.csv';
+        if year < 2012
+            fname =  'PJC-23x-Compiled-04-24-12.csv';
+            n_col = 104;
+        else
+            fname =  sprintf( 'CR23X_PJ_%dall.dat', year );
+            n_col = 103;
+        end
       case 10
-        fname =  'PJG-23x-Compiled-04-24-12.csv';
+        if year < 2012
+            fname =  'PJG-23x-Compiled-04-24-12.csv';
+            n_col = 104;
+        else
+            fname = sprintf( 'CR23X_PJ_Girdle_%dall.dat', year );
+            n_col = 152;
+        end
     end
     fname = fullfile( fpath, fname );
     
     
     % parse data file to matlab dataset
     fmt = [ repmat( '%d', 1, 4 ), repmat( '%f', 1, 100 ) ];
-    fmt = repmat( '%f', 1, 104 );
+    fmt = repmat( '%f', 1, n_col );
     soil_data = dataset( 'File', fname, 'Delimiter', ',', 'Format', fmt );
     
     % not sure what this column is, and its name is not a legal Matlab variable
@@ -94,15 +107,24 @@ end
     SWC.tstamps = soil_data.tstamps;
     SHF.tstamps = soil_data.tstamps;
     
+    soilT.Properties.VarNames = regexprep( soilT.Properties.VarNames, ...
+                                           '_AVG$', '' );
+    [ ~, idx ] = regexp_ds_vars( soilT, '_STD$' );
+    soilT( :, idx ) = [];
+    
     SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
                                          '^WC_', 'cs616SWC_' );
     SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
                                          '_AVG$', '' );
+    [ ~, idx ] = regexp_ds_vars( SWC, '_STD$' );
+    SWC( :, idx ) = [];
     
     SHF.Properties.VarNames = regexprep( SHF.Properties.VarNames, ...
                                          '_AVG$', '' );
     SHF.Properties.VarNames = regexprep( SHF.Properties.VarNames, ...
                                          '^shf', 'SHF' );
+    [ ~, idx ] = regexp_ds_vars( SHF, '_STD$' );
+    SHF( :, idx ) = [];
 
     all_but_timestamps = 1:( size( SHF, 2 ) - 1 );
     SHF.Properties.VarNames( all_but_timestamps ) = ...
