@@ -40,6 +40,7 @@ for i = 1:size( data_in, 2 )
     else
         this_in = data_in( :, i );
         nan_idx = isnan( this_in );
+        this_in = inpaint_nans( this_in, 4 );
         % valid data exist -- smooth them
         this_out = smooth( this_in, ...
                            ( win / size( this_in, 1 ) ), ...
