@@ -161,7 +161,7 @@ obs_per_day = 48;  % half-hourly observations
     elseif sitecode == UNM_sites.MCon; % Mixed conifer
         co2_min_by_month = [ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ];
         co2_max_by_month = 6;
-        n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+        n_SDs_filter_hi = 2.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
         wind_min = 153; wind_max = 213; % these are given a sonic_orient = 333;
         Tdry_min = 250; Tdry_max = 300;
