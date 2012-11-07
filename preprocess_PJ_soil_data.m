@@ -1,6 +1,21 @@
 function [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, year )
-% PREPROCESS_PJ_SOIL_DATA - 
-%   
+% PREPROCESS_PJ_SOIL_DATA - parse CR23X soil data for PJ or PJ_girdle and create
+% datasets for soil temperature, soil water content, and soil heat flux with
+% complete 30-minute timestamp record and duplicate timestamps removed.  When
+% duplicate timestamps are detected, the first is kept and subsequent
+% duplicates are discarded.
+%
+% USAGE
+%    [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, year )
+%
+% INPUTS
+%    sitecode: integer or UNM_sites object; either PJ or PJ_girdle
+%    year: integer; year of data to preprocess
+%
+% OUTPUTS:
+%    soilT, SWC, SHF: matlab dataset arrays containing soil data
+%
+% (c) Timothy W. Hilton, UNM, 2012
 
 if isa( sitecode, 'UNM_sites' )
     sitecode = int8( sitecode );

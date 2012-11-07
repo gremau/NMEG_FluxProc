@@ -72,7 +72,7 @@ function fh =  fluxraw_dataset_viewer( ds, this_site, mod_date )
 %  plot first field
 %--------------------------
 
-plot( axh, ds.timestamp, ds( :, 1 ), '.k' );
+plot_fluxraw_field( axh, ds, 1 );
 xlabel( axh, 'date' );
 datetick( 'x', 'ddmmmyy' );
 t_str = ds.Properties.VarNames{ 1 };
@@ -170,7 +170,8 @@ function plot_fluxraw_field( axh, ds, cur_col)
 this_var = ds.Properties.VarNames{ cur_col };
 this_data = ds.( this_var );
 idx_huge = find( abs( this_data ) > 1e12 );
-if ( numel( idx_huge ) <= 5 )
+n_huge = numel( idx_huge );
+if ( n_huge <= 5 )
     this_data( idx_huge ) = NaN;
 end
 if isnumeric( ds.( this_var ) )
@@ -180,13 +181,16 @@ else
     cla( axh );
 end
 
-if ( numel( idx_huge ) <=5 )
-    title( axh, sprintf( '%d extreme points (< or > 10^{12}) not shown' ) );
+if ( n_huge <= 5 ) & ( n_huge > 0 )
+    t_str = sprintf( '%d extreme points (< or > 10^{12}) not shown', ...
+                     numel( idx_huge ) );
+    title( axh, t_str );
 end
 
 % label x axis on lower plot
 xlabel( axh, 'date' );
-datetick( axh, 'x', 'dd-mmm-yy' );
+dynamicDateTicks();  % dateticks that play nice with zooming & panning
+%datetick( axh, 'x', 'dd-mmm-yy' );
 
 % title string
 t_str = strrep( this_var, '_', '\_');
