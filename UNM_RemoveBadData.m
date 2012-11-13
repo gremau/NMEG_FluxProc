@@ -2344,7 +2344,8 @@ switch sitecode
         std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
         
         DOY_co2_min(  DOYidx( 185 ) : end ) = -1.5;
-
+      case 2012
+        DOY_co2_max(  DOYidx( 285 ) : end ) = 0.95;
     end %SLand
   
   case UNM_sites.JSav
@@ -2526,6 +2527,8 @@ switch sitecode
         std_exc_flag( DOYidx( 335.45 ) : DOYidx( 335.6 ) ) = true;
         DOY_co2_max( DOYidx( 344.5 ) : DOYidx( 344.7 ) ) = 9.0;
         DOY_co2_max( DOYidx( 345.48 ) : DOYidx( 345.56 ) ) = 9.0;
+      case 2012
+        DOY_co2_max( DOYidx( 215 ) : DOYidx( 285 ) ) = 2.0;
     end  % New_GLand
 end
 
