@@ -16,6 +16,7 @@ classdef(Enumeration) UNM_sites < int32
         TX_forest(8),
         TX_grass(9),
         PJ_girdle(10),
-        New_GLand(11)
+        New_GLand(11),
+        SevEco( 12 )
     end
 end
