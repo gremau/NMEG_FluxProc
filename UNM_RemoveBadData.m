@@ -250,7 +250,11 @@ obs_per_day = 48;  % half-hourly observations
     
     outfolder = fullfile( get_site_directory( sitecode ), ...
                           'processed_flux' );
-    data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
+    if year_arg >= 2012
+        data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
+    else
+        data = UNM_parse_fluxall_xls_file( sitecode, year_arg );
+    end
     headertext = data.Properties.VarNames;
     [year month day hour minute second] = datevec( data.timestamp );
     data.timestamp = [];
@@ -2310,6 +2314,7 @@ switch sitecode
         DOY_co2_max( DOYidx( 280 ) : DOYidx( 285 ) ) = 1.2;
       case 2012
         DOY_co2_max( DOYidx( 113 ) : DOYidx( 137 ) ) = 1.0;
+        DOY_co2_max( DOYidx( 300 ) : DOYidx( 317 ) ) = 1.7;
         std_exc_flag( DOYidx( 174 ) : DOYidx( 175 ) ) = true;
     end %GLand
 
