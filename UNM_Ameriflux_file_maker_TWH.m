@@ -10,6 +10,14 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year, varargin )
 % John DeLong 2008 through 2009.  Extensively modified by Timothy W. Hilton 2011
 % to 2012.
 %
+% USAGE
+%    result = UNM_Ameriflux_file_maker_TWH( sitecode, year, ... )
+%
+% KEYWORD ARGUMENTS:
+%    write_files: logical; if false, do not write the Ameriflux files (useful
+%        for debugging without writing over good ameriflux files)
+%    process_soil_data: logical; if false, do not produce soil file
+%
 % Timothy W. Hilton, UNM, Dec 2011 - Jan 2012
 
 load_t0 = now();
@@ -41,7 +49,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% parse the annual Flux_All file
-data = UNM_parse_fluxall_txt_file( sitecode, year );
+data = UNM_parse_fluxall_xls_file( sitecode, year );
 
 
 % seems to be parsing header of NewGland_2011 to bogus dates -- temporary
