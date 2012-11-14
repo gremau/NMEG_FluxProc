@@ -63,7 +63,7 @@ function fh =  dataset_viewer( ds )
 %  plot first field
 %--------------------------
 
-plot( axh, ds( :, 1 ), '.k' );
+plot( axh, ds( :, 1 ), '.k', 'MarkerSize', 12 );
 xlabel( axh, 'index' );
 t_str = ds.Properties.VarNames{ 1 };
 t_str = replace_hex_chars( t_str );
@@ -84,7 +84,7 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     % get the new variable names
     this_var = ds.Properties.VarNames{ ud.cur_col };
     if isnumeric( ds.( this_var ) )
-        plot( axh, ds.( this_var ), '.k' );
+        plot( axh, ds.( this_var ), '.k', 'MarkerSize', 12 );
     else
         cla( axh );
     end
@@ -118,7 +118,7 @@ function cur_col = next_but_cbk( source, eventdata, ...
     % get the new variable names
     this_var = ds.Properties.VarNames{ ud.cur_col };
         if isnumeric( ds.( this_var ) )
-        plot( axh, ds.( this_var ), '.k' );
+        plot( axh, ds.( this_var ), '.k', 'MarkerSize', 12 );
     else
         cla( axh );
     end
