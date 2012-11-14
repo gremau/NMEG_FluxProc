@@ -192,7 +192,7 @@ switch sitecode
       case 2012
         idx = 1 : DOYidx( 103 );
         data( idx, : ) = shift_data( data( idx, : ), 1.0 );
-        idx = DOYidx( 104 ) : DOYidx( 220 );
+        idx = DOYidx( 104 ) : size( data, 1 );
         data( idx, : ) = shift_data( data( idx, : ), 2.0 );
     end
 

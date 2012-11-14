@@ -39,21 +39,33 @@ for i = 1:size( data_in, 2 )
         data_out( :, i ) = data_in( :, i );
     else
         this_in = data_in( :, i );
+        % valid data exist -- smooth them
+
+        % d = [ NaN; diff( this_in ) ];
+        % idx = find( abs( d ) > 0.01 );
+        % this_in( idx ) = NaN;
         nan_idx = isnan( this_in );
         this_in = inpaint_nans( this_in, 4 );
-        % valid data exist -- smooth them
-        this_out = smooth( this_in, ...
-                           ( win / size( this_in, 1 ) ), ...
-                           'rloess' ); 
-        this_out( nan_idx ) = NaN;
+        
+        in_filtered = medfilt1( this_in, 500 );
+        this_in( abs( this_in - in_filtered ) > 0.005 ) = NaN;
+        this_in = inpaint_nans( this_in, 4 );
+        this_out = supsmu( 1:numel( this_in ), ...
+                           this_in, ...
+                           'Span', 150 / numel ( this_in ) );
+        % this_out = smooth( this_in, ...
+        %                    ( win / size( this_in, 1 ) ), ...
+        %                    'loess' ); 
+        %this_out( nan_idx ) = NaN;
         data_out( :, i ) = this_out;
     end
     
     if debug_plots
         figure( 'Name', data_input.Properties.VarNames{ i } )
-        h_in = plot( data_in( :, i ), '.' );
+        h_in = plot( data_in( :, i ), 'ok' );
         hold on;
-        h_out = plot( data_out( :, i ), '-k' );
+        h_filt = plot( this_in( : ), '.' );
+        h_out = plot( data_out( :, i ), '-g', 'LineWidth', 2 );
         idx = find( isnan( data_in( :, i ) ) );
         h_nan = plot( idx, data_out( idx, i ), 'or' );
         legend( [ h_in, h_out, h_nan ], ...

@@ -250,7 +250,11 @@ obs_per_day = 48;  % half-hourly observations
     
     outfolder = fullfile( get_site_directory( sitecode ), ...
                           'processed_flux' );
-    data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
+    if year_arg >= 2012
+        data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
+    else
+        data = UNM_parse_fluxall_xls_file( sitecode, year_arg );
+    end
     headertext = data.Properties.VarNames;
     [year month day hour minute second] = datevec( data.timestamp );
     data.timestamp = [];
@@ -1784,7 +1788,14 @@ obs_per_day = 48;  % half-hourly observations
                   'delimiter', '\t' );
     end
 
-
+    fc_raw_massman_wpl = ...
+        replace_consecutive_zeros( fc_raw_massman_wpl, 1, NaN );
+    HL_wpl_massman = ...
+        replace_consecutive_zeros( HL_wpl_massman, 1, NaN );
+    HSdry_massman = ...
+        replace_consecutive_zeros( HSdry_massman, 1, NaN );
+    
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %WRITE COMPLETE OUT-FILE  (FLUX_all matrix with bad values removed)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1793,20 +1804,6 @@ obs_per_day = 48;  % half-hourly observations
         disp('writing qc file...')
         
         if sitecode == 5 || sitecode == 6 
-            %         header2 = {'timestamp','year','month','day','hour','minute','second','jday','iok','agc_Avg',...
-            %             'wnd_dir_compass','wnd_spd','CO2_mean','CO2_std','H2O_mean','H2O_std',...
-            %             'fc_raw','fc_raw_massman','fc_water_term','fc_heat_term_massman','fc_raw_massman_wpl',...
-            %             'E_raw','E_raw_massman','E_water_term','E_heat_term_massman','E_wpl_massman',...
-            %             'HSdry','HSdry_massman','HL_raw','HL_wpl_massman',...
-            %             'Tdry','air_temp_hmp','Tsoil_2cm','Tsoil_6cm','precip','atm_press','rH'...
-            %             'Par_Avg','sw_incoming','sw_outgoing','lw_incoming','lw_outgoing','NR_sw','NR_lw','NR_tot'};
-            %         datamatrix2 = [year,month,day,hour,minute,second,jday,iok,agc_Avg,...
-            %             wnd_dir_compass,wnd_spd,CO2_mean,CO2_std,H2O_mean,H2O_std,...        
-            %             fc_raw,fc_raw_massman,fc_water_term,fc_heat_term_massman,fc_raw_massman_wpl,...
-            %             E_raw,E_raw_massman,E_water_term,E_heat_term_massman,E_wpl_massman,...
-            %             HSdry,HSdry_massman,HL_raw,HL_wpl_massman,...
-            %             Tdry,air_temp_hmp,Tsoil_2cm,Tsoil_6cm,precip,atm_press,rH...
-            %             Par_Avg,sw_incoming,sw_outgoing,lw_incoming,lw_outgoing,NR_sw,NR_lw,NR_tot];
             header2 = {'timestamp', 'year', 'month', 'day', 'hour', 'minute', ...
                        'second', 'jday', 'iok', 'agc_Avg', 'u_star', ...
                        'wnd_dir_compass', 'wnd_spd', 'CO2_mean', 'CO2_std', ...
@@ -2310,6 +2307,7 @@ switch sitecode
         DOY_co2_max( DOYidx( 280 ) : DOYidx( 285 ) ) = 1.2;
       case 2012
         DOY_co2_max( DOYidx( 113 ) : DOYidx( 137 ) ) = 1.0;
+        DOY_co2_max( DOYidx( 300 ) : DOYidx( 317 ) ) = 1.7;
         std_exc_flag( DOYidx( 174 ) : DOYidx( 175 ) ) = true;
     end %GLand
 
@@ -2339,7 +2337,8 @@ switch sitecode
         std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
         
         DOY_co2_min(  DOYidx( 185 ) : end ) = -1.5;
-
+      case 2012
+        DOY_co2_max(  DOYidx( 285 ) : end ) = 0.95;
     end %SLand
   
   case UNM_sites.JSav
@@ -2521,6 +2520,8 @@ switch sitecode
         std_exc_flag( DOYidx( 335.45 ) : DOYidx( 335.6 ) ) = true;
         DOY_co2_max( DOYidx( 344.5 ) : DOYidx( 344.7 ) ) = 9.0;
         DOY_co2_max( DOYidx( 345.48 ) : DOYidx( 345.56 ) ) = 9.0;
+      case 2012
+        DOY_co2_max( DOYidx( 215 ) : DOYidx( 285 ) ) = 2.0;
     end  % New_GLand
 end
 
