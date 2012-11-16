@@ -49,7 +49,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% parse the annual Flux_All file
-data = UNM_parse_fluxall_xls_file( sitecode, year );
+data = UNM_parse_fluxall_txt_file( sitecode, year );
 
 
 % seems to be parsing header of NewGland_2011 to bogus dates -- temporary

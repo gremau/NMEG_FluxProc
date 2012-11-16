@@ -1788,6 +1788,9 @@ obs_per_day = 48;  % half-hourly observations
                   'delimiter', '\t' );
     end
 
+    % small runs of consecutive zeros in these fields are (1) almost certainly bogus
+    % and (2) seem to mess up the Lasslop flux partitioning.  Replace them
+    % here with NaN.
     fc_raw_massman_wpl = ...
         replace_consecutive_zeros( fc_raw_massman_wpl, 1, NaN );
     HL_wpl_massman = ...
