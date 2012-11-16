@@ -403,7 +403,7 @@ switch sitecode
   case { UNM_sites.GLand, UNM_sites.SLand, ...
          UNM_sites.PJ, UNM_sites.PJ_girdle }
     linfit = [ false false false ];
-  case UNM_sites.JSav
+  case { UNM_sites.JSav, UNM_sites.New_GLand }
     linfit = [ true true true ];
   case { UNM_sites.PPine, UNM_sites.MCon }
     linfit = [ false false true ];
