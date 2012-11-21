@@ -793,6 +793,9 @@ obs_per_day = 48;  % half-hourly observations
         elseif year_arg >= 2009
             % calibration for par-lite installed on 2/11/08
             Par_Avg = Par_Avg.*1000./5.51;
+            % temperature correction just for long-wave
+            lw_incoming = lw_incoming + ( 0.0000000567 .* ( Tdry .^ 4 ) )
+            lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( Tdry .^ 4 ) )
             % calculate new net radiation values
             NR_lw = lw_incoming - lw_outgoing;
             NR_sw = sw_incoming - sw_outgoing;
@@ -910,11 +913,18 @@ obs_per_day = 48;  % half-hourly observations
         NR_sw = sw_incoming - sw_outgoing;
         NR_tot = NR_lw + NR_sw;
         
-    elseif intersect( sitecode, [ 9, 10 ] )
+    elseif sitecode == 9
         NR_lw = lw_incoming - lw_outgoing;
         NR_sw = sw_incoming - sw_outgoing;
         NR_tot = NR_lw + NR_sw;
-
+    elseif sitecode == 10
+        % temperature correction just for long-wave
+        lw_incoming = lw_incoming + ( 0.0000000567 .* ( Tdry .^ 4 ) )
+        lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( Tdry .^ 4 ) )
+        % recalculate net radiation with T-adjusted longwave
+        NR_lw = lw_incoming - lw_outgoing;
+        NR_sw = sw_incoming - sw_outgoing;
+        NR_tot = NR_lw + NR_sw;
         %%%%%%%%%%%%%%%%% New Grassland
     elseif sitecode == 11 
         % calibration correction for the li190

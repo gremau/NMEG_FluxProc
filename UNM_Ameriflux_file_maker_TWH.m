@@ -49,7 +49,13 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% parse the annual Flux_All file
-data = UNM_parse_fluxall_txt_file( sitecode, year );
+if year < 2012
+    % before 2012, fluxall data are in excel files
+    data = UNM_parse_fluxall_xls_file( sitecode, year );
+else
+    % after 2012, fluxall data are kept in delimited ASCII files
+    data = UNM_parse_fluxall_txt_file( sitecode, year );
+end
 
 
 % seems to be parsing header of NewGland_2011 to bogus dates -- temporary
@@ -145,6 +151,7 @@ switch sitecode
         temp_arr( row_idx, data_cols ) = NaN;
         ds_pt = replacedata( ds_pt, temp_arr );
     end
+        
   case int8( UNM_sites.MCon ) 
     switch year
       case 2009
