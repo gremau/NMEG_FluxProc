@@ -535,7 +535,7 @@ draw_plots = args.Results.draw_plots;
     % Set up file name and file path
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    if year2 <= 2011
+    if year_arg <= 2011
         drive='c:';
         row1=5;  %first row of data to process - rows 1 - 4 are header
         filename = strcat(site,'_flux_all_',num2str(year))
@@ -567,7 +567,7 @@ draw_plots = args.Results.draw_plots;
     else
         outfolder = fullfile( get_site_directory( sitecode ), ...
                               'processed_flux' );
-        fluxall_data = UNM_parse_fluxall_txt_file( sitecode, year2 );
+        fluxall_data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
         headertext = fluxall_data.Properties.VarNames;
         [year month day hour minute second] = datevec( fluxall_data.timestamp );
         fluxall_data.timestamp = [];
@@ -632,7 +632,7 @@ draw_plots = args.Results.draw_plots;
         decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
                         datenum( year, 1, 1 ) + 1 );
         
-        year2 = year(2);
+        year_arg = year(2);
 
         for i=1:ncol;
             if strcmp('RH',headertext(i)) == 1 || strcmp('rh_hmp', headertext(i)) == 1 || strcmp('rh_hmp_4_Avg', headertext(i)) == 1
@@ -688,7 +688,7 @@ draw_plots = args.Results.draw_plots;
         decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
                         datenum( year, 1, 1 ) + 1 );
         
-        year2 = year(2);
+        year_arg = year(2);
 
         for i=1:ncol;
             if strcmp('RH',headertext(i)) == 1 || strcmp('rh_hmp', headertext(i)) == 1 || strcmp('rh_hmp_4_Avg', headertext(i)) == 1
@@ -739,7 +739,7 @@ draw_plots = args.Results.draw_plots;
 
         decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
                         datenum( year, 1, 1 ) + 1 );
-        year2 = year(2);
+        year_arg = year(2);
 
     end
 
@@ -796,7 +796,7 @@ draw_plots = args.Results.draw_plots;
                 strcmp('t_hmp_top_Avg', headertext(i))==1
             air_temp_hmp = data(:,i-1);
         elseif strcmp('AirTC_2_Avg', headertext(i))==1 && ...
-                (year2 == 2009 || year2 ==2010) && sitecode == 6
+                (year_arg == 2009 || year_arg ==2010) && sitecode == 6
             air_temp_hmp = data(:,i-1);
         elseif strcmp('Tsoil',headertext(i)) == 1 || ...
                 strcmp('Tsoil_avg',headertext(i)) == 1 || ...
@@ -1018,7 +1018,7 @@ draw_plots = args.Results.draw_plots;
                 Juniper_10cm = data(:,i-1);
             end
         end
-        if year2 == 2005 % juniper probes on-line after 5/19/05
+        if year_arg == 2005 % juniper probes on-line after 5/19/05
                          % before 5/19
             canopy_5cm = Mesquite_5cm(find(decimal_day < 139.61));
             canopy_10cm = Mesquite_10cm(find(decimal_day < 139.61));
@@ -1068,7 +1068,7 @@ draw_plots = args.Results.draw_plots;
 
     %%%%%%%%%%%%%%%%% grassland
     if sitecode == 1
-        if year2 == 2007
+        if year_arg == 2007
             % this is the wind correction factor for the Q*7 used before ??/??      
             for i = 1:5766
                 if NR_tot(1) < 0
@@ -1102,7 +1102,7 @@ draw_plots = args.Results.draw_plots;
             % estimate par from sw_incoming
             Par_Avg(find(decimal_day < 162.15)) = sw_incoming(find(decimal_day < 162.15)).*2.025 + 4.715;
             
-        elseif year2 >= 2008
+        elseif year_arg >= 2008
             % calibration correction for the li190
             Par_Avg = Par_Avg.*1000./(5.7*0.604);
             % calibration and unit conversion into W per m^2 for CNR1 variables
@@ -1122,7 +1122,7 @@ draw_plots = args.Results.draw_plots;
         
         %%%%%%%%%%%%%%%%% shrubland 
     elseif sitecode == 2    
-        if year2 == 2007
+        if year_arg == 2007
             % was this a Q*7 through the big change on 5/30/07? need updated
             % calibration
             may30 = 48 * ( datenum( 2007, 5, 30 ) - datenum( 2007, 1, 1 ) );
@@ -1161,7 +1161,7 @@ draw_plots = args.Results.draw_plots;
             % estimate par from sw_incoming
             Par_Avg(find(decimal_day < 150.729)) = sw_incoming(find(decimal_day < 150.729)).*2.0292 + 3.6744;
             
-        elseif any( intersect ( year2, 2008:2011 ) )
+        elseif any( intersect ( year_arg, 2008:2011 ) )
             % calibration and unit conversion into W per m^2 for CNR1 variables
             % adjust for program error and convert into W per m^2
             sw_incoming = sw_incoming./136.99.*(1000./12.34);
@@ -1180,7 +1180,7 @@ draw_plots = args.Results.draw_plots;
 
         %%%%%%%%%%%%%%%%% juniper savanna
     elseif sitecode == 3 
-        if year2 == 2007
+        if year_arg == 2007
             % calibration and unit conversion into W per m^2 for CNR1 variables
             sw_incoming = sw_incoming./163.666.*(1000./6.9); % convert into W per m^2
             sw_outgoing = sw_outgoing./163.666.*(1000./6.9); % convert into W per m^2
@@ -1193,7 +1193,7 @@ draw_plots = args.Results.draw_plots;
             NR_tot = NR_lw + NR_sw;
             % calibration for par-lite
             Par_Avg = Par_Avg.*1000./5.48;
-        elseif year2 >= 2008
+        elseif year_arg >= 2008
             % calibration and unit conversion into W per m^2 for CNR1 variables
             sw_incoming = sw_incoming./163.666.*(1000./6.9); % convert into W per m^2
             sw_outgoing = sw_outgoing./163.666.*(1000./6.9); % convert into W per m^2
@@ -1212,7 +1212,7 @@ draw_plots = args.Results.draw_plots;
 
         %%%%%%%%%%%%%%%%% pinyon juniper
     elseif sitecode == 4
-        if year2 == 2007
+        if year_arg == 2007
             % this is the wind correction factor for the Q*7
             NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
             NR_tot(find(NR_tot > 0)) = NR_tot(find(NR_tot > 0)).*8.65.*(1 + (0.066.*0.2.*wnd_spd(find(NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(NR_tot > 0)))));
@@ -1222,7 +1222,7 @@ draw_plots = args.Results.draw_plots;
             NR_lw = lw_incoming - lw_outgoing;
             NR_sw = sw_incoming - sw_outgoing;
 
-        elseif year2 == 2008
+        elseif year_arg == 2008
             % this is the wind correction factor for the Q*7
             NR_tot(find(decimal_day < 172 & NR_tot < 0)) = NR_tot(find(decimal_day < 172 & NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(decimal_day < 172 & NR_tot < 0))) + 0.99755);
             NR_tot(find(decimal_day < 172 & NR_tot > 0)) = NR_tot(find(decimal_day < 172 & NR_tot > 0)).*8.65.*(1 + (0.066.*0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))));
@@ -1239,9 +1239,12 @@ draw_plots = args.Results.draw_plots;
             NR_lw = lw_incoming - lw_outgoing;
             NR_sw = sw_incoming - sw_outgoing;
             NR_tot(find(decimal_day > 171.5)) = NR_lw(find(decimal_day > 171.5)) + NR_sw(find(decimal_day > 171.5));
-        elseif year2 >= 2009
+        elseif year_arg >= 2009
             % calibration for par-lite installed on 2/11/08
             Par_Avg = Par_Avg.*1000./5.51;
+            % temperature correction just for long-wave
+            lw_incoming = lw_incoming + ( 0.0000000567 .* ( Tdry .^ 4 ) )
+            lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( Tdry .^ 4 ) )
             % calculate new net radiation values
             NR_lw = lw_incoming - lw_outgoing;
             NR_sw = sw_incoming - sw_outgoing;
@@ -1250,7 +1253,7 @@ draw_plots = args.Results.draw_plots;
 
         %%%%%%%%%%%%%%%%% ponderosa pine
     elseif sitecode == 5
-        if year2 == 2007
+        if year_arg == 2007
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites
             lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
@@ -1261,7 +1264,7 @@ draw_plots = args.Results.draw_plots;
             Par_Avg=Par_Avg.*225;  % Apply correct calibration value 7.37, SA190 manual section 3-1
             Par_Avg=Par_Avg+(0.2210.*sw_incoming); % Apply correction to bring in to line with Par-lite from mid 2008 onwards
             
-        elseif year2 == 2008
+        elseif year_arg == 2008
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites
             lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
@@ -1275,7 +1278,7 @@ draw_plots = args.Results.draw_plots;
             % calibration for par-lite sensor
             Par_Avg(10064:end) = Par_Avg(10064:end).*1000./5.25;
             
-        elseif year2 == 2009 || year2 ==2010 || year2 == 2011
+        elseif year_arg == 2009 || year_arg ==2010 || year_arg == 2011
             lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
             lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave        
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
@@ -1290,7 +1293,7 @@ draw_plots = args.Results.draw_plots;
         
         %%%%%%%%%%%%%%%%% mixed conifer
     elseif sitecode == 6
-        if year2 == 2006 || year2 == 2007
+        if year_arg == 2006 || year_arg == 2007
             % calibration and unit conversion into W per m^2 for CNR1 variables
             % cnr1 installed and working on 8/1/08
             %         sw_incoming(find(decimal_day > 214.75)) = sw_incoming(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2
@@ -1303,7 +1306,7 @@ draw_plots = args.Results.draw_plots;
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
             NR_tot = NR_lw + NR_sw;
             
-        elseif year2 > 2007
+        elseif year_arg > 2007
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites   
             lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
@@ -1322,7 +1325,7 @@ draw_plots = args.Results.draw_plots;
         % values, so delete all values above 6.5 first
         Par_Avg(find(Par_Avg > 13.5)) = NaN;
         Par_Avg = Par_Avg.*1000./(6.16.*0.604);
-        if year2 == 2007 || year2 == 2006 || year2 == 2005
+        if year_arg == 2007 || year_arg == 2006 || year_arg == 2005
             % wind corrections for the Q*7
             NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.91.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
             NR_tot(find(NR_tot > 0)) = NR_tot(find(NR_tot > 0)).*8.83.*(1 + (0.066.*0.2.*wnd_spd(find(NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(NR_tot > 0)))));
@@ -1336,7 +1339,7 @@ draw_plots = args.Results.draw_plots;
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
                                                % calculate new net long wave from total net minus sw net
             NR_lw = NR_tot - NR_sw;
-        elseif year2 == 2008 || year2 == 2009
+        elseif year_arg == 2008 || year_arg == 2009
             % par switch to par-lite on ??
             NR_lw = lw_incoming - lw_outgoing;
             NR_sw = sw_incoming - sw_outgoing;
@@ -1355,11 +1358,19 @@ draw_plots = args.Results.draw_plots;
         NR_sw = sw_incoming - sw_outgoing;
         NR_tot = NR_lw + NR_sw;
         
-    elseif intersect( sitecode, [ 9, 10 ] )
+    elseif sitecode == 9
         NR_lw = lw_incoming - lw_outgoing;
         NR_sw = sw_incoming - sw_outgoing;
         NR_tot = NR_lw + NR_sw;
-
+    elseif sitecode == 10
+        % temperature correction just for long-wave
+        lw_incoming = lw_incoming + ( 0.0000000567 .* ( Tdry .^ 4 ) )
+        lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( Tdry .^ 4 ) )
+        % recalculate net radiation with T-adjusted longwave
+        NR_lw = lw_incoming - lw_outgoing;
+        NR_sw = sw_incoming - sw_outgoing;
+        NR_tot = NR_lw + NR_sw;
+        
         %%%%%%%%%%%%%%%%% New Grassland
     elseif sitecode == 11 
         % calibration correction for the li190
@@ -1381,7 +1392,7 @@ draw_plots = args.Results.draw_plots;
 
     % normalize PAR to account for calibration problems at some sites
     if ismember( sitecode, [ 1, 2, 3, 4, 10, 11 ] );
-        if ( sitecode == 3 ) & ( year2 == 2008 )
+        if ( sitecode == 3 ) & ( year_arg == 2008 )
             % there is a small but suspicious-looking step change at DOY164 -
             % normalize the first half of the year separately from the second
             doy164 = DOYidx( 164 );
@@ -1395,7 +1406,7 @@ draw_plots = args.Results.draw_plots;
                                       draw_plots );
             Par_Avg = [ Par_Avg1; Par_Avg2 ];
 
-        elseif ( sitecode == 10 ) & ( year2 == 2010 )
+        elseif ( sitecode == 10 ) & ( year_arg == 2010 )
             % two step changes in this one
             doy138 = DOYidx( 138 );
             doy341 = DOYidx( 341 );
@@ -1416,7 +1427,7 @@ draw_plots = args.Results.draw_plots;
         end
     end
     % fix calibration problem at JSav 2009
-    if ( sitecode == 3 ) & ( year2 == 2009 )
+    if ( sitecode == 3 ) & ( year_arg == 2009 )
         Par_Avg( 1:1554 ) = Par_Avg( 1:1554 ) + 133;
     end
     Par_Avg( Par_Avg < -50 ) = NaN;
@@ -1570,7 +1581,7 @@ draw_plots = args.Results.draw_plots;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % gland 2007 had large fluxes for very cold temperatures early in the year.
-    if sitecode == 1 && year2 == 2007
+    if sitecode == 1 && year_arg == 2007
         gland_cold = find(Tdry < 271);
         removed_gland_cold = length(gland_cold);
         decimal_day_nan(gland_cold) = NaN;
@@ -1579,14 +1590,14 @@ draw_plots = args.Results.draw_plots;
     end
 
     % Take out dodgy calibration period at Shrubland in 2007
-    if sitecode == 2 && year2 == 2007 
+    if sitecode == 2 && year_arg == 2007 
         decimal_day_nan(12150:12250) = NaN;
         record(12150:12250) = NaN;
         conc_record(12600:12750) = NaN;
     end
     
     % Take out dodgy calibration period at Shrubland in 2009
-    if sitecode == 2 && year2 == 2009 
+    if sitecode == 2 && year_arg == 2009 
         conc_record(11595:11829) = NaN;
     end
 
@@ -1654,7 +1665,7 @@ draw_plots = args.Results.draw_plots;
         [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
           HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
           sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, rH ] = ...
-            remove_specific_problem_periods( sitecode, year2, ...
+            remove_specific_problem_periods( sitecode, year_arg, ...
                                              fc_raw_massman_wpl, ...
                                              E_wpl_massman, ...
                                              HL_wpl_massman, ...
@@ -1681,7 +1692,7 @@ draw_plots = args.Results.draw_plots;
         maxminflag = [];
                 
         [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
-            specify_siteyear_filter_exceptions( sitecode, year2, ...
+            specify_siteyear_filter_exceptions( sitecode, year_arg, ...
                                                 DOY_co2_min, DOY_co2_max );
         
         maxminflag = ( ( fc_raw_massman_wpl > DOY_co2_max ) | ...
@@ -2033,15 +2044,15 @@ draw_plots = args.Results.draw_plots;
 
     % min/max QC for TX soil heat fluxes
     if sitecode == 7
-        if year2 == 2005
+        if year_arg == 2005
             soil_heat_flux_open(find(soil_heat_flux_open > 100 | soil_heat_flux_open < -50)) = NaN;
             soil_heat_flux_mescan(find(soil_heat_flux_mescan > 50 | soil_heat_flux_mescan < -40)) = NaN;
             soil_heat_flux_juncan(find(soil_heat_flux_juncan > 50 | soil_heat_flux_juncan < -60)) = NaN;
-        elseif year2 == 2006
+        elseif year_arg == 2006
             soil_heat_flux_open(find(soil_heat_flux_open > 90 | soil_heat_flux_open < -60)) = NaN;
             soil_heat_flux_mescan(find(soil_heat_flux_mescan > 50 | soil_heat_flux_mescan < -50)) = NaN;
             soil_heat_flux_juncan(find(soil_heat_flux_juncan > 50 | soil_heat_flux_juncan < -60)) = NaN;
-        elseif year2 == 2007 
+        elseif year_arg == 2007 
             soil_heat_flux_open(find(soil_heat_flux_open > 110 | soil_heat_flux_open < -50)) = NaN;
             soil_heat_flux_mescan(find(soil_heat_flux_mescan > 40 | soil_heat_flux_mescan < -40)) = NaN;
             soil_heat_flux_juncan(find(soil_heat_flux_juncan > 20 | soil_heat_flux_juncan < -40)) = NaN;

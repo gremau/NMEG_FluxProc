@@ -250,11 +250,8 @@ obs_per_day = 48;  % half-hourly observations
     
     outfolder = fullfile( get_site_directory( sitecode ), ...
                           'processed_flux' );
-    if year_arg >= 2012
-        data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
-    else
-        data = UNM_parse_fluxall_xls_file( sitecode, year_arg );
-    end
+    data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
+
     headertext = data.Properties.VarNames;
     [year month day hour minute second] = datevec( data.timestamp );
     data.timestamp = [];
