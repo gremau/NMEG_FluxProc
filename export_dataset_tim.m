@@ -14,7 +14,7 @@ function success = export_dataset_tim( fname, ds, varargin )
 %     fname: char; full path of file to write.
 %     ds: dataset array
 %     dlm: character; the delimiter to use.  Optional, defaults to tab.
-%     rplc: logical; if true, NaNs are replaced with -9999.  Defaults to
+%     replace_nans: numeric; if true, NaNs are replaced with -9999.  Defaults to
 %     false.
 %     write_units: logical; if true, the write a line of units
 %         beneath the variable names (on line 2).  If ds.Properties.Units is
@@ -29,7 +29,7 @@ args = inputParser;
 args.addRequired( 'fname', @ischar );
 args.addRequired( 'ds', @( x ) isa( x, 'dataset' ) );
 args.addParamValue( 'delimiter', '\t', @ischar );
-args.addParamValue( 'replace_nans', false, @islogical ); %
+args.addParamValue( 'replace_nans', NaN, @isnumeric ); %
 args.addParamValue( 'write_units', false, @islogical ); %
 
 % parse optional inputs
@@ -55,9 +55,9 @@ end
 fclose( fid );
 
 ds_dbl = double( args.Results.ds );
-if args.Results.replace_nans
-% replace NaNs with -9999
-    ds_dbl( isnan( ds_dbl ) ) = -9999;
+if ~isnan( args.Results.replace_nans );
+% replace NaNs with user-specified value
+    ds_dbl( isnan( ds_dbl ) ) = args.Results.replace_nans;
 end
 
 % write the data
