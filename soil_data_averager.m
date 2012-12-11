@@ -143,7 +143,7 @@ for this_cov = 1:numel( covers )
     end
     fprintf( '\n--------------------------------------------------\t' );
 end
-keyboard
+
 avg_by_cover = dataset( { avg_by_cover, avg_by_cover_vars{ : } } );
 
 fprintf( 'AVERAGING BY DEPTH\n' );

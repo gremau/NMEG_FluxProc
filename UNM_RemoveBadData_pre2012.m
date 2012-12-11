@@ -821,6 +821,9 @@ draw_plots = args.Results.draw_plots;
         elseif strcmp('Rad_long_Dn_Avg', headertext(i))==1 || ...
                 strcmp('Rad_long_Dn__Avg', headertext(i))==1
             lw_outgoing = data(:,i-1);
+        elseif strcmp('CNR1TC_Avg', headertext(i)) == 1 || ...
+                strcmp('Temp_C_Avg', headertext(i)) == 1
+            CNR1TK = data(:,i-1) + 273.15;
         elseif strcmp('VW_Avg', headertext(i))==1
             VWC = data(:,i-1);
         elseif strcmp('shf_Avg(1)', headertext(i))==1 || ...
@@ -1091,8 +1094,8 @@ draw_plots = args.Results.draw_plots;
             lw_incoming = lw_incoming.*(1000./8.49)./136.99;
             lw_outgoing = lw_outgoing.*(1000./8.49)./136.99;
             % temperature correction just for long-wave
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4;
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4;
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
             % calculate new net radiation values
             NR_lw = lw_incoming - lw_outgoing;
             NR_sw = sw_incoming - sw_outgoing;
@@ -1112,8 +1115,8 @@ draw_plots = args.Results.draw_plots;
             lw_incoming = lw_incoming./136.99.*(1000./8.49);
             lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
             % temperature correction just for long-wave
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4;
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4;
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
             % calculate new net radiation values
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
@@ -1147,8 +1150,8 @@ draw_plots = args.Results.draw_plots;
             sw_outgoing = sw_outgoing./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2
             lw_incoming = lw_incoming./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2
             lw_outgoing = lw_outgoing./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2        
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave        
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave 
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave 
             
             % calculate new net radiation values
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
@@ -1169,8 +1172,8 @@ draw_plots = args.Results.draw_plots;
             lw_incoming = lw_incoming./136.99.*(1000./12.34);
             lw_outgoing = lw_outgoing./136.99.*(1000./12.34);
             % temperature correction just for long-wave
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4;
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4;
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
             NR_tot = NR_lw + NR_sw;
@@ -1186,8 +1189,8 @@ draw_plots = args.Results.draw_plots;
             sw_outgoing = sw_outgoing./163.666.*(1000./6.9); % convert into W per m^2
             lw_incoming = lw_incoming./163.666.*(1000./6.9); % convert into W per m^2
             lw_outgoing = lw_outgoing./163.666.*(1000./6.9); % convert into W per m^2        
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
             NR_tot = NR_lw + NR_sw;
@@ -1199,8 +1202,8 @@ draw_plots = args.Results.draw_plots;
             sw_outgoing = sw_outgoing./163.666.*(1000./6.9); % convert into W per m^2
             lw_incoming = lw_incoming./163.666.*(1000./6.9); % convert into W per m^2
             lw_outgoing = lw_outgoing./163.666.*(1000./6.9); % convert into W per m^2        
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
             NR_tot = NR_lw + NR_sw;
@@ -1232,8 +1235,8 @@ draw_plots = args.Results.draw_plots;
             Par_Avg(find(decimal_day > 42.6)) = Par_Avg(find(decimal_day > 42.6)).*1000./5.51;
             sw_incoming(find(decimal_day < 172)) = Par_Avg(find(decimal_day < 172)).*0.4577 - 1.8691;
             
-            lw_incoming(find(decimal_day > 171.5)) = lw_incoming(find(decimal_day > 171.5)) + 0.0000000567.*(Tdry(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
-            lw_outgoing(find(decimal_day > 171.5)) = lw_outgoing(find(decimal_day > 171.5)) + 0.0000000567.*(Tdry(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
+            lw_incoming(find(decimal_day > 171.5)) = lw_incoming(find(decimal_day > 171.5)) + 0.0000000567.*(CNR1TK(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
+            lw_outgoing(find(decimal_day > 171.5)) = lw_outgoing(find(decimal_day > 171.5)) + 0.0000000567.*(CNR1TK(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
             
             % calculate new net radiation values
             NR_lw = lw_incoming - lw_outgoing;
@@ -1243,8 +1246,8 @@ draw_plots = args.Results.draw_plots;
             % calibration for par-lite installed on 2/11/08
             Par_Avg = Par_Avg.*1000./5.51;
             % temperature correction just for long-wave
-            lw_incoming = lw_incoming + ( 0.0000000567 .* ( Tdry .^ 4 ) )
-            lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( Tdry .^ 4 ) )
+            lw_incoming = lw_incoming + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
+            lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
             % calculate new net radiation values
             NR_lw = lw_incoming - lw_outgoing;
             NR_sw = sw_incoming - sw_outgoing;
@@ -1256,8 +1259,8 @@ draw_plots = args.Results.draw_plots;
         if year_arg == 2007
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave        
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
             NR_tot = NR_lw + NR_sw;
@@ -1267,8 +1270,8 @@ draw_plots = args.Results.draw_plots;
         elseif year_arg == 2008
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave        
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
             NR_tot = NR_lw + NR_sw;
@@ -1279,8 +1282,8 @@ draw_plots = args.Results.draw_plots;
             Par_Avg(10064:end) = Par_Avg(10064:end).*1000./5.25;
             
         elseif year_arg == 2009 || year_arg ==2010 || year_arg == 2011
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave        
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
             NR_tot = NR_lw + NR_sw;
@@ -1300,8 +1303,8 @@ draw_plots = args.Results.draw_plots;
             %         sw_outgoing(find(decimal_day > 214.75)) = sw_outgoing(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2
             %         lw_incoming(find(decimal_day > 214.75)) = lw_incoming(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2
             %         lw_outgoing(find(decimal_day > 214.75)) = lw_outgoing(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2        
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave        
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
             NR_tot = NR_lw + NR_sw;
@@ -1309,8 +1312,8 @@ draw_plots = args.Results.draw_plots;
         elseif year_arg > 2007
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites   
-            lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave
-            lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4; % temperature correction just for long-wave        
+            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
             NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
             NR_tot = NR_lw + NR_sw;
@@ -1364,8 +1367,8 @@ draw_plots = args.Results.draw_plots;
         NR_tot = NR_lw + NR_sw;
     elseif sitecode == 10
         % temperature correction just for long-wave
-        lw_incoming = lw_incoming + ( 0.0000000567 .* ( Tdry .^ 4 ) )
-        lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( Tdry .^ 4 ) )
+        lw_incoming = lw_incoming + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
+        lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
         % recalculate net radiation with T-adjusted longwave
         NR_lw = lw_incoming - lw_outgoing;
         NR_sw = sw_incoming - sw_outgoing;
@@ -1382,8 +1385,8 @@ draw_plots = args.Results.draw_plots;
         lw_incoming = lw_incoming./136.99.*(1000./8.49);
         lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
         % temperature correction just for long-wave
-        lw_incoming = lw_incoming + 0.0000000567.*(Tdry).^4;
-        lw_outgoing = lw_outgoing + 0.0000000567.*(Tdry).^4;
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
         % calculate new net radiation values
         NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
         NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
@@ -2248,7 +2251,7 @@ draw_plots = args.Results.draw_plots;
 
     if write_complete_out_file
         disp('writing qc file...')
-        
+        Tsoil = ones(size(qc)).*-999;
         if sitecode == 5 || sitecode == 6 
             %         header2 = {'timestamp','year','month','day','hour','minute','second','jday','iok','agc_Avg',...
             %             'wnd_dir_compass','wnd_spd','CO2_mean','CO2_std','H2O_mean','H2O_std',...

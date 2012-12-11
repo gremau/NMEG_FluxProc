@@ -1,4 +1,4 @@
-function [success, toa5_fname] = JSavCR1000_2_TOA5( raw_data_dir)
+function [success, toa5_fname] = JSavCR1000_2_TOA5( raw_data_dir )
 % JSavCR1000_2_TOA5 - convert the soil water content from the CR1000 datalogger
 % at JSav to a TOA5 file
 
