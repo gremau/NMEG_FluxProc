@@ -456,13 +456,13 @@ obs_per_day = 48;  % half-hourly observations
     
     if ismember( sitecode, [ 3, 4 ] )
         % use "RH" at JSav, PJ
-        rh_col = find( strcmp( 'RH', headertext ) ) - 1;
+        rh_col = find( strcmp( 'RH', headertext ) );
         fprintf( 'found RH\n' );
         rH = data( :, rh_col ) / 100.0;
     elseif ismember( sitecode, [ 5, 6 ] )
         % use "RH_2" at PPine, MCon
         rh_col = find( strcmp( 'RH_2', headertext ) | ...
-                       strcmp( 'RH_2_Avg', headertext ) ) - 1;
+                       strcmp( 'RH_2_Avg', headertext ) );
         if ~isempty( rh_col )
             fprintf( 'found RH_2\n' );
         else
@@ -2418,6 +2418,9 @@ switch sitecode
         
         DOY_co2_max( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = 6.5;
         DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
+        
+      case 2012
+        DOY_co2_max( DOYidx( 307 ) : DOYidx( 346 ) ) = 1.0;
     end  %PJ
 
   case UNM_sites.PPine
