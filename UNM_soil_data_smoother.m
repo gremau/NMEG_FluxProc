@@ -58,6 +58,9 @@ for i = 1:size( data_in, 2 )
         %                    'loess' ); 
         %this_out( nan_idx ) = NaN;
         data_out( :, i ) = this_out;
+        
+        last_valid_data_in = max( find( not( nan_idx ) ) );
+        data_out( (last_valid_data_in + 1):end, i ) = NaN;
     end
     
     if debug_plots

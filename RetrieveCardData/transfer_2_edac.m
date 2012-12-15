@@ -53,6 +53,7 @@ cmd = sprintf( '%s & del %s &', cmd, blk_fname );
 
 [s, r] = dos(cmd);
 
+% do not proceed until "blocking" file is removed; check every 5 seconds
 pause on;
 while( exist( blk_fname ) == 2 )
     pause( 5 );

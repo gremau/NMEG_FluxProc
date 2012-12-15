@@ -47,7 +47,10 @@ switch sitecode
         data = shift_data( data, 1.0 );
         data = shift_data( data, 0.5, 'cols_to_shift', all_10hz );
       case 2012
-        data = shift_data( data, 1.0 );
+        Dec07_1255 = datenum( 2012, 12, 7, 12, 55, 0 ) - datenum( 2012, 1, 0 );
+        idx = 1 : DOYidx( Dec07_1255  );
+        data( idx, : ) = shift_data( data( idx, : ), 1.0 );
+        
     end
 
   case UNM_sites.SLand
@@ -155,10 +158,20 @@ switch sitecode
                                      'cols_to_shift', col_idx );
 
         col_idx = 1:size( data, 2 );
-        Sep19 = datenum( 2012, 9, 19, 17, 0, 0 ) - datenum( 2012, 1, 0 );        
-        idx = DOYidx( Sep19 ) : size( data, 1 );
-        data( idx, : ) = shift_data( data( idx, : ), -3.5, ...
-                                     'cols_to_shift', col_idx );
+        
+        Aug11_1710 = datenum( 2012, 8, 11, 17, 10, 0 ) - datenum( 2012, 1, 0 );
+        Nov14_1200 = datenum( 2012, 11, 14, 12, 0, 0 ) - datenum( 2012, 1, 0 );
+        Aug11_1710 = DOYidx( Aug11_1710 );
+        Nov14_1200 = DOYidx( Nov14_1200 );
+        Sep19_1700 = DOYidx( datenum( 2012, 9, 19, 17, 0, 0 ) - ...
+                        datenum( 2012, 1, 0 ) );
+
+        % data( Aug11_1710:Sep19_1700, : ) = ...
+        %     shift_data( data( Aug11_1710:Sep19_1700, : ), 3.5, ...
+        %                 'cols_to_shift', col_idx );
+        data( Sep19_1700:Nov14_1200, : ) = ...
+            shift_data( data( Sep19_1700:Nov14_1200, : ), -3.5, ...
+                        'cols_to_shift', col_idx );
 
         
         
@@ -166,10 +179,9 @@ switch sitecode
         % match the Ameriflux tech's clock.  From Skyler: "I swapped the card
         % beforehand then changed the clock from Aug 11, 2012 20:54 to Aug 11,
         % 2012 17:10."
-        Aug11_1710 = datenum( 2012, 8, 11, 17, 10, 0 ) - datenum( 2012, 1, 0 );
-        idx = DOYidx( Aug11_1710 );
-        data( idx:end, : ) = shift_data( data( idx:end, : ), 4.5, ...
-                                     'cols_to_shift', col_idx );
+        data( Aug11_1710:Nov14_1200, : ) = ...
+            shift_data( data( Aug11_1710:Nov14_1200, : ), 4.5, ...
+        'cols_to_shift', col_idx );
     end
 
   case UNM_sites.TX
@@ -194,6 +206,10 @@ switch sitecode
         data( idx, : ) = shift_data( data( idx, : ), 1.0 );
         idx = DOYidx( 104 ) : size( data, 1 );
         data( idx, : ) = shift_data( data( idx, : ), 2.0 );
+        
+        Dec07_1355 = datenum( 2012, 12, 7, 13, 55, 0 ) - datenum( 2012, 1, 0 );
+        idx = 1 : DOYidx( Dec07_1355  );
+        data( idx, : ) = shift_data( data( idx, : ), 1.0 );
     end
 
 end

@@ -11,6 +11,11 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
 %   
 %
 
+[ last_obs_row_data, ~, ~ ] = find( not( isnan( double( data( :, 2:end ) ) ) ) );
+[ last_obs_row_qc, ~, ~ ] = find( not( isnan( double( ds_qc( :, 2:end ) ) ) ) );
+last_obs_row = max( [ reshape( last_obs_row_data, 1, [] ), ...
+                    reshape( last_obs_row_qc, 1, [] ) ] );
+
 sitecode = UNM_sites( sitecode );
 SWC_smoothed = false; % will set to true after SWC data have been smoothed
 
@@ -76,6 +81,17 @@ switch sitecode
         draw_plots = false;  % set to true to see the corrections
         cs616_pd_smoothed = GLand_2011_correct_22Mar( cs616_pd_smoothed, ...
                                                       draw_plots );
+    end
+    
+    if ( sitecode == UNM_sites.JSav ) & ( year == 2012 )
+        % GLand SWC probes were reinstalled on 22 Mar 2011, introducing an
+        % artificial discontinuity in most of the probes.  Correct that by
+        % raising signal after 22 Mar to its pre-22 Mar level.
+        draw_plots = false;  % set to true to see the corrections
+        cs616_pd_smoothed = ...
+            JSav_2012_datalogger_transition( cs616_pd, ...
+                                             6, ...
+                                             draw_plots );
     end
 
     % if necessary, convert CS616 periods to volumetric water content
@@ -308,7 +324,17 @@ out_data = [ double( Tsoil_smoothed ), ...
 %              double( VWC_depth_avg ), ...
 %              double( VWC_cover_depth_avg ), ...
 %              double( SHF ) ];
+
+% the soil data smoothing/averaging routine is setup to fill constant values
+% past the last valid observation in cases where there is a gap at the end of
+% the record, and there is no precipitation during that gap.  However, we
+% don't want to fill past the end of the most recent data collected from the
+% field (or, worse, into the future!).  So, make sure the soil data contain
+% only NaNs after the end of the most recent set of observations.
+out_data( (last_obs_row + 1) : end, : ) = NaN;
+
 ds_out = dataset( { out_data, out_names{ : } } );
+
 
 % add timestamp columns
 [ YEAR, ~, ~, ~, ~, ~ ] = datevec( data.timestamp );
@@ -396,6 +422,25 @@ function Tsoil = JSav_match_soilT_SWC( Tsoil )
 
 [ ~, discard_idx ] = regexp_ds_vars( Tsoil, '62' );
 Tsoil( :, discard_idx ) = [];
+
+%--------------------------------------------------
+
+function swc_smooth = JSav_2012_datalogger_transition( swc_raw, win, draw_plots )
+% JSAV_2012_DATALOGGER_TRANSITION - The JSav soil water content probes were
+%   moved to a CR1000 datalogger on 1 May 2012.  After the switch the datalogger
+%   recorded volumetric water content, not cs616 period in microseconds as
+%   before the switch.  Smoothing the data across that transition messes things
+%   up, so smooth the two halves of the record separately here
+
+may1 = datenum( 2012, 5, 1 ) - datenum( 2012, 1, 0 ); 
+may1 = DOYidx( may1 );
+
+swc_smooth1 = UNM_soil_data_smoother( swc_raw( 1:may1-1, : ), win, draw_plots ); 
+swc_smooth2 = UNM_soil_data_smoother( swc_raw( may1:end, : ), win, draw_plots ); 
+
+swc_smooth = vertcat( swc_smooth1, swc_smooth2 );
+
+
 
 %--------------------------------------------------
 

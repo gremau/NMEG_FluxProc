@@ -34,7 +34,7 @@ fgf.timestamp = [];
 fname = fullfile( get_site_directory( UNM_sites.PPine ),...
                   'processed_flux', ...
                   'PPine_flux_all_2012_for_gap_filling_filled_despiked.txt' );
-export_dataset_tim( fname, fgf, 'replace_nans', true); 
+export_dataset_tim( fname, fgf, 'replace_nans', -9999); 
 fprintf( 'wrote %s\n', fname );
 
 success = 0;

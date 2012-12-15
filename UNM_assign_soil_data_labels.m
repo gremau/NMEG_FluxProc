@@ -249,7 +249,7 @@ switch sitecode
       case { 2011, 2012 }
         % this year cs616 SWC are labeled open1_12.5, grass2_2.5, etc.  They
         % are in columns 203 to 222
-        re = '^(open|grass)[12]_[0-9]{1,2}p5cm';  % regular expression to
+        re = '(^(open|grass)[12]_[0-9]{1,2}p5cm|swc.*)';  % regular expression to
                                                   % identify cs616 labels
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, re );
         % prepend 'cs616SWC_' to labels and separate cover type from pit number
@@ -266,7 +266,7 @@ switch sitecode
         % idx_cs616 = idx_cs616( [ 1:16, 18:21 ] );
 
         % change mux25t... labels to descriptive soilT labels
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
+        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '(mux25t|soilT)' );
         fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
         
         % some files in late 2012 are labeled "soilt..." not "soilT..."
@@ -334,7 +334,7 @@ switch sitecode
 
       case { 2011, 2012 }
         % change soil_h2o... labels to descriptive SWC labels
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'soil_h2o_.*_Avg' );
+        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, '(soil_h2o_.*_Avg|cs616SWC)' );
         fluxall.Properties.VarNames( idx_cs616 ) = descriptive_cs616_labels;
         
         % change mux25t... labels to descriptive soilT labels
@@ -384,15 +384,15 @@ switch sitecode
     
     cs616_descriptive_labels_postJul09 = { 'cs616SWC_juniper_1_2p5', ...
                         'cs616SWC_juniper_1_12p5', ...
-                        'cs616SWC_juniper_1_22p5', 'cs616SWC_juniper_2_2p5', ...
+                        'cs616SWC_juniper_1_32p5', 'cs616SWC_juniper_2_2p5', ...
                         'cs616SWC_juniper_2_12p5', ...
-                        'cs616SWC_juniper_2_22p5', 'cs616SWC_juniper_3_2p5', ...
+                        'cs616SWC_juniper_2_32p5', 'cs616SWC_juniper_3_2p5', ...
                         'cs616SWC_juniper_3_12p5', ...
-                        'cs616SWC_juniper_3_22p5', 'cs616SWC_open_1_2p5', ...
-                        'cs616SWC_open_1_12p5', 'cs616SWC_open_1_22p5', ...
+                        'cs616SWC_juniper_3_32p5', 'cs616SWC_open_1_2p5', ...
+                        'cs616SWC_open_1_12p5', 'cs616SWC_open_1_32p5', ...
                         'cs616SWC_open_2_2p5', 'cs616SWC_open_2_12p5', ...
-                        'cs616SWC_open_2_22p5', 'cs616SWC_open_3_2p5', ...
-                        'cs616SWC_open_3_12p5', 'cs616SWC_open_3_22p5' };
+                        'cs616SWC_open_2_32p5', 'cs616SWC_open_3_2p5', ...
+                        'cs616SWC_open_3_12p5', 'cs616SWC_open_3_32p5' };
     
     switch year
       case 2007
@@ -492,9 +492,11 @@ switch sitecode
         
         %CS616 SWC probes
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
-        vars( idx_cs616 ) = cs616_descriptive_labels_postJul09;
-        vars( idx_cs616 ) = replace_hex_chars( vars( idx_cs616 ) );
-        vars( idx_cs616 ) = format_probe_strings( vars( idx_cs616 ) );
+        if not( isempty( idx_cs616 ) )
+            vars( idx_cs616 ) = cs616_descriptive_labels_postJul09;
+            vars( idx_cs616 ) = replace_hex_chars( vars( idx_cs616 ) );
+            vars( idx_cs616 ) = format_probe_strings( vars( idx_cs616 ) );
+        end
         
         %soil T
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'SoilT_' );
@@ -580,7 +582,7 @@ switch sitecode
     
   case UNM_sites.New_GLand  % unburned grass
     
-    [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'Soilwcr.*' );
+    [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, '(Soilwcr.*|cs616.*)' );
     swc_vars = fluxall.Properties.VarNames( idx_cs616 );
     swc_vars = strrep( swc_vars, 'Soilwcr', 'cs616SWC' );
     swc_vars = replace_hex_chars( swc_vars );

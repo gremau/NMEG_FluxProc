@@ -57,6 +57,7 @@ args.addParamValue( 'iteration', 6, ...
 args.addParamValue( 'write_QC', true, @islogical );
 args.addParamValue( 'write_GF', true, @islogical );
 args.addParamValue( 'draw_plots', true, @islogical );
+args.addParamValue( 'draw_fingerprints', true, @islogical );
 
 % parse optional inputs
 args.parse( sitecode, year, varargin{ : } );
@@ -1729,7 +1730,7 @@ obs_per_day = 48;  % half-hourly observations
         Tair( 12993:end ) = Tair_TOA5(  12993:end );
     end
     
-    if draw_plots
+    if args.Results.draw_fingerprints
         h_fps = RBD_plot_fingerprints( sitecode, year_arg, decimal_day, ...
                                        sw_incoming, rH, Tair, NEE, LE, ...
                                        H_dry, ...
@@ -2328,6 +2329,8 @@ switch sitecode
       case 2012
         DOY_co2_max( DOYidx( 113 ) : DOYidx( 137 ) ) = 1.0;
         DOY_co2_max( DOYidx( 300 ) : DOYidx( 317 ) ) = 1.7;
+        DOY_co2_max( DOYidx( 325 ) : DOYidx( 343 ) ) = 1.4;
+        DOY_co2_max( DOYidx( 343 ) : DOYidx( 347 ) ) = 1.2;
         std_exc_flag( DOYidx( 174 ) : DOYidx( 175 ) ) = true;
     end %GLand
 
@@ -2358,7 +2361,10 @@ switch sitecode
         
         DOY_co2_min(  DOYidx( 185 ) : end ) = -1.5;
       case 2012
-        DOY_co2_max(  DOYidx( 285 ) : end ) = 0.95;
+        DOY_co2_max(  DOYidx( 285 ) : DOYidx( 328 ) ) = 0.95;
+        DOY_co2_max(  DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = 2.5;
+        std_exc_flag( DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = true;
+        DOY_co2_max(  DOYidx( 328 ) : end ) = 0.5;
     end %SLand
   
   case UNM_sites.JSav
@@ -2397,6 +2403,16 @@ switch sitecode
         std_exc_flag( DOYidx( 184.5 ) : DOYidx( 186 ) ) = true;
         std_exc_flag( DOYidx( 232.0 ) : DOYidx( 232.1 ) ) = true;
         std_exc_flag( DOYidx( 313.4 ) : DOYidx( 313.6 ) ) = true;
+        
+      case 2012
+        DOY_co2_max( DOYidx( 137 ) : DOYidx( 148 ) ) = 5.0;
+        DOY_co2_max( DOYidx( 185 ) : DOYidx( 220 ) ) = 5.0;
+        DOY_co2_max( DOYidx( 245 ) : DOYidx( 285 ) ) = 5.0;
+        DOY_co2_max( DOYidx( 314 ) : DOYidx( 316 ) ) = 1.2;
+        DOY_co2_max( DOYidx( 325 ) : DOYidx( 326 ) ) = 1.0;
+        DOY_co2_min( DOYidx( 325 ) : DOYidx( 329 ) ) = -1.5;
+        DOY_co2_min( DOYidx( 330 ) : end ) = -0.75;
+        
     end  %JSav
     
   case UNM_sites.PJ
@@ -2439,6 +2455,8 @@ switch sitecode
       case 2011
         std_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
         DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;
+      case 2012
+        DOY_co2_min( DOYidx( 90 ) : DOYidx( 140 ) ) = -20;
     end
     
   case UNM_sites.MCon
@@ -2545,6 +2563,8 @@ switch sitecode
         DOY_co2_max( DOYidx( 345.48 ) : DOYidx( 345.56 ) ) = 9.0;
       case 2012
         DOY_co2_max( DOYidx( 215 ) : DOYidx( 285 ) ) = 2.0;
+        DOY_co2_max( DOYidx( 306 ) : DOYidx( 312 ) ) = 1.5;
+        DOY_co2_max( DOYidx( 312 ) : DOYidx( 347 ) ) = 1.5;
     end  % New_GLand
 end
 
@@ -2585,6 +2605,9 @@ if ( sitecode == 2 ) & ( year == 2007 )
     % days 253:257 -- bogus [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 253 ) : DOYidx( 257 ) ) = true;
 end 
+if ( sitecode == 2 ) & ( year == 2012 )
+    co2_conc_filter_exceptions( DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = true;
+end
 if ( sitecode == 3 ) & ( year(1) == 2011 )
     co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 52.7 ) ) = true;
 end 

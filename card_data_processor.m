@@ -89,6 +89,14 @@ methods
     
     obj.data_30min = combine_and_fill_TOA5_files( toa5_files );
     
+    % JSav soil water content data come in on separate flash cards -- merge
+    % these data in
+    if obj.sitecode == UNM_sites.JSav
+        [ year, ~ ] = datevec( obj.date_start );
+        JSav_SWC = JSav_CR1000_to_dataset( year );
+        obj.data_30min = dataset_foldin_data( obj.data_30min, JSav_SWC );
+    end
+    
     end  % get_30min_data
 
 % --------------------------------------------------

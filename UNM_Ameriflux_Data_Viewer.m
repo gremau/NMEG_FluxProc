@@ -1,4 +1,4 @@
-function UNM_Ameriflux_Data_Viewer( varargin )
+function UNM_Ameriflux_Data_Viewer( sitecode, year, varargin )
 % UNM_Ameriflux_Data_Viewer -- a graphical user interface to view and compare
 % gapfilled and non-gapfilled Ameriflux data
 %       
@@ -14,14 +14,14 @@ function UNM_Ameriflux_Data_Viewer( varargin )
 [ this_year, ~, ~, ~, ~, ~ ] = datevec( now() );
 
 args = inputParser;
-args.addParamValue( 'sitecode', NaN, ...
+args.addRequired( 'sitecode', ...
                     @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
-args.addParamValue( 'year', NaN, ...
+args.addRequired( 'year', ...
                     @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
 args.addParamValue( 'prompt_for_files', false, @islogical );
 
 % parse optional inputs
-args.parse( varargin{ : } );
+args.parse( sitecode, year,  varargin{ : } );
 
 sitecode = args.Results.sitecode;
 year = args.Results.year;
@@ -33,16 +33,17 @@ scrsz = get(0,'ScreenSize');
 sites_ds = parse_UNM_site_table();
 
 if args.Results.prompt_for_files
+    start_dir = fullfile( getenv( 'FLUXROOT' ), 'FluxOut', '*.txt' );
     h = msgbox( 'Select the with-gaps Ameriflux file', '' );
     waitfor( h );
     [ fname_gaps, path_gaps ] ...
-        = uigetfile( '*.txt', 'Select the with-gaps Ameriflux file' );
+        = uigetfile( start_dir, 'Select the with-gaps Ameriflux file' );
     fname_gaps = fullfile( path_gaps, fname_gaps );
     
     h = msgbox( 'Select the gapfilled Ameriflux file', '' );
     waitfor( h );
     [ fname_filled, path_filled ] = ...
-        uigetfile( '*.txt', 'Select the gapfilled Ameriflux file' );
+        uigetfile( start_dir, 'Select the gapfilled Ameriflux file' );
     fname_filled = fullfile( path_filled, fname_filled );
     
 else

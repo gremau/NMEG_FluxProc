@@ -10,6 +10,7 @@ function success = compress_raw_data_directory(raw_data_dir)
     
     [result, output] = dos(cmd);
     
+    % do not proceed until blocking file is removed; check every 5 seconds
     pause on;
     while( exist( blk_fname ) == 2 )
         pause( 5 );
@@ -23,3 +24,5 @@ function success = compress_raw_data_directory(raw_data_dir)
         rmdir(raw_data_dir);
         fprintf(1, 'removed %s\n', raw_data_dir);
     end
+    
+    success = 0;

@@ -1,13 +1,29 @@
-function [success, toa5_fname] = JSavCR1000_2_TOA5( raw_data_dir )
+function [success, toa5_fname] = JSavCR1000_2_TOA5( varargin )
 % JSavCR1000_2_TOA5 - convert the soil water content from the CR1000 datalogger
 % at JSav to a TOA5 file
+
+
+% -----
+% define optional inputs, with defaults and typechecking
+% -----
+args = inputParser;
+args.addParamValue( 'raw_data_dir', '', @ischar );
+args.addParamValue( 'dryrun', false, @islogical );
+args.parse( varargin{ : } );
+raw_data_dir = args.Results.raw_data_dir;
+% -----
+
+if isempty( raw_data_dir );
+    raw_data_dir = uigetdir( 'G:\', 'select data file directory' );
+end
+
 
 site = UNM_sites.JSav;
 
 success = true;
 
 thirty_min_file = dir(fullfile(raw_data_dir, '*.soilwcr.dat'));
-toa5_data_dir = fullfile(get_site_directory( site ), 'toa5');
+toa5_data_dir = fullfile(get_site_directory( site ), 'soil');
 if isempty(thirty_min_file)
     error('There is no thirty-minute data file in the given directory');
 elseif length(thirty_min_file) > 1
@@ -52,9 +68,12 @@ else
     end
     
     fprintf( '%s --> %s\n', default_fullpath, newname_fullpath );
-    
-    move_success = ...
-        java.io.File(default_fullpath).renameTo(java.io.File(newname_fullpath));
+
+    move_success = true;
+    if not( args.Results.dryrun )
+        move_success = ...
+            java.io.File(default_fullpath).renameTo(java.io.File(newname_fullpath));
+    end
     success = move_success & success;
     if not(move_success)
         error('thirty_min_2_TOA5:rename_fail',...
