@@ -51,7 +51,7 @@ switch sitecode
 
     % get the soil water content and soil T columns and labels
 
-    re_Tsoil = 'soilT_[A-Za-z]+_[0-9]+_[0-9]+.*'; %regexp to identify
+    re_Tsoil = '[Ss]oilT_[A-Za-z]+_[0-9]+_[0-9]+.*'; %regexp to identify
                                                   %"soilT_COVER_NUMBER_DEPTH"
     Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
     if isempty( Tsoil )
@@ -82,11 +82,19 @@ switch sitecode
         cs616_pd_smoothed = GLand_2011_correct_22Mar( cs616_pd_smoothed, ...
                                                       draw_plots );
     end
+
     
+    if ( sitecode == UNM_sites.JSav ) & ( year == 2009 )
+        cs616_pd = data( :, regexp_ds_vars( data, ...
+                                            'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );   
+        
+        t0 = now();
+        cs616_pd_smoothed = UNM_soil_data_smoother( cs616_pd, 6, false );
+        SWC_smoothed = true;
+        fprintf( 'smooth cs616: %0.2f mins\n', ( now() - t0 ) * 24 * 60 );
+    end
+        
     if ( sitecode == UNM_sites.JSav ) & ( year == 2012 )
-        % GLand SWC probes were reinstalled on 22 Mar 2011, introducing an
-        % artificial discontinuity in most of the probes.  Correct that by
-        % raising signal after 22 Mar to its pre-22 Mar level.
         draw_plots = false;  % set to true to see the corrections
         cs616_pd_smoothed = ...
             JSav_2012_datalogger_transition( cs616_pd, ...
@@ -114,11 +122,18 @@ switch sitecode
     TCAV = data( :, regexp_ds_vars( data, ...
                                      'TCAV_[A-Za-z]+.*' ) );
   case { UNM_sites.PPine }
-    cs616 = preprocess_PPine_soil_data( sitecode, year );
-    cs616 = cs616( find_unique( cs616.timestamp ), : );
+    cs616 = preprocess_PPine_soil_data( year );
+    two_mins = 2;
+    [ ~, cs616 ] = merge_datasets_by_datenum( data, cs616, ...
+                                              'timestamp', 'timestamp', ...
+                                              two_mins, ...
+                                              min( data.timestamp ), ...
+                                              max( data.timestamp ) );
+    % cs616 = cs616( find_unique( cs616.timestamp ), : );
     cs616.timestamp = [];
     cs616_Tc = cs616;  % PPine SWC data are already in VWC form
 
+    
     re_Tsoil = 'soilT.*';
     Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
     
@@ -126,7 +141,7 @@ switch sitecode
                                     'TCAV_[A-Za-z]+.*' ) );
     
   case { UNM_sites.MCon }
-    cs616 = preprocess_MCon_soil_data( sitecode, year );
+    cs616 = preprocess_MCon_soil_data( year );
     cs616.timestamp = [];
     cs616_Tc = cs616;  % MCon SWC data are already in VWC form
 

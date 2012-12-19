@@ -437,51 +437,37 @@ switch sitecode
         % instrument prior to 9 July, and from another after 9 July.  These
         % columns appear to have two headers at the top, one for each
         % instrument.  --TWH 
-        jul09 = datenum( 2009, 7, 9 ) - datenum( 2009, 1, 0 );
-        
-        % pull out pre-July 9 SWC data        
-        preJul09 = double( fluxall( :, [ 171:173, 174:176, ...
-                            162:164, 177:179 ] ) );
-        preJul09 ( DOYidx( jul09 ):end, : ) = NaN;
-        
-        preJul09 = dataset( { preJul09, ...
-                            cs616_descriptive_labels_preJul09{ [1:3, 5:7, ...
-                            9:11, 13:15] } } );
-
-        % pull out post-July 9 SWC data
-        postJul09 = double( fluxall( :, 162:179 ) );
-        postJul09( 1:DOYidx( jul09 ), : ) = NaN;
-        postJul09 = dataset( { postJul09, ...
-                             cs616_descriptive_labels_postJul09{ : } } );
-        
-        echo_SWC_labels.columns = 180:197;
-        echo_SWC_labels.labels = strrep( cs616_descriptive_labels_postJul09, ...
-                                         'cs616SWC', 'echoSWC' );
 
         vars = fluxall.Properties.VarNames;
+        
+        %CS616 SWC probes
+        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
+        if not( isempty( idx_cs616 ) )
+            vars( idx_cs616 ) = regexprep( vars( idx_cs616 ), ...
+                                           'cs616_', 'cs616SWC_' );
+            vars( idx_cs616 ) = replace_hex_chars( vars( idx_cs616 ) );
+            vars( idx_cs616 ) = format_probe_strings( vars( idx_cs616 ) );
+        end
         
         %soil T
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '[sS]oilT_' );
         if ~isempty( idx_Tsoil )
-            vars = regexprep( vars, '[sS]oilT_Avg', 'soilT' );
-            vars = replace_hex_chars( vars );
-            vars = format_probe_strings( vars );
+            vars( idx_Tsoil ) = regexprep( vars( idx_Tsoil ), ...
+                                           '[sS]oilT', 'soilT' );
+            vars( idx_Tsoil ) = regexprep( vars( idx_Tsoil ), '_Avg$', '' );
+            vars( idx_Tsoil ) = replace_hex_chars( vars( idx_Tsoil ) );
+            vars( idx_Tsoil ) = format_probe_strings( vars( idx_Tsoil ) );
         end
-
+        
         %TCAV
         [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
         if ~isempty( idx_TCAV )
             vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
             vars( idx_TCAV ) = format_probe_strings( vars( idx_TCAV ) );
         end
-
+        
         fluxall.Properties.VarNames = genvarname( vars );
-        
-        % remove fluxall SWC variables and replace with properly-labeled
-        % variables defined above, with one probe's measurement in each column.
-        fluxall( :, 162:197 ) = [];
-        fluxall = [ fluxall, preJul09, postJul09 ];
-        
+            
       case { 2010, 2011, 2012 }
         % echo SWC probes
         vars = fluxall.Properties.VarNames;
@@ -549,12 +535,20 @@ switch sitecode
 
     % PPine soil water content is in another file, parsed separately from
     % UNM_Ameriflux_prepare_soil_met.m
-    [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
-    fluxall.Properties.VarNames( idx_soilT ) = ...
-        { 'soilT_ponderosa_1_5', ...
-          'soilT_ponderosa_2_5', ...
-          'soilT_ponderosa_3_5', ... 
-          'soilT_ponderosa_4_5' };
+    if year < 2012
+        [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
+        fluxall.Properties.VarNames( idx_soilT ) = ...
+            { 'soilT_ponderosa_1_5', ...
+              'soilT_ponderosa_2_5', ...
+              'soilT_ponderosa_3_5', ... 
+              'soilT_ponderosa_4_5' };
+    else
+        [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'soilT.*' );
+        if isempty( idx_soilT )
+            error( ['no soil temperature found (expecting ' ...
+                    'soilT_ponderosa_X_Y'] );
+        end
+    end
     
     [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
     if ~isempty( idx_TCAV )

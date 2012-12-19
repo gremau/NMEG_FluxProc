@@ -110,7 +110,7 @@ for this_cov = 1:numel( covers )
         for i = find( idx )
             fprintf( '%s ', original_vars{ i } );
         end
-        fprintf( '\n--------------------------------------------------\t' );
+        fprintf( '\n--------------------------------------------------\n' );
         
         count = count + 1;
     end
@@ -141,7 +141,7 @@ for this_cov = 1:numel( covers )
     for i = find( idx )        
         fprintf( '%s ', original_vars{ i } );
     end
-    fprintf( '\n--------------------------------------------------\t' );
+    fprintf( '\n--------------------------------------------------\n' );
 end
 
 avg_by_cover = dataset( { avg_by_cover, avg_by_cover_vars{ : } } );
@@ -169,7 +169,7 @@ for this_depth = 1:numel( depths )
     for i = find( idx )
         fprintf( '%s ', original_vars{ i } );
     end
-    fprintf( '\n--------------------------------------------------\t' );
+    fprintf( '\n--------------------------------------------------\n' );
 end
 
 avg_by_depth = dataset( { avg_by_depth, avg_by_depth_vars{ : } } );

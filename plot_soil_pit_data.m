@@ -28,9 +28,12 @@ for this_pit = 1:numel( pits )
                      'Dark2', ...
                      max( 3, numel( idx ) ) ) );
 
+    %plot precip
     h1 = subplot( 2, 1, 1 );
     plot( pcp, '.k' );
+    ylabel( 'pcp' );    
     
+    % plot the probe data
     h2 = subplot( 2, 1, 2 );
     this_data = double( soil_data( :, idx ) );
     this_data_filled = this_data;

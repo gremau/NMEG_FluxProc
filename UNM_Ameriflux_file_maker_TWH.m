@@ -48,15 +48,16 @@ end
 % parse Flux_All, Flux_All_qc, gapfilled fluxes, and partitioned fluxes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% parse the annual Flux_All file
-if year < 2012
-    % before 2012, fluxall data are in excel files
-    data = UNM_parse_fluxall_xls_file( sitecode, year );
-else
-    % after 2012, fluxall data are kept in delimited ASCII files
-    data = UNM_parse_fluxall_txt_file( sitecode, year );
-end
+% %% parse the annual Flux_All file
+% if year < 2012
+%     % before 2012, fluxall data are in excel files
+%     data = UNM_parse_fluxall_xls_file( sitecode, year );
+% else
+%     % after 2012, fluxall data are kept in delimited ASCII files
+%     data = UNM_parse_fluxall_txt_file( sitecode, year );
+% end
 
+data = UNM_parse_fluxall_txt_file( sitecode, year );
 
 % seems to be parsing header of NewGland_2011 to bogus dates -- temporary
 % fix until I get the front end of processing away from excel files

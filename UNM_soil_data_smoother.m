@@ -61,6 +61,11 @@ for i = 1:size( data_in, 2 )
         
         last_valid_data_in = max( find( not( nan_idx ) ) );
         data_out( (last_valid_data_in + 1):end, i ) = NaN;
+        
+        first_valid_data_in = min( find( not( nan_idx ) ) );
+        if first_valid_data_in > 0
+            data_out( 1:(first_valid_data_in - 1), i ) = NaN;
+        end
     end
     
     if debug_plots
