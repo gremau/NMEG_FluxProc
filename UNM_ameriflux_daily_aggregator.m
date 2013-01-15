@@ -1,7 +1,40 @@
 classdef UNM_ameriflux_daily_aggregator
 % aggregates UNM gap-filled Ameriflux data to daily values.  Applies mean,
-% sum, and integrated sum where appropriate (details below). 
-
+% sum, and integrated sum where appropriate (details below).
+%
+% variables aggregated by mean: UST, WS, PA, CO2, VPD, H20, TA
+% variables aggregated by min: TA
+% variables aggregated by max: TA
+% variables aggregated by sum: PRECIP
+% variables aggregated by integrated sum (radiation): RNET, PAR, PAR_out, Rg, Rg_out,
+%     Rlong_in, Rlong_out 
+% variables aggregated by integrated sum (C fluxes): FC, GPP, RE
+%
+% USAGE: 
+%     agg = UNM_ameriflux_daily_aggregator( sitecode )
+%     agg = UNM_ameriflux_daily_aggregator( sitecode, years )
+%     agg = UNM_ameriflux_daily_aggregator( sitecode, ..., 'binary_data' )
+%
+% INPUTS:
+%     sitecode: UNM_sites object
+%     years: optional; years to include.  Defaults to 2007-present
+%     binary_data: optional, logical: if true, use binary data instead of
+%          parsing ameriflux files
+%
+% OUTPUTS:
+%     agg: UNM_ameriflux_daily_aggregator object
+%
+% FIELDS:
+%     sitecode
+%     years
+%     aflx_data: dataset array containing the aggregated data
+%
+% METHODS:
+%    write_daily_file( obj ): write daily file to file.  Writes to
+%          $FLUXROOT/Ameriflux_files unless 'outdir' is specified as a
+%          keyword.
+%
+% (c) Timothy W. Hilton, UNM, December 2012
 
 properties
     
@@ -43,7 +76,12 @@ methods
                                        obj.years, ...
                                        'suffix', 'gapfilled', ...
                                        'binary_data', args.Results.binary_data );
+    
+    % no data from the future :)
+    future_idx = obj.aflx_data.timestamp > now();
 
+    obj.aflx_data( future_idx, : ) = [];
+    
     obj = aggregate_daily( obj );
 
     end

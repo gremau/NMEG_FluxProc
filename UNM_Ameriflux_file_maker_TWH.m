@@ -8,7 +8,7 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year, varargin )
 %
 % based on code created by Krista Anderson Teixeira in July 2007 and modified by
 % John DeLong 2008 through 2009.  Extensively modified by Timothy W. Hilton 2011
-% to 2012.
+% to 2013.
 %
 % USAGE
 %    result = UNM_Ameriflux_file_maker_TWH( sitecode, year, ... )
@@ -16,6 +16,9 @@ function result = UNM_Ameriflux_file_maker_TWH( sitecode, year, varargin )
 % KEYWORD ARGUMENTS:
 %    write_files: logical; if false, do not write the Ameriflux files (useful
 %        for debugging without writing over good ameriflux files)
+%    write_daily_files: logical; if true, write daily aggregated data for
+%        selected variables to a separate file.  For a list of aggregated
+%        variables, see help for UNM_ameriflux_daily_aggregator.
 %    process_soil_data: logical; if false, do not produce soil file
 %
 % Timothy W. Hilton, UNM, Dec 2011 - Jan 2012
@@ -30,6 +33,8 @@ args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isnumeric(x) | isa( x, 'UNM_sites' ) ) ); 
 args.addRequired( 'year', @isnumeric );
 args.addParamValue( 'write_files', true, @(x) ( islogical(x) & ...
+                                                numel( x ) ==  1 ) );
+args.addParamValue( 'write_daily_files', true, @(x) ( islogical(x) & ...
                                                 numel( x ) ==  1 ) );
 args.addParamValue( 'process_soil_data', true, @(x) ( islogical(x) & ...
                                                   numel( x ) ==  1 ) );
@@ -257,6 +262,15 @@ UNM_Ameriflux_write_file( sitecode, year, amflux_gf, ...
 
 UNM_Ameriflux_write_file( sitecode, year, amflux_gaps, ...
                           'mlitvak@unm.edu', 'with_gaps' );
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% write daily aggregated files if requested
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if args.Results.write_daily_files
+    agg = UNM_ameriflux_daily_aggregator( sitecode );
+    agg.write_daily_file()
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
