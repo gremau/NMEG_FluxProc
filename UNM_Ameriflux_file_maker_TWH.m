@@ -48,16 +48,16 @@ end
 % parse Flux_All, Flux_All_qc, gapfilled fluxes, and partitioned fluxes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% %% parse the annual Flux_All file
-% if year < 2012
-%     % before 2012, fluxall data are in excel files
-%     data = UNM_parse_fluxall_xls_file( sitecode, year );
-% else
-%     % after 2012, fluxall data are kept in delimited ASCII files
-%     data = UNM_parse_fluxall_txt_file( sitecode, year );
-% end
+%% parse the annual Flux_All file
+if year < 2012
+    % before 2012, fluxall data are in excel files
+    data = UNM_parse_fluxall_xls_file( sitecode, year );
+else
+    % after 2012, fluxall data are kept in delimited ASCII files
+    data = UNM_parse_fluxall_txt_file( sitecode, year );
+end
 
-data = UNM_parse_fluxall_txt_file( sitecode, year );
+%data = UNM_parse_fluxall_txt_file( sitecode, year );
 
 % seems to be parsing header of NewGland_2011 to bogus dates -- temporary
 % fix until I get the front end of processing away from excel files
@@ -180,7 +180,20 @@ switch sitecode
         ds_pt.Reco_HBLR( idx ) = ds_pt.Reco_HBLR( idx ) * ...
             ( 6 / max( ds_pt.Reco_HBLR( idx ) ) );
     end
-        
+
+  case int8( UNM_sites.PJ_girdle )
+    switch year
+        case 2011
+          % the gapfiller/partitioner put in large RE and GPP spike between
+          % days 335 and 360 - replace the GPP with that from days 306.25 to
+          % 316, recycled to the appropriate length.
+          fill_idx = DOYidx( 306.25 ) : DOYidx( 316 );
+          replace_idx = DOYidx( 335 ) : DOYidx( 360 );
+          filler = ds_pt.Reco_HBLR( fill_idx );
+          filler = repmat( filler, 3, 1 );
+          filler = filler( 1 : numel( replace_idx ) );
+          ds_pt.Reco_HBLR( replace_idx ) = filler;
+    end
 end
 
 % % save a file to restart just before soil calculations
