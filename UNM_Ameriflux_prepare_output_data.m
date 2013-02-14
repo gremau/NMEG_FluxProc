@@ -105,11 +105,17 @@ function [ amflux_gaps, amflux_gf ] = ...
     % To ensure carbon balance, calculate GPP as remainder when NEE is
     % subtracted from RE. This will give negative GPP when NEE exceeds
     % modelled RE. So set GPP to zero and add difference to RE.
-    GPP_2 = RE_f - NEE_2;
-    idx_neg_GPP = find( GPP_2 < 0 );
-    RE_2 = RE_f;
-    RE_2( idx_neg_GPP ) = RE_f( idx_neg_GPP ) - GPP_2( idx_neg_GPP );
-    GPP_2( idx_neg_GPP ) = 0;
+    fix_night = true;
+    [ GPP_2, RE_2, NEE_2 ] = ...
+        ensure_carbon_balance( sitecode, ds_qc.timestamp, ...
+                               RE_f, NEE_2, ...
+                               Rg_f, fix_night );
+    fix_night = false;
+    [ GPP_old, RE_old, NEE_old ] = ...
+        ensure_carbon_balance( sitecode, ds_qc.timestamp, ...
+                               RE_f, NEE_2, ...
+                               Rg_f, fix_night );
+    
 
     % Make sure LE and H contain observations where available
     LE_2 = LE_f;
@@ -262,6 +268,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gf.WS = ds_qc.wnd_spd;
     amflux_gf.NEE = dummy;
     amflux_gf.FC = NEE_2;
+    amflux_gf.FC_old = NEE_old;
     amflux_gf.FC_flag = NEE_flag;
     amflux_gf.SFC = dummy;
     amflux_gf.H = H_2;
@@ -293,8 +300,10 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gf.FH2O = ds_qc.E_wpl_massman .* 18;
     amflux_gf.H20 = ds_qc.H2O_mean;
     amflux_gf.RE = RE_2;
+    amflux_gf.RE_old = RE_old;
     amflux_gf.RE_flag = NEE_flag;
     amflux_gf.GPP = GPP_2;
+    amflux_gf.GPP_old = GPP_old;
     amflux_gf.GPP_flag = NEE_flag;
     amflux_gf.APAR = dummy;    
     %amflux_gf.SWC_2 = []; %dummy; %ds_soil.SWC_2;
@@ -302,3 +311,56 @@ function [ amflux_gaps, amflux_gf ] = ...
     
     amflux_gaps.timestamp = [];
     amflux_gf.timestamp = [];
+
+%----------------------------------------------------------------------
+function [ GPPout, REout, NEEout ] = ...
+    ensure_carbon_balance( sitecode, tstamp, REin, NEEin, Rg, fix_night_GPP )
+% ENSURE_CARBON_BALANCE - To ensure carbon balance, calculate GPP as remainder
+% when NEE is subtracted from RE. This will give negative GPP when NEE exceeds
+% modelled RE. So set GPP to zero and add difference to RE.  Beause it is not
+% physically realistic to report positive GPP at night, also make sure that
+% nighttime GPP is < 0.1.
+
+GPPout = REin - NEEin;
+REout = REin;
+NEEout = NEEin;
+
+sitecode = UNM_sites( sitecode );
+switch sitecode
+  case { UNM_sites.GLand, UNM_sites.SLand }
+    Rg_threshold = 1.0;
+  case UNM_sites.JSav
+    Rg_threshold = -1.0;
+  case UNM_sites.PJ
+    Rg_threshold = 0.6;
+  case UNM_sites.MCon
+    Rg_threshold = 0.0;
+  case UNM_sites.PPine
+    Rg_threshold = 0.1;
+  otherwise
+    error( sprintf( 'Rg threshold not implemented for site %s', ...
+                    char( sitecode ) ) );
+end
+Rg_threshold = Rg_threshold + 1e-6;  %% compare to threshold plus epsilon to
+                                     %% allow for floating point error
+
+if fix_night_GPP
+    % fix positive GPP at night -- define night as radiation < 20 umol/m2/s set
+    % positive nighttime GPP to zero and reduce corresponding respiration
+    % accordingly
+    sol = get_solar_elevation( UNM_sites( sitecode ), tstamp );
+    idx = ( sol < -10 ) & ( Rg < Rg_threshold ) & ( GPPout > 0.1 );
+    fprintf( '# of positive nighttime GPP: %d\n', numel( find( idx ) ) );
+    % take nighttime positive GPP out of RE 
+    REout( idx ) = REout( idx ) - GPPout( idx );
+    GPPout( idx ) = 0.0;
+    
+    idx_RE_negative = REout < 0.0;
+    REout( idx_RE_negative ) = 0.0;
+    NEEout( idx_RE_negative ) = 0.0;
+end
+
+% fix negative GPP
+idx_neg_GPP = find( GPPout < 0 );
+REout( idx_neg_GPP ) = REin( idx_neg_GPP ) - GPPout( idx_neg_GPP );
+GPPout( idx_neg_GPP ) = 0;

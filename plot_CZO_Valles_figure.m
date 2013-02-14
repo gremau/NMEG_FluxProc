@@ -1,8 +1,4 @@
-<<<<<<< local
 function hf = plot_CZO_Valles_figure( sitecode, years, ylims )
-=======
-function hf = plot_CZO_Valles_figure( sitecode, years, binary_data )
->>>>>>> other
 % PLOT_CZO_VALLES_FIGURE - 
 %
 % USAGE
@@ -12,10 +8,7 @@ function hf = plot_CZO_Valles_figure( sitecode, years, binary_data )
 
 % load ameriflux data for requested years
 aflx_data = assemble_multi_year_ameriflux( sitecode, years, ...
-<<<<<<< local
                                            'binary_data', false);
-=======
-                                           'binary_data', binary_data );
 
 if sitecode == UNM_sites.PPine
     idx = ( aflx_data.YEAR == 2009 ) & ...
@@ -24,7 +17,6 @@ if sitecode == UNM_sites.PPine
     aflx_data.RE( idx ) = aflx_data.RE( idx ) * 0.5;
     aflx_data.FC( idx ) = aflx_data.RE( idx ) - aflx_data.GPP( idx );
 end
->>>>>>> other
 
 %convert C fluxes to gC / m2
 aflx_data.FCgc = umolPerSecPerM2_2_gcPerMSq( aflx_data.FC );
@@ -140,11 +132,7 @@ ylabel('ET [ mm ]')
 set( ax3L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...
            'XTickLabel', [], ...
-<<<<<<< local
            'YLim', ylims( 3, : ), ...
-=======
-           'YLim', [ 0, 110 ], ...
->>>>>>> other
            'YColor', get( h_ET, 'FaceColor' ) );
 
 ax3R = axes( 'Position', get( ax3L, 'Position' ) );
@@ -173,11 +161,7 @@ h_pcp = bar( agg.timestamp, agg.PCP, ...
 ylabel('precipitation [ mm ]')
 set( ax4L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...
-<<<<<<< local
            'YLim', ylims( 5, : ), ...
-=======
-           'YLim', [ 0, 110 ], ...
->>>>>>> other
            'YColor', get( h_ET, 'FaceColor' ), ...
            'XTickLabel', datestr( x_ticks, 'mmm yy' ) );
 

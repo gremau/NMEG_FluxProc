@@ -22,6 +22,10 @@ edac_path = sprintf('/data/epscor/private/data/Upland_node/%s/Raw/', ...
 
 [fpath, fname, fext] = fileparts(compressed_data_fname);
 
+% cygwin sftp needs the unix-style path, not the windows-style path
+unixpath = regexprep( compressed_data_fname, '(C):', '/cygdrive/$1' )
+unixpath = regexprep( unixpath, '\\', '/' )
+
 %write an sftp script to a temporary file
 calling_dir = pwd();
 cd(getenv('TMP'));
@@ -32,10 +36,7 @@ fprintf(fid, ['\n\n#Transfering compressed raw data to edacdata1.unm.edu.  ' ...
               'is stalled at least once -- please ignore these messages.\n\n']);
 fprintf(fid, 'cd %s\n', edac_path);
 fprintf(fid, 'progress\n');  %enable SFTP progress updates
-fprintf(fid, ['put /cygdrive/c/Research_Flux_Towers/Flux_Tower_', ...
-              'Data_by_' ...
-              'Site/%s/Raw_data_from_cards/Raw_Data_2012/%s%s\n'], ...
-        char( site ), fname, fext);
+fprintf(fid, sprintf( 'put %s\n', unixpath ) );
 fprintf(fid, ['\n\n#This DOS window will not close by itself -- you may ' ...
               'close it now by typing ''exit'' at the prompt.\n']);
 fclose(fid);

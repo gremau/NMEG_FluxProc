@@ -62,7 +62,8 @@ methods
     args.parse( sitecode, varargin{ : } );
     % -----
 
-    obj.sitecode = args.Results.sitecode;
+    obj.sitecode = UNM_sites( args.Results.sitecode ); % make sure sitecode
+                                                       % is a UNM_sites object
     obj.years = args.Results.years;
 
     % if years not specified, collect all site-years

@@ -32,6 +32,9 @@
 %          flux_all_for_gapfilling file
 %     draw_plots: optional, logical (default true); if true, draws diagnostic
 %          plots.  If false, no plots are drawn.
+%     draw_fingerprints: optional, logical (default true); if true, draws
+%          fingerprint plot to assess observed variables vs hour of day.  If
+%          false, no fingerprint plot is drawn.
 %
 % OUTPUTS:
 %     This function has no outputs
@@ -57,6 +60,7 @@ args.addParamValue( 'iteration', 6, ...
 args.addParamValue( 'write_QC', true, @islogical );
 args.addParamValue( 'write_GF', true, @islogical );
 args.addParamValue( 'draw_plots', true, @islogical );
+args.addParamValue( 'draw_fingerprints', true, @islogical );
 
 % parse optional inputs
 args.parse( sitecode, year, varargin{ : } );
@@ -76,6 +80,7 @@ write_complete_out_file = args.Results.write_QC;
 write_gap_filling_out_file = args.Results.write_GF;
 
 draw_plots = args.Results.draw_plots;
+draw_fingerprints = args.Results.draw_fingerprints;
 
 
     data_for_analyses = 0; %1 to output file with data sorted for specific analyses
@@ -276,7 +281,6 @@ draw_plots = args.Results.draw_plots;
         site = 'PPine'
         % site default values
         co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -5];
-        co2_max_by_month = 10; %[4 4 4 5 8 8 8 8 8 8 5 4];
         if year == 2006
             filelength_n = 11594;
         elseif year == 2007
@@ -312,6 +316,7 @@ draw_plots = args.Results.draw_plots;
         elseif year == 2012  % added this block 15 Oct, 2012
             ustar_lim = 0.08;
         end
+        co2_max_by_month = 30;
         n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
         wind_min = 119; wind_max = 179; % these are given a sonic_orient = 329;
@@ -1934,6 +1939,11 @@ draw_plots = args.Results.draw_plots;
 
     maxminflag = find( maxminflag );
     
+    if sitecode == UNM_sites.PPine
+        fc_raw_massman_wpl = normalize_PPine_NEE( fc_raw_massman_wpl, ...
+                                                  idx_NEE_good );
+    end
+                                               
     
     if draw_plots
         [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
@@ -2171,7 +2181,7 @@ draw_plots = args.Results.draw_plots;
         Tair( 12993:end ) = Tair_TOA5(  12993:end );
     end
     
-    if draw_plots
+    if draw_fingerprints
         h_fps = RBD_plot_fingerprints( sitecode, year_arg, decimal_day, ...
                                        sw_incoming, rH, Tair, NEE, LE, ...
                                        H_dry, ...
@@ -2490,7 +2500,18 @@ draw_plots = args.Results.draw_plots;
     %close all;
     
 %------------------------------------------------------------
+
+function NEE = normalize_PPine_NEE( NEE, idx_NEE_good )
+% NORMALIZE_PPINE_NEE - normalizes respiration at PPine to a maximum of 10
+%   umol/m2/s.  10 was chosen by ML and TWH based on our own data from PPine as
+%   well as data from the Metolius ponderosa pine sites in Oregon.
+
+idx = ( NEE > 0 ) & idx_NEE_good;
+NEE_bak = NEE;
+NEE( idx ) = normalize_vector( NEE( idx ), 0, 10 );
     
+%------------------------------------------------------------
+
 function [ doy_min, doy_max ] = get_daily_maxmin( data_month, ...
                                                   co2_min_by_month, ...
                                                   co2_max_by_month, ...
@@ -2850,16 +2871,17 @@ switch sitecode
   case UNM_sites.PPine
     switch year
       case 2007
-        DOY_co2_max( DOYidx( 185 ) : DOYidx( 259.99 ) ) = 10.0;
-        DOY_co2_max( DOYidx( 260 ) : DOYidx( 276 ) ) = 15.0;
-        DOY_co2_max( DOYidx( 276 ) : DOYidx( 277 ) ) = 5.0;
-        DOY_co2_max( DOYidx( 277 ) : DOYidx( 279 ) ) = 10.0;
-        DOY_co2_max( DOYidx( 280 ) : end ) = 5.0;
+        DOY_co2_max( DOYidx( 86 ) : DOYidx( 88 ) ) = 4.0;
+        % DOY_co2_max( DOYidx( 185 ) : DOYidx( 259.99 ) ) = 10.0;
+        % DOY_co2_max( DOYidx( 260 ) : DOYidx( 276 ) ) = 15.0;
+        % DOY_co2_max( DOYidx( 276 ) : DOYidx( 277 ) ) = 5.0;
+        % DOY_co2_max( DOYidx( 277 ) : DOYidx( 279 ) ) = 10.0;
+        % DOY_co2_max( DOYidx( 280 ) : end ) = 5.0;
       case 2009
-        DOY_co2_max( : ) = 10;
-        DOY_co2_max( DOYidx( 64 ) : DOYidx( 67 ) ) = 15.0;
-        DOY_co2_max( DOYidx( 67 ) : DOYidx( 150 ) ) = 8.0;
-        DOY_co2_max( DOYidx( 300 ) : end ) = 10.0;
+        %DOY_co2_max( : ) = 10;
+        DOY_co2_max( DOYidx( 64 ) : DOYidx( 67 ) ) = 4.0;
+        %DOY_co2_max( DOYidx( 67 ) : DOYidx( 150 ) ) = 8.0;
+        %DOY_co2_max( DOYidx( 300 ) : end ) = 10.0;
       case 2011
         istd_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
         DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;

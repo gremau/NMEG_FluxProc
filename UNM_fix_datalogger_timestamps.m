@@ -98,6 +98,13 @@ switch sitecode
         data = shift_data( data, 0.5, 'cols_to_shift', all_10hz );
     end
 
+    switch year
+      case 2012
+        idx = DOYidx( 343 ) : size( data, 1 );
+        data( idx, : ) = shift_data( data( idx, : ), -1.0 );
+    end
+    
+
   case UNM_sites.PPine
     switch year
       case 2007
