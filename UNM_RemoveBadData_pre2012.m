@@ -1560,7 +1560,8 @@ draw_fingerprints = args.Results.draw_fingerprints;
 
     % Remove night-time negative fluxes
     % changed NEE cutoff from 0 to -0.2 as per conversation with Marcy 29 Mar 2012
-    nightnegflag = find( Par_Avg < 20.0 & fc_raw_massman_wpl < -0.2);
+    isnight = ( Par_Avg < 20.0 ) | ( sw_incoming < 20 );
+    nightnegflag = find( isnight & ( fc_raw_massman_wpl < -0.2) );
     removed_nightneg = length(nightnegflag);
     decimal_day_nan(nightnegflag) = NaN;
     record(nightnegflag) = NaN;
@@ -2238,8 +2239,8 @@ draw_fingerprints = args.Results.draw_fingerprints;
         outfilename_forgapfill_xls = strcat( outfolder, ...
                                              filename, ...
                                              '_for_gap_filling' );
-        xlswrite(outfilename_forgapfill_xls, header, 'data', 'A1');
-        xlswrite(outfilename_forgapfill_xls, datamatrix, 'data', 'A2');
+        % xlswrite(outfilename_forgapfill_xls, header, 'data', 'A1');
+        % xlswrite(outfilename_forgapfill_xls, datamatrix, 'data', 'A2');
         
         outfilename_forgapfill_txt = strcat( outfilename_forgapfill_xls, ...
                                              '.txt' );
