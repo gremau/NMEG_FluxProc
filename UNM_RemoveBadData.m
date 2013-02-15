@@ -32,6 +32,8 @@
 %          flux_all_for_gapfilling file
 %     draw_plots: optional, logical (default true); if true, draws diagnostic
 %          plots.  If false, no plots are drawn.
+%     draw_fingerprints: optional, logical (default true ): if true, draw
+%          "fingerprint plot" to examine hour-of-day vs. observations
 %
 % OUTPUTS:
 %     This function has no outputs
@@ -147,7 +149,8 @@ obs_per_day = 48;  % half-hourly observations
     elseif sitecode == UNM_sites.PPine; % Ponderosa Pine
         % site default values
         co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -5];
-        co2_max_by_month = 10; %[4 4 4 5 8 8 8 8 8 8 5 4];
+        co2_max_by_month = [4 4 4 5 30 30 30 30 30 30 5 4];
+        co2_max_by_month = 30;
         ustar_lim = 0.08;
         n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -1494,6 +1497,12 @@ obs_per_day = 48;  % half-hourly observations
     maxminflag = find( maxminflag );
     
     
+    if sitecode == UNM_sites.PPine
+        fprintf( 'Normalizing PPine respiration to [0,10]\n' );
+        fc_raw_massman_wpl = normalize_PPine_NEE( fc_raw_massman_wpl, ...
+                                                  idx_NEE_good );
+    end
+
     if draw_plots
         [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
             sitecode, ...
@@ -2051,6 +2060,18 @@ obs_per_day = 48;  % half-hourly observations
     
 %------------------------------------------------------------
     
+function NEE = normalize_PPine_NEE( NEE, idx_NEE_good )
+% NORMALIZE_PPINE_NEE - normalizes respiration at PPine to a maximum of 10
+%   umol/m2/s.  10 was chosen by ML and TWH based on our own data from PPine as
+%   well as data from the Metolius ponderosa pine sites in Oregon.
+
+idx = ( NEE > 0 ) & idx_NEE_good;
+NEE_bak = NEE;
+NEE( idx ) = normalize_vector( NEE( idx ), 0, 10 );
+
+
+%------------------------------------------------------------
+
 function [ doy_min, doy_max ] = get_daily_maxmin( data_month, ...
                                                   co2_min_by_month, ...
                                                   co2_max_by_month, ...
@@ -2228,6 +2249,14 @@ switch sitecode
         fc_raw_massman_wpl( idx ) = NaN;
         HL_wpl_massman( idx ) = NaN;
         E_wpl_massman( idx ) = NaN;
+      case 2012
+        idx = DOYidx( 319.5 )
+        % beginning here sw sensor reported all zeros and lw sensor
+        % reported NaNs 
+        sw_incoming( idx:end ) = NaN;
+        sw_outgoing( idx:end ) = NaN;
+        lw_incoming( idx:end ) = NaN;
+        lw_outgoing( idx:end ) = NaN;
     end
     
   case UNM_sites.MCon
@@ -2436,7 +2465,7 @@ switch sitecode
         DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
         
       case 2012
-        DOY_co2_max( DOYidx( 307 ) : DOYidx( 346 ) ) = 1.0;
+        DOY_co2_max( DOYidx( 307 ) : end ) = 1.0;
     end  %PJ
 
   case UNM_sites.PPine
@@ -2457,6 +2486,7 @@ switch sitecode
         DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;
       case 2012
         DOY_co2_min( DOYidx( 90 ) : DOYidx( 140 ) ) = -20;
+        DOY_co2_max( DOYidx( 353 ) : DOYidx( 355 ) ) = 4;
     end
     
   case UNM_sites.MCon
@@ -2496,6 +2526,9 @@ switch sitecode
 
         DOY_co2_max( DOYidx( 95 ) : DOYidx( 166 ) ) = 4.0;
         DOY_co2_max( DOYidx( 180 ) : end ) = 4.0;
+
+      case 2012
+        DOY_co2_max( DOYidx( 344 ) : end ) = 2.0;
     end  % MCon
 
   case UNM_sites.TX
