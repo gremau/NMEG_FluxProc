@@ -52,7 +52,8 @@ filled_file_false = false;
     
 fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("destination")\n', ...
          get_site_name( sitecode ), year );
-this_data = parse_forgapfilling_file( sitecode, year, filled_file_false );
+this_data = parse_forgapfilling_file( sitecode, year, ...
+                                      'use_filled', filled_file_false );
 
 %--------------------------------------------------
 % parse data with which to fill T & RH
@@ -63,7 +64,8 @@ switch sitecode
     try
         fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
                  get_site_name( 2 ), year );  %
-        nearby_data = parse_forgapfilling_file( 2, year, filled_file_false );
+        nearby_data = parse_forgapfilling_file( 2, year, ...
+                                                'use_filled', filled_file_false );
     catch err
         if strcmp( err.identifier, 'MATLAB:FileIO:InvalidFid' )
             error( ['unable to open SLand for gapfill file -- cannot fill ' ...
@@ -80,7 +82,8 @@ switch sitecode
   case UNM_sites.SLand    % fill SLabnd from GLand, then Sev Five Points station (# 49 )
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
-    nearby_data = parse_forgapfilling_file( 1, year, filled_file_false );
+    nearby_data = parse_forgapfilling_file( 1, year, ...
+                                            'use_filled', filled_file_false );
     if ( year < 2011 )  
         % no sev met data available for 2011 yet - TWH 21 May 2012
         nearby_2 = UNM_parse_sev_met_data( year );
@@ -89,16 +92,19 @@ switch sitecode
   case UNM_sites.JSav    % fill JSav from PJ, with regressions
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 4 ), year );
-    nearby_data = parse_forgapfilling_file( 4, year, filled_file_false );
+    nearby_data = parse_forgapfilling_file( 4, year, ...
+                                            'use_filled', filled_file_false );
   case UNM_sites.PJ     % fill PJ from PJ girdle    
     if year > 2009  % use PJ_girdle after 2009
         fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
                  get_site_name( 10 ), year );
-        nearby_data = parse_forgapfilling_file( 10, year, filled_file_false );
+        nearby_data = parse_forgapfilling_file( 10, year, ...
+                                                'use_filled', filled_file_false );
     else  % use JSav before 2009
         fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
                  get_site_name( 3 ), year );
-        nearby_data = parse_forgapfilling_file( 3, year, filled_file_false );
+        nearby_data = parse_forgapfilling_file( 3, year, ...
+                                                'use_filled', filled_file_false );
     end
   case UNM_sites.PPine     % fill PPine from Valles Caldera HQ met station (
                            % station 11 ) 
@@ -114,11 +120,13 @@ switch sitecode
   case UNM_sites.PJ_girdle    % fill PJ_girdle from PJ
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 4 ), year );
-    nearby_data = parse_forgapfilling_file( 4, year, filled_file_false );
+    nearby_data = parse_forgapfilling_file( 4, year, ...
+                                            'use_filled', filled_file_false );
   case UNM_sites.New_GLand    % fill New_GLand from GLand
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
-    nearby_data = parse_forgapfilling_file( 1, year, filled_file_false );
+    nearby_data = parse_forgapfilling_file( 1, year, ...
+                                            'use_filled', filled_file_false );
   otherwise
     fprintf( 'filling not yet implemented for %s\n', ...
              get_site_name( sitecode ) );

@@ -14,7 +14,7 @@ function UNM_site_plot_doy_time_offsets( sitecode, year, doy )
 %
 % (c) Timothy W. Hilton, UNM, June 2012
 
-data = parse_forgapfilling_file( sitecode, year, '' );
+data = parse_forgapfilling_file( sitecode, year );
 sol_ang = UNM_get_solar_angle( sitecode, data.timestamp );
 opt_off = match_solarangle_radiation( data.Rg, ...
                                       sol_ang, ...
