@@ -24,7 +24,7 @@ args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'year', ...
                @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
 args.addParamValue( 'use_filled', true, @islogical );
-args.addParamValue( 'fname', [], @ischar );
+args.addParamValue( 'fname', '', @ischar );
 
 % parse optional inputs
 args.parse( sitecode, year, varargin{ : } );
