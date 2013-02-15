@@ -84,7 +84,6 @@ function ds = toa5_2_dataset( fname )
     full_line = cellfun( @(x) size( x, 1 ), data ) == n_numeric_vars;
     data = [ data{ find(full_line) } ]';
     
-    % was genvarnames, not clean_up_varnames -- TWH
     var_names = clean_up_varnames( var_names( 2:end ) );
 
     ds = dataset( { data, var_names{ : } } );    

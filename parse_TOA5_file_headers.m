@@ -6,7 +6,7 @@ function [ var_names, var_units, file_lines, first_data_line, delim ] = ...
 %   number that contains data, and the delimiter used in the file. 
 %
 % USAGE
-%    [ var_names, var_units, file_lines ] = parse_TOA5_file_headers( infile )
+%    [ var_names, var_units, file_lines, first_data_line, delim ] = parse_TOA5_file_headers( infile )
 %
 % (c) Timothy W. Hilton, UNM, Feb 2012
 
