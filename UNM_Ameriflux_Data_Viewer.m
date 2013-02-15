@@ -4,6 +4,8 @@ function UNM_Ameriflux_Data_Viewer( sitecode, year, varargin )
 %       
 % USAGE
 %    UNM_Ameriflux_Data_Viewer( sitecode, year )
+%    UNM_Ameriflux_Data_Viewer( sitecode, year, prompt_for_files )
+%    UNM_Ameriflux_Data_Viewer( sitecode, year, 'AFlux_dir', 'some/path'  )
 %
 % (c) Timothy W. Hilton, UNM, Feb 2012
 
@@ -19,6 +21,7 @@ args.addRequired( 'sitecode', ...
 args.addRequired( 'year', ...
                     @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
 args.addParamValue( 'prompt_for_files', false, @islogical );
+args.addParamValue( 'AFlux_dir', '', @ischar );
 
 % parse optional inputs
 args.parse( sitecode, year,  varargin{ : } );
@@ -47,6 +50,12 @@ if args.Results.prompt_for_files
     fname_filled = fullfile( path_filled, fname_filled );
     
 else
+    if isempty( args.Results.AFlux_dir )
+        AFlux_dir = fullfile( getenv( 'FLUXROOT' ), 'Ameriflux_Files' );
+    else
+        AFlux_dir = args.Results.AFlux_dir;
+    end
+    
     % parse the Ameriflux Files
     fname_gaps = fullfile( getenv( 'FLUXROOT' ), 'Ameriflux_Files', ...
                            sprintf( '%s_%d_with_gaps.txt', ...
