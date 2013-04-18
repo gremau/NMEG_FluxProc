@@ -326,8 +326,9 @@ REout = REin;
 NEEout = NEEin;
 
 sitecode = UNM_sites( sitecode );
+% define an observed Rg threshold, below which we will consider it to be night.
 switch sitecode
-  case { UNM_sites.GLand, UNM_sites.SLand }
+  case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.New_GLand }
     Rg_threshold = 1.0;
   case UNM_sites.JSav
     Rg_threshold = -1.0;

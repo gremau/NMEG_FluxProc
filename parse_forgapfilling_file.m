@@ -7,7 +7,9 @@ function ds = parse_forgapfilling_file( sitecode, year, varargin )
 % INPUTS
 %     sitecode [ integer ]: code of site to be filled
 %     year [ integer ]: year to be filled
-%     filled [logical]: use T, RH, Rg filled forgapfilling file
+%     use_filled [logical]: use T, RH, Rg filled forgapfilling file (default
+%         true)
+%     fname [character]: file to parse.  Overrides site and year if specified.
 %
 % OUTPUTS
 %     ds [ matlab dataset ]: the data contained in the file
