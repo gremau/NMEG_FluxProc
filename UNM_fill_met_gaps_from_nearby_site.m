@@ -158,7 +158,7 @@ if not( isempty( nearby_2 ) )
 end
 
 %--------------------------------------------------
-% fill T, RH
+% fill T, RH, Rg
 
 if numel( linfit ) == 1
     % T      RH    Rg

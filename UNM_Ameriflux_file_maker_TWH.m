@@ -157,6 +157,22 @@ switch sitecode
         temp_arr( row_idx, data_cols ) = NaN;
         ds_pt = replacedata( ds_pt, temp_arr );
     end
+  case int8( UNM_sites.PPine ) 
+    switch year
+      case 2011
+        
+        % the gapfiller/partitioner diagnosed curiously low RE between days 27
+        % and 48.  Raise  that spike to 6.  (as per conversation with Marcy
+        % 16 Apr 2013).  The fix must be applied to NEE because GPP will be
+        % recalculated as NEE - RE to ensure carbon balance.
+        keyboard
+        idx = ( ds_pt.NEE_HBLR > 0.0 ) & ...
+              ( ds_pt.julday >= 27 ) & ...
+              ( ds_pt.julday <= 48 );
+        ds_pt.NEE_HBLR( idx ) = ds_pt.NEE_HBLR( idx ) * ...
+            ( 8 / max( ds_pt.NEE_HBLR( idx ) ) );
+        fprintf( 'Fixing PPine 2011 GPP\n' );
+    end
         
   case int8( UNM_sites.MCon ) 
     switch year
@@ -178,6 +194,12 @@ switch sitecode
         temp_arr( idx, : ) = shift_data( temp_arr( idx, : ), -1.0, ...
                                          'cols_to_shift', shift_vars );
         ds_pt = replacedata( ds_pt, temp_arr );
+      case 2011
+        % the gapfiller/partitioner put in a big RE spike between days 300
+        % and 335.  Dampen that spike to 2.
+        idx = DOYidx( 300 ) : DOYidx( 335 );
+        ds_pt.Reco_HBLR( idx ) = ds_pt.Reco_HBLR( idx ) * ...
+            ( 2 / max( ds_pt.Reco_HBLR( idx ) ) );
       case 2012
         % the gapfiller/partitioner put in a big RE spike between days 120
         % and 133.  Dampen that spike to 6.

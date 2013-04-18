@@ -13,6 +13,7 @@ function main_success = process_card_main( this_site, varargin )
 % USAGE: 
 %    process_card_main( this_site )
 %    process_card_main( this_site, 'card' )
+%    process_card_main( this_site, ..., 'interactive', is_interactive )
 %    process_card_main( this_site, 'disk', 'data_path', 'C:\path\to\data' );
 %
 % INPUTS:
@@ -23,6 +24,10 @@ function main_success = process_card_main( this_site, varargin )
 %   data_path: string; the path to the directory containing the raw card data
 %       on disk.  Must be specified if data_location is 'disk'.  Ignored if
 %       data_location is 'card'.
+%   interactive: optional parameter, logical value.  If true, thirty-minute
+%       data is presented for visual inspection and the processor waits for the
+%       user to close the window before proceeding.  If false, this step is
+%       skipped (useful for non-interactive processing).  Default is true.
 %
 % SEE ALSO:
 %    process_card_partial: designed to pick up processing part way through the
@@ -40,6 +45,7 @@ args = inputParser;
 args.addRequired( 'this_site', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addOptional( 'data_location', 'card', @ischar );
 args.addParamValue( 'data_path', '', @ischar );
+args.addParamValue( 'interactive', true, @islogical );
 
 % parse optional inputs
 args.parse( this_site, varargin{ : } );
@@ -67,12 +73,14 @@ fprintf(1, 'CONVERTING THIRTY-MINUTE DATA TO TOA5 FORMAT...\n');
 fprintf(1, ' Done\n');
 
 %make diagnostic plots of the raw flux data from the card
-fluxraw = toa5_2_dataset(toa5_fname);
-% save( 'fluxraw_viewer_restart.mat' );  main_success = 1;
-% return
-h_viewer = fluxraw_dataset_viewer(fluxraw, this_site, mod_date);
-waitfor( h_viewer );
-clear('fluxraw');
+if args.Results.interactive
+    fluxraw = toa5_2_dataset(toa5_fname);
+    % save( 'fluxraw_viewer_restart.mat' );  main_success = 1;
+    % return
+    h_viewer = fluxraw_dataset_viewer(fluxraw, this_site, mod_date);
+    waitfor( h_viewer );
+    clear('fluxraw');
+end
 
 %convert the time series (10 hz) data to TOB1 files
 fprintf(1, '\n----------\n');
@@ -101,11 +109,15 @@ fprintf(1, 'Done compressing\n');
 
 % transfer the compressed raw data to edac
 fprintf(1, '\n----------\n');
-fprintf(1, 'transfering compressed raw data to edac...\n');
-h = msgbox( 'click to begin FTP transfer', '' );
-waitfor( h );
-transfer_2_edac(this_site, sprintf('%s.7z', raw_data_dir))
-fprintf(1, 'Done transferring.\n');
+if args.Results.interactive
+    fprintf(1, 'transfering compressed raw data to edac...\n');
+    h = msgbox( 'click to begin FTP transfer', '' );
+    waitfor( h );
+    transfer_2_edac(this_site, sprintf('%s.7z', raw_data_dir))
+    fprintf(1, 'Done transferring.\n');
+else
+    fprintf(1, 'Non-interactive -- skipping compressed raw data transfer to edac...\n');
+end
 
 save( 'card_restart_01.mat' );
 
@@ -116,34 +128,10 @@ save( 'card_restart_01.mat' );
 fprintf(1, '\n----------\n');
 fprintf(1, 'merging new data into FLUXALL file...\n');
 dates = cellfun( @get_TOA5_TOB1_file_date, ts_data_fnames );
-% card_data_processor can't handle data spanning different calendar years --
-% if this is the case, create separate card_data_processors
-[ years, ~, ~, ~, ~, ~ ] = datevec( dates );
-years = unique( years );
-if length( years ) == 1
-    cdp = card_data_processor( UNM_sites( this_site ), ...
-                               'date_start', min( dates ), ...
-                               'date_end', max( dates ) + 1 );
-    cdp.update_fluxall();
-elseif length( years ) == 2
-    cdp_year1 = card_data_processor( UNM_sites( this_site ), ...
-                                     'date_start', ...
-                                     min( dates ), ...
-                                     'date_end', ...
-                                     datenum( years(1), 12,31,23,59,59 ) );
-    cdp_year1.update_fluxall();
-    cdp_year2 = card_data_processor( UNM_sites( this_site ), ...
-                                     'date_start', ...
-                                     datenum( years(2), 1, 1 ), ...
-                                     'date_end', ...
-                                     max( dates ) + 1 );
-    cdp_year2.update_fluxall();
-else
-    % the new data span at least three calendar years.  This can't happen
-    % unless the whole data collection setup changes dramatically, so for
-    % now just issue an error and exit.
-    error( 'new data spanning >2 calendar years not implemented.' );
-end    
+cdp = card_data_processor( UNM_sites( this_site ), ...
+                           'date_start', min( dates ), ...
+                           'date_end', max( dates ) + 1 );
+cdp.update_fluxall();
 
 % run RemoveBadData to create for gapfilling file, qc file.  
 fprintf(1, '\n----------\n');

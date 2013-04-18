@@ -1671,6 +1671,10 @@ draw_fingerprints = args.Results.draw_fingerprints;
 
     if iteration > 2
         
+        if ( sitecode == UNM_sites.GLand )
+            precip = fill_Gland_2011_precip_from_SLand(precip);
+        end
+        
         [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
           HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
           sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, rH ] = ...
@@ -1945,7 +1949,6 @@ draw_fingerprints = args.Results.draw_fingerprints;
                                                   idx_NEE_good );
     end
                                                
-    
     if draw_plots
         [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
             sitecode, ...
@@ -2098,6 +2101,17 @@ draw_fingerprints = args.Results.draw_fingerprints;
         wnd_dir_compass( decimal_day < 34 ) = NaN;
     end
 
+    % small runs of consecutive zeros in these fields are (1) almost certainly bogus
+    % and (2) seem to mess up the Lasslop flux partitioning.  Replace them
+    % here with NaN.
+    fc_raw_massman_wpl = ...
+        replace_consecutive_zeros( fc_raw_massman_wpl, 1, NaN );
+    HL_wpl_massman = ...
+        replace_consecutive_zeros( HL_wpl_massman, 1, NaN );
+    HSdry_massman = ...
+        replace_consecutive_zeros( HSdry_massman, 1, NaN );
+    
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Print to screen the number of removals
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2240,8 +2254,8 @@ draw_fingerprints = args.Results.draw_fingerprints;
                                              filename, ...
                                              '_for_gap_filling' );
         % xlswrite(outfilename_forgapfill_xls, header, 'data', 'A1');
-        % xlswrite(outfilename_forgapfill_xls, datamatrix, 'data', 'A2');
-        
+        % xlswrite(outfilename_forgapfill_xls, datamatrix, 'data', 'A2');3
+
         outfilename_forgapfill_txt = strcat( outfilename_forgapfill_xls, ...
                                              '.txt' );
         fid = fopen( outfilename_forgapfill_txt , 'w' );
@@ -2659,6 +2673,19 @@ switch sitecode
         lw_outgoing( DOYidx( 130.3 ) : DOYidx( 131.5 ) ) = NaN;
         lw_outgoing( DOYidx( 331.4 ) : DOYidx( 332.7 ) ) = NaN;
         H2O_mean( DOYidx( 221 ) : DOYidx( 229 ) ) = NaN;
+      case 2011
+        NR_tot( NR_tot < -180 ) = NaN;
+
+        idx = DOYidx( 65 ) : DOYidx( 120 );
+        lw_fixed = lw_outgoing( idx );
+        lw_fixed( lw_fixed < 280 ) = NaN;
+        lw_outgoing( idx ) = lw_fixed;
+        
+        idx = DOYidx( 300 ) : DOYidx( 304 );
+        lw_fixed = lw_outgoing( idx );
+        lw_fixed( lw_fixed < 300 ) = NaN;
+        lw_outgoing( idx ) = lw_fixed;
+        
     end
     
   case UNM_sites.PJ_girdle
@@ -3071,4 +3098,15 @@ if draw_plots
 end
 
 %------------------------------------------------------------
+
+function gland_precip = fill_Gland_2011_precip_from_SLand(gland_precip)
+% FILL_GLAND_2011_PRECIP_FROM_SLAND - There is a large gap (~one month) in the
+% Gland precip record around July 2011.  Fill those precip values from SLand
+% 
+
+sland11 = parse_forgapfilling_file( UNM_sites.SLand, 2011, ...
+                                    'use_filled', false );
+
+idx = DOYidx( 164 ) : DOYidx( 206 );
+gland_precip( idx ) = sland11.precip( idx );
 

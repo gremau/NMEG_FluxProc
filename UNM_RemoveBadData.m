@@ -1806,7 +1806,7 @@ obs_per_day = 48;  % half-hourly observations
         fmt = repmat('%s\t', 1, numel( header ) - 1 );
         fmt = [ fmt, '%s\n' ];
         fprintf( fid, fmt, header{ : } );
-        fprintf( fid, fmt, units{ : } );
+        %fprintf( fid, fmt, units{ : } );
         fclose( fid );
         dlmwrite( outfilename_forgapfill, ...
                   datamatrix, ...
@@ -2360,6 +2360,7 @@ switch sitecode
         DOY_co2_max( DOYidx( 300 ) : DOYidx( 317 ) ) = 1.7;
         DOY_co2_max( DOYidx( 325 ) : DOYidx( 343 ) ) = 1.4;
         DOY_co2_max( DOYidx( 343 ) : DOYidx( 347 ) ) = 1.2;
+        DOY_co2_max( DOYidx( 348 ) : end ) = 0.75;
         std_exc_flag( DOYidx( 174 ) : DOYidx( 175 ) ) = true;
     end %GLand
 
@@ -2598,6 +2599,7 @@ switch sitecode
         DOY_co2_max( DOYidx( 215 ) : DOYidx( 285 ) ) = 2.0;
         DOY_co2_max( DOYidx( 306 ) : DOYidx( 312 ) ) = 1.5;
         DOY_co2_max( DOYidx( 312 ) : DOYidx( 347 ) ) = 1.5;
+        DOY_co2_max( DOYidx( 348 ) : end ) = 0.75;
     end  % New_GLand
 end
 
