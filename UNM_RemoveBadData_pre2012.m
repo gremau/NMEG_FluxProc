@@ -1703,7 +1703,7 @@ draw_fingerprints = args.Results.draw_fingerprints;
         
         removed_maxs_mins=0;
         maxminflag = [];
-                
+
         [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
             specify_siteyear_filter_exceptions( sitecode, year_arg, ...
                                                 DOY_co2_min, DOY_co2_max );
@@ -1791,9 +1791,20 @@ draw_fingerprints = args.Results.draw_fingerprints;
         %    idx_NEE_good( idx_std_removed ) = false;
         stdflag = repmat( false, size( idx_NEE_good ) );
 
-        % figure();
-        % idx_ax = axes();
-        % plot( decimal_day, idx_std_removed, '.' );
+        % if sitecode == UNM_sites.PPine
+        %     % for PPine, normalize NEE to a defined range...
+        %     idx_norm = idx_NEE_good & maxminflag;
+        %     fc_raw_massman_wpl = normalize_PPine_NEE( fc_raw_massman_wpl, ...
+        %                                               idx_norm );
+        %     % ...and reset max/min flags according to normalized NEE
+        %     [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
+        %         specify_siteyear_filter_exceptions( sitecode, year_arg, ...
+        %                                             DOY_co2_min, DOY_co2_max );
+        %     maxminflag = ( ( fc_raw_massman_wpl > DOY_co2_max ) | ...
+        %                    ( fc_raw_massman_wpl < DOY_co2_min ) );
+        %     idx_NEE_good( maxminflag ) = false;
+        % end
+
 
         for i = 1:n_bins
             if i == 1
@@ -2701,12 +2712,17 @@ switch sitecode
         fc_raw_massman_wpl( DOYidx( 260 ) : DOYidx( 290 ) ) = NaN;
         rH( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;  %these observation are way
                                                     %too small
+
+        % divide by 18 to cutoff at 200 with correct units
+        E_wpl_massman( E_wpl_massman > ( 200 ./ 18 ) ) = NaN;
       case 2009
         fc_raw_massman_wpl( DOYidx( 157 ) : DOYidx( 159 ) ) = NaN;
         idx = DOYidx( 157 ) : DOYidx( 183 );
         fc_raw_massman_wpl( idx ) = NaN;
         HL_wpl_massman( idx ) = NaN;
         E_wpl_massman( idx ) = NaN;
+        % divide by 18 to cutoff at 200 with correct units
+        E_wpl_massman( E_wpl_massman > ( 200 ./ 18 ) ) = NaN;
         HSdry( idx ) = NaN;
         HSdry_massman( idx ) = NaN;
       case 2011
@@ -2750,8 +2766,8 @@ end
 %------------------------------------------------------------
 
 function [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
-        specify_siteyear_filter_exceptions( sitecode, year, ...
-                                            DOY_co2_min, DOY_co2_max );
+    specify_siteyear_filter_exceptions( sitecode, year, ...
+                                        DOY_co2_min, DOY_co2_max );
     
 % SPECIFY_SITEYEAR_MAXMIN_EXCEPTIONS - % Helper function for UNM_RemoveBadData
 % (RBD for short).  Adds site-year-specific DOY-based CO2 NEE max/min values to
@@ -2892,11 +2908,15 @@ switch sitecode
         std_exc_flag( DOYidx( 183.4 ) : DOYidx( 183.7 ) ) = true;
         std_exc_flag( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = true;
         
-        DOY_co2_max( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = 6.5;
+        DOY_co2_max( 1 : DOYidx( 155 ) ) = 2.0;
+        DOY_co2_max( DOYidx( 328.0 ) : end ) = 2.5;
         DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
     end  %PJ
 
   case UNM_sites.PPine
+    % these are *UNNORMALIZED* NEE values.  Positive (i.e., respiration)
+    % values will be subsequently normalized to 10.0, so enter values
+    % accordingly. 
     switch year
       case 2007
         DOY_co2_max( DOYidx( 86 ) : DOYidx( 88 ) ) = 4.0;
@@ -2908,8 +2928,13 @@ switch sitecode
       case 2009
         %DOY_co2_max( : ) = 10;
         DOY_co2_max( DOYidx( 64 ) : DOYidx( 67 ) ) = 4.0;
+        %DOY_co2_max( DOYidx( 240 ) : DOYidx( 276 ) ) = 13.3;
+        DOY_co2_max( DOYidx( 240 ) : DOYidx( 276 ) ) = 8.5;
+        
         %DOY_co2_max( DOYidx( 67 ) : DOYidx( 150 ) ) = 8.0;
         %DOY_co2_max( DOYidx( 300 ) : end ) = 10.0;
+      case 2010
+        DOY_co2_max( 1 : DOYidx( 35 ) ) = 2.5;
       case 2011
         istd_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
         DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;

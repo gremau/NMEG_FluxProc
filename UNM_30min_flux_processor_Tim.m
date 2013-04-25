@@ -290,11 +290,12 @@ else
     timestamp = ds.timestamp;
     ds.timestamp = [];
     headertext = ds.Properties.VarNames;
-    data = double( ds );
+    data = double( ds( first_row:last_row, : ) );
 end    
 %bad_v = num; % assign bad_variance array
 
 jday = datenum(timestamp) - datenum( year2(1), 1, 0 );
+jday = jday( first_row:last_row );
 ncol = size(data,2); % find number of columns for use in locating headers below
 nrows = size(data,1);
 
@@ -886,50 +887,53 @@ end
 % Collect things to write out
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ds.jday = jday;
-ds.u_mean_unrot = umean;
-ds.v_mean_unrot = vmean;
-ds.w_mean_unrot = wmean;
-ds.temp_mean = Ts_meanC;
-ds.tdry = TD;
-ds.wind_direction = wind_direction;
-ds.speed = wind_speed;
-ds.along_wind_velocity_variance = cov_Ux_Ux;
-ds.cross_wind_velocity_variance = cov_Uy_Uy;
-ds.vertical_wind_velocity_variance = cov_Uz_Uz;
-ds.ut_covariance = cov_Ts_Ux;
-ds.uv_covariance = cov_Ts_Uy;
-ds.wt_covariance = cov_Ts_Uz;
-ds.ustar = USTAR';
-ds.CO2_mean = co2_mean_out;
-ds.H2O_mean = h2o_Avg_out;
-ds.Fc_raw = Fc_raw';
-ds.Fc_water_term = Fc_water_term';
-ds.Fc_raw_massman = flux_co2_massman';
-ds.Fc_heat_term_massman = Fc_heat_term_massman';
-ds.Fc_raw_massman_ourwpl = Fc_corr_massman_ourwpl'; 
-ds.E_raw = flux_h2o';
-ds.E_water_term = E_water_term';
-ds.E_raw_massman = flux_h2o_massman';
-ds.E_heat_term_massman = E_heat_term_massman';
-ds.E_wpl_massman = E_corr_massman';
-ds.SensibleHeat_dry = HSdry';
-ds.SensibleHeat_wet = HSwet';
-ds.SensibleHeat_wetwet = HSwetwet';
-ds.HSdry_massman = HSdry_massman';
-ds.LatentHeat_raw = flux_HL';
-ds.LatentHeat_raw_massman = flux_HL_massman';
-ds.LatentHeat_wpl_massman = flux_HL_wpl_massman';
-ds.rhoa_dry_air_molar_density = rhoa_out';
-ds.rhov_dry_air_molar_density = rhov_out';
-ds.rhoc_dry_air_molar_density = rhoc_out';
+ds.jday( first_row : last_row ) = jday;
+ds.u_mean_unrot( first_row : last_row ) = umean;
+ds.v_mean_unrot( first_row : last_row ) = vmean;
+ds.w_mean_unrot( first_row : last_row ) = wmean;
+ds.temp_mean( first_row : last_row ) = Ts_meanC;
+ds.tdry( first_row : last_row ) = TD;
+ds.wind_direction( first_row : last_row ) = wind_direction;
+ds.speed( first_row : last_row ) = wind_speed;
+ds.along_wind_velocity_variance( first_row : last_row ) = cov_Ux_Ux;
+ds.cross_wind_velocity_variance( first_row : last_row ) = cov_Uy_Uy;
+ds.vertical_wind_velocity_variance( first_row : last_row ) = cov_Uz_Uz;
+ds.ut_covariance( first_row : last_row ) = cov_Ts_Ux;
+ds.uv_covariance( first_row : last_row ) = cov_Ts_Uy;
+ds.wt_covariance( first_row : last_row ) = cov_Ts_Uz;
+ds.ustar( first_row : last_row ) = USTAR';
+ds.CO2_mean( first_row : last_row ) = co2_mean_out;
+ds.H2O_mean( first_row : last_row ) = h2o_Avg_out;
+ds.Fc_raw( first_row : last_row ) = Fc_raw';
+ds.Fc_water_term( first_row : last_row ) = Fc_water_term';
+ds.Fc_raw_massman( first_row : last_row ) = flux_co2_massman';
+ds.Fc_heat_term_massman( first_row : last_row ) = Fc_heat_term_massman';
+ds.Fc_raw_massman_ourwpl( first_row : last_row ) = Fc_corr_massman_ourwpl'; 
+ds.E_raw( first_row : last_row ) = flux_h2o';
+ds.E_water_term( first_row : last_row ) = E_water_term';
+ds.E_raw_massman( first_row : last_row ) = flux_h2o_massman';
+ds.E_heat_term_massman( first_row : last_row ) = E_heat_term_massman';
+ds.E_wpl_massman( first_row : last_row ) = E_corr_massman';
+ds.SensibleHeat_dry( first_row : last_row ) = HSdry';
+ds.SensibleHeat_wet( first_row : last_row ) = HSwet';
+ds.SensibleHeat_wetwet( first_row : last_row ) = HSwetwet';
+ds.HSdry_massman( first_row : last_row ) = HSdry_massman';
+ds.LatentHeat_raw( first_row : last_row ) = flux_HL';
+ds.LatentHeat_raw_massman( first_row : last_row ) = flux_HL_massman';
+ds.LatentHeat_wpl_massman( first_row : last_row ) = flux_HL_wpl_massman';
+ds.rhoa_dry_air_molar_density( first_row : last_row ) = rhoa_out';
+ds.rhov_dry_air_molar_density( first_row : last_row ) = rhov_out';
+ds.rhoc_dry_air_molar_density( first_row : last_row ) = rhoc_out';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Write fluxes back out to flux_all file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if year >= 2012
-    cdp = card_data_processor( UNM_sites( sitecode ) );
+    cdp = card_data_processor( UNM_sites( sitecode ), ...
+                               'date_start', datenum( year, 1, 1 ), ...
+                               'date_end', datenum( year, 12, 31, ...
+                                                    23, 59, 59 ) );
     cdp.write_fluxall( ds );
 else
     error( ['fluxall xls writeout not implemented for years < 2012 -- TWH, ' ...

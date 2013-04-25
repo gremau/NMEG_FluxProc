@@ -139,6 +139,9 @@ methods
     if obj.sitecode == UNM_sites.JSav
         [ year, ~ ] = datevec( obj.date_start );
         JSav_SWC = JSav_CR1000_to_dataset( year );
+        idx = ( JSav_SWC.timestamp >= obj.date_start ) & ...
+              ( JSav_SWC.timestamp <= obj.date_end );
+        JSav_SWC = JSav_SWC( idx, : );
         obj.data_30min = dataset_foldin_data( obj.data_30min, JSav_SWC );
     end
     
