@@ -11,7 +11,7 @@ function ds_out = dataset_foldin_data( ds_in1, ds_in2 )
 %
 % USAGE
 %
-% ds_out = merge_data( ds_in1, ds_in2 )
+% ds_out = dataset_foldin_data( ds_in1, ds_in2 )
 %
 % INPUTS:
 %   ds_in1, ds_in2: matlab dataset arrays

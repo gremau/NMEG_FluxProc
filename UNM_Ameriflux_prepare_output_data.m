@@ -87,11 +87,12 @@ function [ amflux_gaps, amflux_gf ] = ...
     H_obs( idx ) = ds_qc.HSdry_massman( idx );
     H_flag( idx ) = 0;
 
-    if sitecode == 5
-        NEE_f = ds_pt.NEE_HBLR;  % Lasslop filled NEE
-    else
-        NEE_f = ds_pt.NEE_f;  % Reichstein filled NEE
-    end
+    % if sitecode == 5
+    %     NEE_f = ds_pt.NEE_HBLR;  % Lasslop filled NEE
+    % else
+    % NEE_f = ds_pt.NEE_f;  % Reichstein filled NEE
+    % end
+    NEE_f = ds_pt.NEE_f;  % Reichstein filled NEE
     RE_f  = ds_pt.Reco_HBLR;
     GPP_f = ds_pt.GPP_HBLR;
     LE_f = ds_pt.LE_f;

@@ -9,7 +9,7 @@ function success = fix_PPine_2010_forgapfilling()
 %
 % (c) Timothy W. Hilton, UNM, Oct 2012
 
-fgf = parse_forgapfilling_file( UNM_sites.PPine, 2010, true );
+fgf = parse_forgapfilling_file( UNM_sites.PPine, 2010 );
 aflx_gf = parse_ameriflux_file( fullfile( getenv( 'FLUXROOT' ), ...
                                           'FluxOut', ...
                                           'US-Vcp_2010_gapfilled.txt' ) );
@@ -20,17 +20,13 @@ plot( aflx_gf.DTIME, aflx_gf.FC, 'ok' );
 hold on
 
 % scale DOY 314-330 down to max of 8
-fgf = despike_for_gapfilling_NEE( aflux_gf, fgf, 314, 330, 8.0 );
+fgf = despike_for_gapfilling_NEE( aflx_gf, fgf, 314, 330, 8.0 );
 % scale DOY 330-350 down to max of 2 (as per 18 Apr 2013 conversation with
 % Marcy)
-fgf = despike_for_gapfilling_NEE( aflux_gf, fgf, 330, 350, 2.0 );
+fgf = despike_for_gapfilling_NEE( aflx_gf, fgf, 330, 350, 2.0 );
 % scale DOY 197-203 down to max of 8 (as per 18 Apr 2013 conversation with
 % Marcy)
-fgf = despike_for_gapfilling_NEE( aflux_gf, fgf, 197, 203, 8.0 );
-% scale DOY 1-35 down to max of 2.5 (as per 18 Apr 2013 conversation with
-% Marcy)
-fgf = despike_for_gapfilling_NEE( aflux_gf, fgf, 0, 35, 2.5 );
-
+fgf = despike_for_gapfilling_NEE( aflx_gf, fgf, 197, 203, 8.0 );
 
 % "after" plot
 plot( aflx_gf.DTIME( 1:size( fgf, 1 ) ), fgf.NEE, '.' );

@@ -165,7 +165,6 @@ switch sitecode
         % and 48.  Raise  that spike to 6.  (as per conversation with Marcy
         % 16 Apr 2013).  The fix must be applied to NEE because GPP will be
         % recalculated as NEE - RE to ensure carbon balance.
-        keyboard
         idx = ( ds_pt.NEE_HBLR > 0.0 ) & ...
               ( ds_pt.julday >= 27 ) & ...
               ( ds_pt.julday <= 48 );
@@ -196,7 +195,8 @@ switch sitecode
         ds_pt = replacedata( ds_pt, temp_arr );
       case 2011
         % the gapfiller/partitioner put in a big RE spike between days 300
-        % and 335.  Dampen that spike to 2.
+        % and 335.  Dampen that spike to 2 (as per conversation with Marcy 17
+        % Apr 2013)
         idx = DOYidx( 300 ) : DOYidx( 335 );
         ds_pt.Reco_HBLR( idx ) = ds_pt.Reco_HBLR( idx ) * ...
             ( 2 / max( ds_pt.Reco_HBLR( idx ) ) );

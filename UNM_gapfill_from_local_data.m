@@ -74,7 +74,12 @@ if ( sitecode == 1 ) & ( year == 2010 )
     end
 end
 
+if ( sitecode == 5 ) & ( year == 2012 )
 
+    filled_idx = fix_PPine_2012_forgapfilling();
+    
+end
+    
 % %----------
 % % JSav 2009
 % if ( sitecode == 3 ) & ( year == 2009 )
