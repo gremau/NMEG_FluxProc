@@ -18,5 +18,7 @@ fname_filled = fullfile( get_out_directory( sitecode ), ...
                          sprintf( '%s_%d_gapfilled.txt', ...
                                   sites_ds.Ameriflux{ sitecode }, year ) );
 
+fprintf( 'parsing %s and %s\n', fname_gaps, fname_filled );
+
 ds_gaps = parse_ameriflux_file( fname_gaps );
 ds_GF = parse_ameriflux_file( fname_filled );

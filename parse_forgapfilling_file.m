@@ -9,7 +9,7 @@ function ds = parse_forgapfilling_file( sitecode, year, varargin )
 %     year [ integer ]: year to be filled
 %     OPTIONAL PARAMETERS
 %     use_filled [logical]: use forgapfilling file with T, RH, Rg filled from
-%          nearby site
+%          nearby site.  Default is true.
 %     fname: character; path to file to read.  If unspecified, looks for
 %          $FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux/SITE_flux_all_YYYY_for_gapfilling[_filled].txt 
 %
@@ -62,7 +62,7 @@ ds = dataset( 'File', fname, ...
               'format', fmt, ...
               'delimiter', '\t', ...
               'MultipleDelimsAsOne', true, ...
-              'HeaderLines', 0 );
+              'HeaderLines', 2 );
 
 ds_names = ds.Properties.VarNames;
 ds_dbl = double( ds );

@@ -2236,12 +2236,14 @@ switch sitecode
         fc_raw_massman_wpl( DOYidx( 260 ) : DOYidx( 290 ) ) = NaN;
         rH( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;  %these observation are way
                                                     %too small
+        E_wpl_massman( E_wpl_massman > 200 ) = NaN;
       case 2009
         fc_raw_massman_wpl( DOYidx( 157 ) : DOYidx( 159 ) ) = NaN;
         idx = DOYidx( 157 ) : DOYidx( 183 );
         fc_raw_massman_wpl( idx ) = NaN;
         HL_wpl_massman( idx ) = NaN;
         E_wpl_massman( idx ) = NaN;
+        E_wpl_massman( E_wpl_massman > 200 ) = NaN;
         HSdry( idx ) = NaN;
         HSdry_massman( idx ) = NaN;
       case 2011
@@ -2473,7 +2475,7 @@ switch sitecode
     switch year
       case 2007
         DOY_co2_max( DOYidx( 185 ) : DOYidx( 259.99 ) ) = 10.0;
-        DOY_co2_max( DOYidx( 260 ) : DOYidx( 276 ) ) = 15.0;
+        DOY_co2_max( DOYidx( 240 ) : DOYidx( 276 ) ) = 5.5;
         DOY_co2_max( DOYidx( 276 ) : DOYidx( 277 ) ) = 5.0;
         DOY_co2_max( DOYidx( 277 ) : DOYidx( 279 ) ) = 10.0;
         DOY_co2_max( DOYidx( 280 ) : end ) = 5.0;

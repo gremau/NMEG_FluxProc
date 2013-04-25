@@ -14,8 +14,8 @@ function success = export_dataset_tim( fname, ds, varargin )
 %     fname: char; full path of file to write.
 %     ds: dataset array
 %     dlm: character; the delimiter to use.  Optional, defaults to tab.
-%     replace_nans: numeric; if true, NaNs are replaced with -9999.  Defaults to
-%     false.
+%     replace_nans: numeric; value with which to replace NaNs.  Defaults to
+%         NaN (i.e. no replacement of NaNs).
 %     write_units: logical; if true, the write a line of units
 %         beneath the variable names (on line 2).  If ds.Properties.Units is
 %         empty, writes '--' for each units.  Defaults to false.
