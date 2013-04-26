@@ -339,6 +339,8 @@ switch sitecode
     Rg_threshold = 0.0;
   case UNM_sites.PPine
     Rg_threshold = 0.1;
+  case UNM_sites.PJ_girdle
+    Rg_threshold = 0.0;
   otherwise
     error( sprintf( 'Rg threshold not implemented for site %s', ...
                     char( sitecode ) ) );
