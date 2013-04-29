@@ -20,6 +20,7 @@ var_names = fgetl( fid );
 var_names = regexp( var_names, delim, 'split' );
 var_names = cellfun( @char, var_names, 'UniformOutput',  false );
 var_names = cellfun( @genvarname, var_names, 'UniformOutput',  false );
+
 var_units = fgetl( fid );
 var_units = regexp( var_units, delim, 'split' );
 var_units = cellfun( @char, var_units, 'UniformOutput',  false );
@@ -30,6 +31,9 @@ data = cell2mat( textscan( fid, fmt, 'delimiter', delim ) );
 data =  replace_badvals( data, [ -9999 ], 1e-10 );
 
 fclose( fid );
+
+var_names = var_names( [ 1, 3:end ] );
+var_units = var_units( [ 1, 3:end ] );
 
 % some of the TAMU files (2011, at the very least) have tens of thousands of
 % empty lines (,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,) at the end.  Get rid of those.
@@ -43,18 +47,22 @@ data = data( 1:last_data_line, : );
 
 % the char string date column in the TAMU format is not useful; keep all
 % other columns and create dataset; then keep the columns we want by name.
-ds_names=  var_names( [ 1, 3:end ] );
-ds_units=  var_units( [ 1, 3:end ] );
-amflux_ds = dataset( { data, ds_names{ : } } );
-amflux_ds.Properties.Units = ds_units;
+keep_names=  { 'YEAR', 'DTIME', 'PAR', ...
+             'Rg0x2DKnZ', 'PREC', ...
+             'PRESS', 'TA', 'RH', 'VPD', 'Rgl' };
+[ ~, keep_idx, ~ ] = intersect( var_names, keep_names );
 
-amflux_ds = amflux_ds( :, { 'YEAR', 'DTIME', 'PAR', ...
-                    'Rg0x2DKnZ', 'PREC', ...
-                    'PRESS', 'TA', 'RH', 'VPD', 'Rgl' } ); 
 
-amflux_ds.Properties.VarNames = { 'YEAR', 'DTIME', 'PAR', ...
-                    'Rg', 'PRECIP', ...
-                    'PA', 'TA', 'RH', 'VPD', 'Rlong_in' };
+amflux_ds = dataset( { data( :, keep_idx ), var_names{ keep_idx } } );
+amflux_ds.Properties.Units = var_units( keep_idx );
+
+% change variable names to match UNM conventions
+var_names = amflux_ds.Properties.VarNames;
+var_names = strrep( var_names, 'Rg0x2DKnZ', 'Rg' );
+var_names = strrep( var_names, 'PREC', 'PRECIP' );
+var_names = strrep( var_names, 'PRESS', 'PA' );
+var_names = strrep( var_names, 'Rgl', 'Rlong_in' );
+amflux_ds.Properties.VarNames = var_names;
 
 % several of these variables use different missing values.  Replace them
 % individually with NaN
@@ -62,6 +70,8 @@ epsilon = 1e-6;
 amflux_ds.Rlong_in( abs( amflux_ds.Rlong_in - 9999 ) < epsilon ) = NaN;
 amflux_ds.VPD( abs( amflux_ds.VPD - -9.999 ) < epsilon ) = NaN;
 amflux_ds.Rg( abs( amflux_ds.Rg - 9999 ) < epsilon ) = NaN;
+% remove some bogus pressure observations
+amflux_ds.PA( abs( amflux_ds.PA -  97.660878 ) < epsilon ) = NaN;
 
 % make sure the data have a complete set of timestamps 1 Jan 00:00 to 31 Dec
 % 23:30
