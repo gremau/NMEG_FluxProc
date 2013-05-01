@@ -561,17 +561,17 @@ obs_per_day = 48;  % half-hourly observations
         
     elseif sitecode == 7 % Texas Freeman
         for i=1:ncol;
-            if strcmp('Tsoil_Avg(2)',headertext(i)) == 1
+            if strcmp('Tsoil_Avg_2',headertext(i)) == 1
                 open_5cm = data(:,i-1);
-            elseif strcmp('Tsoil_Avg(3)',headertext(i)) == 1
+            elseif strcmp('Tsoil_Avg_3',headertext(i)) == 1
                 open_10cm = data(:,i-1);
-            elseif strcmp('Tsoil_Avg(5)',headertext(i)) == 1
+            elseif strcmp('Tsoil_Avg_5',headertext(i)) == 1
                 Mesquite_5cm = data(:,i-1);
-            elseif strcmp('Tsoil_Avg(6)',headertext(i)) == 1
+            elseif strcmp('Tsoil_Avg_6',headertext(i)) == 1
                 Mesquite_10cm = data(:,i-1);
-            elseif strcmp('Tsoil_Avg(8)',headertext(i)) == 1
+            elseif strcmp('Tsoil_Avg_8',headertext(i)) == 1
                 Juniper_5cm = data(:,i-1);
-            elseif strcmp('Tsoil_Avg(9)',headertext(i)) == 1
+            elseif strcmp('Tsoil_Avg_9',headertext(i)) == 1
                 Juniper_10cm = data(:,i-1);
             end
         end
@@ -900,7 +900,8 @@ obs_per_day = 48;  % half-hourly observations
             NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
                                                % calculate new net long wave from total net minus sw net
             NR_lw = NR_tot - NR_sw;
-        elseif year_arg == 2008 || year_arg == 2009
+            %elseif year_arg == 2008 || year_arg == 2009
+        elseif year_arg >= 2008
             % par switch to par-lite on ??
             NR_lw = lw_incoming - lw_outgoing;
             NR_sw = sw_incoming - sw_outgoing;
@@ -955,7 +956,7 @@ obs_per_day = 48;  % half-hourly observations
     end
 
     % normalize PAR to account for calibration problems at some sites
-    if ismember( sitecode, [ 1, 2, 3, 4, 10, 11 ] );
+    if ismember( sitecode, [ 1, 2, 3, 4, 7, 10, 11 ] );
         if ( sitecode == 3 ) & ( year_arg == 2008 )
             % there is a small but suspicious-looking step change at DOY164 -
             % normalize the first half of the year separately from the second
@@ -983,6 +984,8 @@ obs_per_day = 48;  % half-hourly observations
                                       decimal_day( doy138+1:doy341 ), ...
                                       draw_plots );
             Par_Avg = [ Par_Avg1; Par_Avg2; Par_Avg( doy341+1:end ) ];
+        elseif (sitecode == UNM_sites.TX ) & ( year_arg == 2012 )
+            
         else
             Par_Avg = normalize_PAR( sitecode, ...
                                      Par_Avg, ...
@@ -2305,7 +2308,32 @@ switch sitecode
         sw_outgoing( idx ) = NaN;
         Par_Avg( DOYidx( 101 ) : DOYidx( 160 ) ) = NaN;
     end
-    
+
+  case UNM_sites.TX
+    switch year
+      case 2012
+        % fill 2011 gaps at US-FR2 from US-FR3 (certain fields only, as per Marcy's
+        % email of 25 Apr 2013: "This site is super close to our site.  Can you
+        % grab the variables we need from there please.  I would take PAR, Rg,
+        % ppt, pressure, AirT, RH at least.  Incoming longwave is probably fine.
+        % Would not get outgoing.")
+        fname = fullfile( get_site_directory( UNM_sites.TX_forest ), ...
+                          'TAMU_Ameriflux_Files', ...
+                          'HeilmanKamps_2012FR3WithGaps.csv' );
+        TAMU_data = parse_TAMU_ameriflux_file( fname );
+        Par_Avg( isnan( Par_Avg ) ) = TAMU_data.PAR( isnan( Par_Avg ) );
+        sw_incoming( isnan( sw_incoming ) ) = ...
+            TAMU_data.Rg( isnan( sw_incoming ) );
+        precip( isnan( precip ) ) = TAMU_data.PRECIP( isnan( precip ) );
+        atm_press( isnan( atm_press ) ) = TAMU_data.PA( isnan( atm_press ) );
+        C_to_K = @(T) T + 273.15;
+        Tdry( isnan( Tdry ) ) = ...
+            C_to_K( TAMU_data.TA( isnan( Tdry ) ) );
+        rH( isnan( rH ) ) = TAMU_data.RH( isnan( rH ) );
+        lw_incoming( isnan( lw_incoming ) ) = ...
+            TAMU_data.Rlong_in( isnan( lw_incoming ) );
+    end
+
   case UNM_sites.New_GLand
     switch year
       case 2010
