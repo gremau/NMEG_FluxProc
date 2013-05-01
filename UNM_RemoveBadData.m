@@ -2332,6 +2332,8 @@ switch sitecode
         rH( isnan( rH ) ) = TAMU_data.RH( isnan( rH ) );
         lw_incoming( isnan( lw_incoming ) ) = ...
             TAMU_data.Rlong_in( isnan( lw_incoming ) );
+        
+        E_wpl_massman( E_wpl_massman > 200 ) = NaN;
     end
 
   case UNM_sites.New_GLand
