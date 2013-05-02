@@ -1754,52 +1754,32 @@ obs_per_day = 48;  % half-hourly observations
     filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );
     if write_gap_filling_out_file
         Tsoil=ones(size(qc)).*-9999;
-        if (sitecode>7 && sitecode<10) % || 9);
-            disp('writing gap-filling file...')
-            header = {'day' 'month' 'year' 'hour' 'minute' ...
-                      'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
-                      'rH' 'precip' 'Ustar'};
-            %sw_incoming=ones(size(qc)).*-999;
-            Tsoil=ones(size(qc)).*-9999;
-            datamatrix = [day month year hour minute qc NEE LE H_dry sw_incoming Tair Tsoil rH precip u_star];
-            for n = 1:filelength_n
-                for k = 1:15;
-                    if isnan(datamatrix(n,k)) == 1;
-                        datamatrix(n,k) = -9999;
-                    else
-                    end
-                end
-            end
-            outfilename = strcat(outfolder,filename,'_for_gap_filling');
-            xlswrite(outfilename, header, 'data', 'A1');
-            xlswrite(outfilename, datamatrix, 'data', 'A2');
-        else    
-            disp('writing gap-filling file...')
-            
-            header = {'day' 'month' 'year' 'hour' 'minute' ...
-                      'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
-                      'rH' 'precip' 'Ustar'};
-            if sitecode == 3
-                Tsoil = ones(size(qc)).*-9999;
-            end
-            datamatrix = [day month year hour minute qc NEE ...
-                          LE H_dry sw_incoming Tair Tsoil rH precip u_star];
-            [ filled_idx, datamatrix ] = ...
-                UNM_gapfill_from_local_data( ...
-                    sitecode, ...
-                    year, ...
-                    dataset( { datamatrix, header{ : } } ) );
-            datamatrix = double( datamatrix );
+        disp('writing gap-filling file...')
+        
+        header = {'day' 'month' 'year' 'hour' 'minute' ...
+                  'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
+                  'rH' 'precip' 'Ustar'};
+        if sitecode == 3
+            Tsoil = ones(size(qc)).*-9999;
+        end
+        datamatrix = [day month year hour minute qc NEE ...
+                      LE H_dry sw_incoming Tair Tsoil rH precip u_star];
+        [ filled_idx, datamatrix ] = ...
+            UNM_gapfill_from_local_data( ...
+                sitecode, ...
+                year, ...
+                dataset( { datamatrix, header{ : } } ) );
+        datamatrix = double( datamatrix );
 
-            for n = 1:filelength_n
-                for k = 1:15;
-                    if isnan(datamatrix(n,k)) == 1;
-                        datamatrix(n,k) = -9999;
-                    else
-                    end
+        for n = 1:filelength_n
+            for k = 1:15;
+                if isnan(datamatrix(n,k)) == 1;
+                    datamatrix(n,k) = -9999;
+                else
                 end
             end
         end
+
         filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );
         outfilename_forgapfill = fullfile( outfolder, ...
                                            sprintf( '%s_for_gap_filling.txt', ...
