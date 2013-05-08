@@ -108,7 +108,7 @@ methods
     units_sum = { 'mm' };
     % radiation variables: aggregate by W m-2 to J m-2
     vars_rad = { 'RNET', 'PAR', 'PAR_out', 'Rg', 'Rg_out', 'Rlong_in', ...
-                 'Rlong_out' };
+                 'Rlong_out', 'LE' };
     units_rad = repmat( { 'J m-2' }, 1, numel( vars_rad ) );
     
     t_30min = double( [ obj.aflx_data.YEAR, obj.aflx_data.DOY ] );

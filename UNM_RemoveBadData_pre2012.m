@@ -1,6 +1,6 @@
 % This program was created by Krista Anderson Teixeira in July 2007
 % Modified by John DeLong 2008 through 2009.
-% Modifed by Timothy W. Hilton, 2011 through 2012
+% Modifed by Timothy W. Hilton, 2011 through 2013
 %
 % The program reads site_fluxall_year excel files and pulls in a
 % combination of matlab processed ts data and data logged average 30-min
@@ -283,6 +283,8 @@ draw_fingerprints = args.Results.draw_fingerprints;
         co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -5];
         if year == 2006
             filelength_n = 11594;
+            lastcolumn='FT';
+            ustar_lim = 0.08;
         elseif year == 2007
             filelength_n = 17523;
             lastcolumn='FV';

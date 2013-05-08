@@ -54,7 +54,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% parse the annual Flux_All file
-if year < 2012
+if year < 2011
     % before 2012, fluxall data are in excel files
     data = UNM_parse_fluxall_xls_file( sitecode, year );
 else
