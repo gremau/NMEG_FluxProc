@@ -30,9 +30,17 @@ classdef UNM_ameriflux_daily_aggregator
 %     aflx_data: dataset array containing the aggregated data
 %
 % METHODS:
-%    write_daily_file( obj ): write daily file to file.  Writes to
-%          $FLUXROOT/Ameriflux_files unless 'outdir' is specified as a
-%          keyword.
+%    write_daily_file: write daily file to file.
+%       USAGE
+%          write_daily_file( 'use_Ameriflux_code', val )
+%          write_daily_file( ..., 'outdir', dir )
+%       INPUTS
+%          use_Ameriflux_code: optional, logical; if true, uses the Ameriflux
+%              site code in the file name (e.g. US-abc).  If false, uses the
+%              internal UNM site abbreviation (e.g. GLand, SLand, etc.).
+%              Default is true.
+%          outdir: optional, char; path to directory in which to write output
+%              files.  Default is $FLUXROOT/Ameriflux_files.
 %
 % (c) Timothy W. Hilton, UNM, December 2012
 
@@ -172,6 +180,7 @@ function write_daily_file( obj, varargin )
 args = inputParser;
 args.addRequired( 'obj', @(x) isa( x, 'UNM_ameriflux_daily_aggregator' ) );
 args.addParamValue( 'outdir', '', @ischar );
+args.addParamValue( 'use_Ameriflux_code', true, @islogical );
 args.parse( obj, varargin{ : } );
 obj = args.Results.obj;
 % -----
@@ -190,9 +199,16 @@ if exist( outdir ) ~= 7
                     outdir ) );
 end
 
+if args.Results.use_Ameriflux_code 
+    site_table = parse_UNM_site_table();
+    site_abbrev = char( site_table.Ameriflux( obj.sitecode ) );
+else
+    site_abbrev = char( obj.sitecode );
+end
+
 fname = fullfile( outdir, ...
                   sprintf( '%s_%d_%d_daily.txt', ...
-                           char( obj.sitecode ), ...
+                           site_abbrev, ...
                            obj.years( 1 ), ...
                            obj.years( end ) ) );
 
