@@ -120,6 +120,10 @@ switch sitecode
         data( idx, : ) = shift_data( data( idx, : ), -3.5 );
         idx = DOYidx( 283.0 ) : DOYidx( 293.5 );
         data( idx, : ) = shift_data( data( idx, : ), -4.5 );
+
+      case 2010
+        idx = [ 1 : DOYidx( 64 ), DOYidx( 99 ) : size( data, 1 ) ];
+        data( idx, : ) = shift_data( data( idx, : ), -1.5 );
         
       case 2012
         idx = DOYidx( 204 ) : DOYidx( 233 );
