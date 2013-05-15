@@ -1076,6 +1076,12 @@ draw_fingerprints = args.Results.draw_fingerprints;
     % Radiation corrections
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    isnight = ( Par_Avg < 20.0 ) | ( sw_incoming < 20 );
+    %remove nighttime Rg and RgOut values outside of [ -5, 5 ]
+    % added 13 May 2013 in response to problems noted by Bai Yang
+    sw_incoming[ isnight & ( abs( sw_incoming ) > 5 ) ] = NaN;
+    sw_outgoing[ isnight & ( abs( sw_outgoing ) > 5 ) ] = NaN;
+    
     %%%%%%%%%%%%%%%%% grassland
     if sitecode == 1
         if year_arg == 2007
@@ -1445,6 +1451,10 @@ draw_fingerprints = args.Results.draw_fingerprints;
     % remove negative Rg_out values
     sw_outgoing( sw_outgoing < -50 ) = NaN;
     
+    % make sure net radiation is less than incoming shortwave
+    % added 13 May 2013 in response to problems noted by Bai Yang1
+    NR_tot[ NR_tot > sw_incoming ] = NaN;
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Apply Burba 2008 correction for sensible heat conducted from 7500
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1568,7 +1578,7 @@ draw_fingerprints = args.Results.draw_fingerprints;
     decimal_day_nan(nightnegflag) = NaN;
     record(nightnegflag) = NaN;
     disp(sprintf('    night-time negs = %d',removed_nightneg));
-
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2732,6 +2742,7 @@ switch sitecode
         fc_raw_massman_wpl( idx ) = NaN;
         HL_wpl_massman( idx ) = NaN;
         E_wpl_massman( idx ) = NaN;
+        H2O_mean( idx ) = NaN;
     end
     
   case UNM_sites.MCon
