@@ -542,7 +542,7 @@ draw_fingerprints = args.Results.draw_fingerprints;
     % Set up file name and file path
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    if year_arg <= 2011
+    if year_arg <= 2012
         drive='c:';
         row1=5;  %first row of data to process - rows 1 - 4 are header
         filename = strcat(site,'_flux_all_',num2str(year))
@@ -1079,8 +1079,8 @@ draw_fingerprints = args.Results.draw_fingerprints;
     isnight = ( Par_Avg < 20.0 ) | ( sw_incoming < 20 );
     %remove nighttime Rg and RgOut values outside of [ -5, 5 ]
     % added 13 May 2013 in response to problems noted by Bai Yang
-    sw_incoming[ isnight & ( abs( sw_incoming ) > 5 ) ] = NaN;
-    sw_outgoing[ isnight & ( abs( sw_outgoing ) > 5 ) ] = NaN;
+    sw_incoming( isnight & ( abs( sw_incoming ) > 5 ) ) = NaN;
+    sw_outgoing( isnight & ( abs( sw_outgoing ) > 5 ) ) = NaN;
     
     %%%%%%%%%%%%%%%%% grassland
     if sitecode == 1
@@ -1453,7 +1453,7 @@ draw_fingerprints = args.Results.draw_fingerprints;
     
     % make sure net radiation is less than incoming shortwave
     % added 13 May 2013 in response to problems noted by Bai Yang1
-    NR_tot[ NR_tot > sw_incoming ] = NaN;
+    NR_tot( NR_tot > sw_incoming ) = NaN;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Apply Burba 2008 correction for sensible heat conducted from 7500
