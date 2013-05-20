@@ -365,6 +365,7 @@ end
         [copy_success, msg, msgid] = copyfile( full_fname, bak_fname );
     end
 
+    fprintf( 'writing %s\n', full_fname );
     export_dataset_tim( full_fname, fluxall_data )
     
     end   % write_fluxall
