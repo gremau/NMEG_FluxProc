@@ -43,8 +43,7 @@
 
 
 function [] = UNM_RemoveBadData_pre2012( sitecode, year, varargin )
-%clear all
-%close all
+
 
 [ this_year, ~, ~ ] = datevec( now );
 
@@ -571,11 +570,12 @@ if year_arg <= 2012
     [year month day hour minute second] = datevec(timestamp);
     datenumber = datenum(timestamp);
     disp('file read');
-    save_fname = fullfile( 'C:\Users\Tim\FluxallConvert\', ...
+
+    save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
                            sprintf( '%s_%d_FA_Convert.mat', ...
-                                    char( sitecode ), year(1) ) )
+                                    char( sitecode ), year(1) ) );
     save( save_fname );
-    fprintf( 'saved %s\n', save_fname );
+    fprintf( 'loaded %s\n', save_fname );
 else
     outfolder = fullfile( get_site_directory( sitecode ), ...
                           'processed_flux' );
@@ -908,9 +908,9 @@ elseif sitecode == 10
     rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) / 100.0;
 end
 
-save_fname = fullfile( 'C:\Users\Tim\FluxallConvert\', ...
+save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
                        sprintf( '%s_%d_before_radiation.mat', ...
-                                char( sitecode ), year(1) ) )
+                                char( sitecode ), year(1) ) );
 save( save_fname );
 fprintf( 'saved %s\n', save_fname );
 
@@ -1087,388 +1087,25 @@ end
 % Radiation corrections
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-isnight = ( Par_Avg < 20.0 ) | ( sw_incoming < 20 );
-%remove nighttime Rg and RgOut values outside of [ -5, 5 ]
-% added 13 May 2013 in response to problems noted by Bai Yang
-sw_incoming( isnight & ( abs( sw_incoming ) > 5 ) ) = NaN;
-sw_outgoing( isnight & ( abs( sw_outgoing ) > 5 ) ) = NaN;
+[ sw_incoming, sw_outgoing, Par_Avg ] = ...
+    apply_radiation_calibration_factors( sitecode, year_arg, ...
+                                         sw_incoming, sw_outgoing, ...
+                                         lw_incoming, lw_outgoing, ...
+                                         Par_Avg, CNR1TK );
 
-%%%%%%%%%%%%%%%%% grassland
-if sitecode == 1
-    if year_arg == 2007
-        % this is the wind correction factor for the Q*7 used before ??/??      
-        for i = 1:5766
-            if NR_tot(1) < 0
-                NR_tot(i) = NR_tot(i)*11.42*((0.00174*wnd_spd(i)) + 0.99755);
-            elseif NR_tot(1) > 0
-                NR_tot(i) = NR_tot(i)*8.99*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
-            end
-        end
-        
-        % calibration and unit conversion into W per m^2 for CNR1 variables
-        % >> for first couple of weeks the program had one incorrect
-        % conversion factor (163.66)
-        sw_incoming(find(decimal_day > 156.71 & decimal_day < 162.52)) = sw_incoming(find(decimal_day > 156.71 & decimal_day < 162.52))./163.66.*(1000./8.49);
-        sw_outgoing(find(decimal_day > 156.71 & decimal_day < 162.52)) = sw_outgoing(find(decimal_day > 156.71 & decimal_day < 162.52))./163.66.*(1000./8.49);
-        lw_incoming(find(decimal_day > 156.71 & decimal_day < 162.52)) = lw_incoming(find(decimal_day > 156.71 & decimal_day < 162.52))./163.66.*(1000./8.49);
-        lw_outgoing(find(decimal_day > 156.71 & decimal_day < 162.52)) = lw_outgoing(find(decimal_day > 156.71 & decimal_day < 162.52))./163.66.*(1000./8.49);
-        % then afterward it had a different one (136.99)
-        sw_incoming(find(decimal_day > 162.67)) = sw_incoming(find(decimal_day > 162.67)).*(1000./8.49)./136.99;
-        sw_outgoing = sw_outgoing.*(1000./8.49)./136.99;
-        lw_incoming = lw_incoming.*(1000./8.49)./136.99;
-        lw_outgoing = lw_outgoing.*(1000./8.49)./136.99;
-        % temperature correction just for long-wave
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
-        % calculate new net radiation values
-        NR_lw = lw_incoming - lw_outgoing;
-        NR_sw = sw_incoming - sw_outgoing;
-        NR_tot = NR_lw + NR_sw;
-        % calibration correction for the li190
-        Par_Avg(find(decimal_day > 162.14)) = Par_Avg(find(decimal_day > 162.14)).*1000./(5.7*0.604);
-        % estimate par from sw_incoming
-        Par_Avg(find(decimal_day < 162.15)) = sw_incoming(find(decimal_day < 162.15)).*2.025 + 4.715;
-        
-    elseif year_arg >= 2008
-        % calibration correction for the li190
-        Par_Avg = Par_Avg.*1000./(5.7*0.604);
-        % calibration and unit conversion into W per m^2 for CNR1 variables
-        % and adjust for program error
-        sw_incoming = sw_incoming./136.99.*(1000./8.49);
-        sw_outgoing = sw_outgoing./136.99.*(1000./8.49);
-        lw_incoming = lw_incoming./136.99.*(1000./8.49);
-        lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
-        % temperature correction just for long-wave
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
-        % calculate new net radiation values
-        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-        NR_tot = NR_lw + NR_sw;
-    end
-    
-    %%%%%%%%%%%%%%%%% shrubland 
-elseif sitecode == 2    
-    if year_arg == 2007
-        % was this a Q*7 through the big change on 5/30/07? need updated
-        % calibration
-        may30 = 48 * ( datenum( 2007, 5, 30 ) - datenum( 2007, 1, 1 ) );
-        for i = 1:may30
-            %for i = 1:6816
-            if NR_tot(1) < 0
-                NR_tot(i) = NR_tot(i)*10.74*((0.00174*wnd_spd(i)) + 0.99755);
-            elseif NR_tot(1) > 0
-                NR_tot(i) = NR_tot(i)*8.65*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
-            end
-        end
-        
-        % calibration and unit conversion into W per m^2 for CNR1 variables
-        % >> for first couple of weeks the program had one incorrect
-        % conversion factor (163.66)
-        sw_incoming(find(decimal_day >= 150.75 & decimal_day < 162.44)) = sw_incoming(find(decimal_day >= 150.75 & decimal_day < 162.44))./163.66.*(1000./12.34);
-        sw_outgoing(find(decimal_day >= 150.75 & decimal_day < 162.44)) = sw_outgoing(find(decimal_day >= 150.75 & decimal_day < 162.44))./163.66.*(1000./12.34);
-        lw_incoming(find(decimal_day >= 150.75 & decimal_day < 162.44)) = lw_incoming(find(decimal_day >= 150.75 & decimal_day < 162.44))./163.66.*(1000./12.34);
-        lw_outgoing(find(decimal_day >= 150.75 & decimal_day < 162.44)) = lw_outgoing(find(decimal_day >= 150.75 & decimal_day < 162.44))./163.66.*(1000./12.34);
-        % >> then afterward it had a different one (136.99)
-        sw_incoming(find(decimal_day > 162.44)) = sw_incoming(find(decimal_day > 162.44))./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2
-        sw_outgoing = sw_outgoing./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2
-        lw_incoming = lw_incoming./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2
-        lw_outgoing = lw_outgoing./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2        
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave 
-        
-        % calculate new net radiation values
-        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-        NR_tot(find(decimal_day >= 150.75)) = NR_lw(find(decimal_day >= 150.75)) + NR_sw(find(decimal_day >= 150.75));
-        NR_tpt(find(decimal_day >= 150.75 & isnan(NR_sw)==1)) = NaN;
-        
-        % calibration correction for the li190
-        Par_Avg(find(decimal_day > 150.729)) = Par_Avg(find(decimal_day > 150.729)).*1000./(6.94*0.604);
-        % estimate par from sw_incoming
-        Par_Avg(find(decimal_day < 150.729)) = sw_incoming(find(decimal_day < 150.729)).*2.0292 + 3.6744;
-        
-    elseif any( intersect ( year_arg, 2008:2011 ) )
-        % calibration and unit conversion into W per m^2 for CNR1 variables
-        % adjust for program error and convert into W per m^2
-        sw_incoming = sw_incoming./136.99.*(1000./12.34);
-        sw_outgoing = sw_outgoing./136.99.*(1000./12.34);
-        lw_incoming = lw_incoming./136.99.*(1000./12.34);
-        lw_outgoing = lw_outgoing./136.99.*(1000./12.34);
-        % temperature correction just for long-wave
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
-        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-        NR_tot = NR_lw + NR_sw;
-        % calibration correction for the li190
-        Par_Avg = Par_Avg.*1000./(6.94*0.604);
-    end
-
-    %%%%%%%%%%%%%%%%% juniper savanna
-elseif sitecode == 3 
-    if year_arg == 2007
-        % calibration and unit conversion into W per m^2 for CNR1 variables
-        sw_incoming = sw_incoming./163.666.*(1000./6.9); % convert into W per m^2
-        sw_outgoing = sw_outgoing./163.666.*(1000./6.9); % convert into W per m^2
-        lw_incoming = lw_incoming./163.666.*(1000./6.9); % convert into W per m^2
-        lw_outgoing = lw_outgoing./163.666.*(1000./6.9); % convert into W per m^2        
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
-        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-        NR_tot = NR_lw + NR_sw;
-        % calibration for par-lite
-        Par_Avg = Par_Avg.*1000./5.48;
-    elseif year_arg >= 2008
-        % calibration and unit conversion into W per m^2 for CNR1 variables
-        sw_incoming = sw_incoming./163.666.*(1000./6.9); % convert into W per m^2
-        sw_outgoing = sw_outgoing./163.666.*(1000./6.9); % convert into W per m^2
-        lw_incoming = lw_incoming./163.666.*(1000./6.9); % convert into W per m^2
-        lw_outgoing = lw_outgoing./163.666.*(1000./6.9); % convert into W per m^2        
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
-        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-        NR_tot = NR_lw + NR_sw;
-        % calibration for par-lite
-        Par_Avg = Par_Avg.*1000./5.48;
-    end
-    
-    % all cnr1 variables for jsav need to be (value/163.666)*144.928
-
-    %%%%%%%%%%%%%%%%% pinyon juniper
-elseif sitecode == 4
-    if year_arg == 2007
-        % this is the wind correction factor for the Q*7
-        NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
-        NR_tot(find(NR_tot > 0)) = NR_tot(find(NR_tot > 0)).*8.65.*(1 + (0.066.*0.2.*wnd_spd(find(NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(NR_tot > 0)))));
-        % now correct pars
-        Par_Avg = NR_tot.*2.7828 + 170.93; % see notes on methodology (PJ) for this relationship
-        sw_incoming = Par_Avg.*0.4577 - 1.8691; % see notes on methodology (PJ) for this relationship
-        NR_lw = lw_incoming - lw_outgoing;
-        NR_sw = sw_incoming - sw_outgoing;
-
-    elseif year_arg == 2008
-        % this is the wind correction factor for the Q*7
-        NR_tot(find(decimal_day < 172 & NR_tot < 0)) = NR_tot(find(decimal_day < 172 & NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(decimal_day < 172 & NR_tot < 0))) + 0.99755);
-        NR_tot(find(decimal_day < 172 & NR_tot > 0)) = NR_tot(find(decimal_day < 172 & NR_tot > 0)).*8.65.*(1 + (0.066.*0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))));
-        % now correct pars
-        Par_Avg(find(decimal_day < 42.6)) = NR_tot(find(decimal_day < 42.6)).*2.7828 + 170.93;
-        % calibration for par-lite installed on 2/11/08
-        Par_Avg(find(decimal_day > 42.6)) = Par_Avg(find(decimal_day > 42.6)).*1000./5.51;
-        sw_incoming(find(decimal_day < 172)) = Par_Avg(find(decimal_day < 172)).*0.4577 - 1.8691;
-        
-        lw_incoming(find(decimal_day > 171.5)) = lw_incoming(find(decimal_day > 171.5)) + 0.0000000567.*(CNR1TK(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
-        lw_outgoing(find(decimal_day > 171.5)) = lw_outgoing(find(decimal_day > 171.5)) + 0.0000000567.*(CNR1TK(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
-        
-        % calculate new net radiation values
-        NR_lw = lw_incoming - lw_outgoing;
-        NR_sw = sw_incoming - sw_outgoing;
-        NR_tot(find(decimal_day > 171.5)) = NR_lw(find(decimal_day > 171.5)) + NR_sw(find(decimal_day > 171.5));
-    elseif year_arg >= 2009
-        % calibration for par-lite installed on 2/11/08
-        Par_Avg = Par_Avg.*1000./5.51;
-        % temperature correction just for long-wave
-        lw_incoming = lw_incoming + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
-        lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
-        % calculate new net radiation values
-        NR_lw = lw_incoming - lw_outgoing;
-        NR_sw = sw_incoming - sw_outgoing;
-        NR_tot = NR_lw + NR_sw;
-    end
-
-    %%%%%%%%%%%%%%%%% ponderosa pine
-elseif sitecode == 5
-    if year_arg == 2007
-        % radiation values apparently already calibrated and unit-converted
-        % in progarm for valles sites
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
-        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-        NR_tot = NR_lw + NR_sw;
-        Par_Avg=Par_Avg.*225;  % Apply correct calibration value 7.37, SA190 manual section 3-1
-        Par_Avg=Par_Avg+(0.2210.*sw_incoming); % Apply correction to bring in to line with Par-lite from mid 2008 onwards
-        
-    elseif year_arg == 2008
-        % radiation values apparently already calibrated and unit-converted
-        % in progarm for valles sites
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
-        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-        NR_tot = NR_lw + NR_sw;
-        % calibration for Licor sesor  
-        Par_Avg(1:10063)=Par_Avg(1:10063).*225;  % Apply correct calibration value 7.37, SA190 manual section 3-1
-        Par_Avg(1:10063)=Par_Avg(1:10063)+(0.2210.*sw_incoming(1:10063));
-        % calibration for par-lite sensor
-        Par_Avg(10064:end) = Par_Avg(10064:end).*1000./5.25;
-        
-    elseif year_arg == 2009 || year_arg ==2010 || year_arg == 2011
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
-        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-        NR_tot = NR_lw + NR_sw;
-        % calibration for par-lite sensor
-        Par_Avg = Par_Avg.*1000./5.25;
-    end
-
-
-    
-    
-    %%%%%%%%%%%%%%%%% mixed conifer
-elseif sitecode == 6
-    if year_arg == 2006 || year_arg == 2007
-        % calibration and unit conversion into W per m^2 for CNR1 variables
-        % cnr1 installed and working on 8/1/08
-        %         sw_incoming(find(decimal_day > 214.75)) = sw_incoming(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2
-        %         sw_outgoing(find(decimal_day > 214.75)) = sw_outgoing(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2
-        %         lw_incoming(find(decimal_day > 214.75)) = lw_incoming(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2
-        %         lw_outgoing(find(decimal_day > 214.75)) = lw_outgoing(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2        
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
-        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-        NR_tot = NR_lw + NR_sw;
-        
-    elseif year_arg > 2007
-        % radiation values apparently already calibrated and unit-converted
-        % in progarm for valles sites   
-        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
-        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
-        NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-        NR_tot = NR_lw + NR_sw;
-        % calibration for par-lite sensor
-        Par_Avg = Par_Avg.*1000./5.65;
-        
-    end
-    
-    %%%%%%%%%%%%%%%%% texas
-elseif sitecode == 7
-    % calibration for the li-190 par sensor - sensor had many high
-    % values, so delete all values above 6.5 first
-    Par_Avg(find(Par_Avg > 13.5)) = NaN;
-    Par_Avg = Par_Avg.*1000./(6.16.*0.604);
-    if year_arg == 2007 || year_arg == 2006 || year_arg == 2005
-        % wind corrections for the Q*7
-        NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.91.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
-        NR_tot(find(NR_tot > 0)) = NR_tot(find(NR_tot > 0)).*8.83.*(1 + (0.066.*0.2.*wnd_spd(find(NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(NR_tot > 0)))));
-
-        % no long-wave data for TX
-        lw_incoming(1:datalength,1) = NaN;
-        lw_outgoing(1:datalength,1) = NaN;
-        % pyrronometer corrections
-        sw_incoming = sw_incoming.*1000./27.34;
-        sw_outgoing = sw_outgoing.*1000./19.39;
-        NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-                                           % calculate new net long wave from total net minus sw net
-        NR_lw = NR_tot - NR_sw;
-    elseif year_arg == 2008 || year_arg == 2009
-        % par switch to par-lite on ??
-        NR_lw = lw_incoming - lw_outgoing;
-        NR_sw = sw_incoming - sw_outgoing;
-        NR_tot = NR_lw + NR_sw;
-    end
-    
-elseif sitecode == 8 
-    % for TX forest 2009, there was no PAR observation in the fluxall file on
-    % 15 Mat 2012.  We substituted in PAR from the TX savana site. --  TWH &
-    % ML
-    if year == 2009
-        Par_Avg(find(Par_Avg > 13.5)) = NaN;
-        Par_Avg = Par_Avg.*1000./(6.16.*0.604);
-    end
-    NR_lw = lw_incoming - lw_outgoing;
-    NR_sw = sw_incoming - sw_outgoing;
-    NR_tot = NR_lw + NR_sw;
-    
-elseif sitecode == 9
-    NR_lw = lw_incoming - lw_outgoing;
-    NR_sw = sw_incoming - sw_outgoing;
-    NR_tot = NR_lw + NR_sw;
-elseif sitecode == 10
-    % temperature correction just for long-wave
-    lw_incoming = lw_incoming + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
-    lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
-    % recalculate net radiation with T-adjusted longwave
-    NR_lw = lw_incoming - lw_outgoing;
-    NR_sw = sw_incoming - sw_outgoing;
-    NR_tot = NR_lw + NR_sw;
-    
-    %%%%%%%%%%%%%%%%% New Grassland
-elseif sitecode == 11 
-    % calibration correction for the li190
-    Par_Avg = Par_Avg.*1000./(5.7*0.604);
-    % calibration and unit conversion into W per m^2 for CNR1 variables
-    % and adjust for program error
-    sw_incoming = sw_incoming./136.99.*(1000./8.49);
-    sw_outgoing = sw_outgoing./136.99.*(1000./8.49);
-    lw_incoming = lw_incoming./136.99.*(1000./8.49);
-    lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
-    % temperature correction just for long-wave
-    lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
-    lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
-    % calculate new net radiation values
-    NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
-    NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
-    NR_tot = NR_lw + NR_sw;
-end
+[ sitecode, year_arg, NR_sw, NR_lw, NR_tot ] = ...
+    calculate_net_radiation( sitecode, year_arg, ...
+                             sw_incoming, sw_outgoing, ...
+                             lw_incoming, lw_outgoing, ...
+                             NR_tot );
 
 % normalize PAR to account for calibration problems at some sites
-if ismember( sitecode, [ 1, 2, 3, 4, 10, 11 ] );
-    if ( sitecode == 3 ) & ( year_arg == 2008 )
-        % there is a small but suspicious-looking step change at DOY164 -
-        % normalize the first half of the year separately from the second
-        doy164 = DOYidx( 164 );
-        Par_Avg1 = normalize_PAR( sitecode, ...
-                                  Par_Avg( 1:doy164 ), ...
-                                  decimal_day( 1:doy164 ), ...
-                                  draw_plots );
-        Par_Avg2 = normalize_PAR( sitecode, ...
-                                  Par_Avg( (doy164 + 1):end ), ...
-                                  decimal_day( (doy164 + 1):end ), ...
-                                  draw_plots );
-        Par_Avg = [ Par_Avg1; Par_Avg2 ];
+Par_Avg = normalize_PAR_wrapper( sitecode, year_arg, Par_Avg );
 
-    elseif ( sitecode == 10 ) & ( year_arg == 2010 )
-        % two step changes in this one
-        doy138 = DOYidx( 138 );
-        doy341 = DOYidx( 341 );
-        Par_Avg1 = normalize_PAR( sitecode, ...
-                                  Par_Avg( 1:doy138 ), ...
-                                  decimal_day( 1:doy138 ), ...
-                                  draw_plots );
-        Par_Avg2 = normalize_PAR( sitecode, ...
-                                  Par_Avg( doy138+1:doy341 ), ...
-                                  decimal_day( doy138+1:doy341 ), ...
-                                  draw_plots );
-        Par_Avg = [ Par_Avg1; Par_Avg2; Par_Avg( doy341+1:end ) ];
-    else
-        Par_Avg = normalize_PAR( sitecode, ...
-                                 Par_Avg, ...
-                                 decimal_day, ...
-                                 draw_plots );
-    end
-end
-% fix calibration problem at JSav 2009
-if ( sitecode == 3 ) & ( year_arg == 2009 )
-    Par_Avg( 1:1554 ) = Par_Avg( 1:1554 ) + 133;
-end
-Par_Avg( Par_Avg < -50 ) = NaN;
 
-% remove negative Rg_out values
-sw_outgoing( sw_outgoing < -50 ) = NaN;
-
-% make sure net radiation is less than incoming shortwave
-% added 13 May 2013 in response to problems noted by Bai Yang1
-NR_tot( NR_tot > sw_incoming ) = NaN;
-
-save_fname = fullfile( 'C:\Users\Tim\FluxallConvert\', ...
+save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
                        sprintf( '%s_%d_after_radiation.mat', ...
-                                char( sitecode ), year(1) ) )
+                                char( sitecode ), year(1) ) );
 save( save_fname );
 fprintf( 'saved %s\n', save_fname );
 
@@ -2243,44 +1880,42 @@ if draw_fingerprints
                                    shift_t_str );
 end
 
-if write_gap_filling_out_file
-    if (sitecode>7 && sitecode<10) % || 9);
-        disp('writing gap-filling file...')
-        header = {'day' 'month' 'year' 'hour' 'minute' ...
-                  'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
-                  'rH' 'precip' 'Ustar'};
-        %sw_incoming=ones(size(qc)).*-999;
-        Tsoil=ones(size(qc)).*-999;
-        datamatrix = [day month year hour minute qc NEE LE H_dry ...
-                      sw_incoming Tair Tsoil rH precip u_star];
-        for n = 1:datalength
-            for k = 1:15;
-                if isnan(datamatrix(n,k)) == 1;
-                    datamatrix(n,k) = -9999;
-                else
-                end
+if (sitecode>7 && sitecode<10) % || 9);
+    disp('writing gap-filling file...')
+    header = {'day' 'month' 'year' 'hour' 'minute' ...
+              'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
+              'rH' 'precip' 'Ustar'};
+    %sw_incoming=ones(size(qc)).*-999;
+    Tsoil=ones(size(qc)).*-999;
+    datamatrix = [day month year hour minute qc NEE LE H_dry ...
+                  sw_incoming Tair Tsoil rH precip u_star];
+    for n = 1:datalength
+        for k = 1:15;
+            if isnan(datamatrix(n,k)) == 1;
+                datamatrix(n,k) = -9999;
+            else
             end
         end
-        outfilename = strcat(outfolder,filename,'_for_gap_filling');
-        xlswrite(outfilename, header, 'data', 'A1');
-        xlswrite(outfilename, datamatrix, 'data', 'A2');
-    else    
-        disp('preparing gap-filling file...')
-        
-        fgf_headers = {'day' 'month' 'year' 'hour' 'minute' ...
-                       'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
-                       'rH' 'precip' 'Ustar'};
-        if sitecode == 3
-            Tsoil = ones(size(qc)).*-999;
-        end
-        fgf = [day month year hour minute qc NEE ...
-               LE H_dry sw_incoming Tair Tsoil rH precip u_star];
-        [ filled_idx, fgf ] = ...
-            UNM_gapfill_from_local_data( ...
-                sitecode, ...
-                year, ...
-                dataset( { fgf, fgf_headers{ : } } ) );
     end
+    outfilename = strcat(outfolder,filename,'_for_gap_filling');
+    xlswrite(outfilename, header, 'data', 'A1');
+    xlswrite(outfilename, datamatrix, 'data', 'A2');
+else    
+    disp('preparing gap-filling file...')
+    
+    fgf_headers = {'day' 'month' 'year' 'hour' 'minute' ...
+                   'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
+                   'rH' 'precip' 'Ustar'};
+    if sitecode == 3
+        Tsoil = ones(size(qc)).*-999;
+    end
+    fgf = [day month year hour minute qc NEE ...
+           LE H_dry sw_incoming Tair Tsoil rH precip u_star];
+    [ filled_idx, fgf ] = ...
+        UNM_gapfill_from_local_data( ...
+            sitecode, ...
+            year, ...
+            dataset( { fgf, fgf_headers{ : } } ) );
 end
 
 
@@ -2288,217 +1923,218 @@ end
 %WRITE COMPLETE OUT-FILE  (FLUX_all matrix with bad values removed)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if write_complete_out_file
-    disp('writing qc file...')
-    Tsoil = ones(size(qc)).*-999;
-    if sitecode == 5 || sitecode == 6 
-        qc_headers = {'year', 'month', 'day', 'hour', 'minute', ...
-                      'second', 'jday', 'iok', 'agc_Avg', 'u_star', ...
-                      'wnd_dir_compass', 'wnd_spd', 'CO2_mean', 'CO2_std', ...
-                      'H2O_mean', 'H2O_std', 'fc_raw', 'fc_raw_massman', ...
-                      'fc_water_term', 'fc_heat_term_massman', ...
-                      'fc_raw_massman_wpl', 'E_raw', 'E_raw_massman', ...
-                      'E_water_term', 'E_heat_term_massman', 'E_wpl_massman', ...
-                      'HSdry', 'HSdry_massman', 'HL_raw', 'HL_wpl_massman', ...
-                      'Tdry', 'air_temp_hmp', 'Tsoil_2cm', 'Tsoil_6cm', ...
-                      'VWC_2cm', 'precip', 'atm_press', 'rH' 'Par_Avg', ...
-                      'sw_incoming', 'sw_outgoing', 'lw_incoming', ...
-                      'lw_outgoing', 'NR_sw', 'NR_lw', 'NR_tot'};
-        qc_data = [year, month, day, hour, minute, second, jday, iok, ...
-                   agc_Avg, u_star, wnd_dir_compass, wnd_spd, CO2_mean, ...
-                   CO2_std, H2O_mean, H2O_std, fc_raw, fc_raw_massman, ...
-                   fc_water_term, fc_heat_term_massman, ...
-                   fc_raw_massman_wpl, E_raw, E_raw_massman, ...
-                   E_water_term, E_heat_term_massman, E_wpl_massman, ...
-                   HSdry, HSdry_massman, HL_raw, HL_wpl_massman, Tdry, ...
-                   air_temp_hmp, Tsoil_2cm, Tsoil_6cm, VWC, precip ...
-                   atm_press, rH Par_Avg, sw_incoming, sw_outgoing, ...
-                   lw_incoming, lw_outgoing, NR_sw, NR_lw, NR_tot];
-        
-    elseif sitecode == 7
-        qc_headers = {'year', 'month', 'day', 'hour', 'minute', ...
-                      'second', 'jday', 'iok', 'agc_Avg', 'u_star', ...
-                      'wnd_dir_compass', 'wnd_spd', 'CO2_mean', 'CO2_std', ...
-                      'H2O_mean', 'H2O_std', 'fc_raw', 'fc_raw_massman', ...
-                      'fc_water_term', 'fc_heat_term_massman', ...
-                      'fc_raw_massman_wpl', 'E_raw', 'E_raw_massman', ...
-                      'E_water_term', 'E_heat_term_massman', 'E_wpl_massman', ...
-                      'HSdry', 'HSdry_massman', 'HL_raw', 'HL_wpl_massman', ...
-                      'Tdry', 'air_temp_hmp', 'Tsoil', 'canopy_5cm', ...
-                      'canopy_10cm', 'open_5cm', 'open_10cm', ...
-                      'soil_heat_flux_open', 'soil_heat_flux_mescan', ...
-                      'soil_heat_flux_juncan', 'precip', 'atm_press', 'rH' ...
-                      'Par_Avg', 'sw_incoming', 'sw_outgoing', 'lw_incoming', ...
-                      'lw_outgoing', 'NR_sw', 'NR_lw', 'NR_tot'};
-        qc_data = [year, month, day, hour, minute, second, jday, iok, ...
-                   agc_Avg, u_star, wnd_dir_compass, wnd_spd, CO2_mean, ...
-                   CO2_std, H2O_mean, H2O_std, fc_raw, fc_raw_massman, ...
-                   fc_water_term, fc_heat_term_massman, ...
-                   fc_raw_massman_wpl, E_raw, E_raw_massman, ...
-                   E_water_term, E_heat_term_massman, E_wpl_massman, ...
-                   HSdry, HSdry_massman, HL_raw, HL_wpl_massman, Tdry, ...
-                   air_temp_hmp, Tsoil, canopy_5cm, canopy_10cm, ...
-                   open_5cm, open_10cm, soil_heat_flux_open, ...
-                   soil_heat_flux_mescan, soil_heat_flux_juncan, precip, ...
-                   atm_press, rH Par_Avg, sw_incoming, sw_outgoing, ...
-                   lw_incoming, lw_outgoing, NR_sw, NR_lw, NR_tot];
-        
-    elseif sitecode == 8 || sitecode == 9
-        qc_headers = {'year', 'month', 'day', 'hour', 'minute', ...
-                      'second', 'jday', 'iok', 'u_star', 'wnd_dir_compass', ...
-                      'wnd_spd', 'CO2_mean', 'CO2_std', 'H2O_mean', 'H2O_std', ...
-                      'fc_raw', 'fc_raw_massman', 'fc_water_term', ...
-                      'fc_heat_term_massman', 'fc_raw_massman_wpl', 'E_raw', ...
-                      'E_raw_massman', 'E_water_term', 'E_heat_term_massman', ...
-                      'E_wpl_massman', 'HSdry', 'HSdry_massman', 'HL_raw', ...
-                      'HL_wpl_massman', 'Tdry', 'air_temp_hmp', 'precip', ...
-                      'atm_press', 'rH', 'Par_Avg', 'sw_incoming', ...
-                      'sw_outgoing', 'lw_incoming', 'lw_outgoing', 'NR_sw', ...
-                      'NR_lw', 'NR_tot'};
-        %atm_press=ones(size(precip)).*-999;
-        %air_temp_hmp=ones(size(precip)).*-999;
-        qc_data = [year, month, day, hour, minute, second, jday, iok, ...
-                   u_star, wnd_dir_compass, wnd_spd, CO2_mean, CO2_std, ...
-                   H2O_mean, H2O_std, fc_raw, fc_raw_massman, ...
-                   fc_water_term, fc_heat_term_massman, ...
-                   fc_raw_massman_wpl, E_raw, E_raw_massman, ...
-                   E_water_term, E_heat_term_massman, E_wpl_massman, ...
-                   HSdry, HSdry_massman, HL_raw, HL_wpl_massman, Tdry, ...
-                   air_temp_hmp, precip, atm_press, rH, Par_Avg, ...
-                   sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, ...
-                   NR_sw,NR_lw,NR_tot];
-        
-    else
-        qc_headers = {'year', 'month', 'day', 'hour', ...
-                      'minute', 'second', 'jday', 'iok', 'agc_Avg', ...
-                      'u_star', 'wnd_dir_compass', 'wnd_spd', 'CO2_mean', ...
-                      'CO2_std', 'H2O_mean', 'H2O_std', 'fc_raw', ...
-                      'fc_raw_massman', 'fc_water_term', ...
-                      'fc_heat_term_massman', 'fc_raw_massman_wpl', ...
-                      'E_raw', 'E_raw_massman', 'E_water_term', ...
-                      'E_heat_term_massman', 'E_wpl_massman', 'HSdry', ...
-                      'HSdry_massman', 'HL_raw', 'HL_wpl_massman', 'Tdry', ...
-                      'air_temp_hmp', 'Tsoil', SHF_labels{ : }, 'precip', ...
-                      'atm_press', 'rH' 'Par_Avg', 'sw_incoming', ...
-                      'sw_outgoing', 'lw_incoming', 'lw_outgoing', 'NR_sw', ...
-                      'NR_lw', 'NR_tot'};
-        qc_data = [year, month, day, hour, minute, second, jday, iok, ...
-                   agc_Avg, u_star, wnd_dir_compass, wnd_spd,CO2_mean, ...
-                   CO2_std,H2O_mean,H2O_std, fc_raw, fc_raw_massman, ...
-                   fc_water_term, fc_heat_term_massman, ...
-                   fc_raw_massman_wpl, E_raw,E_raw_massman,E_water_term, ...
-                   E_heat_term_massman,E_wpl_massman, HSdry, ...
-                   HSdry_massman,HL_raw,HL_wpl_massman, Tdry, ...
-                   air_temp_hmp,Tsoil, soil_heat_flux, precip, atm_press, ...
-                   rH, Par_Avg, sw_incoming, sw_outgoing, lw_incoming, ...
-                   lw_outgoing,NR_sw,NR_lw,NR_tot];
-    end
-
-    if iteration > 4
-        
-        if sitecode == 8 || sitecode == 9
-            numbers_removed = [removednans removed_precip ...
-                               removed_wind removed_nightneg ...
-                               removed_ustar removed_maxs_mins ...
-                               removed_lowco2 removed_highco2 ...
-                               removed_outofstdnan NaN ...
-                               (filelength_n-sum(~isnan(record))) ...
-                               sum(~isnan(record)) removed_LH ...
-                               removed_LH_wpl_mass removed_HS ...
-                               removed_HSmass removed_Tdry ...
-                               removed_rH removed_h2o];
-            removals_header = {'Original nans', ...
-                               'Precip periods', ...
-                               'Bad wind direction', ...
-                               'Night-time negs', ...
-                               'Low ustar', ...
-                               'Over max or min', ...
-                               'Low co2', ...
-                               'High co2', ...
-                               'Outside running std', ...
-                               '', ...
-                               'Total co2 pulled', ...
-                               'Total retained', ...
-                               'LH values removed', ...
-                               'LH with WPL/Massman removed', ...
-                               'HS removed', ...
-                               'HS with massman removed', ...
-                               'Temp removed', ...
-                               'Rel humidity removed', ...
-                               'Water removed'};
-        else
-            numbers_removed = [removednans removed_precip ...
-                               removed_wind removed_nightneg ...
-                               removed_ustar removed_maxs_mins ...
-                               removed_lowco2 removed_highco2 ...
-                               removed_outofstdnan NaN ...
-                               (filelength_n-sum(~isnan(record))) ...
-                               sum(~isnan(record)) removed_LH ...
-                               removed_LH_wpl_mass removed_HS ...
-                               removed_HSmass removed_Tdry ...
-                               removed_rH removed_h2o removed_press];
-            removals_header = {'Original nans', ...
-                               'Precip periods', ...
-                               'Bad wind direction', ...
-                               'Night-time negs', ...
-                               'Low ustar',...
-                               'Over max or min', ...
-                               'Low co2', ...
-                               'High co2', ...
-                               'Outside running std', ...
-                               '',...
-                               'Total co2 pulled', ...
-                               'Total retained',...
-                               'LH values removed', ...
-                               'LH with WPL/Massman removed', ...
-                               'HS removed', ...
-                               'HS with massman removed',...
-                               'Temp removed', ...
-                               'Rel humidity removed', ...
-                               'Water removed', ...
-                               'Pressure removed'};
-            % xlswrite(outfilename,numbers_removed','numbers removed','B1');
-            % xlswrite (outfilename, removals_header', 'numbers removed', 'A1');
-        end
-    end
+disp('writing qc file...')
+Tsoil = ones(size(qc)).*-999;
+if sitecode == 5 || sitecode == 6 
+    qc_headers = {'year', 'month', 'day', 'hour', 'minute', ...
+                  'second', 'jday', 'iok', 'agc_Avg', 'u_star', ...
+                  'wnd_dir_compass', 'wnd_spd', 'CO2_mean', 'CO2_std', ...
+                  'H2O_mean', 'H2O_std', 'fc_raw', 'fc_raw_massman', ...
+                  'fc_water_term', 'fc_heat_term_massman', ...
+                  'fc_raw_massman_wpl', 'E_raw', 'E_raw_massman', ...
+                  'E_water_term', 'E_heat_term_massman', 'E_wpl_massman', ...
+                  'HSdry', 'HSdry_massman', 'HL_raw', 'HL_wpl_massman', ...
+                  'Tdry', 'air_temp_hmp', 'Tsoil_2cm', 'Tsoil_6cm', ...
+                  'VWC_2cm', 'precip', 'atm_press', 'rH' 'Par_Avg', ...
+                  'sw_incoming', 'sw_outgoing', 'lw_incoming', ...
+                  'lw_outgoing', 'NR_sw', 'NR_lw', 'NR_tot'};
+    qc_data = [year, month, day, hour, minute, second, jday, iok, ...
+               agc_Avg, u_star, wnd_dir_compass, wnd_spd, CO2_mean, ...
+               CO2_std, H2O_mean, H2O_std, fc_raw, fc_raw_massman, ...
+               fc_water_term, fc_heat_term_massman, ...
+               fc_raw_massman_wpl, E_raw, E_raw_massman, ...
+               E_water_term, E_heat_term_massman, E_wpl_massman, ...
+               HSdry, HSdry_massman, HL_raw, HL_wpl_massman, Tdry, ...
+               air_temp_hmp, Tsoil_2cm, Tsoil_6cm, VWC, precip ...
+               atm_press, rH Par_Avg, sw_incoming, sw_outgoing, ...
+               lw_incoming, lw_outgoing, NR_sw, NR_lw, NR_tot];
     
+elseif sitecode == 7
+    qc_headers = {'year', 'month', 'day', 'hour', 'minute', ...
+                  'second', 'jday', 'iok', 'agc_Avg', 'u_star', ...
+                  'wnd_dir_compass', 'wnd_spd', 'CO2_mean', 'CO2_std', ...
+                  'H2O_mean', 'H2O_std', 'fc_raw', 'fc_raw_massman', ...
+                  'fc_water_term', 'fc_heat_term_massman', ...
+                  'fc_raw_massman_wpl', 'E_raw', 'E_raw_massman', ...
+                  'E_water_term', 'E_heat_term_massman', 'E_wpl_massman', ...
+                  'HSdry', 'HSdry_massman', 'HL_raw', 'HL_wpl_massman', ...
+                  'Tdry', 'air_temp_hmp', 'Tsoil', 'canopy_5cm', ...
+                  'canopy_10cm', 'open_5cm', 'open_10cm', ...
+                  'soil_heat_flux_open', 'soil_heat_flux_mescan', ...
+                  'soil_heat_flux_juncan', 'precip', 'atm_press', 'rH' ...
+                  'Par_Avg', 'sw_incoming', 'sw_outgoing', 'lw_incoming', ...
+                  'lw_outgoing', 'NR_sw', 'NR_lw', 'NR_tot'};
+    qc_data = [year, month, day, hour, minute, second, jday, iok, ...
+               agc_Avg, u_star, wnd_dir_compass, wnd_spd, CO2_mean, ...
+               CO2_std, H2O_mean, H2O_std, fc_raw, fc_raw_massman, ...
+               fc_water_term, fc_heat_term_massman, ...
+               fc_raw_massman_wpl, E_raw, E_raw_massman, ...
+               E_water_term, E_heat_term_massman, E_wpl_massman, ...
+               HSdry, HSdry_massman, HL_raw, HL_wpl_massman, Tdry, ...
+               air_temp_hmp, Tsoil, canopy_5cm, canopy_10cm, ...
+               open_5cm, open_10cm, soil_heat_flux_open, ...
+               soil_heat_flux_mescan, soil_heat_flux_juncan, precip, ...
+               atm_press, rH Par_Avg, sw_incoming, sw_outgoing, ...
+               lw_incoming, lw_outgoing, NR_sw, NR_lw, NR_tot];
+    
+elseif sitecode == 8 || sitecode == 9
+    qc_headers = {'year', 'month', 'day', 'hour', 'minute', ...
+                  'second', 'jday', 'iok', 'u_star', 'wnd_dir_compass', ...
+                  'wnd_spd', 'CO2_mean', 'CO2_std', 'H2O_mean', 'H2O_std', ...
+                  'fc_raw', 'fc_raw_massman', 'fc_water_term', ...
+                  'fc_heat_term_massman', 'fc_raw_massman_wpl', 'E_raw', ...
+                  'E_raw_massman', 'E_water_term', 'E_heat_term_massman', ...
+                  'E_wpl_massman', 'HSdry', 'HSdry_massman', 'HL_raw', ...
+                  'HL_wpl_massman', 'Tdry', 'air_temp_hmp', 'precip', ...
+                  'atm_press', 'rH', 'Par_Avg', 'sw_incoming', ...
+                  'sw_outgoing', 'lw_incoming', 'lw_outgoing', 'NR_sw', ...
+                  'NR_lw', 'NR_tot'};
+    %atm_press=ones(size(precip)).*-999;
+    %air_temp_hmp=ones(size(precip)).*-999;
+    qc_data = [year, month, day, hour, minute, second, jday, iok, ...
+               u_star, wnd_dir_compass, wnd_spd, CO2_mean, CO2_std, ...
+               H2O_mean, H2O_std, fc_raw, fc_raw_massman, ...
+               fc_water_term, fc_heat_term_massman, ...
+               fc_raw_massman_wpl, E_raw, E_raw_massman, ...
+               E_water_term, E_heat_term_massman, E_wpl_massman, ...
+               HSdry, HSdry_massman, HL_raw, HL_wpl_massman, Tdry, ...
+               air_temp_hmp, precip, atm_press, rH, Par_Avg, ...
+               sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, ...
+               NR_sw,NR_lw,NR_tot];
+    
+else
+    qc_headers = {'year', 'month', 'day', 'hour', ...
+                  'minute', 'second', 'jday', 'iok', 'agc_Avg', ...
+                  'u_star', 'wnd_dir_compass', 'wnd_spd', 'CO2_mean', ...
+                  'CO2_std', 'H2O_mean', 'H2O_std', 'fc_raw', ...
+                  'fc_raw_massman', 'fc_water_term', ...
+                  'fc_heat_term_massman', 'fc_raw_massman_wpl', ...
+                  'E_raw', 'E_raw_massman', 'E_water_term', ...
+                  'E_heat_term_massman', 'E_wpl_massman', 'HSdry', ...
+                  'HSdry_massman', 'HL_raw', 'HL_wpl_massman', 'Tdry', ...
+                  'air_temp_hmp', 'Tsoil', SHF_labels{ : }, 'precip', ...
+                  'atm_press', 'rH' 'Par_Avg', 'sw_incoming', ...
+                  'sw_outgoing', 'lw_incoming', 'lw_outgoing', 'NR_sw', ...
+                  'NR_lw', 'NR_tot'};
+    qc_data = [year, month, day, hour, minute, second, jday, iok, ...
+               agc_Avg, u_star, wnd_dir_compass, wnd_spd,CO2_mean, ...
+               CO2_std,H2O_mean,H2O_std, fc_raw, fc_raw_massman, ...
+               fc_water_term, fc_heat_term_massman, ...
+               fc_raw_massman_wpl, E_raw,E_raw_massman,E_water_term, ...
+               E_heat_term_massman,E_wpl_massman, HSdry, ...
+               HSdry_massman,HL_raw,HL_wpl_massman, Tdry, ...
+               air_temp_hmp,Tsoil, soil_heat_flux, precip, atm_press, ...
+               rH, Par_Avg, sw_incoming, sw_outgoing, lw_incoming, ...
+               lw_outgoing,NR_sw,NR_lw,NR_tot];
 end
 
+if iteration > 4
+    
+    if sitecode == 8 || sitecode == 9
+        numbers_removed = [removednans removed_precip ...
+                           removed_wind removed_nightneg ...
+                           removed_ustar removed_maxs_mins ...
+                           removed_lowco2 removed_highco2 ...
+                           removed_outofstdnan NaN ...
+                           (filelength_n-sum(~isnan(record))) ...
+                           sum(~isnan(record)) removed_LH ...
+                           removed_LH_wpl_mass removed_HS ...
+                           removed_HSmass removed_Tdry ...
+                           removed_rH removed_h2o];
+        removals_header = {'Original nans', ...
+                           'Precip periods', ...
+                           'Bad wind direction', ...
+                           'Night-time negs', ...
+                           'Low ustar', ...
+                           'Over max or min', ...
+                           'Low co2', ...
+                           'High co2', ...
+                           'Outside running std', ...
+                           '', ...
+                           'Total co2 pulled', ...
+                           'Total retained', ...
+                           'LH values removed', ...
+                           'LH with WPL/Massman removed', ...
+                           'HS removed', ...
+                           'HS with massman removed', ...
+                           'Temp removed', ...
+                           'Rel humidity removed', ...
+                           'Water removed'};
+    else
+        numbers_removed = [removednans removed_precip ...
+                           removed_wind removed_nightneg ...
+                           removed_ustar removed_maxs_mins ...
+                           removed_lowco2 removed_highco2 ...
+                           removed_outofstdnan NaN ...
+                           (filelength_n-sum(~isnan(record))) ...
+                           sum(~isnan(record)) removed_LH ...
+                           removed_LH_wpl_mass removed_HS ...
+                           removed_HSmass removed_Tdry ...
+                           removed_rH removed_h2o removed_press];
+        removals_header = {'Original nans', ...
+                           'Precip periods', ...
+                           'Bad wind direction', ...
+                           'Night-time negs', ...
+                           'Low ustar',...
+                           'Over max or min', ...
+                           'Low co2', ...
+                           'High co2', ...
+                           'Outside running std', ...
+                           '',...
+                           'Total co2 pulled', ...
+                           'Total retained',...
+                           'LH values removed', ...
+                           'LH with WPL/Massman removed', ...
+                           'HS removed', ...
+                           'HS with massman removed',...
+                           'Temp removed', ...
+                           'Rel humidity removed', ...
+                           'Water removed', ...
+                           'Pressure removed'};
+        % xlswrite(outfilename,numbers_removed','numbers removed','B1');
+        % xlswrite (outfilename, removals_header', 'numbers removed', 'A1');
+    end
+end
+
+
+%%%% shift radiation to match solar angle-predicted sunrise/sunset
 t_dn = datenum( year_arg, 1, 0 ) + decimal_day;
 ds_qc = dataset( { qc_data, qc_headers{ : } } );
 
-save_fname = fullfile( 'C:\Users\Tim\FluxallConvert\', ...
+save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
                        sprintf( '%s_%d_before_shift.mat', ...
                                 char( sitecode ), year(1) ) )
 save( save_fname );
 fprintf( 'saved %s\n', save_fname );
 
-% [ qc_data, fgf ] = ...
-%     UNM_synchronize_radiation_to_solarangle( sitecode, year_arg, ...
-%                                              ds_qc, fgf, ...
-%                                              t_dn );
+[ qc_data, fgf ] = ...
+    UNM_synchronize_radiation_to_solarangle( sitecode, year_arg, ...
+                                             ds_qc, fgf, ...
+                                             t_dn );
 
-%write for gapfilling file
-disp('writing gap-filling file...')
-outfilename_forgapfill_txt = strcat( outfolder, ...
-                                     filename, ...
-                                     '_for_gap_filling.txt' );
-fid = fopen( outfilename_forgapfill_txt , 'w' );
-fmt = repmat('%s\t', 1, numel( fgf_headers ) - 1 );
-fmt = [ fmt, '%s\n' ];
-fprintf( fid, fmt, fgf_headers{ : } );
-fclose( fid );
-dlmwrite( outfilename_forgapfill_txt, ...
-          fgf, ...
-          '-append', ...
-          'delimiter', '\t' );
+if args.Results.write_GF
+    %write for gapfilling file
+    disp('writing gap-filling file...')
+    outfilename_forgapfill_txt = strcat( outfolder, ...
+                                         filename, ...
+                                         '_for_gap_filling.txt' );
+    fid = fopen( outfilename_forgapfill_txt , 'w' );
+    fmt = repmat('%s\t', 1, numel( fgf_headers ) - 1 );
+    fmt = [ fmt, '%s\n' ];
+    fprintf( fid, fmt, fgf_headers{ : } );
+    fclose( fid );
+    dlmwrite( outfilename_forgapfill_txt, ...
+              fgf, ...
+              '-append', ...
+              'delimiter', '\t' );
+end
 
-
-% write QC file
-outfilename_csv = strcat( outfolder, filename, '_qc.txt' );
-out_data = dataset( { qc_data, qc_headers{ 2:end } } );
-export( out_data, 'file', outfilename_csv );
-
+if args.Results.write_QC
+    % write QC file
+    outfilename_csv = strcat( outfolder, filename, '_qc.txt' );
+    out_data = dataset( { qc_data, qc_headers{ 2:end } } );
+    export( out_data, 'file', outfilename_csv );
+end
 %------------------------------------------------------------
 %------------------------------------------------------------
 %           HELPER FUNCTIONS
@@ -2720,7 +2356,7 @@ switch sitecode
         CO2_mean( idx ) = CO2_mean( idx ) + 10;
         
         idx = DOYidx( 301.6 ) : DOYidx( 344.7 );
-        CO2_mean( idx ) = CO2_mean( idx ) - 17;        
+        CO2_mean( idx ) = CO2_mean( idx ) - 17;
       case 2011
         idx = DOYidx( 225.4 ) : DOYidx( 237.8 );
         lw_incoming( idx ) = NaN;
@@ -3113,4 +2749,370 @@ sland11 = parse_forgapfilling_file( UNM_sites.SLand, 2011, ...
 
 idx = DOYidx( 164 ) : DOYidx( 206 );
 gland_precip( idx ) = sland11.precip( idx );
+
+
+
+function [sw_incoming, sw_outgoing, Par_Avg ] = ...
+    apply_radiation_calibration_factors( sitecode, year_arg, ...
+                                         sw_incoming, sw_outgoing, ...
+                                         lw_incoming, lw_outgoing, ...
+                                         Par_Avg, ...
+                                         CNR1TK )
+% APPLY_RADIATION_CALIBRATION_FACTORS - Some site-years or portions thereof contain incorrect calibration factors in their datalogger code.  These corrections fix those problems.
+%   
+
+%%%%%%%%%%%%%%%%% grassland
+if sitecode == UNM_sites.GLand
+    if year_arg == 2007
+        
+        % calibration and unit conversion into W per m^2 for CNR1 variables
+        % >> for first couple of weeks the program had one incorrect
+        % conversion factor (163.66)
+        sw_incoming(find(decimal_day > 156.71 & decimal_day < 162.52)) = sw_incoming(find(decimal_day > 156.71 & decimal_day < 162.52))./163.66.*(1000./8.49);
+        sw_outgoing(find(decimal_day > 156.71 & decimal_day < 162.52)) = sw_outgoing(find(decimal_day > 156.71 & decimal_day < 162.52))./163.66.*(1000./8.49);
+        lw_incoming(find(decimal_day > 156.71 & decimal_day < 162.52)) = lw_incoming(find(decimal_day > 156.71 & decimal_day < 162.52))./163.66.*(1000./8.49);
+        lw_outgoing(find(decimal_day > 156.71 & decimal_day < 162.52)) = lw_outgoing(find(decimal_day > 156.71 & decimal_day < 162.52))./163.66.*(1000./8.49);
+        % then afterward it had a different one (136.99)
+        sw_incoming(find(decimal_day > 162.67)) = sw_incoming(find(decimal_day > 162.67)).*(1000./8.49)./136.99;
+        sw_outgoing = sw_outgoing.*(1000./8.49)./136.99;
+        lw_incoming = lw_incoming.*(1000./8.49)./136.99;
+        lw_outgoing = lw_outgoing.*(1000./8.49)./136.99;
+        % temperature correction just for long-wave
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
+
+        Par_Avg(find(decimal_day > 162.14)) = Par_Avg(find(decimal_day > 162.14)).*1000./(5.7*0.604);
+        % estimate par from sw_incoming
+        Par_Avg(find(decimal_day < 162.15)) = sw_incoming(find(decimal_day < 162.15)).*2.025 + 4.715;
+        
+    elseif year_arg >= 2008
+        % calibration correction for the li190
+        Par_Avg = Par_Avg.*1000./(5.7*0.604);
+        % calibration and unit conversion into W per m^2 for CNR1 variables
+        % and adjust for program error
+        sw_incoming = sw_incoming./136.99.*(1000./8.49);
+        sw_outgoing = sw_outgoing./136.99.*(1000./8.49);
+        lw_incoming = lw_incoming./136.99.*(1000./8.49);
+        lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
+        % temperature correction just for long-wave
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
+    end
+    
+    %%%%%%%%%%%%%%%%% shrubland 
+elseif sitecode == UNM_sites.SLand
+    if year_arg == 2007
+        % was this a Q*7 through the big change on 5/30/07? need updated
+        % calibration
+        may30 = 48 * ( datenum( 2007, 5, 30 ) - datenum( 2007, 1, 1 ) );
+        for i = 1:may30
+            %for i = 1:6816
+            if NR_tot(1) < 0
+                NR_tot(i) = NR_tot(i)*10.74*((0.00174*wnd_spd(i)) + 0.99755);
+            elseif NR_tot(1) > 0
+                NR_tot(i) = NR_tot(i)*8.65*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
+            end
+        end
+        
+        % calibration and unit conversion into W per m^2 for CNR1 variables
+        % >> for first couple of weeks the program had one incorrect
+        % conversion factor (163.66)
+        sw_incoming(find(decimal_day >= 150.75 & decimal_day < 162.44)) = sw_incoming(find(decimal_day >= 150.75 & decimal_day < 162.44))./163.66.*(1000./12.34);
+        sw_outgoing(find(decimal_day >= 150.75 & decimal_day < 162.44)) = sw_outgoing(find(decimal_day >= 150.75 & decimal_day < 162.44))./163.66.*(1000./12.34);
+        lw_incoming(find(decimal_day >= 150.75 & decimal_day < 162.44)) = lw_incoming(find(decimal_day >= 150.75 & decimal_day < 162.44))./163.66.*(1000./12.34);
+        lw_outgoing(find(decimal_day >= 150.75 & decimal_day < 162.44)) = lw_outgoing(find(decimal_day >= 150.75 & decimal_day < 162.44))./163.66.*(1000./12.34);
+        % >> then afterward it had a different one (136.99)
+        sw_incoming(find(decimal_day > 162.44)) = sw_incoming(find(decimal_day > 162.44))./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2
+        sw_outgoing = sw_outgoing./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2
+        lw_incoming = lw_incoming./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2
+        lw_outgoing = lw_outgoing./136.99.*(1000./12.34); % adjust for program error and convert into W per m^2        
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave 
+        
+        % calibration correction for the li190
+        Par_Avg(find(decimal_day > 150.729)) = Par_Avg(find(decimal_day > 150.729)).*1000./(6.94*0.604);
+        % estimate par from sw_incoming
+        Par_Avg(find(decimal_day < 150.729)) = sw_incoming(find(decimal_day < 150.729)).*2.0292 + 3.6744;
+        
+    elseif any( intersect ( year_arg, 2008:2011 ) )
+        % calibration and unit conversion into W per m^2 for CNR1 variables
+        % adjust for program error and convert into W per m^2
+        sw_incoming = sw_incoming./136.99.*(1000./12.34);
+        sw_outgoing = sw_outgoing./136.99.*(1000./12.34);
+        lw_incoming = lw_incoming./136.99.*(1000./12.34);
+        lw_outgoing = lw_outgoing./136.99.*(1000./12.34);
+        % temperature correction just for long-wave
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
+        % calibration correction for the li190
+        Par_Avg = Par_Avg.*1000./(6.94*0.604);
+    end
+
+    %%%%%%%%%%%%%%%%% juniper savanna
+elseif sitecode == UNM_sites.JSav
+    if year_arg == 2007
+        % calibration and unit conversion into W per m^2 for CNR1 variables
+        sw_incoming = sw_incoming./163.666.*(1000./6.9); % convert into W per m^2
+        sw_outgoing = sw_outgoing./163.666.*(1000./6.9); % convert into W per m^2
+        lw_incoming = lw_incoming./163.666.*(1000./6.9); % convert into W per m^2
+        lw_outgoing = lw_outgoing./163.666.*(1000./6.9); % convert into W per m^2        
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+        % calibration for par-lite
+        Par_Avg = Par_Avg.*1000./5.48;
+    elseif year_arg >= 2008
+        % calibration and unit conversion into W per m^2 for CNR1 variables
+        sw_incoming = sw_incoming./163.666.*(1000./6.9); % convert into W per m^2
+        sw_outgoing = sw_outgoing./163.666.*(1000./6.9); % convert into W per m^2
+        lw_incoming = lw_incoming./163.666.*(1000./6.9); % convert into W per m^2
+        lw_outgoing = lw_outgoing./163.666.*(1000./6.9); % convert into W per m^2        
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+        % calibration for par-lite
+        Par_Avg = Par_Avg.*1000./5.48;
+    end
+    
+    % all cnr1 variables for jsav need to be (value/163.666)*144.928
+
+    %%%%%%%%%%%%%%%%% pinyon juniper
+elseif sitecode == UNM_sites.PJ
+    if year_arg == 2007
+
+        % now correct pars
+        Par_Avg = NR_tot.*2.7828 + 170.93; % see notes on methodology (PJ) for this relationship
+        sw_incoming = Par_Avg.*0.4577 - 1.8691; % see notes on methodology (PJ) for this relationship
+
+    elseif year_arg == 2008
+        % now correct pars
+        Par_Avg(find(decimal_day < 42.6)) = NR_tot(find(decimal_day < 42.6)).*2.7828 + 170.93;
+        % calibration for par-lite installed on 2/11/08
+        Par_Avg(find(decimal_day > 42.6)) = Par_Avg(find(decimal_day > 42.6)).*1000./5.51;
+        sw_incoming(find(decimal_day < 172)) = Par_Avg(find(decimal_day < 172)).*0.4577 - 1.8691;
+        
+        lw_incoming(find(decimal_day > 171.5)) = lw_incoming(find(decimal_day > 171.5)) + 0.0000000567.*(CNR1TK(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
+        lw_outgoing(find(decimal_day > 171.5)) = lw_outgoing(find(decimal_day > 171.5)) + 0.0000000567.*(CNR1TK(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
+        
+
+    elseif year_arg >= 2009
+        % calibration for par-lite installed on 2/11/08
+        Par_Avg = Par_Avg.*1000./5.51;
+        % temperature correction just for long-wave
+        lw_incoming = lw_incoming + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
+        lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
+    end
+
+    %%%%%%%%%%%%%%%%% ponderosa pine
+elseif sitecode == UNM_sites.PPine
+    if year_arg == 2007
+        % radiation values apparently already calibrated and unit-converted
+        % in progarm for valles sites
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
+        Par_Avg=Par_Avg.*225;  % Apply correct calibration value 7.37, SA190 manual section 3-1
+        Par_Avg=Par_Avg+(0.2210.*sw_incoming); % Apply correction to bring in to line with Par-lite from mid 2008 onwards
+        
+    elseif year_arg == 2008
+        % radiation values apparently already calibrated and unit-converted
+        % in progarm for valles sites
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
+        % calibration for Licor sesor  
+        Par_Avg(1:10063)=Par_Avg(1:10063).*225;  % Apply correct calibration value 7.37, SA190 manual section 3-1
+        Par_Avg(1:10063)=Par_Avg(1:10063)+(0.2210.*sw_incoming(1:10063));
+        % calibration for par-lite sensor
+        Par_Avg(10064:end) = Par_Avg(10064:end).*1000./5.25;
+        
+    elseif year_arg == 2009 || year_arg ==2010 || year_arg == 2011
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
+        % calibration for par-lite sensor
+        Par_Avg = Par_Avg.*1000./5.25;
+    end
+
+
+    
+    
+    %%%%%%%%%%%%%%%%% mixed conifer
+elseif sitecode == UNM_sites.MCon
+    if year_arg == 2006 || year_arg == 2007
+        % calibration and unit conversion into W per m^2 for CNR1 variables
+        % cnr1 installed and working on 8/1/08
+        %         sw_incoming(find(decimal_day > 214.75)) = sw_incoming(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2
+        %         sw_outgoing(find(decimal_day > 214.75)) = sw_outgoing(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2
+        %         lw_incoming(find(decimal_day > 214.75)) = lw_incoming(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2
+        %         lw_outgoing(find(decimal_day > 214.75)) = lw_outgoing(find(decimal_day > 214.75)).*(1000./9.96); % convert into W per m^2        
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
+        
+    elseif year_arg > 2007
+        % radiation values apparently already calibrated and unit-converted
+        % in progarm for valles sites   
+        lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave
+        lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4; % temperature correction just for long-wave        
+        % calibration for par-lite sensor
+        Par_Avg = Par_Avg.*1000./5.65;
+        
+    end
+    
+    %%%%%%%%%%%%%%%%% texas
+elseif sitecode == UNM_sites.TX
+    % calibration for the li-190 par sensor - sensor had many high
+    % values, so delete all values above 6.5 first
+    Par_Avg(find(Par_Avg > 13.5)) = NaN;
+    Par_Avg = Par_Avg.*1000./(6.16.*0.604);
+    if year_arg == 2007 || year_arg == 2006 || year_arg == 2005
+        % wind corrections for the Q*7
+        NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.91.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
+        NR_tot(find(NR_tot > 0)) = NR_tot(find(NR_tot > 0)).*8.83.*(1 + (0.066.*0.2.*wnd_spd(find(NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(NR_tot > 0)))));
+
+        % no long-wave data for TX
+        lw_incoming(1:datalength,1) = NaN;
+        lw_outgoing(1:datalength,1) = NaN;
+        % pyrronometer corrections
+        sw_incoming = sw_incoming.*1000./27.34;
+        sw_outgoing = sw_outgoing.*1000./19.39;
+    elseif year_arg == 2008 || year_arg == 2009
+        % par switch to par-lite on ??
+
+    end
+    
+elseif sitecode == UNM_sites.TX_forest
+    % for TX forest 2009, there was no PAR observation in the fluxall file on
+    % 15 Mat 2012.  We substituted in PAR from the TX savana site. --  TWH &
+    % ML
+    if year == 2009
+        Par_Avg(find(Par_Avg > 13.5)) = NaN;
+        Par_Avg = Par_Avg.*1000./(6.16.*0.604);
+    end
+    
+
+    % nothing for TX_grassland for now
+    
+elseif sitecode == UNM_sites.SevEco
+    % temperature correction just for long-wave
+    lw_incoming = lw_incoming + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
+    lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
+    % recalculate net radiation with T-adjusted longwave
+    
+    %%%%%%%%%%%%%%%%% New Grassland
+elseif sitecode == UNM_sites.New_GLand
+    % calibration correction for the li190
+    Par_Avg = Par_Avg.*1000./(5.7*0.604);
+    % calibration and unit conversion into W per m^2 for CNR1 variables
+    % and adjust for program error
+    sw_incoming = sw_incoming./136.99.*(1000./8.49);
+    sw_outgoing = sw_outgoing./136.99.*(1000./8.49);
+    lw_incoming = lw_incoming./136.99.*(1000./8.49);
+    lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
+    % temperature correction just for long-wave
+    lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
+    lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
+end
+
+% remove negative Rg_out values
+sw_outgoing( sw_outgoing < -50 ) = NaN;
+
+isnight = ( Par_Avg < 20.0 ) | ( sw_incoming < 20 );
+%remove nighttime Rg and RgOut values outside of [ -5, 5 ]
+% added 13 May 2013 in response to problems noted by Bai Yang
+sw_incoming( isnight & ( abs( sw_incoming ) > 5 ) ) = NaN;
+sw_outgoing( isnight & ( abs( sw_outgoing ) > 5 ) ) = NaN;
+
+%-----------------------------------------------------------------
+
+function [ sitecode, year_arg, NR_sw, NR_lw, NR_tot ] = ...
+    calculate_net_radiation( sitecode, year_arg, ...
+                             sw_incoming, sw_outgoing, ...
+                             lw_incoming, lw_outgoing, ...
+                             NR_tot )
+% CALCULATE_NET_RADIATION - calculate net radition from incoming and outgoing
+% radiation.
+%   
+
+% calculate new net radiation values
+NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
+NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
+
+if ( sitecode == UNM_sites.PJ ) & ( ( year == 2007 ) | ( year == 2008 ) )
+    switch year
+      case 2007
+        % this is the wind correction factor for the Q*7
+        NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
+        NR_tot(find(NR_tot > 0)) = NR_tot(find(NR_tot > 0)).*8.65.*(1 + (0.066.*0.2.*wnd_spd(find(NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(NR_tot > 0)))));
+        
+      case 2008
+        % this is the wind correction factor for the Q*7
+        NR_tot(find(decimal_day < 172 & NR_tot < 0)) = NR_tot(find(decimal_day < 172 & NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(decimal_day < 172 & NR_tot < 0))) + 0.99755);
+        NR_tot(find(decimal_day < 172 & NR_tot > 0)) = NR_tot(find(decimal_day < 172 & NR_tot > 0)).*8.65.*(1 + (0.066.*0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))));
+        % calculate new net radiation values
+        NR_tot(find(decimal_day > 171.5)) = NR_lw(find(decimal_day > 171.5)) + NR_sw(find(decimal_day > 171.5));    
+    end
+    
+elseif ( sitecode == UNM_sites.GLand ) & ( year == 2007 )
+    % this is the wind correction factor for the Q*7 used before ??/??      
+    for i = 1:5766
+        if NR_tot(1) < 0
+            NR_tot(i) = NR_tot(i)*11.42*((0.00174*wnd_spd(i)) + 0.99755);
+        elseif NR_tot(1) > 0
+            NR_tot(i) = NR_tot(i)*8.99*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
+        end
+    end
+    
+else
+    
+    % all site-years but PJ 2007-08 and GLand 2007
+    NR_tot = NR_lw + NR_sw;
+end
+
+% make sure net radiation is less than incoming shortwave
+% added 13 May 2013 in response to problems noted by Bai Yang
+NR_tot( NR_tot > sw_incoming ) = NaN;
+
+%-----------------------------------------------------------------
+
+function [ Par_Avg ] = normalize_PAR_wrapper( sitecode, year_arg, Par_Avg )
+% NORMALIZE_PAR_WRAPPER - 
+% normalize PAR to account for calibration problems at some sites
+
+if ismember( sitecode, [ 1, 2, 3, 4, 10, 11 ] );
+    if ( sitecode == 3 ) & ( year_arg == 2008 )
+        % there is a small but suspicious-looking step change at DOY164 -
+        % normalize the first half of the year separately from the second
+        doy164 = DOYidx( 164 );
+        Par_Avg1 = normalize_PAR( sitecode, ...
+                                  Par_Avg( 1:doy164 ), ...
+                                  decimal_day( 1:doy164 ), ...
+                                  draw_plots );
+        Par_Avg2 = normalize_PAR( sitecode, ...
+                                  Par_Avg( (doy164 + 1):end ), ...
+                                  decimal_day( (doy164 + 1):end ), ...
+                                  draw_plots );
+        Par_Avg = [ Par_Avg1; Par_Avg2 ];
+
+    elseif ( sitecode == 10 ) & ( year_arg == 2010 )
+        % two step changes in this one
+        doy138 = DOYidx( 138 );
+        doy341 = DOYidx( 341 );
+        Par_Avg1 = normalize_PAR( sitecode, ...
+                                  Par_Avg( 1:doy138 ), ...
+                                  decimal_day( 1:doy138 ), ...
+                                  draw_plots );
+        Par_Avg2 = normalize_PAR( sitecode, ...
+                                  Par_Avg( doy138+1:doy341 ), ...
+                                  decimal_day( doy138+1:doy341 ), ...
+                                  draw_plots );
+        Par_Avg = [ Par_Avg1; Par_Avg2; Par_Avg( doy341+1:end ) ];
+    else
+        Par_Avg = normalize_PAR( sitecode, ...
+                                 Par_Avg, ...
+                                 decimal_day, ...
+                                 draw_plots );
+    end
+end
+
+% fix calibration problem at JSav 2009
+if ( sitecode == 3 ) & ( year_arg == 2009 )
+    Par_Avg( 1:1554 ) = Par_Avg( 1:1554 ) + 133;
+end
+Par_Avg( Par_Avg < -50 ) = NaN;
 
