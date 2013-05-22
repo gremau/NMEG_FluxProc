@@ -1081,14 +1081,13 @@ if sitecode == 4
 end
 
 
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Radiation corrections
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 [ sw_incoming, sw_outgoing, Par_Avg ] = ...
     apply_radiation_calibration_factors( sitecode, year_arg, ...
+                                         decimal_day, ...
                                          sw_incoming, sw_outgoing, ...
                                          lw_incoming, lw_outgoing, ...
                                          Par_Avg, CNR1TK );
@@ -1097,10 +1096,11 @@ end
     calculate_net_radiation( sitecode, year_arg, ...
                              sw_incoming, sw_outgoing, ...
                              lw_incoming, lw_outgoing, ...
-                             NR_tot );
+                             NR_tot, wnd_spd, decimal_day );
 
 % normalize PAR to account for calibration problems at some sites
-Par_Avg = normalize_PAR_wrapper( sitecode, year_arg, Par_Avg );
+Par_Avg = normalize_PAR_wrapper( sitecode, year_arg, decimal_day, Par_Avg, ...
+                                 draw_plots );
 
 
 save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
@@ -2754,6 +2754,7 @@ gland_precip( idx ) = sland11.precip( idx );
 
 function [sw_incoming, sw_outgoing, Par_Avg ] = ...
     apply_radiation_calibration_factors( sitecode, year_arg, ...
+                                         decimal_day, ...
                                          sw_incoming, sw_outgoing, ...
                                          lw_incoming, lw_outgoing, ...
                                          Par_Avg, ...
@@ -2802,17 +2803,6 @@ if sitecode == UNM_sites.GLand
     %%%%%%%%%%%%%%%%% shrubland 
 elseif sitecode == UNM_sites.SLand
     if year_arg == 2007
-        % was this a Q*7 through the big change on 5/30/07? need updated
-        % calibration
-        may30 = 48 * ( datenum( 2007, 5, 30 ) - datenum( 2007, 1, 1 ) );
-        for i = 1:may30
-            %for i = 1:6816
-            if NR_tot(1) < 0
-                NR_tot(i) = NR_tot(i)*10.74*((0.00174*wnd_spd(i)) + 0.99755);
-            elseif NR_tot(1) > 0
-                NR_tot(i) = NR_tot(i)*8.65*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
-            end
-        end
         
         % calibration and unit conversion into W per m^2 for CNR1 variables
         % >> for first couple of weeks the program had one incorrect
@@ -2980,7 +2970,7 @@ elseif sitecode == UNM_sites.TX_forest
     % for TX forest 2009, there was no PAR observation in the fluxall file on
     % 15 Mat 2012.  We substituted in PAR from the TX savana site. --  TWH &
     % ML
-    if year == 2009
+    if year_arg == 2009
         Par_Avg(find(Par_Avg > 13.5)) = NaN;
         Par_Avg = Par_Avg.*1000./(6.16.*0.604);
     end
@@ -3024,7 +3014,7 @@ function [ sitecode, year_arg, NR_sw, NR_lw, NR_tot ] = ...
     calculate_net_radiation( sitecode, year_arg, ...
                              sw_incoming, sw_outgoing, ...
                              lw_incoming, lw_outgoing, ...
-                             NR_tot )
+                             NR_tot, wnd_spd, decimal_day )
 % CALCULATE_NET_RADIATION - calculate net radition from incoming and outgoing
 % radiation.
 %   
@@ -3033,8 +3023,8 @@ function [ sitecode, year_arg, NR_sw, NR_lw, NR_tot ] = ...
 NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
 NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
 
-if ( sitecode == UNM_sites.PJ ) & ( ( year == 2007 ) | ( year == 2008 ) )
-    switch year
+if ( sitecode == UNM_sites.PJ ) & ( ( year_arg == 2007 ) | ( year_arg == 2008 ) )
+    switch year_arg
       case 2007
         % this is the wind correction factor for the Q*7
         NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
@@ -3048,13 +3038,26 @@ if ( sitecode == UNM_sites.PJ ) & ( ( year == 2007 ) | ( year == 2008 ) )
         NR_tot(find(decimal_day > 171.5)) = NR_lw(find(decimal_day > 171.5)) + NR_sw(find(decimal_day > 171.5));    
     end
     
-elseif ( sitecode == UNM_sites.GLand ) & ( year == 2007 )
+elseif ( sitecode == UNM_sites.GLand ) & ( year_arg == 2007 )
     % this is the wind correction factor for the Q*7 used before ??/??      
     for i = 1:5766
         if NR_tot(1) < 0
             NR_tot(i) = NR_tot(i)*11.42*((0.00174*wnd_spd(i)) + 0.99755);
         elseif NR_tot(1) > 0
             NR_tot(i) = NR_tot(i)*8.99*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
+        end
+    end
+    
+elseif (sitecode == UNM_sites.SLand ) & ( year_arg == 2007 )
+    % was this a Q*7 through the big change on 5/30/07? need updated
+    % calibration
+    may30 = 48 * ( datenum( 2007, 5, 30 ) - datenum( 2007, 1, 1 ) );
+    for i = 1:may30
+        %for i = 1:6816
+        if NR_tot(1) < 0
+            NR_tot(i) = NR_tot(i)*10.74*((0.00174*wnd_spd(i)) + 0.99755);
+        elseif NR_tot(1) > 0
+            NR_tot(i) = NR_tot(i)*8.65*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
         end
     end
     
@@ -3070,7 +3073,9 @@ NR_tot( NR_tot > sw_incoming ) = NaN;
 
 %-----------------------------------------------------------------
 
-function [ Par_Avg ] = normalize_PAR_wrapper( sitecode, year_arg, Par_Avg )
+function [ Par_Avg ] = normalize_PAR_wrapper( sitecode, year_arg, ...
+                                              decimal_day, Par_Avg, ...
+                                              draw_plots )
 % NORMALIZE_PAR_WRAPPER - 
 % normalize PAR to account for calibration problems at some sites
 
