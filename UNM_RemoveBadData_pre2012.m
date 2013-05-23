@@ -593,7 +593,14 @@ end
 % propagates through the rest of the calculations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data );
+data = UNM_synchronize_radiation_to_solarangle_FAdata( ...
+    sitecode, ...
+    year, ...
+    data, ...
+    headertext, ...
+    datenumber );
+
+%data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data );
 shift_t_str = 'shifted';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2095,22 +2102,6 @@ if iteration > 4
         % xlswrite (outfilename, removals_header', 'numbers removed', 'A1');
     end
 end
-
-
-%%%% shift radiation to match solar angle-predicted sunrise/sunset
-t_dn = datenum( year_arg, 1, 0 ) + decimal_day;
-ds_qc = dataset( { qc_data, qc_headers{ : } } );
-
-save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
-                       sprintf( '%s_%d_before_shift.mat', ...
-                                char( sitecode ), year(1) ) )
-save( save_fname );
-fprintf( 'saved %s\n', save_fname );
-
-[ qc_data, fgf ] = ...
-    UNM_synchronize_radiation_to_solarangle( sitecode, year_arg, ...
-                                             ds_qc, fgf, ...
-                                             t_dn );
 
 if args.Results.write_GF
     %write for gapfilling file
