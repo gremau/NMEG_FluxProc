@@ -1344,7 +1344,7 @@ end
 
 if iteration > 2
     
-    if ( sitecode == UNM_sites.GLand )
+    if ( sitecode == UNM_sites.GLand ) & ( year_arg == 2011 )
         precip = fill_Gland_2011_precip_from_SLand(precip);
     end
     
@@ -2741,7 +2741,7 @@ sland11 = parse_forgapfilling_file( UNM_sites.SLand, 2011, ...
 idx = DOYidx( 164 ) : DOYidx( 206 );
 gland_precip( idx ) = sland11.precip( idx );
 
-
+%------------------------------------------------------------
 
 function [sw_incoming, sw_outgoing, Par_Avg ] = ...
     apply_radiation_calibration_factors( sitecode, year_arg, ...
