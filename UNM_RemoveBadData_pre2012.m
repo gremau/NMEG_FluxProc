@@ -538,54 +538,59 @@ elseif sitecode == 11; % new Grassland
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Set up file name and file path
+% parse fluxall data into matlab
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+load_binary = true;
+save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
+                       sprintf( '%s_%d_FA_Convert.mat', ...
+                                char( sitecode ), year(1) ) );
+if not( load_binary )
+    if year_arg <= 2012
+        drive='c:';
+        row1=5;  %first row of data to process - rows 1 - 4 are header
+        filename = strcat(site,'_flux_all_',num2str(year))
+        %filename = strcat(site,'_new_radiation_flux_all_',num2str(year))
+        filelength = num2str(filelength_n);
+        %datalength = filelength_n - row1 + 1; 
+        filein = strcat(drive,'\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename)
+        outfolder = strcat(drive,'\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\processed_flux\');
+        range = strcat('B',num2str(row1),':',lastcolumn,filelength);
+        headerrange = strcat('B2:',lastcolumn,'2');
+        time_stamp_range = strcat('A5:A',filelength);
 
-if year_arg <= 2012
-    drive='c:';
-    row1=5;  %first row of data to process - rows 1 - 4 are header
-    filename = strcat(site,'_flux_all_',num2str(year))
-    %filename = strcat(site,'_new_radiation_flux_all_',num2str(year))
-    filelength = num2str(filelength_n);
-    %datalength = filelength_n - row1 + 1; 
-    filein = strcat(drive,'\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename)
-    outfolder = strcat(drive,'\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\processed_flux\');
-    range = strcat('B',num2str(row1),':',lastcolumn,filelength);
-    headerrange = strcat('B2:',lastcolumn,'2');
-    time_stamp_range = strcat('A5:A',filelength);
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Open file and parse out dates and times
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Open file and parse out dates and times
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        disp('reading data...')
+        [num xls_text] = xlsread(filein,headerrange);
+        headertext = xls_text;
+        [num xls_text] = xlsread(filein,range);  %does not read in first column because it's text!!!!!!!!
+        data = num;
+        ncol = size(data,2)+1;
+        datalength = size(data,1);
+        [num xls_text] = xlsread(filein,time_stamp_range);
+        timestamp = xls_text;
+        [year month day hour minute second] = datevec(timestamp);
+        datenumber = datenum(timestamp);
+        disp('file read');
 
-    disp('reading data...')
-    [num xls_text] = xlsread(filein,headerrange);
-    headertext = xls_text;
-    [num xls_text] = xlsread(filein,range);  %does not read in first column because it's text!!!!!!!!
-    data = num;
-    ncol = size(data,2)+1;
-    datalength = size(data,1);
-    [num xls_text] = xlsread(filein,time_stamp_range);
-    timestamp = xls_text;
-    [year month day hour minute second] = datevec(timestamp);
-    datenumber = datenum(timestamp);
-    disp('file read');
-
-    save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
-                           sprintf( '%s_%d_FA_Convert.mat', ...
-                                    char( sitecode ), year(1) ) );
-    save( save_fname );
-    fprintf( 'loaded %s\n', save_fname );
+        save( save_fname );
+        fprintf( 'saved %s\n', save_fname );
+    else
+        outfolder = fullfile( get_site_directory( sitecode ), ...
+                              'processed_flux' );
+        fluxall_data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
+        headertext = fluxall_data.Properties.VarNames;
+        [year month day hour minute second] = datevec( fluxall_data.timestamp );
+        fluxall_data.timestamp = [];
+        data = double( fluxall_data );
+    end
 else
-    outfolder = fullfile( get_site_directory( sitecode ), ...
-                          'processed_flux' );
-    fluxall_data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
-    headertext = fluxall_data.Properties.VarNames;
-    [year month day hour minute second] = datevec( fluxall_data.timestamp );
-    fluxall_data.timestamp = [];
-    data = double( fluxall_data );
+    load( save_fname );
+    fprintf( 'loaded %s\n', save_fname );
 end
-
+    
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % some siteyears have periods where the observed radition does not line
@@ -593,12 +598,15 @@ end
 % propagates through the rest of the calculations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-data = UNM_synchronize_radiation_to_solarangle_FAdata( ...
-    sitecode, ...
-    year_arg, ...
-    data, ...
-    headertext, ...
-    datenumber );
+data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data, ...
+                                      headertext, datenumber  );
+
+% data = UNM_synchronize_radiation_to_solarangle_FAdata( ...
+%     sitecode, ...
+%     year_arg, ...
+%     data, ...
+%     headertext, ...
+%     datenumber );
 
 %data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data );
 shift_t_str = 'shifted';
@@ -2879,8 +2887,8 @@ elseif sitecode == UNM_sites.PJ
         % calibration for par-lite installed on 2/11/08
         Par_Avg = Par_Avg.*1000./5.51;
         % temperature correction just for long-wave
-        lw_incoming = lw_incoming + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
-        lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
+        lw_incoming = lw_incoming + ( 0.0000000567 .* ( CNR1TK .^ 4 ) );
+        lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( CNR1TK .^ 4 ) );
     end
 
     %%%%%%%%%%%%%%%%% ponderosa pine
@@ -2972,8 +2980,8 @@ elseif sitecode == UNM_sites.TX_forest
     
 elseif sitecode == UNM_sites.SevEco
     % temperature correction just for long-wave
-    lw_incoming = lw_incoming + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
-    lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( CNR1TK .^ 4 ) )
+    lw_incoming = lw_incoming + ( 0.0000000567 .* ( CNR1TK .^ 4 ) );
+    lw_outgoing = lw_outgoing + ( 0.0000000567 .* ( CNR1TK .^ 4 ) );
     % recalculate net radiation with T-adjusted longwave
     
     %%%%%%%%%%%%%%%%% New Grassland

@@ -1,4 +1,7 @@
-function data = UNM_fix_datalogger_timestamps( sitecode, year, data )
+function data = UNM_fix_datalogger_timestamps( sitecode, year, ...
+                                               data, headertext,...
+                                               timestamp, ...
+                                               varargin )
 % UNM_FIX_DATALOGGER_TIMESTAMPS - called from UNM_RemoveBadData to correct
 % shifts in the timestamps for particular periods.  This file simply contains
 % the periods that need to be shifted (identified by running
@@ -6,7 +9,70 @@ function data = UNM_fix_datalogger_timestamps( sitecode, year, data )
 % and calls shift_data to correct them.
 %   
 
+[ this_year, ~, ~ ] = datevec( now );
+
+% -----
+% define optional inputs, with defaults and typechecking
+% -----
+args = inputParser;
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'year', ...
+                  @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ...
+                         ) );
+args.addRequired( 'data', @isnumeric );
+args.addRequired( 'headertext', @(x) iscell( x ) && all( cellfun( @ischar, x ) ) );
+args.addRequired( 'timestamp', @isnumeric );
+args.addParamValue( 'debug', true, @islogical );
+args.addParamValue( 'save_figs', true, @islogical );
+
+% parse optional inputs
+args.parse( sitecode, year, data, headertext, timestamp, varargin{ : } );
+
+sitecode = args.Results.sitecode;
+year = args.Results.year;
+data = args.Results.data;
+headertext = args.Results.headertext;
+timestamp = args.Results.timestamp;
+debug = args.Results.debug;
+save_figs = args.Results.save_figs;
+
+%-----
+
 all_10hz = 1:74;  %column indices for 10 hz ("matlab") data
+
+if debug
+    
+    % -----
+    % identify Rg and PAR columns from data
+    Rg_col = find( strcmp('Rad_short_Up_Avg', headertext) | ...
+                   strcmp('pyrr_incoming_Avg', headertext) ) - 1;
+    
+    nrows = size( data, 1 );
+    dtime = timestamp - datenum( year, 1, 0 );
+    [ y, ~, ~, ~, ~, ~ ] = datevec (timestamp );
+    this_year = y == year;
+
+    h_fig = figure();
+    h_ax = subplot( 2, 1, 1 );
+
+    % make the figure twice as tall as the default, so it can contain both
+    % before and after plots at the default size
+    pos = get( h_fig, 'Position' );
+    pos( 4 ) = pos( 4 ) * 2;
+    set( h_fig, 'Position', pos );
+    
+    t_str = sprintf( '%s %d Rg before timing fixed', ...
+                     char( sitecode ), year );
+    t_str = strrep( t_str, '_', '\_' );
+    plot_fingerprint( dtime( this_year ), ...
+                      data( this_year, Rg_col ), ...
+                      t_str, ...
+                      'clim', [ 0, 20 ], ...
+                      'fig_visible', true, ...
+                      'h_fig', h_fig, ...
+                      'h_ax', h_ax );
+    
+end
 
 switch sitecode
   case UNM_sites.GLand
@@ -114,17 +180,24 @@ switch sitecode
                                      'cols_to_shift', Tdry_col );
       case 2009
         data = shift_data( data, 1.0 );
-        idx = DOYidx( 260 ) : DOYidx( 267 );
-        data( idx, : ) = shift_data( data( idx, : ), -2.0 );
+        idx = DOYidx( 261 ) : DOYidx( 267 );
+        data( idx, : ) = shift_data( data( idx, : ), -2.5 );
+        idx = DOYidx( 267 ) : ( DOYidx( 268 ) - 1 );
+        data( idx, : ) = shift_data( data( idx, : ), -3.0 );
         idx = DOYidx( 268 ) : DOYidx( 283 );
         data( idx, : ) = shift_data( data( idx, : ), -3.5 );
         idx = DOYidx( 283.0 ) : DOYidx( 293.5 );
         data( idx, : ) = shift_data( data( idx, : ), -4.5 );
 
       case 2010
-        % idx = [ 1 : DOYidx( 64 ), DOYidx( 99 ) : size( data, 1 ) ];
-        % data( idx, : ) = shift_data( data( idx, : ), -1.5 );
-        
+        data = shift_data( data, 1.0 );
+
+      case 2011
+        idx = DOYidx( 12 ) : DOYidx( 30 );
+        data( idx, : ) = shift_data( data( idx, : ), 1.0 );
+        idx = DOYidx( 30 ) : DOYidx( 56 );
+        data( idx, : ) = shift_data( data( idx, : ), 0.5 );
+      
       case 2012
         idx = DOYidx( 204 ) : DOYidx( 233 );
         data( idx, : ) = shift_data( data( idx, : ), -2.0 );
@@ -224,5 +297,37 @@ switch sitecode
     end
 
 end
+
+if debug
+    h_ax = subplot( 2, 1, 2 );
+
+    t_str = strrep( t_str, 'before', 'after' );
+    plot_fingerprint( dtime( this_year ), ...
+                      data( this_year, Rg_col ), ...
+                      t_str, ...
+                      'clim', [ 0, 20 ], ...
+                      'fig_visible', true, ...
+                      'h_fig', h_fig, ...
+                      'h_ax', h_ax );
+    
+    if save_figs
+        save_dir = fullfile( getenv( 'PLOTS' ), 'Rad_Fingerprints' );
+        is_folder = 7; % exist returns 7 if argument is a directory
+        if exist( save_dir ) ~= is_folder
+            mkdir( getenv( 'PLOTS' ), 'Rad_Fingerprints' );
+        end
+
+        fname = fullfile( save_dir, ...
+                          sprintf( '%s_%d_Rg_fingerprints.eps', ...
+                                   char( sitecode ), year ) );
+        
+        fprintf( 'saving %s\n', fname );
+        figure_2_eps( h_fig, fname );
+                      
+
+    end
+
+end
+
 
 %==================================================

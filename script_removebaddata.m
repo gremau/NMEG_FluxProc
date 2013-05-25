@@ -11,8 +11,8 @@ for this_site = UNM_sites( [ 1, 2, 3, 4, 6, 5, 10, 11 ] )
             UNM_RemoveBadData_pre2012( this_site, this_year, ...
                                        'draw_fingerprints', false, ...
                                        'draw_plots', false, ...
-                                       'write_QC', true, ...
-                                       'write_GF', true );
+                                       'write_QC', false, ...
+                                       'write_GF', false );
             close all
         catch err
             % if an error occurs, write the message and continue with next year
@@ -21,20 +21,20 @@ for this_site = UNM_sites( [ 1, 2, 3, 4, 6, 5, 10, 11 ] )
     end
 end
 
-for this_site = UNM_sites.TX
-    for this_year = 2007:2010
-        try 
-            UNM_RemoveBadData_pre2012( this_site, this_year, ...
-                                       'draw_fingerprints', false, ...
-                                       'draw_plots', false, ...
-                                       'write_QC', true, ...
-                                       'write_GF', true );
-            close all
-        catch err
-            % if an error occurs, write the message and continue with next year
-            disp( getReport( err ) );
-        end
-    end
-end
+% for this_site = UNM_sites.TX
+%     for this_year = 2007:2010
+%         try 
+%             UNM_RemoveBadData_pre2012( this_site, this_year, ...
+%                                        'draw_fingerprints', false, ...
+%                                        'draw_plots', false, ...
+%                                        'write_QC', true, ...
+%                                        'write_GF', true );
+%             close all
+%         catch err
+%             % if an error occurs, write the message and continue with next year
+%             disp( getReport( err ) );
+%         end
+%     end
+% end
 
 diary off

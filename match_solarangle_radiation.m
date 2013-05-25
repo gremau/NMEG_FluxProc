@@ -27,7 +27,7 @@ this_sol = sol( idx_doy_start : min( idx_doy_start + hours_12, numel( sol ) ) );
 % sunrise according to calculated solar angle
 idx_sol_sunrise = min( find( this_sol > 0 ) );
 % sunrise according to observed radiation
-rad_diff = [ NaN; diff( this_rad ) ];
+rad_diff = [ NaN; reshape( diff( this_rad ), [], 1 ) ];
 idx_rad_sunrise = min( find( rad_diff > 5.0 ) );
 
 % the optimal time offset matches solar angle sunrise to observed radiation
