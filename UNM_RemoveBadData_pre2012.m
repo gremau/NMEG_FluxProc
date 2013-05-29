@@ -553,7 +553,6 @@ if not( load_binary )
         filelength = num2str(filelength_n);
         %datalength = filelength_n - row1 + 1; 
         filein = strcat(drive,'\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename)
-        outfolder = strcat(drive,'\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\processed_flux\');
         range = strcat('B',num2str(row1),':',lastcolumn,filelength);
         headerrange = strcat('B2:',lastcolumn,'2');
         time_stamp_range = strcat('A5:A',filelength);
@@ -578,8 +577,6 @@ if not( load_binary )
         save( save_fname );
         fprintf( 'saved %s\n', save_fname );
     else
-        outfolder = fullfile( get_site_directory( sitecode ), ...
-                              'processed_flux' );
         fluxall_data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
         headertext = fluxall_data.Properties.VarNames;
         [year month day hour minute second] = datevec( fluxall_data.timestamp );
@@ -587,7 +584,9 @@ if not( load_binary )
         data = double( fluxall_data );
     end
 else
+    this_args = args;  %preserve arguments from local function call
     load( save_fname );
+    args = this_args;
     fprintf( 'loaded %s\n', save_fname );
 end
     
@@ -1904,17 +1903,7 @@ if (sitecode>7 && sitecode<10) % || 9);
     Tsoil=ones(size(qc)).*-999;
     datamatrix = [day month year hour minute qc NEE LE H_dry ...
                   sw_incoming Tair Tsoil rH precip u_star];
-    for n = 1:datalength
-        for k = 1:15;
-            if isnan(datamatrix(n,k)) == 1;
-                datamatrix(n,k) = -9999;
-            else
-            end
-        end
-    end
-    outfilename = strcat(outfolder,filename,'_for_gap_filling');
-    xlswrite(outfilename, header, 'data', 'A1');
-    xlswrite(outfilename, datamatrix, 'data', 'A2');
+
 else    
     disp('preparing gap-filling file...')
     
@@ -1938,7 +1927,6 @@ end
 %WRITE COMPLETE OUT-FILE  (FLUX_all matrix with bad values removed)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-disp('writing qc file...')
 Tsoil = ones(size(qc)).*-999;
 if sitecode == 5 || sitecode == 6 
     qc_headers = {'year', 'month', 'day', 'hour', 'minute', ...
@@ -2113,10 +2101,12 @@ end
 
 if args.Results.write_GF
     %write for gapfilling file
-    disp('writing gap-filling file...')
-    outfilename_forgapfill_txt = strcat( outfolder, ...
-                                         filename, ...
-                                         '_for_gap_filling.txt' );
+    outfolder = fullfile( get_site_directory( sitecode ), ...
+                          'processed_flux' );
+    outfilename_forgapfill_txt = fullfile( outfolder, ...
+                                           strcat( filename, ...
+                                                   '_for_gap_filling.txt' ) );
+    fprintf('writing gap-filling file: %s\n', outfilename_forgapfill_txt );
     fid = fopen( outfilename_forgapfill_txt , 'w' );
     fmt = repmat('%s\t', 1, numel( fgf_headers ) - 1 );
     fmt = [ fmt, '%s\n' ];
@@ -2130,7 +2120,10 @@ end
 
 if args.Results.write_QC
     % write QC file
-    outfilename_csv = strcat( outfolder, filename, '_qc.txt' );
+    outfolder = fullfile( get_site_directory( sitecode ), ...
+                          'processed_flux' );
+    outfilename_csv = fullfile( outfolder, strcat( filename, '_qc.txt' ) );
+    fprintf( 'writing qc file: %s\n', outfilename_csv );
     out_data = dataset( { qc_data, qc_headers{ : } } );
     export_dataset_tim(  outfilename_csv, out_data, ...
                          'replace_NaNs', -9999 );
@@ -2240,7 +2233,7 @@ switch sitecode
         H2O_mean( idx ) = NaN;
         
       case 2008
-        sw_incoming( DOYidx( 7 ) : DOYidx( 9 ) ) = NaN;
+        sw_incoming( DOYidx( 7 ) : DOYidx( 8 ) ) = NaN;
         
       case 2010
         % IRGA problems
