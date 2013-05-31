@@ -13,7 +13,7 @@ qcfile = fullfile( get_site_directory( sitecode ), ...
                    sprintf( '%s_flux_all_%d_qc.txt', site, year ) );
 
 [ ~, fname, ext ] = fileparts( qcfile );
-fprintf( 'reading %s%s... ', fname, ext );
+fprintf( 'reading %s... ', qcfile );
 
 % count the number of columns in the file - this varies between sites
 fid = fopen( qcfile, 'r' );
