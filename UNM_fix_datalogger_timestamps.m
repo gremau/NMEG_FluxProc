@@ -208,7 +208,7 @@ switch sitecode
       case 2008
         idx = DOYidx( 341.0 ) : size( data, 1 );
         data( idx, : ) = shift_data( data( idx, : ), 1.0 );
-        idx = 1 : DOYidx( 155 )
+        idx = 1 : DOYidx( 155 );
         data( idx, : ) = shift_data( data( idx, : ), -0.5 );
       case 2009
         idx = DOYidx( 351.5 ) : size( data, 1 );

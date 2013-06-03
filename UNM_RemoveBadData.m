@@ -2287,6 +2287,7 @@ switch sitecode
         sw_incoming( idx ) = NaN;
         sw_outgoing( idx ) = NaN;
         Par_Avg( DOYidx( 101 ) : DOYidx( 160 ) ) = NaN;
+        Par_Avg( DOYidx( 286 ) : DOYidx( 300 ) ) = NaN;
     end
 
   case UNM_sites.TX

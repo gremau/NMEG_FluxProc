@@ -600,7 +600,9 @@ end
 data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data, ...
                                       headertext, datenumber, ...
                                       'debug', false );
-data = revise_MCon_duplicated_Rg( data, headertext, datenumber );
+if ( sitecode == UNM_sites.MCon ) & ( year_arg <= 2008 )
+    data = revise_MCon_duplicated_Rg( data, headertext, datenumber );
+end 
 
 shift_t_str = 'shifted';
 
@@ -1098,7 +1100,8 @@ end
                                          decimal_day, ...
                                          sw_incoming, sw_outgoing, ...
                                          lw_incoming, lw_outgoing, ...
-                                         Par_Avg, CNR1TK );
+                                         Par_Avg, NR_tot, ...
+                                         wnd_spd, CNR1TK );
 
 [ sitecode, year_arg, NR_sw, NR_lw, NR_tot ] = ...
     calculate_net_radiation( sitecode, year_arg, ...
@@ -1689,6 +1692,8 @@ E_raw_massman( not( idx_E_good ) ) = NaN;
 E_water_term( not( idx_E_good ) ) = NaN;
 E_heat_term_massman( not( idx_E_good ) ) = NaN;
 E_wpl_massman( not( idx_E_good ) ) = NaN;
+% cap water flux at 200 (divide by 18 to get correct units)
+E_wpl_massman( E_wpl_massman > ( 200 ./ 18 ) ) = NaN;
 
 % clean the co2 concentration
 CO2_mean( isnan( conc_record ) ) = NaN;
@@ -2744,10 +2749,12 @@ function [sw_incoming, sw_outgoing, Par_Avg ] = ...
                                          decimal_day, ...
                                          sw_incoming, sw_outgoing, ...
                                          lw_incoming, lw_outgoing, ...
-                                         Par_Avg, ...
-                                         CNR1TK )
+                                         Par_Avg, NR_tot, ...
+                                         wnd_spd, CNR1TK )
 % APPLY_RADIATION_CALIBRATION_FACTORS - Some site-years or portions thereof contain incorrect calibration factors in their datalogger code.  These corrections fix those problems.
 %   
+
+
 
 %%%%%%%%%%%%%%%%% grassland
 if sitecode == UNM_sites.GLand
@@ -2855,11 +2862,18 @@ elseif sitecode == UNM_sites.JSav
 elseif sitecode == UNM_sites.PJ
     if year_arg == 2007
 
+        % this is the wind correction factor for the Q*7
+        NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
+        NR_tot(find(NR_tot > 0)) = NR_tot(find(NR_tot > 0)).*8.65.*(1 + (0.066.*0.2.*wnd_spd(find(NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(NR_tot > 0)))));
+        
         % now correct pars
         Par_Avg = NR_tot.*2.7828 + 170.93; % see notes on methodology (PJ) for this relationship
         sw_incoming = Par_Avg.*0.4577 - 1.8691; % see notes on methodology (PJ) for this relationship
 
     elseif year_arg == 2008
+                % this is the wind correction factor for the Q*7
+        NR_tot(find(decimal_day < 172 & NR_tot < 0)) = NR_tot(find(decimal_day < 172 & NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(decimal_day < 172 & NR_tot < 0))) + 0.99755);
+        NR_tot(find(decimal_day < 172 & NR_tot > 0)) = NR_tot(find(decimal_day < 172 & NR_tot > 0)).*8.65.*(1 + (0.066.*0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))));
         % now correct pars
         Par_Avg(find(decimal_day < 42.6)) = NR_tot(find(decimal_day < 42.6)).*2.7828 + 170.93;
         % calibration for par-lite installed on 2/11/08
@@ -2867,9 +2881,16 @@ elseif sitecode == UNM_sites.PJ
         sw_incoming(find(decimal_day < 172)) = Par_Avg(find(decimal_day < 172)).*0.4577 - 1.8691;
         
         lw_incoming(find(decimal_day > 171.5)) = lw_incoming(find(decimal_day > 171.5)) + 0.0000000567.*(CNR1TK(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
-        lw_outgoing(find(decimal_day > 171.5)) = lw_outgoing(find(decimal_day > 171.5)) + 0.0000000567.*(CNR1TK(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
-        
-
+        lw_outgoing(find(decimal_day > 171.5)) = ...
+            lw_outgoing(find(decimal_day > 171.5)) + 0.0000000567.*(CNR1TK(find(decimal_day > 171.5))).^4; % temperature correction just for long-wave
+        hour_0700 = 7 ./ 24;
+        hour_1730 = 17.5 / 24;
+        frac_day = decimal_day - floor( decimal_day );
+        early_year_is_night = ( decimal_day < 42.6 ) & ...
+            ( ( frac_day < hour_0700 ) | ( frac_day > hour_1730 ) );
+        sw_incoming( early_year_is_night & ( abs( sw_incoming ) > 5 ) ) = NaN;
+        sw_outgoing( early_year_is_night & ( abs( sw_incoming ) > 5 ) ) = NaN;
+        Par_Avg( early_year_is_night & ( abs( sw_incoming ) > 5 ) ) = NaN;
     elseif year_arg >= 2009
         % calibration for par-lite installed on 2/11/08
         Par_Avg = Par_Avg.*1000./5.51;
@@ -3010,20 +3031,9 @@ function [ sitecode, year_arg, NR_sw, NR_lw, NR_tot ] = ...
 NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave
 NR_sw = sw_incoming - sw_outgoing; % calculate new net short wave
 
-if ( sitecode == UNM_sites.PJ ) & ( ( year_arg == 2007 ) | ( year_arg == 2008 ) )
-    switch year_arg
-      case 2007
-        % this is the wind correction factor for the Q*7
-        NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
-        NR_tot(find(NR_tot > 0)) = NR_tot(find(NR_tot > 0)).*8.65.*(1 + (0.066.*0.2.*wnd_spd(find(NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(NR_tot > 0)))));
-        
-      case 2008
-        % this is the wind correction factor for the Q*7
-        NR_tot(find(decimal_day < 172 & NR_tot < 0)) = NR_tot(find(decimal_day < 172 & NR_tot < 0)).*10.74.*((0.00174.*wnd_spd(find(decimal_day < 172 & NR_tot < 0))) + 0.99755);
-        NR_tot(find(decimal_day < 172 & NR_tot > 0)) = NR_tot(find(decimal_day < 172 & NR_tot > 0)).*8.65.*(1 + (0.066.*0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))));
-        % calculate new net radiation values
-        NR_tot(find(decimal_day > 171.5)) = NR_lw(find(decimal_day > 171.5)) + NR_sw(find(decimal_day > 171.5));    
-    end
+if ( sitecode == UNM_sites.PJ ) &  ( year_arg == 2008 ) 
+    % calculate new net radiation values
+    NR_tot(find(decimal_day > 171.5)) = NR_lw(find(decimal_day > 171.5)) + NR_sw(find(decimal_day > 171.5));    
     
 elseif ( sitecode == UNM_sites.GLand ) & ( year_arg == 2007 )
     % this is the wind correction factor for the Q*7 used before ??/??      

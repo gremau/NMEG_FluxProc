@@ -64,7 +64,7 @@ if args.Results.draw_plots
     figure();
     % plot raw Rg (straight from datalogger, no calibration corrections)
     ax1 = subplot( 3, 1, 1 );
-    plot( rad_raw, '.k' )
+    plot( rad_raw, '.k' );
     hold on;
     h_dup = plot( find( is_dup ), rad_raw( find( is_dup ) ), '.r' );
     ylabel( 'Rg raw' );
@@ -87,14 +87,20 @@ if args.Results.draw_plots
 end
 
 
-nov_dec = ismember( month, [ 11, 12 ] );
-idx = nov_dec & ( rad > 1 ) & ( ( hour <= 8 ) | ( hour >= 18 ) ) ;
+hour_minute = hour + ( minute ./ 60 );
+idx_nov = ( month == 11 ) & ( rad > 1 ) & ...
+          ( ( hour_minute <= 7.0 ) | ( hour_minute >= 17.5 ) );
+idx_dec = ( month == 12 ) & ( rad > 1 ) & ...
+          ( ( hour_minute <= 7.5 ) | ( hour_minute >= 18.0 ) );
+idx_oct = ( month == 12 ) & ( rad > 1 ) & ...
+          ( ( hour_minute <= 7.5 ) | ( hour_minute >= 19.0 ) );
+idx = idx_oct & idx_nov | idx_dec;
 
 if args.Results.draw_plots
     doy = t - datenum( median( year ), 1, 0 );
     figure();
     plot( doy, rad, '.k' );
-    hold on
+    hold on;
     h_nan = plot( doy( idx ), rad( idx ), '.r' );
     ylabel( 'Rg raw' );
     xlabel( 'DOY' );
