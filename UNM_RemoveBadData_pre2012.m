@@ -1795,11 +1795,11 @@ end
 % and (2) seem to mess up the Lasslop flux partitioning.  Replace them
 % here with NaN.
 fc_raw_massman_wpl = ...
-    replace_consecutive_zeros( fc_raw_massman_wpl, 1, NaN );
+    replace_consecutive( fc_raw_massman_wpl, 1 );
 HL_wpl_massman = ...
-    replace_consecutive_zeros( HL_wpl_massman, 1, NaN );
+    replace_consecutive( HL_wpl_massman, 1 );
 HSdry_massman = ...
-    replace_consecutive_zeros( HSdry_massman, 1, NaN );
+    replace_consecutive( HSdry_massman, 1 );
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
