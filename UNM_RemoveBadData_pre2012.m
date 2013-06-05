@@ -531,99 +531,52 @@ end
 % parse fluxall data into matlab
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 load_binary = true;
-save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
-                       sprintf( '%s_%d_FA_Convert.mat', ...
-                                char( args.Results.sitecode ), year(1) ) );
-if not( load_binary )
-    if args.Results.year <= 2012
-        drive='c:';
-        row1=5;  %first row of data to process - rows 1 - 4 are header
-        filename = strcat(site,'_flux_all_',num2str(year))
-        %filename = strcat(site,'_new_radiation_flux_all_',num2str(year))
-        filelength = num2str(filelength_n);
-        %datalength = filelength_n - row1 + 1; 
-        filein = strcat(drive,'\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename)
-        range = strcat('B',num2str(row1),':',lastcolumn,filelength);
-        headerrange = strcat('B2:',lastcolumn,'2');
-        time_stamp_range = strcat('A5:A',filelength);
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Open file and parse out dates and times
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        disp('reading data...')
-        [num xls_text] = xlsread(filein,headerrange);
-        headertext = xls_text;
-        [num xls_text] = xlsread(filein,range);  %does not read in first column because it's text!!!!!!!!
-        data = num;
-        ncol = size(data,2)+1;
-        datalength = size(data,1);
-        [num xls_text] = xlsread(filein,time_stamp_range);
-        timestamp = xls_text;
-        [year month day hour minute second] = datevec(timestamp);
-        datenumber = datenum(timestamp);
-        disp('file read');
-
-        save( save_fname );
-        fprintf( 'saved %s\n', save_fname );
-    else
-        fluxall_data = UNM_parse_fluxall_txt_file( args.Results.sitecode, args.Results.year );
-        headertext = fluxall_data.Properties.VarNames;
-        [year month day hour minute second] = datevec( fluxall_data.timestamp );
-        fluxall_data.timestamp = [];
-        data = double( fluxall_data );
-    end
-else
-    this_args = args;  %preserve arguments from local function call
-    load( save_fname );
-    args = this_args;
-    fprintf( 'loaded %s\n', save_fname );
-end
-    
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% some siteyears have periods where the observed radition does not line
-% up with sunrise.  Fix this here so that the matched time/radiation
-% propagates through the rest of the calculations
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-data = UNM_fix_datalogger_timestamps( args.Results.sitecode, args.Results.year, data, ...
-                                      headertext, datenumber, ...
-                                      'debug', false );
-if ( args.Results.sitecode == UNM_sites.MCon ) & ( args.Results.year <= 2008 )
-    data = revise_MCon_duplicated_Rg( data, headertext, datenumber );
-end 
-
+FA = FLUXALL_data( args.Results.sitecode, ...
+                   args.Results.year, ...
+                   'load_binary', load_binary );
 shift_t_str = 'shifted';
 
+% retrieve variables from parsed FLUXALL file
+atm_press = FA.atm_press;
+CNR1TK = FA.CNR1TK;
+CO2_mean = FA.CO2_mean;
+decimal_day = FA.decimal_day;
+E_heat_term_massman = FA.E_heat_term_massman;
+E_raw = FA.E_raw;
+E_raw_massman = FA.E_raw_massman;
+E_water_term = FA.E_water_term;
+E_wpl_massman = FA.E_wpl_massman;
+fc_heat_term_massman = FA.fc_heat_term_massman;
+fc_raw = FA.fc_raw;
+fc_raw_massman = FA.fc_raw_massman;
+fc_raw_massman_wpl = FA.fc_raw_massman_wpl;
+fc_water_term = FA.fc_water_term;
+H2O_mean = FA.H2O_mean;
+HL_raw = FA.HL_raw;
+HL_wpl_massman = FA.HL_wpl_massman;
+HSdry = FA.HSdry;
+HSdry_massman = FA.HSdry_massman;
+lw_incoming = FA.lw_incoming;
+lw_outgoing = FA.lw_outgoing;
+NR_tot = FA.NR_tot;
+Par_Avg = FA.Par_Avg;
+precip = FA.precip;
+rH = FA.rH;
+rhoa_dry = FA.rhoa_dry;
+rhoa_dry_kg = FA.rhoa_dry_kg;
+sw_incoming = FA.sw_incoming;
+sw_outgoing = FA.sw_outgoing;
+Tair_TOA5 = FA.Tair_TOA5;
+Tdry = FA.Tdry;
+timestamp = FA.timestamp;
+u_mean = FA.u_mean;
+u_star = FA.u_star;
+wnd_dir_compass = FA.wnd_dir_compass;
+wnd_spd = FA.wnd_spd;
 
 % remove absurd precipitation measurements
 precip( precip > 1000 ) = NaN;
-
-if ismember( args.Results.sitecode, [ 1, 2 ] ) & args.Results.year == 2009
-    Par_Avg = combine_PARavg_PARlite( headertext, data );
-end
-
-if ismember( args.Results.sitecode, [ 3, 4 ] )
-    % use "RH" at JSav, PJ
-    rh_col = find( strcmp( 'RH', headertext ) ) - 1;
-    fprintf( 'found RH\n' );
-    rH = data( :, rh_col ) / 100.0;
-elseif ismember( args.Results.sitecode, [ 5, 6 ] )
-    % use "RH_2" at PPine, MCon
-    rh_col = find( strcmp( 'RH_2', headertext ) | ...
-                   strcmp( 'RH_2_Avg', headertext ) ) - 1;
-    if ~isempty( rh_col )
-        fprintf( 'found RH_2\n' );
-    else
-        error( 'could not locate RH_2' );
-    end
-    rH = data( :, rh_col ) / 100.0;
-elseif args.Results.sitecode == 10
-    % at PJ girdle, calculate relative humidity from hmp obs using helper
-    % function
-    rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) / 100.0;
-end
 
 save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
                        sprintf( '%s_%d_before_radiation.mat', ...
@@ -643,160 +596,6 @@ Lv = ( repmat( 2.501, size( E_raw_massman ) ) - ...
        0.00237 * ( Tdry - 273.15 ) )  * 10^3;
 HL_wpl_massman = ( 18.016 / 1000 * Lv ) .* ...
     ( E_raw_massman + E_heat_term_massman );
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Site-specific steps for soil temperature
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-if args.Results.sitecode == 1 %GLand   added TWH, 27 Oct 2011
-    for i=1:ncol;
-        if strcmp('TCAV_grass_Avg',headertext(i)) == 1
-            Tsoil = data(:,i-1);
-        end
-    end
-
-    % find soil heat flux plate measurements
-    SHF_idx = find( cellfun( @(x) ~isempty(x), ...
-                             regexp( headertext, 'hfp.*[Aa]vg' ) ) );
-    if numel( SHF_idx ) ~= 2 
-        %error( 'could not find two soil heat flux observations' );
-    end
-    soil_heat_flux = data( :, SHF_idx );
-    SHF_labels = headertext( SHF_idx );
-    SHF_labels = regexprep( SHF_labels, 'hfp01_(.*)', 'SHF_$1');
-
-elseif args.Results.sitecode == 2 %SLand   added TWH, 4 Nov 2011
-    for i=1:ncol;
-        if strcmp( 'shf_sh_1_Avg', headertext( i ) ) == 1
-            soil_heat_flux_1 = data(:,i-1);
-        end    
-        if strcmp( 'shf_sh_2_Avg', headertext( i ) ) == 1
-            soil_heat_flux_2 = data(:,i-1);
-        end
-    end
-    SHF_labels = { 'shf_sh_1_Avg', 'shf_sh_2_Avg' };
-    soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_1 ];
-
-elseif args.Results.sitecode == 3 %JSav   added TWH, 7 May 2012
-    SHF_cols = find( ~cellfun( @isempty, regexp( headertext, 'shf_Avg.*' ) ) );
-    soil_heat_flux = data( :, SHF_cols - 1 );
-    if isempty( soil_heat_flux ) 
-        soil_heat_flux = repmat( NaN, size( data, 1 ), 4 );
-        soil_heat_flux_1 = soil_heat_flux( :, 1 );
-        soil_heat_flux_2 = soil_heat_flux( :, 2 );
-        soil_heat_flux_3 = soil_heat_flux( :, 3 );
-        soil_heat_flux_4 = soil_heat_flux( :, 4 );
-    end
-    SHF_labels = { 'SHF_1', 'SHF_2', 'SHF_3', 'SHF_4' };
-
-elseif args.Results.sitecode == 4 %PJ
-    for i=1:ncol;
-        if strcmp('tcav_pinon_1_Avg',headertext(i)) == 1
-            Tsoil1 = data(:,i-1);
-        elseif strcmp('tcav_jun_1_Avg',headertext(i)) == 1
-            Tsoil2 = data(:,i-1);
-        end
-    end
-    if exist( 'Tsoil1' ) == 1 & exist( 'Tsoil2' ) == 1
-        Tsoil = (Tsoil1 + Tsoil2)/2;
-    else
-        Tsoil = repmat( NaN, size( data, 1 ), 1 );
-    end
-    soil_heat_flux_1 = repmat( NaN, size( data, 1 ), 1 );
-    soil_heat_flux_2 = repmat( NaN, size( data, 1 ), 1 );
-    SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2' };
-    soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];
-
-    % related lines 678-682: corrections for site 4 (PJ) soil_heat_flux_1 and soil_heat_flux_2
-    Tsoil=sw_incoming.*NaN;  %MF: note, this converts all values in Tsoil to NaN. Not sure if this was intended.
-    
-elseif args.Results.sitecode == 5 || args.Results.sitecode == 6 % Ponderosa pine or Mixed conifer
-
-    soil_heat_flux_1 = repmat( NaN, size( data, 1 ), 1 );
-    soil_heat_flux_2 = soil_heat_flux_1;
-    soil_heat_flux_3 = soil_heat_flux_1;
-
-    for i=1:ncol;
-        if strcmp('T107_C_Avg(1)',headertext(i)) == 1
-            Tsoil_2cm_1 = data(:,i-1);
-        elseif strcmp('T107_C_Avg(2)',headertext(i)) == 1
-            Tsoil_2cm_2 = data(:,i-1);
-        elseif strcmp('T107_C_Avg(3)',headertext(i)) == 1
-            Tsoil_6cm_1 = data(:,i-1);
-        elseif strcmp('T107_C_Avg(4)',headertext(i)) == 1
-            Tsoil_6cm_2 = data(:,i-1);
-        elseif strcmp('shf_Avg(1)',headertext(i)) == 1
-            soil_heat_flux_1 = data(:,i-1);
-        elseif strcmp('shf_Avg(2)',headertext(i)) == 1
-            soil_heat_flux_2 = data(:,i-1);
-        elseif strcmp('shf_Avg(3)',headertext(i)) == 1
-            soil_heat_flux_3 = data(:,i-1);
-        end
-    end
-    Tsoil_2cm = (Tsoil_2cm_1 + Tsoil_2cm_2)/2;
-    Tsoil_6cm = (Tsoil_6cm_1 + Tsoil_6cm_2)/2;
-    Tsoil = Tsoil_2cm;
-
-    SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2', 'soil_heat_flux_3' };
-    soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2, soil_heat_flux_3 ];
-    
-elseif args.Results.sitecode == 7 % Texas Freeman
-    for i=1:ncol;
-        if strcmp('Tsoil_Avg(2)',headertext(i)) == 1
-            open_5cm = data(:,i-1);
-        elseif strcmp('Tsoil_Avg(3)',headertext(i)) == 1
-            open_10cm = data(:,i-1);
-        elseif strcmp('Tsoil_Avg(5)',headertext(i)) == 1
-            Mesquite_5cm = data(:,i-1);
-        elseif strcmp('Tsoil_Avg(6)',headertext(i)) == 1
-            Mesquite_10cm = data(:,i-1);
-        elseif strcmp('Tsoil_Avg(8)',headertext(i)) == 1
-            Juniper_5cm = data(:,i-1);
-        elseif strcmp('Tsoil_Avg(9)',headertext(i)) == 1
-            Juniper_10cm = data(:,i-1);
-        end
-    end
-    if args.Results.year == 2005 % juniper probes on-line after 5/19/05
-                        % before 5/19
-        canopy_5cm = Mesquite_5cm(find(decimal_day < 139.61));
-        canopy_10cm = Mesquite_10cm(find(decimal_day < 139.61));
-        % after 5/19
-        canopy_5cm(find(decimal_day >= 139.61)) = (Mesquite_5cm(find(decimal_day >= 139.61)) + Juniper_5cm(find(decimal_day >= 139.61)))/2;
-        canopy_10cm(find(decimal_day >= 139.61)) = (Mesquite_10cm(find(decimal_day >= 139.61)) + Juniper_10cm(find(decimal_day >= 139.61)))/2;
-        % clean strange 0 values
-        canopy_5cm(find(canopy_5cm == 0)) = NaN;
-        canopy_10cm(find(canopy_10cm == 0)) = NaN;
-        Tsoil = (open_5cm + canopy_5cm)./2;
-    else
-        canopy_5cm = (Mesquite_5cm + Juniper_5cm)/2;
-        canopy_10cm = (Mesquite_10cm + Juniper_10cm)/2;
-        Tsoil = (open_5cm + canopy_5cm)/2;
-    end
-    
-elseif args.Results.sitecode == 10 || args.Results.sitecode == 11
-    Tsoil=sw_incoming.*NaN;
-    soil_heat_flux_1 =sw_incoming.*NaN;
-    soil_heat_flux_2 =sw_incoming.*NaN;
-    SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2' };
-    soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];
-end
-
-
-% Juniper S heat flux plates need multiplying by calibration factors
-if args.Results.sitecode == 3
-    soil_heat_flux_1 = soil_heat_flux_1.*32.27;
-    soil_heat_flux_2 = soil_heat_flux_2.*33.00;
-    soil_heat_flux_3 = soil_heat_flux_3.*31.60;
-    soil_heat_flux_4 = soil_heat_flux_4.*32.20;
-end
-
-% Pinon Juniper heat flux plates need multiplying by calibration factors
-if args.Results.sitecode == 4 
-    
-    soil_heat_flux_1 = soil_heat_flux_1.*35.2;
-    soil_heat_flux_2 = soil_heat_flux_2.*32.1;
-end
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Radiation corrections
