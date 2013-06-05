@@ -66,23 +66,13 @@ args.parse( sitecode, year, varargin{ : } );
 
 % place user arguments into variables
 sitecode = args.Results.sitecode;
-year_arg = args.Results.year;
 
 % sitecode = 10;
 % year = 2011;
 iteration = int8( args.Results.iteration );
 
-%true to write "[sitename].._qc", -- file with all variables & bad data removed
-write_complete_out_file = args.Results.write_QC;
-%true to write file for Reichstein's online gap-filling. SET U* LIM (including
-%site- specific ones--comment out) TO 0!!!!!!!!!!
-write_gap_filling_out_file = args.Results.write_GF;
-
-draw_plots = args.Results.draw_plots;
-draw_fingerprints = args.Results.draw_fingerprints;
-
-
-data_for_analyses = 0; %1 to output file with data sorted for specific analyses
+data_for_analyses = 0; %1 to output file with data sorted for specific
+                       %analyses 
 ET_gap_filler = 0; %run ET gap-filler program
 
 winter_co2_min = -100;  %initialization -- will be set for specific sites later
@@ -92,7 +82,7 @@ obs_per_day = 48;  % half-hourly observations
 % Specify some details about sites and years
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if sitecode==1; % grassland
+if args.Results.sitecode==1; % grassland
     site='GLand';
     if year == 2006
         filelength_n = 11594;
@@ -139,7 +129,7 @@ if sitecode==1; % grassland
     rH_min = 0; rH_max = 1;
     h2o_max = 30; h2o_min = 0;
 
-elseif sitecode==2; % shrubland
+elseif args.Results.sitecode==2; % shrubland
     site='SLand'
     if year == 2006
     elseif year == 2007
@@ -183,7 +173,7 @@ elseif sitecode==2; % shrubland
     rH_min = 0; rH_max = 1;
     h2o_max = 30; h2o_min = 0;
     
-elseif sitecode==3; % Juniper savanna
+elseif args.Results.sitecode==3; % Juniper savanna
     site = 'JSav'
     if year == 2007
         filelength_n = 11596;
@@ -232,7 +222,7 @@ elseif sitecode==3; % Juniper savanna
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
     
-elseif sitecode == 4; % Pinyon Juniper
+elseif args.Results.sitecode == 4; % Pinyon Juniper
     site = 'PJ'
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -276,7 +266,7 @@ elseif sitecode == 4; % Pinyon Juniper
         ustar_lim = 0.16;
     end    
     
-elseif sitecode==5; % Ponderosa Pine
+elseif args.Results.sitecode==5; % Ponderosa Pine
     site = 'PPine'
     % site default values
     co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -5];
@@ -328,7 +318,7 @@ elseif sitecode==5; % Ponderosa Pine
     rH_min = 0; rH_max = 1;
     h2o_max = 30; h2o_min = 0;
     
-elseif sitecode==6; % Mixed conifer
+elseif args.Results.sitecode==6; % Mixed conifer
     site = 'MCon'
     co2_min_by_month = [ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ];
     co2_max_by_month = 6;
@@ -370,7 +360,7 @@ elseif sitecode==6; % Mixed conifer
         ustar_lim = 0.11;
     end
     
-elseif sitecode == 7;
+elseif args.Results.sitecode == 7;
     site = 'TX'
     if year == 2005
         filelength_n = 17522;
@@ -414,7 +404,7 @@ elseif sitecode == 7;
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
 
-elseif sitecode == 8;
+elseif args.Results.sitecode == 8;
     site = 'TX_forest'
     if year == 2005
         filelength_n = 17524;
@@ -449,7 +439,7 @@ elseif sitecode == 8;
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
     
-elseif sitecode == 9;
+elseif args.Results.sitecode == 9;
     site = 'TX_grassland'
     if year == 2005
         filelength_n = 17524;
@@ -484,7 +474,7 @@ elseif sitecode == 9;
     h2o_max = 35; h2o_min = 0;
     press_min = 70; press_max = 130;
 
-elseif sitecode == 10; % Pinyon Juniper girdle
+elseif args.Results.sitecode == 10; % Pinyon Juniper girdle
     site = 'PJ_girdle'
     lastcolumn = 'FE';
     ustar_lim = 0.16;
@@ -513,7 +503,7 @@ elseif sitecode == 10; % Pinyon Juniper girdle
         filelength_n = 7752;
     end      
 
-elseif sitecode == 11; % new Grassland
+elseif args.Results.sitecode == 11; % new Grassland
     site = 'New_GLand'
     ustar_lim = 0.06;
     if year == 2010
@@ -543,9 +533,9 @@ end
 load_binary = true;
 save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
                        sprintf( '%s_%d_FA_Convert.mat', ...
-                                char( sitecode ), year(1) ) );
+                                char( args.Results.sitecode ), year(1) ) );
 if not( load_binary )
-    if year_arg <= 2012
+    if args.Results.year <= 2012
         drive='c:';
         row1=5;  %first row of data to process - rows 1 - 4 are header
         filename = strcat(site,'_flux_all_',num2str(year))
@@ -577,7 +567,7 @@ if not( load_binary )
         save( save_fname );
         fprintf( 'saved %s\n', save_fname );
     else
-        fluxall_data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
+        fluxall_data = UNM_parse_fluxall_txt_file( args.Results.sitecode, args.Results.year );
         headertext = fluxall_data.Properties.VarNames;
         [year month day hour minute second] = datevec( fluxall_data.timestamp );
         fluxall_data.timestamp = [];
@@ -597,10 +587,10 @@ end
 % propagates through the rest of the calculations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-data = UNM_fix_datalogger_timestamps( sitecode, year_arg, data, ...
+data = UNM_fix_datalogger_timestamps( args.Results.sitecode, args.Results.year, data, ...
                                       headertext, datenumber, ...
                                       'debug', false );
-if ( sitecode == UNM_sites.MCon ) & ( year_arg <= 2008 )
+if ( args.Results.sitecode == UNM_sites.MCon ) & ( args.Results.year <= 2008 )
     data = revise_MCon_duplicated_Rg( data, headertext, datenumber );
 end 
 
@@ -611,7 +601,7 @@ shift_t_str = 'shifted';
 % sites, so they can be just hard-wired in by column number
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if ( sitecode == 7 ) & ( year == 2008 )
+if ( args.Results.sitecode == 7 ) & ( year == 2008 )
 
     jday=data(:,8);
     iok=data(:,9);
@@ -654,8 +644,6 @@ if ( sitecode == 7 ) & ( year == 2008 )
     decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
                     datenum( year, 1, 1 ) + 1 );
     
-    year_arg = year(2);
-
     for i=1:ncol;
         if strcmp('RH',headertext(i)) == 1 || strcmp('rh_hmp', headertext(i)) == 1 || strcmp('rh_hmp_4_Avg', headertext(i)) == 1
             rH = data(:,i-1);
@@ -663,8 +651,8 @@ if ( sitecode == 7 ) & ( year == 2008 )
     end
 
 
-elseif year(2) < 2009 && sitecode ~= 3 
-    if sitecode == 7 && year(2) == 2008 % This is set up for 2009 output
+elseif args.Results.year < 2009 && args.Results.sitecode ~= 3 
+    if args.Results.sitecode == 7 && args.Results.year == 2008 % This is set up for 2009 output
         disp('TX 2008 is set up as 2009 output');
         %stop
     end
@@ -710,8 +698,6 @@ elseif year(2) < 2009 && sitecode ~= 3
     decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
                     datenum( year, 1, 1 ) + 1 );
     
-    year_arg = year(2);
-
     for i=1:ncol;
         if strcmp('RH',headertext(i)) == 1 || strcmp('rh_hmp', headertext(i)) == 1 || strcmp('rh_hmp_4_Avg', headertext(i)) == 1
             rH = data(:,i-1);
@@ -761,7 +747,6 @@ else  %JSav pre-2009
 
     decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
                     datenum( year, 1, 1 ) + 1 );
-    year_arg = year(2);
 
 end
 
@@ -818,7 +803,8 @@ for i=1:ncol;
             strcmp('t_hmp_top_Avg', headertext(i))==1
         air_temp_hmp = data(:,i-1);
     elseif strcmp('AirTC_2_Avg', headertext(i))==1 && ...
-            (year_arg == 2009 || year_arg ==2010) && sitecode == 6
+            (args.Results.year == 2009 || ...
+             args.Results.year ==2010) && args.Results.sitecode == 6
         air_temp_hmp = data(:,i-1);
     elseif strcmp('Tsoil',headertext(i)) == 1 || ...
             strcmp('Tsoil_avg',headertext(i)) == 1 || ...
@@ -893,16 +879,16 @@ end
 % remove absurd precipitation measurements
 precip( precip > 1000 ) = NaN;
 
-if ismember( sitecode, [ 1, 2 ] ) & year(2) == 2009
+if ismember( args.Results.sitecode, [ 1, 2 ] ) & args.Results.year == 2009
     Par_Avg = combine_PARavg_PARlite( headertext, data );
 end
 
-if ismember( sitecode, [ 3, 4 ] )
+if ismember( args.Results.sitecode, [ 3, 4 ] )
     % use "RH" at JSav, PJ
     rh_col = find( strcmp( 'RH', headertext ) ) - 1;
     fprintf( 'found RH\n' );
     rH = data( :, rh_col ) / 100.0;
-elseif ismember( sitecode, [ 5, 6 ] )
+elseif ismember( args.Results.sitecode, [ 5, 6 ] )
     % use "RH_2" at PPine, MCon
     rh_col = find( strcmp( 'RH_2', headertext ) | ...
                    strcmp( 'RH_2_Avg', headertext ) ) - 1;
@@ -912,7 +898,7 @@ elseif ismember( sitecode, [ 5, 6 ] )
         error( 'could not locate RH_2' );
     end
     rH = data( :, rh_col ) / 100.0;
-elseif sitecode == 10
+elseif args.Results.sitecode == 10
     % at PJ girdle, calculate relative humidity from hmp obs using helper
     % function
     rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) / 100.0;
@@ -920,7 +906,7 @@ end
 
 save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
                        sprintf( '%s_%d_before_radiation.mat', ...
-                                char( sitecode ), year(1) ) );
+                                char( args.Results.sitecode ), year(1) ) );
 save( save_fname );
 fprintf( 'saved %s\n', save_fname );
 
@@ -941,7 +927,7 @@ HL_wpl_massman = ( 18.016 / 1000 * Lv ) .* ...
 % Site-specific steps for soil temperature
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if sitecode == 1 %GLand   added TWH, 27 Oct 2011
+if args.Results.sitecode == 1 %GLand   added TWH, 27 Oct 2011
     for i=1:ncol;
         if strcmp('TCAV_grass_Avg',headertext(i)) == 1
             Tsoil = data(:,i-1);
@@ -958,7 +944,7 @@ if sitecode == 1 %GLand   added TWH, 27 Oct 2011
     SHF_labels = headertext( SHF_idx );
     SHF_labels = regexprep( SHF_labels, 'hfp01_(.*)', 'SHF_$1');
 
-elseif sitecode == 2 %SLand   added TWH, 4 Nov 2011
+elseif args.Results.sitecode == 2 %SLand   added TWH, 4 Nov 2011
     for i=1:ncol;
         if strcmp( 'shf_sh_1_Avg', headertext( i ) ) == 1
             soil_heat_flux_1 = data(:,i-1);
@@ -970,7 +956,7 @@ elseif sitecode == 2 %SLand   added TWH, 4 Nov 2011
     SHF_labels = { 'shf_sh_1_Avg', 'shf_sh_2_Avg' };
     soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_1 ];
 
-elseif sitecode == 3 %JSav   added TWH, 7 May 2012
+elseif args.Results.sitecode == 3 %JSav   added TWH, 7 May 2012
     SHF_cols = find( ~cellfun( @isempty, regexp( headertext, 'shf_Avg.*' ) ) );
     soil_heat_flux = data( :, SHF_cols - 1 );
     if isempty( soil_heat_flux ) 
@@ -982,7 +968,7 @@ elseif sitecode == 3 %JSav   added TWH, 7 May 2012
     end
     SHF_labels = { 'SHF_1', 'SHF_2', 'SHF_3', 'SHF_4' };
 
-elseif sitecode == 4 %PJ
+elseif args.Results.sitecode == 4 %PJ
     for i=1:ncol;
         if strcmp('tcav_pinon_1_Avg',headertext(i)) == 1
             Tsoil1 = data(:,i-1);
@@ -1003,7 +989,7 @@ elseif sitecode == 4 %PJ
     % related lines 678-682: corrections for site 4 (PJ) soil_heat_flux_1 and soil_heat_flux_2
     Tsoil=sw_incoming.*NaN;  %MF: note, this converts all values in Tsoil to NaN. Not sure if this was intended.
     
-elseif sitecode == 5 || sitecode == 6 % Ponderosa pine or Mixed conifer
+elseif args.Results.sitecode == 5 || args.Results.sitecode == 6 % Ponderosa pine or Mixed conifer
 
     soil_heat_flux_1 = repmat( NaN, size( data, 1 ), 1 );
     soil_heat_flux_2 = soil_heat_flux_1;
@@ -1033,7 +1019,7 @@ elseif sitecode == 5 || sitecode == 6 % Ponderosa pine or Mixed conifer
     SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2', 'soil_heat_flux_3' };
     soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2, soil_heat_flux_3 ];
     
-elseif sitecode == 7 % Texas Freeman
+elseif args.Results.sitecode == 7 % Texas Freeman
     for i=1:ncol;
         if strcmp('Tsoil_Avg(2)',headertext(i)) == 1
             open_5cm = data(:,i-1);
@@ -1049,7 +1035,7 @@ elseif sitecode == 7 % Texas Freeman
             Juniper_10cm = data(:,i-1);
         end
     end
-    if year_arg == 2005 % juniper probes on-line after 5/19/05
+    if args.Results.year == 2005 % juniper probes on-line after 5/19/05
                         % before 5/19
         canopy_5cm = Mesquite_5cm(find(decimal_day < 139.61));
         canopy_10cm = Mesquite_10cm(find(decimal_day < 139.61));
@@ -1066,7 +1052,7 @@ elseif sitecode == 7 % Texas Freeman
         Tsoil = (open_5cm + canopy_5cm)/2;
     end
     
-elseif sitecode == 10 || sitecode == 11
+elseif args.Results.sitecode == 10 || args.Results.sitecode == 11
     Tsoil=sw_incoming.*NaN;
     soil_heat_flux_1 =sw_incoming.*NaN;
     soil_heat_flux_2 =sw_incoming.*NaN;
@@ -1076,7 +1062,7 @@ end
 
 
 % Juniper S heat flux plates need multiplying by calibration factors
-if sitecode == 3
+if args.Results.sitecode == 3
     soil_heat_flux_1 = soil_heat_flux_1.*32.27;
     soil_heat_flux_2 = soil_heat_flux_2.*33.00;
     soil_heat_flux_3 = soil_heat_flux_3.*31.60;
@@ -1084,7 +1070,7 @@ if sitecode == 3
 end
 
 % Pinon Juniper heat flux plates need multiplying by calibration factors
-if sitecode == 4 
+if args.Results.sitecode == 4 
     
     soil_heat_flux_1 = soil_heat_flux_1.*35.2;
     soil_heat_flux_2 = soil_heat_flux_2.*32.1;
@@ -1096,27 +1082,40 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 [ sw_incoming, sw_outgoing, Par_Avg ] = ...
-    UNM_RMD_apply_radiation_calibration_factors( sitecode, year_arg, ...
+    UNM_RBD_apply_radiation_calibration_factors( args.Results.sitecode, ...
+                                                 args.Results.year, ...
                                                  decimal_day, ...
-                                                 sw_incoming, sw_outgoing, ...
-                                                 lw_incoming, lw_outgoing, ...
-                                                 Par_Avg, NR_tot, ...
-                                                 wnd_spd, CNR1TK );
+                                                 sw_incoming, ...
+                                                 sw_outgoing, ...
+                                                 lw_incoming, ...
+                                                 lw_outgoing, ...
+                                                 Par_Avg, ...
+                                                 NR_tot, ...
+                                                 wnd_spd, ...
+                                                 CNR1TK );
 
-[ sitecode, year_arg, NR_sw, NR_lw, NR_tot ] = ...
-    UNM_RBD_calculate_net_radiation( sitecode, year_arg, ...
-                                     sw_incoming, sw_outgoing, ...
-                                     lw_incoming, lw_outgoing, ...
-                                     NR_tot, wnd_spd, decimal_day );
+[ NR_sw, NR_lw, NR_tot ] = ...
+    UNM_RBD_calculate_net_radiation( args.Results.sitecode, ...
+                                     args.Results.year, ...
+                                     sw_incoming, ...
+                                     sw_outgoing, ...
+                                     lw_incoming, ...
+                                     lw_outgoing, ...
+                                     NR_tot, ...
+                                     wnd_spd, ...
+                                     decimal_day );
 
 % normalize PAR to account for calibration problems at some sites
-Par_Avg = normalize_PAR_wrapper( sitecode, year_arg, decimal_day, Par_Avg, ...
-                                 draw_plots );
+Par_Avg = normalize_PAR_wrapper( args.Results.sitecode, ...
+                                 args.Results.year, ...
+                                 decimal_day, ...
+                                 Par_Avg,...
+                                 args.Results.draw_plots );
 
 
 save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
                        sprintf( '%s_%d_after_radiation.mat', ...
-                                char( sitecode ), year(1) ) );
+                                char( args.Results.sitecode ), year(1) ) );
 save( save_fname );
 fprintf( 'saved %s\n', save_fname );
 
@@ -1174,10 +1173,10 @@ pd = 44.6.*28.97.*atm_press./101.3.*273.16./t_meanK;
 dFc = (Si_top+Si_bot+Sip_spar) ./ RhoCp.*CO2_mg ./ t_meanK .* ...
       (1+1.6077.*H2O_g./pd);
 
-if draw_plots
+if args.Results.draw_plots
     h_burba_fig = figure( 'Name', 'Burba' );
     plot(dFc,'.'); ylim([-1 1]);
-    title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
+    title( sprintf('%s %d', get_site_name( args.Results.sitecode ), year( 1 ) ) );
     ylabel('Burba cold temp correction');
     xlabel('time');
 end
@@ -1249,7 +1248,7 @@ disp(sprintf('    night-time negs = %d',removed_nightneg));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PPINE EXTRA WIND DIRECTION REMOVAL
 % ppine has super high night respiration when winds come from ~ 50 degrees, so these must be excluded also:
-if sitecode == 5
+if args.Results.sitecode == 5
     ppine_night_wind = find( ( wnd_dir_compass > 30 & ...
                                wnd_dir_compass < 65 ) & ...
                              ( hour <= 9 | hour > 18 ) );
@@ -1267,7 +1266,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % gland 2007 had large fluxes for very cold temperatures early in the year.
-if sitecode == 1 && year_arg == 2007
+if args.Results.sitecode == 1 && args.Results.year == 2007
     gland_cold = find(Tdry < 271);
     removed_gland_cold = length(gland_cold);
     decimal_day_nan(gland_cold) = NaN;
@@ -1276,14 +1275,14 @@ if sitecode == 1 && year_arg == 2007
 end
 
 % Take out dodgy calibration period at Shrubland in 2007
-if sitecode == 2 && year_arg == 2007 
+if args.Results.sitecode == 2 && args.Results.year == 2007 
     decimal_day_nan(12150:12250) = NaN;
     record(12150:12250) = NaN;
     conc_record(12600:12750) = NaN;
 end
 
 % Take out dodgy calibration period at Shrubland in 2009
-if sitecode == 2 && year_arg == 2009 
+if args.Results.sitecode == 2 && args.Results.year == 2009 
     conc_record(11595:11829) = NaN;
 end
 
@@ -1309,7 +1308,7 @@ if iteration == 1
     end
 
     startbin;
-    if draw_plots
+    if args.Results.draw_plots
         figure( 'Name', 'determine Ustar cutoff', 'NumberTitle', 'Off' );
         clf;
         plot( ustar_mean, co2mean, '.k' );
@@ -1348,14 +1347,14 @@ end
 
 if iteration > 2
     
-    if ( sitecode == UNM_sites.GLand ) & ( year_arg == 2011 )
+    if ( args.Results.sitecode == UNM_sites.GLand ) & ( args.Results.year == 2011 )
         precip = fill_Gland_2011_precip_from_SLand(precip);
     end
     
     [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
       HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
       sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, rH ] = ...
-        remove_specific_problem_periods( sitecode, year_arg, ...
+        remove_specific_problem_periods( args.Results.sitecode, args.Results.year, ...
                                          fc_raw_massman_wpl, ...
                                          E_wpl_massman, ...
                                          HL_wpl_massman, ...
@@ -1382,7 +1381,7 @@ if iteration > 2
     maxminflag = [];
 
     [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
-        specify_siteyear_filter_exceptions( sitecode, year_arg, ...
+        specify_siteyear_filter_exceptions( args.Results.sitecode, args.Results.year, ...
                                             DOY_co2_min, DOY_co2_max );
     
     maxminflag = ( ( fc_raw_massman_wpl > DOY_co2_max ) | ...
@@ -1410,7 +1409,7 @@ if iteration > 3
     co2_conc_filter_exceptions = repmat( false, size( CO2_mean ) );
     co2_conc_filter_exceptions = ...
         specify_siteyear_co2_conc_filter_exceptions( ...
-            sitecode, year, co2_conc_filter_exceptions );
+            args.Results.sitecode, year, co2_conc_filter_exceptions );
 
     removed_highco2 = length(highco2flag);
     decimal_day_nan(highco2flag) = NaN;
@@ -1418,11 +1417,11 @@ if iteration > 3
     conc_record(highco2flag) = NaN;
 
     % Remove low CO2 concentration points
-    if sitecode == 9
+    if args.Results.sitecode == 9
         lowco2flag = find(CO2_mean <250);
-    elseif sitecode == 8 && year(1) ==2008
+    elseif args.Results.sitecode == 8 && year(1) ==2008
         lowco2flag = find(CO2_mean <250);
-    elseif sitecode == 1 && year(1) ==2007
+    elseif args.Results.sitecode == 1 && year(1) ==2007
         lowco2flag = find(CO2_mean <344);
     else
         lowco2flag = find(CO2_mean <350);
@@ -1468,14 +1467,14 @@ if iteration > 4
     %    idx_NEE_good( idx_std_removed ) = false;
     stdflag = repmat( false, size( idx_NEE_good ) );
 
-    % if sitecode == UNM_sites.PPine
+    % if args.Results.sitecode == UNM_sites.PPine
     %     % for PPine, normalize NEE to a defined range...
     %     idx_norm = idx_NEE_good & maxminflag;
     %     fc_raw_massman_wpl = normalize_PPine_NEE( fc_raw_massman_wpl, ...
     %                                               idx_norm );
     %     % ...and reset max/min flags according to normalized NEE
     %     [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
-    %         specify_siteyear_filter_exceptions( sitecode, year_arg, ...
+    %         specify_siteyear_filter_exceptions( args.Results.sitecode, args.Results.year, ...
     %                                             DOY_co2_min, DOY_co2_max );
     %     maxminflag = ( ( fc_raw_massman_wpl > DOY_co2_max ) | ...
     %                    ( fc_raw_massman_wpl < DOY_co2_min ) );
@@ -1527,7 +1526,7 @@ if iteration > 4
         elementstouse_c = find(conc_record > startbin( i ) & conc_record <= endbin( i ) & isnan(conc_record) == 0);
         conc_std_bin(i) = std(CO2_mean(elementstouse_c));
         mean_conc(i) = mean(CO2_mean(elementstouse_c));
-        if sitecode == 7
+        if args.Results.sitecode == 7
             conc_bin_index = find(CO2_mean(elementstouse_c) < ...
                                   (mean_conc(i)-(2.*conc_std_bin(i)))...
                                   | CO2_mean(elementstouse_c) > ...
@@ -1578,7 +1577,7 @@ if iteration > 4
     end
     pal = brewer_palettes( 'Dark2' );
 
-    if draw_plots
+    if args.Results.draw_plots
         h_co2_fig = figure( 'Name', '[CO2]' );
         CO2_mean_clean=CO2_mean;
         CO2_mean_clean(find(isnan(conc_record)))=-9999;
@@ -1586,7 +1585,7 @@ if iteration > 4
                           'Marker', '.', ...
                           'Color', 'black', ...
                           'LineStyle', 'none');
-        title( sprintf( '%s %d', get_site_name( sitecode ), year( 1 ) ) );
+        title( sprintf( '%s %d', get_site_name( args.Results.sitecode ), year( 1 ) ) );
         hold on;
         h_co2_clean = plot( decimal_day, CO2_mean_clean, ...
                             'Marker', 'o', ...
@@ -1621,7 +1620,7 @@ restore_fname = fullfile( getenv( 'FLUXROOT' ), ...
                           'FluxOut', ...
                           'QC_files', ...
                           sprintf( '%s_%d_QC_Tim.mat', ...
-                                   get_site_name( sitecode ), ...
+                                   get_site_name( args.Results.sitecode ), ...
                                    year( 2 ) ) );
 save_vars = { 'sitecode', 'year', 'decimal_day', 'fc_raw_massman_wpl', ...
               'idx_NEE_good', 'ustarflag', 'precipflag', 'nightnegflag', ...
@@ -1632,14 +1631,14 @@ save( restore_fname, save_vars{ : } );
 
 maxminflag = find( maxminflag );
 
-if sitecode == UNM_sites.PPine
+if args.Results.sitecode == UNM_sites.PPine
     fc_raw_massman_wpl = normalize_PPine_NEE( fc_raw_massman_wpl, ...
                                               idx_NEE_good );
 end
 
-if draw_plots
+if args.Results.draw_plots
     [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
-        sitecode, ...
+        args.Results.sitecode, ...
         year, ...
         decimal_day, ...
         fc_raw_massman_wpl, ...
@@ -1718,7 +1717,7 @@ LH_rad( isnan( LH_rad ) ) = NR_tot( isnan( LH_rad ) );
 LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
 LH_night_flag = ( LH_rad < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
 LH_day_flag = ( LH_rad >= 20.0 ) & ( HL_wpl_massman < 0.0 );
-if draw_plots
+if args.Results.draw_plots
     script_LE_diagnostic_plot;
 end
 removed_LH_wpl_mass = numel( find( LH_maxmin_flag | ...
@@ -1750,16 +1749,16 @@ removed_press = length(press_flag);
 atm_press(press_flag) = NaN;
 
 % min/max QC for TX soil heat fluxes
-if sitecode == 7
-    if year_arg == 2005
+if args.Results.sitecode == 7
+    if args.Results.year == 2005
         soil_heat_flux_open(find(soil_heat_flux_open > 100 | soil_heat_flux_open < -50)) = NaN;
         soil_heat_flux_mescan(find(soil_heat_flux_mescan > 50 | soil_heat_flux_mescan < -40)) = NaN;
         soil_heat_flux_juncan(find(soil_heat_flux_juncan > 50 | soil_heat_flux_juncan < -60)) = NaN;
-    elseif year_arg == 2006
+    elseif args.Results.year == 2006
         soil_heat_flux_open(find(soil_heat_flux_open > 90 | soil_heat_flux_open < -60)) = NaN;
         soil_heat_flux_mescan(find(soil_heat_flux_mescan > 50 | soil_heat_flux_mescan < -50)) = NaN;
         soil_heat_flux_juncan(find(soil_heat_flux_juncan > 50 | soil_heat_flux_juncan < -60)) = NaN;
-    elseif year_arg == 2007 
+    elseif args.Results.year == 2007 
         soil_heat_flux_open(find(soil_heat_flux_open > 110 | soil_heat_flux_open < -50)) = NaN;
         soil_heat_flux_mescan(find(soil_heat_flux_mescan > 40 | soil_heat_flux_mescan < -40)) = NaN;
         soil_heat_flux_juncan(find(soil_heat_flux_juncan > 20 | soil_heat_flux_juncan < -40)) = NaN;
@@ -1768,7 +1767,7 @@ end
 
 % remove days 295 to 320 for GLand 2010 for several variables -- the reported
 % values look weirdly bogus -- TWH 9 Apr 2012
-if sitecode == 1 & year(2) == 2010
+if args.Results.sitecode == 1 & args.Results.year == 2010
     bogus_idx = ( decimal_day >= 294 ) & ( decimal_day <= 320 );
     HL_wpl_massman( bogus_idx ) = NaN;
     HSdry_massman( bogus_idx ) = NaN;
@@ -1777,16 +1776,16 @@ if sitecode == 1 & year(2) == 2010
     lw_outgoing( bogus_idx ) = NaN;
 end
 
-if ( sitecode == 5 ) & ( year(2) == 2008 )
+if ( args.Results.sitecode == 5 ) & ( args.Results.year == 2008 )
     bogus_idx = ( decimal_day >= 100 ) & ( decimal_day < 190 ) & ( rH < 0.03 );
     rH( bogus_idx ) = NaN;
 end
 
-if ( sitecode == 7 ) & ( year( 2 ) == 2008 )
+if ( args.Results.sitecode == 7 ) & ( year( 2 ) == 2008 )
     u_star( u_star > 200 ) = NaN;
 end
 
-if ( sitecode == 3 ) & ( year( 2 ) == 2009 )
+if ( args.Results.sitecode == 3 ) & ( year( 2 ) == 2009 )
     u_star( decimal_day < 34 ) = NaN;
     wnd_dir_compass( decimal_day < 34 ) = NaN;
 end
@@ -1837,7 +1836,7 @@ H_dry = HSdry_massman;
 %H_dry(dd_idx) = -9999;
 Tair = Tdry - 273.15;
 
-if draw_plots
+if args.Results.draw_plots
     figure('Name', 'NEE vs wind direction' );
     ax1 = subplot( 2, 1, 1 );
     idx = repmat( false, 1, size( fc_raw_massman_wpl, 1 ) );
@@ -1882,18 +1881,18 @@ if draw_plots
     linkaxes( [ ax1, ax2, ax3, ax4 ], 'x' );
 end
 
-if sitecode == 1 & year == 2010
+if args.Results.sitecode == 1 & year == 2010
     Tair( 12993:end ) = Tair_TOA5(  12993:end );
 end
 
-if draw_fingerprints
-    h_fps = RBD_plot_fingerprints( sitecode, year_arg, decimal_day, ...
+if args.Results.draw_fingerprints
+    h_fps = RBD_plot_fingerprints( args.Results.sitecode, args.Results.year, decimal_day, ...
                                    sw_incoming, rH, Tair, NEE, LE, ...
                                    H_dry, ...
                                    shift_t_str );
 end
 
-if (sitecode>7 && sitecode<10) % || 9);
+if (args.Results.sitecode>7 && args.Results.sitecode<10) % || 9);
     disp('writing gap-filling file...')
     header = {'day' 'month' 'year' 'hour' 'minute' ...
               'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
@@ -1909,15 +1908,15 @@ else
     fgf_headers = {'day' 'month' 'year' 'hour' 'minute' ...
                    'qcNEE' 'NEE' 'LE' 'H' 'Rg' 'Tair' 'Tsoil' ...
                    'rH' 'precip' 'Ustar'};
-    if sitecode == 3
+    if args.Results.sitecode == 3
         Tsoil = ones(size(qc)).*-999;
     end
     fgf = [day month year hour minute qc NEE ...
            LE H_dry sw_incoming Tair Tsoil rH precip u_star];
     [ filled_idx, fgf ] = ...
         UNM_gapfill_from_local_data( ...
-            sitecode, ...
-            year, ...
+            args.Results.sitecode, ...
+            args.Results.year, ...
             dataset( { fgf, fgf_headers{ : } } ) );
 end
 
@@ -1927,7 +1926,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Tsoil = ones(size(qc)).*-999;
-if sitecode == 5 || sitecode == 6 
+if args.Results.sitecode == 5 || args.Results.sitecode == 6 
     qc_headers = {'year', 'month', 'day', 'hour', 'minute', ...
                   'second', 'jday', 'iok', 'agc_Avg', 'u_star', ...
                   'wnd_dir_compass', 'wnd_spd', 'CO2_mean', 'CO2_std', ...
@@ -1951,7 +1950,7 @@ if sitecode == 5 || sitecode == 6
                atm_press, rH Par_Avg, sw_incoming, sw_outgoing, ...
                lw_incoming, lw_outgoing, NR_sw, NR_lw, NR_tot];
     
-elseif sitecode == 7
+elseif args.Results.sitecode == 7
     qc_headers = {'year', 'month', 'day', 'hour', 'minute', ...
                   'second', 'jday', 'iok', 'agc_Avg', 'u_star', ...
                   'wnd_dir_compass', 'wnd_spd', 'CO2_mean', 'CO2_std', ...
@@ -1979,7 +1978,7 @@ elseif sitecode == 7
                atm_press, rH Par_Avg, sw_incoming, sw_outgoing, ...
                lw_incoming, lw_outgoing, NR_sw, NR_lw, NR_tot];
     
-elseif sitecode == 8 || sitecode == 9
+elseif args.Results.sitecode == 8 || args.Results.sitecode == 9
     qc_headers = {'year', 'month', 'day', 'hour', 'minute', ...
                   'second', 'jday', 'iok', 'u_star', 'wnd_dir_compass', ...
                   'wnd_spd', 'CO2_mean', 'CO2_std', 'H2O_mean', 'H2O_std', ...
@@ -2032,7 +2031,7 @@ end
 
 if iteration > 4
     
-    if sitecode == 8 || sitecode == 9
+    if args.Results.sitecode == 8 || args.Results.sitecode == 9
         numbers_removed = [removednans removed_precip ...
                            removed_wind removed_nightneg ...
                            removed_ustar removed_maxs_mins ...
@@ -2100,7 +2099,7 @@ end
 
 if args.Results.write_GF
     %write for gapfilling file
-    outfolder = fullfile( get_site_directory( sitecode ), ...
+    outfolder = fullfile( get_site_directory( args.Results.sitecode ), ...
                           'processed_flux' );
     outfilename_forgapfill_txt = fullfile( outfolder, ...
                                            strcat( filename, ...
@@ -2119,7 +2118,7 @@ end
 
 if args.Results.write_QC
     % write QC file
-    outfolder = fullfile( get_site_directory( sitecode ), ...
+    outfolder = fullfile( get_site_directory( args.Results.sitecode ), ...
                           'processed_flux' );
     outfilename_csv = fullfile( outfolder, strcat( filename, '_qc.txt' ) );
     fprintf( 'writing qc file: %s\n', outfilename_csv );
@@ -2658,13 +2657,13 @@ function co2_conc_filter_exceptions = ...
 % nonetheless contain reasonable CO2 NEE.  This allows us to keep those NEE
 % measurements.
 
-if ( sitecode == 1 ) & ( year(1) == 2007 )
+if ( sitecode == UNM_sites.GLand ) & ( year(1) == 2007 )
     co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
 end
 
 % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
 % fluxes look OK.  TWH 27 Mar 2012
-if ( sitecode == 1 ) & ( year(1) == 2010 )
+if ( sitecode == UNM_sites.GLand ) & ( year(1) == 2010 )
     % keep index 4128 to 5084, 7296-8064 (days 152:168) in 2010 -
     % these CO2 obs are bogus but the datalogger 30-min fluxes look OK.  TWH 27
     % Mar 2012
@@ -2674,24 +2673,28 @@ if ( sitecode == 1 ) & ( year(1) == 2010 )
     co2_conc_filter_exceptions( DOYidx( 218 ) : DOYidx( 223 ) ) = true;
     %co2_conc_filter_exceptions( DOYidx( 271 ) : DOYidx( 278 ) ) = true;
 end 
-if ( sitecode == 1 ) & ( year(1) == 2011 )
+if ( sitecode == UNM_sites.GLand ) & ( year(1) == 2011 )
     co2_conc_filter_exceptions( DOYidx( 153 ) : DOYidx( 160 ) ) = true;
 end 
-if ( sitecode == 2 ) & ( year == 2007 )
+if ( sitecode == UNM_sites.SLand ) & ( year == 2007 )
     % days 253:257 -- bogus [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 253 ) : DOYidx( 257 ) ) = true;
 end 
-if ( sitecode == 3 ) & ( year(1) == 2011 )
+if ( sitecode == UNM_sites.JSav ) & ( year(1) == 2011 )
     co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 52.7 ) ) = true;
 end 
-if ( sitecode == 4 ) & ( year(1) == 2011 )
+if ( sitecode == UNM_sites.PJ ) & ( year(1) == 2011 )
     co2_conc_filter_exceptions( DOYidx( 358  ) : end ) = true;
 end 
-if (sitecode == 5 ) & ( year == 2007 )
+if (sitecode == UNM_sites.PPine ) & ( year == 2007 )
     % days 290:335 -- bogus [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 290 ) : DOYidx( 335 ) ) = true;
 end
-if (sitecode == 8 ) & ( year == 2009 )
+if (sitecode == UNM_sites.TX ) & ( year == 2008 )
+    % low [CO2] but fluxes look ok
+    co2_conc_filter_exceptions( DOYidx( 154 ) : DOYidx( 179 ) ) = true;
+end
+if (sitecode == UNM_sites.TX_forest ) & ( year == 2009 )
     % days 1 to 40.5 -- low [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 1 ) : DOYidx( 40.5 ) ) = true;
 end

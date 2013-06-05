@@ -86,7 +86,7 @@ switch sitecode
         % estimate par from sw_incoming
         Par_Avg(find(decimal_day < 150.729)) = sw_incoming(find(decimal_day < 150.729)).*2.0292 + 3.6744;
         
-    elseif any( intersect ( year_arg, 2008:2011 ) )
+    elseif year_arg >= 2008
         % calibration and unit conversion into W per m^2 for CNR1 variables
         % adjust for program error and convert into W per m^2
         sw_incoming = sw_incoming./136.99.*(1000./12.34);

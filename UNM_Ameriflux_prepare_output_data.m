@@ -75,6 +75,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     NEE_obs( idx ) =   ds_qc.fc_raw_massman_wpl( idx );
     NEE_flag( idx ) = 0;
     % set NEE_flag to 1 where local gapfilling was performed
+    %idx_filled = repmat( 1, size( dummy ) ); 
     idx_filled = UNM_gapfill_from_local_data( sitecode, year, dataset( [] ) );
     NEE_flag( idx_filled ) = 1;
     % LE,
