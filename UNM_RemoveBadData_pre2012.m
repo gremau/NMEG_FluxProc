@@ -1081,6 +1081,16 @@ end
 % Radiation corrections
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if not( exist( 'lw_incoming' ) )
+    lw_incoming = repmat( NaN, size( data, 1 ), 1 );
+end
+if not( exist( 'lw_outgoing' ) )
+    lw_outgoing = repmat( NaN, size( data, 1 ), 1 );
+end
+if not( exist( 'CNR1TK' ) )
+    CNR1TK = repmat( NaN, size( data, 1 ), 1 );
+end
+
 [ sw_incoming, sw_outgoing, Par_Avg ] = ...
     UNM_RBD_apply_radiation_calibration_factors( args.Results.sitecode, ...
                                                  args.Results.year, ...

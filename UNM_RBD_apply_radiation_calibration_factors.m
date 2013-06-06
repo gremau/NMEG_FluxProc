@@ -231,9 +231,6 @@ switch sitecode
         NR_tot(find(NR_tot < 0)) = NR_tot(find(NR_tot < 0)).*10.91.*((0.00174.*wnd_spd(find(NR_tot < 0))) + 0.99755);
         NR_tot(find(NR_tot > 0)) = NR_tot(find(NR_tot > 0)).*8.83.*(1 + (0.066.*0.2.*wnd_spd(find(NR_tot > 0)))./(0.066 + (0.2.*wnd_spd(find(NR_tot > 0)))));
 
-        % no long-wave data for TX
-        lw_incoming(1:datalength,1) = NaN;
-        lw_outgoing(1:datalength,1) = NaN;
         % pyrronometer corrections
         sw_incoming = sw_incoming.*1000./27.34;
         sw_outgoing = sw_outgoing.*1000./19.39;
