@@ -26,6 +26,9 @@
 %     year: integer; year to process
 %     iteration: optional, integer 1-6; defines which set of bad data tasks
 %          to perform (see code for details)
+%     load_binary: optional, logical (default true); if true, load binary
+%          (.mat) versions of fluxall data.  If false, parse Excel version (this
+%          is much slower).
 %     write_QC: optional, logical (default true); if true, writes flux_all_qc 
 %          file
 %     write_GF: optional, logical (default true); if true, writes
@@ -56,6 +59,7 @@ args.addRequired( 'year', ...
                   @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
 args.addParamValue( 'iteration', 6, ...
                     @(x) ( isintval( x ) & ( x >= 1 ) & ( x <= 6 ) ) );
+args.addParamValue( 'load_binary', true, @islogical );
 args.addParamValue( 'write_QC', true, @islogical );
 args.addParamValue( 'write_GF', true, @islogical );
 args.addParamValue( 'draw_plots', true, @islogical );
@@ -387,6 +391,12 @@ elseif args.Results.sitecode == 7;
         lastcolumn='GP';
         ustar_lim = 0.11;
         co2_min_by_month = -16; co2_max_by_month = 6;
+    elseif year == 2010
+        filelength_n = 17524;
+        lastcolumn='GQ';
+        ustar_lim = 0.11;
+        co2_min_by_month = -16; 
+        co2_max_by_month = 6;
     elseif year == 2011;
         filelength_n = 7282;
         lastcolumn='GQ';
@@ -530,11 +540,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % parse fluxall data into matlab
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-load_binary = true;
 save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
                        sprintf( '%s_%d_FA_Convert.mat', ...
                                 char( args.Results.sitecode ), year(1) ) );
-if not( load_binary )
+if not( args.Results.load_binary )
     if args.Results.year <= 2012
         drive='c:';
         row1=5;  %first row of data to process - rows 1 - 4 are header
@@ -589,7 +598,7 @@ end
 
 data = UNM_fix_datalogger_timestamps( args.Results.sitecode, args.Results.year, data, ...
                                       headertext, datenumber, ...
-                                      'debug', false );
+                                      'debug', args.Results.draw_plots );
 if ( args.Results.sitecode == UNM_sites.MCon ) & ( args.Results.year <= 2008 )
     data = revise_MCon_duplicated_Rg( data, headertext, datenumber );
 end 
