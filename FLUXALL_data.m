@@ -70,11 +70,7 @@ methods
     % --------------------------------------------------
         
         function obj = FLUXALL_data_intake_pre2012( obj, load_binary )
-        % FLUFLUXALL_soil_data_intake_pre2012( obj, data, headers )
-% FLUXALL_SOIL_DATA_INTAKE_PRE2012 - 
-%   
-end
-XALL_DATA_INTAKE_PRE2012 - obtains the FLUXDATA for site-years prior to
+        %FLUXALL_DATA_INTAKE_PRE2012 - obtains the FLUXDATA for site-years prior to
         %   2012.
 
         save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
@@ -141,6 +137,12 @@ XALL_DATA_INTAKE_PRE2012 - obtains the FLUXDATA for site-years prior to
         
         obj = obj.fluxall_data_to_matlab_vars_pre2012( data, headertext );
         obj = obj.put_nans_in_missing_variables( size( data, 1 ) );
+        
+        if not( args.Results.load_binary )
+            binary_fluxall_fname = strrep( filein, 'xls', 'mat' );
+            save( save_fname, 'obj' );
+        end
+        
         end
 
     %------------------------------------------------------------
