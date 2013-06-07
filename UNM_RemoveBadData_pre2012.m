@@ -370,38 +370,51 @@ elseif args.Results.sitecode == 7;
         filelength_n = 17522;
         lastcolumn='GF';
         ustar_lim = 0.11;
-        co2_min_by_month = -26; co2_max_by_month = 12;
+        co2_min_by_month = -26; 
+        co2_max_by_month = [ 4.9, 6, 7, 8, 9, 12, ...
+                            12, 12, 9, 6, 6, 4.9 ];
     elseif year == 2006
         filelength_n = 17524;
         lastcolumn='GF';
         ustar_lim = 0.11;
-        co2_min_by_month = -26; co2_max_by_month = 12;
+        co2_min_by_month = -26; 
+        co2_max_by_month = [ 4.9, 6, 7, 8, 9, 12, ...
+                            12, 12, 9, 6, 6, 4.9 ];
     elseif year == 2007
         filelength_n = 17524;
         lastcolumn='FZ';
         ustar_lim = 0.11;
-        co2_min_by_month = -26; co2_max_by_month = 12;
+        co2_min_by_month = -26; 
+        co2_max_by_month = [ 4.9, 6, 7, 8, 9, 12, ...
+                            12, 12, 9, 6, 6, 4.9 ];
     elseif year == 2008;
         filelength_n = 17452;
         lastcolumn='GP';
         ustar_lim = 0.11;  % (changed from 0.11 10 Apr 2012 -- TWH )
-        co2_min_by_month = -16; co2_max_by_month = 6;
+        co2_min_by_month = -26; 
+        co2_max_by_month = [ 4.9, 6, 7, 8, 9, 12, ...
+                            12, 12, 9, 6, 6, 4.9 ] ;
     elseif year == 2009;
         filelength_n = 17282;
         lastcolumn='GP';
         ustar_lim = 0.11;
-        co2_min_by_month = -16; co2_max_by_month = 6;
+        co2_min_by_month = -26; 
+        co2_max_by_month = [ 4.9, 6, 7, 8, 9, 12, ...
+                            12, 12, 9, 6, 6, 4.9 ] ;
     elseif year == 2010
         filelength_n = 17524;
         lastcolumn='GQ';
         ustar_lim = 0.11;
-        co2_min_by_month = -16; 
-        co2_max_by_month = 6;
+        co2_min_by_month = -26; 
+        co2_max_by_month = [ 4.9, 6, 7, 8, 9, 12, ...
+                            12, 12, 9, 6, 6, 4.9 ];
     elseif year == 2011;
         filelength_n = 7282;
         lastcolumn='GQ';
         ustar_lim = 0.11;
-        co2_min_by_month = -16; co2_max_by_month = 6;
+        co2_min_by_month = -26; 
+        co2_max_by_month = [ 4.9, 6, 7, 8, 9, 12, ...
+                            12, 12, 9, 6, 6, 4.9 ];
     end
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -439,7 +452,8 @@ elseif args.Results.sitecode == 8;
     end
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-    co2_min_by_month = -26; co2_max_by_month = 12;
+    co2_min_by_month = -26; co2_max_by_month = [ 4.9, 6, 7, 8, 9, 12, ...
+                            12, 12, 9, 6, 6, 4.9 ];
     wind_min = 300; wind_max = 360; % these are given a sonic_orient = ;
     Tdry_min = 265; Tdry_max = 315;
     HS_min = -200; HS_max = 800;
@@ -474,7 +488,9 @@ elseif args.Results.sitecode == 9;
     end
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-    co2_min_by_month = -26; co2_max_by_month = 12;
+    co2_min_by_month = -26;
+    co2_max_by_month = [ 4.9, 6, 7, 8, 9, 12, ...
+                        12, 12, 9, 6, 6, 4.9 ];
     wind_min = 300; wind_max = 360; % these are given a sonic_orient = ;
     Tdry_min = 265; Tdry_max = 315;
     HS_min = -200; HS_max = 800;
@@ -596,8 +612,11 @@ end
 % propagates through the rest of the calculations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-data = UNM_fix_datalogger_timestamps( args.Results.sitecode, args.Results.year, data, ...
-                                      headertext, datenumber, ...
+data = UNM_fix_datalogger_timestamps( args.Results.sitecode, ...
+                                      args.Results.year, ...
+                                      data, ...
+                                      headertext( 2:end ), ...
+                                      datenumber, ...
                                       'debug', args.Results.draw_plots );
 if ( args.Results.sitecode == UNM_sites.MCon ) & ( args.Results.year <= 2008 )
     data = revise_MCon_duplicated_Rg( data, headertext, datenumber );
@@ -1930,13 +1949,15 @@ else
     if args.Results.sitecode == 3
         Tsoil = ones(size(qc)).*-999;
     end
-    fgf = [day month year hour minute qc NEE ...
-           LE H_dry sw_incoming Tair Tsoil rH precip u_star];
+    
+    fgf = dataset( { [day month year hour minute qc NEE ...
+                      LE H_dry sw_incoming Tair Tsoil rH precip u_star], ...
+                     fgf_headers{ : } } );
     [ filled_idx, fgf ] = ...
         UNM_gapfill_from_local_data( ...
             args.Results.sitecode, ...
             args.Results.year, ...
-            dataset( { fgf, fgf_headers{ : } } ) );
+            fgf );
 end
 
 
@@ -2124,15 +2145,18 @@ if args.Results.write_GF
                                            strcat( filename, ...
                                                    '_for_gap_filling.txt' ) );
     fprintf('writing gap-filling file: %s\n', outfilename_forgapfill_txt );
-    fid = fopen( outfilename_forgapfill_txt , 'w' );
-    fmt = repmat('%s\t', 1, numel( fgf_headers ) - 1 );
-    fmt = [ fmt, '%s\n' ];
-    fprintf( fid, fmt, fgf_headers{ : } );
-    fclose( fid );
-    dlmwrite( outfilename_forgapfill_txt, ...
-              double( fgf ), ...
-              '-append', ...
-              'delimiter', '\t' );
+    export_dataset_tim(  outfilename_forgapfill_txt, ...
+                         fgf, ...
+                         'replace_NaNs', -9999 );
+    % fid = fopen( outfilename_forgapfill_txt , 'w' );
+    % fmt = repmat('%s\t', 1, numel( fgf_headers ) - 1 );
+    % fmt = [ fmt, '%s\n' ];
+    % fprintf( fid, fmt, fgf_headers{ : } );
+    % fclose( fid );
+    % dlmwrite( outfilename_forgapfill_txt, ...
+    %           double( fgf ), ...
+    %           '-append', ...
+    %           'delimiter', '\t' );
 end
 
 if args.Results.write_QC
@@ -2379,6 +2403,12 @@ switch sitecode
         % met station (Redondo-Redonito) shows none.  
         precip( DOYidx( 80 ):DOYidx( 81 ) ) = 0.0;
         precip( DOYidx( 309 ):DOYidx( 310 ) ) = 0.0;
+    end
+    
+  case UNM_sites.TX
+    switch year
+      case 2009
+        sw_incoming( DOYidx( 313.5 ) : DOYidx( 313.8 ) ) = NaN;
     end
     
   case UNM_sites.New_GLand
