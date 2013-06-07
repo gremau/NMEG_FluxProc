@@ -559,7 +559,7 @@ end
 
 FA = FLUXALL_data( args.Results.sitecode, ...
                    args.Results.year, ...
-                   'load_binary', load_binary );
+                   'load_binary', args.Results.load_binary );
 shift_t_str = 'shifted';
 
 % retrieve variables from parsed FLUXALL file
@@ -594,11 +594,17 @@ sw_incoming = FA.sw_incoming;
 sw_outgoing = FA.sw_outgoing;
 Tair_TOA5 = FA.Tair_TOA5;
 Tdry = FA.Tdry;
+t_mean = FA.t_mean;
 timestamp = FA.timestamp;
 u_mean = FA.u_mean;
 u_star = FA.u_star;
 wnd_dir_compass = FA.wnd_dir_compass;
 wnd_spd = FA.wnd_spd;
+
+% create some derived variables from the FLUXALL data
+t_meanK = t_mean + 273.15;
+[ year, month, day, hour, minute, second ] =...
+    datevec( datenum( FA.year_arg, 1, 0 ) + FA.decimal_day );
 
 % remove absurd precipitation measurements
 precip( precip > 1000 ) = NaN;

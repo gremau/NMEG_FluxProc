@@ -37,6 +37,7 @@ properties
     sw_outgoing;
     Tair_TOA5;
     Tdry;
+    t_mean;
     timestamp;
     u_mean;
     u_star;
@@ -138,9 +139,9 @@ methods
         obj = obj.fluxall_data_to_matlab_vars_pre2012( data, headertext );
         obj = obj.put_nans_in_missing_variables( size( data, 1 ) );
         
-        if not( args.Results.load_binary )
+        if not( load_binary )
             binary_fluxall_fname = strrep( filein, 'xls', 'mat' );
-            save( save_fname, 'obj' );
+            save( binary_fluxall_fname, 'obj' );
         end
         
         end
@@ -168,8 +169,7 @@ methods
             obj.H2O_mean=data(:,37);
             H2O_std=data(:,38);
             obj.u_mean=data(:,10);
-            t_mean=data(:,13);
-            t_meanK=t_mean+ 273.15;
+            obj.t_mean=data(:,13);
 
             obj.fc_raw = data(:,39);
             obj.fc_raw_massman = data(:,40);
@@ -219,8 +219,7 @@ methods
             obj.H2O_mean=data(:,36);
             H2O_std=data(:,37);
             obj.u_mean=data(:,10);
-            t_mean=data(:,13);
-            t_meanK=t_mean+ 273.15;
+            obj.t_mean=data(:,13);
 
             obj.fc_raw = data(:,40);
             obj.fc_raw_massman = data(:,44);
@@ -266,8 +265,7 @@ methods
             obj.H2O_mean=data(:,37);
             H2O_std=data(:,38);
             obj.u_mean=data(:,10);
-            t_mean=data(:,13);
-            t_meanK=t_mean+ 273.15;
+            obj.t_mean=data(:,13);
 
             obj.fc_raw = data(:,39);
             obj.fc_raw_massman = data(:,40);
