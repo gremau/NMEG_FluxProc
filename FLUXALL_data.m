@@ -77,19 +77,22 @@ methods
         save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
                                sprintf( '%s_%d_FA_Convert.mat', ...
                                         char( obj.sitecode ), obj.year_arg ) );
+
+        RBDrc = UNM_RBD_config( obj.sitecode, obj.year_arg );
+
         if not( load_binary )
-            if obj.year_arg_arg <= 2012
+            if obj.year_arg <= 2012
                 row1=5;  %first row of data to process - rows 1 - 4 are header
                 filename = strcat(site,'_flux_all_',num2str(year))
                 %filename = strcat(site,'_new_radiation_flux_all_',num2str(year))
-                filelength = num2str(filelength_n);
-                %datalength = filelength_n - row1 + 1; 
+                filelength = num2str(RBDrc.filelength_n);
+                %datalength = RBDrc.filelength_n - row1 + 1; 
                 filein = fullfile( getenv( 'FLUXROOT' ), ...
                                    'Flux_Tower_Data_by_Site', ...
                                    site, ...
                                    filename );
-                range = strcat('B',num2str(row1),':',lastcolumn,filelength);
-                headerrange = strcat('B2:',lastcolumn,'2');
+                range = strcat('B',num2str(row1),':',RBDrc.lastcolumn,filelength);
+                headerrange = strcat('B2:',RBDrc.lastcolumn,'2');
                 time_stamp_range = strcat('A5:A',filelength);
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -141,7 +144,8 @@ methods
         
         if not( load_binary )
             binary_fluxall_fname = strrep( filein, 'xls', 'mat' );
-            save( binary_fluxall_fname, 'obj' );
+            keyboard();
+            %save( binary_fluxall_fname, 'obj' );
         end
         
         end
