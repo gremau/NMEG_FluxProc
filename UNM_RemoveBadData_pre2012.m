@@ -557,9 +557,10 @@ end
 % parse fluxall data into matlab
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-FA = FLUXALL_data( args.Results.sitecode, ...
-                   args.Results.year, ...
-                   'load_binary', args.Results.load_binary );
+FA_parser = FLUXALL_data( args.Results.sitecode, ...
+                          args.Results.year, ...
+                          'load_binary', args.Results.load_binary );
+FA = FA_parser.obs;
 shift_t_str = 'shifted';
 
 % retrieve variables from parsed FLUXALL file
@@ -603,8 +604,7 @@ wnd_spd = FA.wnd_spd;
 
 % create some derived variables from the FLUXALL data
 t_meanK = t_mean + 273.15;
-[ year, month, day, hour, minute, second ] =...
-    datevec( datenum( FA.year_arg, 1, 0 ) + FA.decimal_day );
+[ year, month, day, hour, minute, second ] = datevec( FA.timestamp );
 
 % remove absurd precipitation measurements
 precip( precip > 1000 ) = NaN;
@@ -1299,23 +1299,6 @@ press_flag = []; %find(atm_press > press_max | atm_press < press_min);
 removed_press = length(press_flag);
 atm_press(press_flag) = NaN;
 
-% min/max QC for TX soil heat fluxes
-if args.Results.sitecode == 7
-    if args.Results.year == 2005
-        soil_heat_flux_open(find(soil_heat_flux_open > 100 | soil_heat_flux_open < -50)) = NaN;
-        soil_heat_flux_mescan(find(soil_heat_flux_mescan > 50 | soil_heat_flux_mescan < -40)) = NaN;
-        soil_heat_flux_juncan(find(soil_heat_flux_juncan > 50 | soil_heat_flux_juncan < -60)) = NaN;
-    elseif args.Results.year == 2006
-        soil_heat_flux_open(find(soil_heat_flux_open > 90 | soil_heat_flux_open < -60)) = NaN;
-        soil_heat_flux_mescan(find(soil_heat_flux_mescan > 50 | soil_heat_flux_mescan < -50)) = NaN;
-        soil_heat_flux_juncan(find(soil_heat_flux_juncan > 50 | soil_heat_flux_juncan < -60)) = NaN;
-    elseif args.Results.year == 2007 
-        soil_heat_flux_open(find(soil_heat_flux_open > 110 | soil_heat_flux_open < -50)) = NaN;
-        soil_heat_flux_mescan(find(soil_heat_flux_mescan > 40 | soil_heat_flux_mescan < -40)) = NaN;
-        soil_heat_flux_juncan(find(soil_heat_flux_juncan > 20 | soil_heat_flux_juncan < -40)) = NaN;
-    end
-end
-
 % remove days 295 to 320 for GLand 2010 for several variables -- the reported
 % values look weirdly bogus -- TWH 9 Apr 2012
 if args.Results.sitecode == 1 & args.Results.year == 2010
@@ -1375,7 +1358,7 @@ disp(sprintf('    number of atm press values removed = %d',removed_press));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 dd_idx = isnan(decimal_day_nan);
-qc = ones(datalength,1);
+qc = ones( length( FA.timestamp ), 1 );
 %qc(dd_idx) = 2;
 qc( not( idx_NEE_good ) ) = 2;
 NEE = fc_raw_massman_wpl;
