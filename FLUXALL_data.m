@@ -98,30 +98,30 @@ methods
         end
     % --------------------------------------------------
     
-    function success = write_fluxall_binary_file( obj )
-    % WRITE_FLUXALL_BINARY_FILE - write a binary representation of the fluxall data
-    %   to a .mat file
+        function success = write_fluxall_binary_file( obj )
+        % WRITE_FLUXALL_BINARY_FILE - write a binary representation of the fluxall data
+        %   to a .mat file
 
-    % replace xls file extension, if present, with .mat
-    %fluxall_fname = regexprep( filein, '(.)(.xls)?$', '$1.mat');
-    %parts = regexp( fluxall_fname, '[\\]', 'split' );
-    site_str = char( UNM_sites( obj.sitecode ) );
-    binary_fluxall_fname = fullfile( getenv( 'FLUXROOT' ), ...
-                                     'Flux_Tower_Data_by_Site', ...
-                                     site_str, ...
-                                     sprintf( '%s_flux_all_%d.mat', ...
-                                              site_str, ...
-                                              obj.year_arg ) );
-    FA_data = obj;
-    save( binary_fluxall_fname, 'FA_data' );
-    fprintf( 'wrote %s\n', binary_fluxall_fname );
-    
-    end
+        % replace xls file extension, if present, with .mat
+        %fluxall_fname = regexprep( filein, '(.)(.xls)?$', '$1.mat');
+        %parts = regexp( fluxall_fname, '[\\]', 'split' );
+        site_str = char( UNM_sites( obj.sitecode ) );
+        binary_fluxall_fname = fullfile( getenv( 'FLUXROOT' ), ...
+                                         'Flux_Tower_Data_by_Site', ...
+                                         site_str, ...
+                                         sprintf( '%s_flux_all_%d.mat', ...
+                                                  site_str, ...
+                                                  obj.year_arg ) );
+        FA_data = obj;
+        save( binary_fluxall_fname, 'FA_data' );
+        fprintf( 'wrote %s\n', binary_fluxall_fname );
+        
+        end
 
     
-% --------------------------------------------------
+    % --------------------------------------------------
     
-    function obj = FLUXALL_data_intake_pre2012( obj, load_binary )
+        function obj = FLUXALL_data_intake_pre2012( obj, load_binary )
         %FLUXALL_DATA_INTAKE_PRE2012 - obtains the FLUXDATA for site-years prior to
         %   2012.
 
@@ -558,7 +558,7 @@ methods
             soil_heat_flux_2 = soil_heat_flux_2.*33.00;
             soil_heat_flux_3 = soil_heat_flux_3.*31.60;
             soil_heat_flux_4 = soil_heat_flux_4.*32.20;
-          
+            
           case UNM_sites.PJ
             for i=1:numel( headertext );
                 if strcmp('tcav_pinon_1_Avg',headertext(i)) == 1
@@ -579,15 +579,15 @@ methods
 
             % related lines 678-682: corrections for site 4 (PJ) soil_heat_flux_1 and soil_heat_flux_2
             Tsoil=sw_incoming.*NaN;  %MF: note, this converts all values in Tsoil to NaN. Not sure if this was intended.
-          
+            
             % Pinon Juniper heat flux plates need multiplying by calibration factors
             soil_heat_flux_1 = soil_heat_flux_1.*35.2;
             soil_heat_flux_2 = soil_heat_flux_2.*32.1;
             
           case { UNM_sites.PPine, UNM_sites.MCon }
 
-              soil_heat_flux_1 = repmat( NaN, size( data, 1 ), 1 );
-              nsoil_heat_flux_2 = soil_heat_flux_1;
+            soil_heat_flux_1 = repmat( NaN, size( data, 1 ), 1 );
+            nsoil_heat_flux_2 = soil_heat_flux_1;
             soil_heat_flux_3 = soil_heat_flux_1;
 
             for i=1:numel( headertext );
@@ -614,7 +614,7 @@ methods
             SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2', 'soil_heat_flux_3' };
             soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2, soil_heat_flux_3 ];
             
-        case UNM_sites.TX
+          case UNM_sites.TX
             for i=1:numel( headertext );
                 if strcmp('Tsoil_Avg(2)',headertext(i)) == 1
                     obj.obs.open_5cm = data(:,i-1);
@@ -672,7 +672,7 @@ methods
                                                    soil_heat_flux_juncan < -40)) = NaN;
             end
             
-        case { UNM_stes.PJ_girdle, UNM_sites.New_GLand }
+          case { UNM_stes.PJ_girdle, UNM_sites.New_GLand }
             Tsoil=sw_incoming.*NaN;
             soil_heat_flux_1 =sw_incoming.*NaN;
             soil_heat_flux_2 =sw_incoming.*NaN;
@@ -681,18 +681,22 @@ methods
 
         end   %switch obj.sitecode
 
+        for i = 1:numel( SHF_labels )
+            obj.obs.( SHF_labels{ i } ) = soil_heat_flux( :, i );
+        end
+        
         end   %function FLUXALL_soil_data_intake_pre2012
 
 end %methods
 
 methods( Access = private )
-        
+    
     % --------------------------------------------------
         function obj = put_nans_in_missing_variables( obj, nrow )
         % PUT_NANS_IN_MISSING_VARIABLES - looks at the data fields of obj, filling
         % with NaN any variables that were not populated during data intake. 
         %   
-    
+        
         dummy = repmat( NaN, nrow, 1 );
         flds = fieldnames( obj.obs );
         for i = 1:numel( flds )
