@@ -4,10 +4,16 @@ properties
     
     sitecode;
     year_arg;
-    datalength;
     
     %observed data
     obs = struct;  % struct to contain observations
+end
+
+properties ( SetAccess = private, GetAccess = private )
+    % this stuff is internal to the class
+    datalength;
+    draw_plots;
+    write_mat_file = true;
 end
 
 methods
@@ -15,15 +21,31 @@ methods
         function [ obj ] = FLUXALL_data( sitecode, year_arg, varargin )
         % class constructor.
         % If year_arg < 2012, loads matlab binary of parsed excel data.
-        
+        % USAGE:
+        %   FA = FLUXALL_data( sitecode, year_arg );
+        %   FA = FLUXALL_data( sitecode, year_arg, 'load_binary', false );
+        %   FA = FLUXALL_data( sitecode, year_arg, ..., 'draw_plots', false );
+        %
+        % INPUTS
+        %   sitecode
+        %   year_arg
+        % KEYWORD ARGUMENTS
+        %   load_binary
+        %   draw_plots
+        %
+        % (c) Timothy W. Hilton, UNM, 2013
+
+
         args = inputParser;
         args.addRequired( 'sitecode', @( x ) isa( x, 'UNM_sites' ) );
         args.addRequired( 'year_arg', @isnumeric );
         args.addParamValue( 'load_binary', true, @islogical );
+        args.addParamValue( 'draw_plots', true, @islogical );
         args.parse( sitecode, year_arg, varargin{ : } );
         
         obj.sitecode = args.Results.sitecode;
         obj.year_arg = args.Results.year_arg;
+        obj.draw_plots = args.Results.draw_plots;
         
         % initialize observations to fields that should becommon to all
         % site-years
@@ -75,8 +97,31 @@ methods
         
         end
     % --------------------------------------------------
-        
-        function obj = FLUXALL_data_intake_pre2012( obj, load_binary )
+    
+    function success = write_fluxall_binary_file( obj )
+    % WRITE_FLUXALL_BINARY_FILE - write a binary representation of the fluxall data
+    %   to a .mat file
+
+    % replace xls file extension, if present, with .mat
+    %fluxall_fname = regexprep( filein, '(.)(.xls)?$', '$1.mat');
+    %parts = regexp( fluxall_fname, '[\\]', 'split' );
+    site_str = char( UNM_sites( obj.sitecode ) );
+    binary_fluxall_fname = fullfile( getenv( 'FLUXROOT' ), ...
+                                     'Flux_Tower_Data_by_Site', ...
+                                     site_str, ...
+                                     sprintf( '%s_flux_all_%d.mat', ...
+                                              site_str, ...
+                                              obj.year_arg ) );
+    FA_data = obj;
+    save( binary_fluxall_fname, 'FA_data' );
+    fprintf( 'wrote %s\n', binary_fluxall_fname );
+    
+    end
+
+    
+% --------------------------------------------------
+    
+    function obj = FLUXALL_data_intake_pre2012( obj, load_binary )
         %FLUXALL_DATA_INTAKE_PRE2012 - obtains the FLUXDATA for site-years prior to
         %   2012.
 
@@ -138,7 +183,7 @@ methods
                                               data, ...
                                               headertext, ...
                                               obj.obs.timestamp, ...
-                                              'debug', true );
+                                              'debug', obj.draw_plots );
         if ( obj.sitecode == UNM_sites.MCon ) & ...
                 ( obj.year_arg <= 2008 )
             data = revise_MCon_duplicated_Rg( data, headertext, obj.timestamp );
@@ -146,13 +191,11 @@ methods
 
         
         obj = obj.fluxall_data_to_matlab_vars_pre2012( data, headertext );
-        obj = obj.FLUXALL_soil_intake_pre2012( data, headertext );
+        obj = obj.FLUXALL_soil_data_intake_pre2012( data, headertext );
         obj = obj.put_nans_in_missing_variables( size( data, 1 ) );
         
-        if not( load_binary )
-            binary_fluxall_fname = strrep( filein, 'xls', 'mat' );
-            keyboard();
-            %save( binary_fluxall_fname, 'obj' );
+        if obj.write_mat_file
+            obj.write_fluxall_binary_file();
         end
         
         end
@@ -213,8 +256,8 @@ methods
             end
 
 
-        elseif obj.year_arg < 2009 && obj.sitecode ~= 3 
-            if obj.sitecode == 7 && obj.year_arg == 2008 % This is set up for 2009 output
+        elseif obj.year_arg < 2009 && obj.sitecode ~=  UNM_sites.JSav 
+            if obj.sitecode ==  UNM_sites.TX && obj.year_arg == 2008 % This is set up for 2009 output
                 disp('TX 2008 is set up as 2009 output');
                 %stop
             end
@@ -358,7 +401,7 @@ methods
                 obj.obs.air_temp_hmp = data(:,i-1);
             elseif strcmp('AirTC_2_Avg', headertext(i))==1 && ...
                     (obj.year_arg == 2009 || ...
-                     obj.year_arg ==2010) && obj.sitecode == 6
+                     obj.year_arg ==2010) && ( obj.sitecode == UNM_sites.MCon)
                 obj.obs.air_temp_hmp = data(:,i-1);
             elseif strcmp('Tsoil',headertext(i)) == 1 || ...
                     strcmp('Tsoil_avg',headertext(i)) == 1 || ...
@@ -458,19 +501,19 @@ methods
             end
             
         end
-            
+        
         end
     
-        function FLUXALL_soil_data_intake_pre2012( obj, data, headertext )
+        function obj = FLUXALL_soil_data_intake_pre2012( obj, data, headertext )
         % FLUXALL_SOIL_DATA_INTAKE_PRE2012 - 
         %   
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Site-specific steps for soil temperature
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        if args.Results.sitecode == 1 %GLand   added TWH, 27 Oct 2011
-            for i=1:ncol;
+        switch obj.sitecode
+          case UNM_sites.GLand   %added TWH, 27 Oct 2011
+            for i=1:numel( headertext );
                 if strcmp('TCAV_grass_Avg',headertext(i)) == 1
                     obj.obs.Tsoil = data(:,i-1);
                 end
@@ -486,8 +529,8 @@ methods
             SHF_labels = headertext( SHF_idx );
             SHF_labels = regexprep( SHF_labels, 'hfp01_(.*)', 'SHF_$1');
 
-        elseif args.Results.sitecode == 2 %SLand   added TWH, 4 Nov 2011
-            for i=1:ncol;
+          case UNM_sites.SLand   %added TWH, 4 Nov 2011
+            for i=1:numel( headertext );
                 if strcmp( 'shf_sh_1_Avg', headertext( i ) ) == 1
                     soil_heat_flux_1 = data(:,i-1);
                 end    
@@ -498,7 +541,7 @@ methods
             SHF_labels = { 'shf_sh_1_Avg', 'shf_sh_2_Avg' };
             soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_1 ];
 
-        elseif args.Results.sitecode == 3 %JSav   added TWH, 7 May 2012
+          case UNM_sites.JSav   %added TWH, 7 May 2012
             SHF_cols = find( ~cellfun( @isempty, regexp( headertext, 'shf_Avg.*' ) ) );
             soil_heat_flux = data( :, SHF_cols - 1 );
             if isempty( soil_heat_flux ) 
@@ -509,9 +552,15 @@ methods
                 soil_heat_flux_4 = soil_heat_flux( :, 4 );
             end
             SHF_labels = { 'SHF_1', 'SHF_2', 'SHF_3', 'SHF_4' };
-
-        elseif args.Results.sitecode == 4 %PJ
-            for i=1:ncol;
+            
+            % Juniper S heat flux plates need multiplying by calibration factors
+            soil_heat_flux_1 = soil_heat_flux_1.*32.27;
+            soil_heat_flux_2 = soil_heat_flux_2.*33.00;
+            soil_heat_flux_3 = soil_heat_flux_3.*31.60;
+            soil_heat_flux_4 = soil_heat_flux_4.*32.20;
+          
+          case UNM_sites.PJ
+            for i=1:numel( headertext );
                 if strcmp('tcav_pinon_1_Avg',headertext(i)) == 1
                     Tsoil1 = data(:,i-1);
                 elseif strcmp('tcav_jun_1_Avg',headertext(i)) == 1
@@ -530,14 +579,18 @@ methods
 
             % related lines 678-682: corrections for site 4 (PJ) soil_heat_flux_1 and soil_heat_flux_2
             Tsoil=sw_incoming.*NaN;  %MF: note, this converts all values in Tsoil to NaN. Not sure if this was intended.
+          
+            % Pinon Juniper heat flux plates need multiplying by calibration factors
+            soil_heat_flux_1 = soil_heat_flux_1.*35.2;
+            soil_heat_flux_2 = soil_heat_flux_2.*32.1;
             
-        elseif args.Results.sitecode == 5 || args.Results.sitecode == 6 % Ponderosa pine or Mixed conifer
+          case { UNM_sites.PPine, UNM_sites.MCon }
 
-            soil_heat_flux_1 = repmat( NaN, size( data, 1 ), 1 );
-            soil_heat_flux_2 = soil_heat_flux_1;
+              soil_heat_flux_1 = repmat( NaN, size( data, 1 ), 1 );
+              nsoil_heat_flux_2 = soil_heat_flux_1;
             soil_heat_flux_3 = soil_heat_flux_1;
 
-            for i=1:ncol;
+            for i=1:numel( headertext );
                 if strcmp('T107_C_Avg(1)',headertext(i)) == 1
                     Tsoil_2cm_1 = data(:,i-1);
                 elseif strcmp('T107_C_Avg(2)',headertext(i)) == 1
@@ -561,8 +614,8 @@ methods
             SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2', 'soil_heat_flux_3' };
             soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2, soil_heat_flux_3 ];
             
-        elseif args.Results.sitecode == 7 % Texas Freeman
-            for i=1:ncol;
+        case UNM_sites.TX
+            for i=1:numel( headertext );
                 if strcmp('Tsoil_Avg(2)',headertext(i)) == 1
                     obj.obs.open_5cm = data(:,i-1);
                 elseif strcmp('Tsoil_Avg(3)',headertext(i)) == 1
@@ -598,58 +651,37 @@ methods
 
             if args.Results.year == 2005
                 obj.obs.soil_heat_flux_open(find(soil_heat_flux_open > 100 | ...
-                                         soil_heat_flux_open < -50)) = NaN;
+                                                 soil_heat_flux_open < -50)) = NaN;
                 obj.obs.soil_heat_flux_mescan(find(soil_heat_flux_mescan > 50 | ...
-                                           soil_heat_flux_mescan < -40)) = NaN;
+                                                   soil_heat_flux_mescan < -40)) = NaN;
                 obj.obs.soil_heat_flux_juncan(find(soil_heat_flux_juncan > 50 | ...
-                                           soil_heat_flux_juncan < -60)) = NaN;
+                                                   soil_heat_flux_juncan < -60)) = NaN;
             elseif args.Results.year == 2006
                 obj.obs.soil_heat_flux_open(find(soil_heat_flux_open > 90 | ...
-                                         soil_heat_flux_open < -60)) = NaN;
+                                                 soil_heat_flux_open < -60)) = NaN;
                 obj.obs.soil_heat_flux_mescan(find(soil_heat_flux_mescan > 50 | ...
-                                           soil_heat_flux_mescan < -50)) = NaN;
+                                                   soil_heat_flux_mescan < -50)) = NaN;
                 soil_heat_flux_juncan(find(soil_heat_flux_juncan > 50 | ...
                                            soil_heat_flux_juncan < -60)) = NaN;
             elseif args.Results.year == 2007 
                 obj.obs.soil_heat_flux_open(find(soil_heat_flux_open > 110 | ...
-                                         soil_heat_flux_open < -50)) = NaN;
+                                                 soil_heat_flux_open < -50)) = NaN;
                 obj.obs.soil_heat_flux_mescan(find(soil_heat_flux_mescan > 40 | ...
-                                           soil_heat_flux_mescan < -40)) = NaN;
+                                                   soil_heat_flux_mescan < -40)) = NaN;
                 obj.obs.soil_heat_flux_juncan(find(soil_heat_flux_juncan > 20 | ...
-                                           soil_heat_flux_juncan < -40)) = NaN;
+                                                   soil_heat_flux_juncan < -40)) = NaN;
             end
-
-
-
             
-        elseif args.Results.sitecode == 10 || args.Results.sitecode == 11
+        case { UNM_stes.PJ_girdle, UNM_sites.New_GLand }
             Tsoil=sw_incoming.*NaN;
             soil_heat_flux_1 =sw_incoming.*NaN;
             soil_heat_flux_2 =sw_incoming.*NaN;
             SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2' };
             soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];
-        end
 
+        end   %switch obj.sitecode
 
-        % Juniper S heat flux plates need multiplying by calibration factors
-        if args.Results.sitecode == 3
-            soil_heat_flux_1 = soil_heat_flux_1.*32.27;
-            soil_heat_flux_2 = soil_heat_flux_2.*33.00;
-            soil_heat_flux_3 = soil_heat_flux_3.*31.60;
-            soil_heat_flux_4 = soil_heat_flux_4.*32.20;
-        end
-
-        % Pinon Juniper heat flux plates need multiplying by calibration factors
-        if args.Results.sitecode == 4 
-            
-            soil_heat_flux_1 = soil_heat_flux_1.*35.2;
-            soil_heat_flux_2 = soil_heat_flux_2.*32.1;
-        end
-        
-
-    
-        end
-
+        end   %function FLUXALL_soil_data_intake_pre2012
 
 end %methods
 

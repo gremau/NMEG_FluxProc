@@ -98,47 +98,50 @@ FA = FA_parser.obs;
 shift_t_str = 'shifted';
 
 % retrieve variables from parsed FLUXALL file
-atm_press = FA.atm_press;
-CNR1TK = FA.CNR1TK;
-CO2_mean = FA.CO2_mean;
-decimal_day = FA.decimal_day;
-E_heat_term_massman = FA.E_heat_term_massman;
-E_raw = FA.E_raw;
-E_raw_massman = FA.E_raw_massman;
-E_water_term = FA.E_water_term;
-E_wpl_massman = FA.E_wpl_massman;
-fc_heat_term_massman = FA.fc_heat_term_massman;
-fc_raw = FA.fc_raw;
-fc_raw_massman = FA.fc_raw_massman;
-fc_raw_massman_wpl = FA.fc_raw_massman_wpl;
-fc_water_term = FA.fc_water_term;
-H2O_mean = FA.H2O_mean;
-HL_raw = FA.HL_raw;
-HL_wpl_massman = FA.HL_wpl_massman;
-HSdry = FA.HSdry;
-HSdry_massman = FA.HSdry_massman;
-lw_incoming = FA.lw_incoming;
-lw_outgoing = FA.lw_outgoing;
-NR_tot = FA.NR_tot;
-Par_Avg = FA.Par_Avg;
-precip = FA.precip;
-rH = FA.rH;
-rhoa_dry = FA.rhoa_dry;
-rhoa_dry_kg = FA.rhoa_dry_kg;
-sw_incoming = FA.sw_incoming;
-sw_outgoing = FA.sw_outgoing;
-Tair_TOA5 = FA.Tair_TOA5;
-Tdry = FA.Tdry;
-t_mean = FA.t_mean;
-timestamp = FA.timestamp;
-u_mean = FA.u_mean;
-u_star = FA.u_star;
-wnd_dir_compass = FA.wnd_dir_compass;
-wnd_spd = FA.wnd_spd;
+atm_press = FA.obs.atm_press;
+CNR1TK = FA.obs.CNR1TK;
+CO2_mean = FA.obs.CO2_mean;
+decimal_day = FA.obs.decimal_day;
+E_heat_term_massman = FA.obs.E_heat_term_massman;
+E_raw = FA.obs.E_raw;
+E_raw_massman = FA.obs.E_raw_massman;
+E_water_term = FA.obs.E_water_term;
+E_wpl_massman = FA.obs.E_wpl_massman;
+fc_heat_term_massman = FA.obs.fc_heat_term_massman;
+fc_raw = FA.obs.fc_raw;
+fc_raw_massman = FA.obs.fc_raw_massman;
+fc_raw_massman_wpl = FA.obs.fc_raw_massman_wpl;
+fc_water_term = FA.obs.fc_water_term;
+H2O_mean = FA.obs.H2O_mean;
+HL_raw = FA.obs.HL_raw;
+HL_wpl_massman = FA.obs.HL_wpl_massman;
+HSdry = FA.obs.HSdry;
+HSdry_massman = FA.obs.HSdry_massman;
+lw_incoming = FA.obs.lw_incoming;
+lw_outgoing = FA.obs.lw_outgoing;
+NR_tot = FA.obs.NR_tot;
+Par_Avg = FA.obs.Par_Avg;
+precip = FA.obs.precip;
+rH = FA.obs.rH;
+rhoa_dry = FA.obs.rhoa_dry;
+rhoa_dry_kg = FA.obs.rhoa_dry_kg;
+sw_incoming = FA.obs.sw_incoming;
+sw_outgoing = FA.obs.sw_outgoing;
+Tair_TOA5 = FA.obs.Tair_TOA5;
+Tdry = FA.obs.Tdry;
+t_mean = FA.obs.t_mean;
+timestamp = FA.obs.timestamp;
+u_mean = FA.obs.u_mean;
+u_star = FA.obs.u_star;
+wnd_dir_compass = FA.obs.wnd_dir_compass;
+wnd_spd = FA.obs.wnd_spd;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% some setup and very coarse preliminary filtering
 
 % create some derived variables from the FLUXALL data
 t_meanK = t_mean + 273.15;
-[ year, month, day, hour, minute, second ] = datevec( FA.timestamp );
+[ year, month, day, hour, minute, second ] = datevec( FA.obs.timestamp );
 
 % remove absurd precipitation measurements
 precip( precip > 1000 ) = NaN;
@@ -892,7 +895,7 @@ disp(sprintf('    number of atm press values removed = %d',removed_press));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 dd_idx = isnan(decimal_day_nan);
-qc = ones( length( FA.timestamp ), 1 );
+qc = ones( length( FA.obs.timestamp ), 1 );
 %qc(dd_idx) = 2;
 qc( not( idx_NEE_good ) ) = 2;
 NEE = fc_raw_massman_wpl;
