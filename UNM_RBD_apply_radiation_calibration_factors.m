@@ -224,7 +224,17 @@ switch sitecode
   case UNM_sites.TX
     % calibration for the li-190 par sensor - sensor had many high
     % values, so delete all values above 6.5 first
-    Par_Avg(find(Par_Avg > 13.5)) = NaN;
+    switch year_arg
+      case 2007
+        Par_Avg( Par_Avg > 6.5 ) = NaN;
+      case { 2008, 2009 }
+        Par_Avg( Par_Avg > 15.0 ) = NaN;
+      case 2010
+        Par_Avg( Par_Avg > 14.5 ) = NaN;
+      case 2012
+        Par_Avg( Par_Avg > 14.5 ) = NaN;
+    end
+
     Par_Avg = Par_Avg.*1000./(6.16.*0.604);
     if year_arg == 2007 || year_arg == 2006 || year_arg == 2005
         % wind corrections for the Q*7

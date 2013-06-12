@@ -1415,7 +1415,7 @@ obs_per_day = 48;  % half-hourly observations
         Tair( 12993:end ) = Tair_TOA5(  12993:end );
     end
     
-    if args.Results.draw_fingerprints
+    if args.Results.draw_fingerprints & args.Results.draw_plots
         h_fps = RBD_plot_fingerprints( sitecode, year_arg, decimal_day, ...
                                        sw_incoming, rH, Tair, NEE, LE, ...
                                        H_dry, ...
@@ -1982,15 +1982,16 @@ switch sitecode
                                         1.0, ...
                                         'cols_to_shift', ...
                                         1:size( TAMU_data, 2 ) );
-        % TAMU_data_shifted = ...
-        %     UNM_fix_datalogger_timestamps( UNM_sites.TX, ...
-        %                                    2012, ...
-        %                                    double( TAMU_data ), ...
-        %                                    TAMU_data.Properties.VarNames, ...
-        %                                    TAMU_data.DTIME + ...
-        %                                    datenum( 2012, 1, 0 ), ...
-        %                                    'debug', false );
+
         TAMU_data = replacedata( TAMU_data, TAMU_data_shifted );
+
+        draw_plots = false;
+        TAMU_data.PAR = normalize_PAR( UNM_sites.TX_forest, ...
+                                       TAMU_data.PAR, ...
+                                       TAMU_data.DTIME, ...
+                                       draw_plots, ...
+                                       2500 );
+
         Par_Avg( isnan( Par_Avg ) ) = TAMU_data.PAR( isnan( Par_Avg ) );
         sw_incoming( isnan( sw_incoming ) ) = ...
             TAMU_data.Rg( isnan( sw_incoming ) );
@@ -2385,39 +2386,6 @@ end
 if (sitecode == 8 ) & ( year == 2009 )
     % days 1 to 40.5 -- low [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 1 ) : DOYidx( 40.5 ) ) = true;
-end
-
-%------------------------------------------------------------
-
-function par_norm = normalize_PAR( sitecode, par, doy, draw_plots )
-% NORMALIZE_PAR - normalizes PAR to a site-specific maximum.
-%   
-
-if ismember( sitecode, 5:9 )
-    fprintf( 'PAR normalization not yet implemented for %s\n', ...
-             char( UNM_sites( sitecode ) ) );
-end
-
-par_max = 2500;
-doy = floor( doy );
-norm_factor = par_max / prctile( par, 99.8 );
-par_norm = par * norm_factor;
-
-if draw_plots
-    figure( 'NumberTitle', 'off', ...
-            'Name', 'PAR normalization' );
-
-    max_par = nanmax( [ par, par_norm ] );
-
-    pal = brewer_palettes( 'Dark2' );
-    h_par = plot( doy, par, 'ok' );
-    hold on;
-    h_par_norm = plot( doy, par_norm, 'x', 'Color', pal( 1, : ) );
-    hold off;
-    ylabel( 'PAR [W/m^2]' );
-    xlabel( 'DOY' );
-    legend( [ h_par, h_par_norm ], 'PAR (obs)', 'PAR (normalized)', ...
-            'Location', 'best' );
 end
 
 %------------------------------------------------------------

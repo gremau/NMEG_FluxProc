@@ -7,12 +7,14 @@ properties
     
     %observed data
     obs = struct;  % struct to contain observations
+    ds_soil;
 end
 
 properties ( SetAccess = private, GetAccess = private )
     % this stuff is internal to the class
     datalength;
     draw_plots;
+    process_soil_data;
     write_mat_file = true;
 end
 
@@ -25,13 +27,15 @@ methods
         %   FA = FLUXALL_data( sitecode, year_arg );
         %   FA = FLUXALL_data( sitecode, year_arg, 'load_binary', false );
         %   FA = FLUXALL_data( sitecode, year_arg, ..., 'draw_plots', false );
+        %   FA = FLUXALL_data( sitecode, year_arg, ..., 'process_soil_data', false );
         %
         % INPUTS
         %   sitecode
         %   year_arg
         % KEYWORD ARGUMENTS
-        %   load_binary
-        %   draw_plots
+        %   load_binary; logical, default true
+        %   draw_plots; logical, default true
+        %   process_soil_data; logical, default true
         %
         % (c) Timothy W. Hilton, UNM, 2013
 
@@ -41,17 +45,22 @@ methods
         args.addRequired( 'year_arg', @isnumeric );
         args.addParamValue( 'load_binary', true, @islogical );
         args.addParamValue( 'draw_plots', true, @islogical );
+        args.addParamValue( 'process_soil_data', true, @islogical );
         args.parse( sitecode, year_arg, varargin{ : } );
         
         obj.sitecode = args.Results.sitecode;
         obj.year_arg = args.Results.year_arg;
         obj.draw_plots = args.Results.draw_plots;
+        obj.process_soil_data = args.Results.process_soil_data;
         
         % initialize observations to fields that should becommon to all
         % site-years
-        obj.obs = struct( 'atm_press', [], ...
+        obj.obs = struct( 'air_temp_hmp', [], ...
+                          'atm_press', [], ...
+                          'agc_Avg', [], ...
                           'CNR1TK', [], ...
                           'CO2_mean', [], ...
+                          'CO2_std', [], ...
                           'decimal_day', [], ...
                           'E_heat_term_massman', [], ...
                           'E_raw', [], ...
@@ -64,10 +73,13 @@ methods
                           'fc_raw_massman_wpl', [], ...
                           'fc_water_term', [], ...
                           'H2O_mean', [], ...
+                          'h2o_hmp', [], ...
+                          'H2O_std', [], ...
                           'HL_raw', [], ...
                           'HL_wpl_massman', [], ...
                           'HSdry', [], ...
                           'HSdry_massman', [], ...
+                          'iok', [], ...
                           'lw_incoming', [], ...
                           'lw_outgoing', [], ...
                           'NR_tot', [], ...
@@ -80,6 +92,7 @@ methods
                           'sw_outgoing', [], ...
                           'Tair_TOA5', [], ...
                           'Tdry', [], ...
+                          'Tsoil', [], ...
                           't_mean', [], ...
                           'timestamp', [], ...
                           'u_mean', [], ...
@@ -186,12 +199,23 @@ methods
                                               'debug', obj.draw_plots );
         if ( obj.sitecode == UNM_sites.MCon ) & ...
                 ( obj.year_arg <= 2008 )
-            data = revise_MCon_duplicated_Rg( data, headertext, obj.timestamp );
+            data = revise_MCon_duplicated_Rg( data, headertext, obj.obs.timestamp );
         end 
-
         
         obj = obj.fluxall_data_to_matlab_vars_pre2012( data, headertext );
-        obj = obj.FLUXALL_soil_data_intake_pre2012( data, headertext );
+
+        % find and process soil data
+        if obj.process_soil_data
+            var_names = genvarname( headertext( 2:end ) );
+            ds = dataset( { data, var_names{ : } } );
+            ds.timestamp = obj.obs.timestamp;
+            obj.ds_soil = UNM_Ameriflux_prepare_soil_met( obj.sitecode, ...
+                                                          obj.year_arg, ...
+                                                          ds, ...
+                                                          obj.obs.precip );
+        end        
+        
+        %obj = obj.FLUXALL_soil_data_intake_pre2012( data, headertext );
         obj = obj.put_nans_in_missing_variables( size( data, 1 ) );
         
         if obj.write_mat_file
@@ -213,15 +237,15 @@ methods
         if ( obj.sitecode == UNM_sites.TX) & ( obj.year_arg == 2008 )
 
             jday=data(:,8);
-            iok=data(:,9);
+            obj.obs.iok=data(:,9);
             obj.obs.Tdry=data(:,14);
             obj.obs.wnd_dir_compass=data(:,15);
             obj.obs.wnd_spd=data(:,16);
             obj.obs.u_star=data(:,28);
             obj.obs.CO2_mean=data(:,32);
-            CO2_std=data(:,33);
+            obj.obs.CO2_std=data(:,33);
             obj.obs.H2O_mean=data(:,37);
-            H2O_std=data(:,38);
+            obj.obs.H2O_std=data(:,38);
             obj.obs.u_mean=data(:,10);
             obj.obs.t_mean=data(:,13);
 
@@ -231,8 +255,8 @@ methods
             obj.obs.fc_heat_term_massman = data(:,42);
             obj.obs.fc_raw_massman_wpl = data(:,43); % = flux_co2_massman + flux_co2_wpl_water + flux_co2_massman_wpl_heat
 
-            E_raw = data(:,44);
-            E_raw_massman = data(:,45);
+            obj.obs.E_raw = data(:,44);
+            obj.obs.E_raw_massman = data(:,45);
             obj.obs.E_water_term = data(:,46);
             obj.obs.E_heat_term_massman = data(:,47);
             obj.obs.E_wpl_massman = data(:,48); % = flux_h20_wpl_water + flux_h20_massman_wpl_heat
@@ -269,9 +293,9 @@ methods
             obj.obs.wnd_spd=data(:,16);
             obj.obs.u_star=data(:,27);
             obj.obs.CO2_mean=data(:,31);
-            CO2_std=data(:,32);
+            obj.obs.CO2_std=data(:,32);
             obj.obs.H2O_mean=data(:,36);
-            H2O_std=data(:,37);
+            obj.obs.H2O_std=data(:,37);
             obj.obs.u_mean=data(:,10);
             obj.obs.t_mean=data(:,13);
 
@@ -281,8 +305,8 @@ methods
             obj.obs.fc_heat_term_massman = data(:,45);
             obj.obs.fc_raw_massman_wpl = data(:,46); % = flux_co2_massman + flux_co2_wpl_water + flux_co2_massman_wpl_heat
 
-            E_raw = data(:,49);
-            E_raw_massman = data(:,53);
+            obj.obs.E_raw = data(:,49);
+            obj.obs.E_raw_massman = data(:,53);
             obj.obs.E_water_term = data(:,51);
             obj.obs.E_heat_term_massman = data(:,54);
             obj.obs.E_wpl_massman = data(:,55); % = flux_h20_wpl_water + flux_h20_massman_wpl_heat
@@ -315,9 +339,9 @@ methods
             obj.obs.wnd_spd=data(:,16);
             obj.obs.u_star=data(:,28);
             obj.obs.CO2_mean=data(:,32);
-            CO2_std=data(:,33);
+            obj.obs.CO2_std=data(:,33);
             obj.obs.H2O_mean=data(:,37);
-            H2O_std=data(:,38);
+            obj.obs.H2O_std=data(:,38);
             obj.obs.u_mean=data(:,10);
             obj.obs.t_mean=data(:,13);
 
@@ -327,8 +351,8 @@ methods
             obj.obs.fc_heat_term_massman = data(:,42);
             obj.obs.fc_raw_massman_wpl = data(:,43); % = flux_co2_massman + flux_co2_wpl_water + flux_co2_massman_wpl_heat
 
-            E_raw = data(:,44);
-            E_raw_massman = data(:,45);
+            obj.obs.E_raw = data(:,44);
+            obj.obs.E_raw_massman = data(:,45);
             obj.obs.E_water_term = data(:,46);
             obj.obs.E_heat_term_massman = data(:,47);
             obj.obs.E_wpl_massman = data(:,48);
@@ -360,9 +384,9 @@ methods
 
         for i=1:numel( headertext );
             if strcmp('agc_Avg',headertext(i)) == 1
-                agc_Avg = data(:,i-1);
+                obj.obs.agc_Avg = data(:,i-1);
             elseif strcmp( 'h2o_hmp_Avg', headertext( i ) )
-                h2o_hmp = data( :, i-1 );
+                obj.obs.h2o_hmp = data( :, i-1 );
             elseif strcmp('RH',headertext(i)) == 1 || ...
                     strcmp('rh_hmp', headertext(i)) == 1 || ...
                     strcmp('rh_hmp_4_Avg', headertext(i)) == 1 || ...
@@ -472,35 +496,36 @@ methods
                 
             end
 
-            if ismember( obj.sitecode, ...
-                         [ UNM_sites.GLand, UNM_sites.SLand ] ) & ...
-                    obj.year_arg == 2009
-                Par_Avg = combine_PARavg_PARlite( headertext, data );
-            end
-            
-            if ismember( obj.sitecode, [ UNM_sites.JSav, UNM_sites.PJ ] )
-                % use "RH" at JSav, PJ
-                rh_col = find( strcmp( 'RH', headertext ) ) - 1;
-                fprintf( 'found RH\n' );
-                obj.obs.rH = data( :, rh_col ) / 100.0;
-            elseif ismember( obj.sitecode, [ UNM_sites.PPine, UNM_sites.MCon ] )
-                % use "RH_2" at PPine, MCon
-                rh_col = find( strcmp( 'RH_2', headertext ) | ...
-                               strcmp( 'RH_2_Avg', headertext ) ) - 1;
-                if ~isempty( rh_col )
-                    fprintf( 'found RH_2\n' );
-                else
-                    error( 'could not locate RH_2' );
-                end
-                obj.obs.rH = data( :, rh_col ) / 100.0;
-            elseif obj.sitecode == UNM_sites.PJ_girdle
-                % at PJ girdle, calculate relative humidity from hmp obs using helper
-                % function
-                obj.obs.rH = ...
-                    thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) / 100.0;
-            end
-            
+        end % headertext loop
+        
+        if ismember( obj.sitecode, ...
+                     [ UNM_sites.GLand, UNM_sites.SLand ] ) & ...
+                obj.year_arg == 2009
+            Par_Avg = combine_PARavg_PARlite( headertext, data );
         end
+        
+        if ismember( obj.sitecode, [ UNM_sites.JSav, UNM_sites.PJ ] )
+            % use "RH" at JSav, PJ
+            rh_col = find( strcmp( 'RH', headertext ) ) - 1;
+            fprintf( 'found RH\n' );
+            obj.obs.rH = data( :, rh_col ) / 100.0;
+        elseif ismember( obj.sitecode, [ UNM_sites.PPine, UNM_sites.MCon ] )
+            % use "RH_2" at PPine, MCon
+            rh_col = find( strcmp( 'RH_2', headertext ) | ...
+                           strcmp( 'RH_2_Avg', headertext ) ) - 1;
+            if ~isempty( rh_col )
+                fprintf( 'found RH_2\n' );
+            else
+                error( 'could not locate RH_2' );
+            end
+            obj.obs.rH = data( :, rh_col ) / 100.0;
+        elseif obj.sitecode == UNM_sites.PJ_girdle
+            % at PJ girdle, calculate relative humidity from hmp obs using helper
+            % function
+            obj.obs.rH = ...
+                thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) / 100.0;
+        end % if ismember...
+            
         
         end
     

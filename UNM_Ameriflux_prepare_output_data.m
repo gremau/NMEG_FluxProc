@@ -253,8 +253,8 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gaps.Rlong_out = ds_qc.lw_outgoing;
     amflux_gaps.FH2O = ds_qc.E_wpl_massman .* 18;
     amflux_gaps.H20 = ds_qc.H2O_mean;
-    amflux_gaps.RE = RE_obs;
-    amflux_gaps.GPP = GPP_obs;
+    amflux_gaps.RE = dummy; %RE_obs;
+    amflux_gaps.GPP = dummy; %GPP_obs;
     amflux_gaps.APAR = dummy;
 
     % assign values to amflux_gaps

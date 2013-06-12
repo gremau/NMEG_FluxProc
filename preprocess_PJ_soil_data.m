@@ -59,13 +59,13 @@ end
     
     % remove leading "x#_" and trailing __* from variable names
     disp( 'formatting variable names' );
-    soil_data.Properties.VarNames = regexprep( soil_data.Properties.VarNames, ...
-                                               '^x[0-9]*_', '' );
-    soil_data.Properties.VarNames = regexprep( soil_data.Properties.VarNames, ...
-                                               '__[A-Z]$', '' );    
+    soil_data.Properties.VarNames = ...
+        regexprep( soil_data.Properties.VarNames, '^x[0-9]*_', '' );
+    soil_data.Properties.VarNames = ...
+        regexprep( soil_data.Properties.VarNames, '__[A-Z]$', '' );    
     % replace T with Tsoil in var names
-    soil_data.Properties.VarNames = regexprep( soil_data.Properties.VarNames, ...
-                                               '^T', 'soilT' );    
+    soil_data.Properties.VarNames = ...
+        regexprep( soil_data.Properties.VarNames, '^T', 'soilT' );
     
     % build matlab datenums from year, day, hour, minute columns
     HH = floor( soil_data.Hour_Minute_RTM / 100 );

@@ -1,5 +1,4 @@
-function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
-                                                  data, ds_qc )
+function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data, precip )
 % UNM_AMERIFLUX_PREPARE_SOIL_MET - 
 %   
 % contains the section of UNM_Ameriflux_file_maker.m as of 15 Aug 2011 that
@@ -12,9 +11,9 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
 %
 
 [ last_obs_row_data, ~, ~ ] = find( not( isnan( double( data( :, 2:end ) ) ) ) );
-[ last_obs_row_qc, ~, ~ ] = find( not( isnan( double( ds_qc( :, 2:end ) ) ) ) );
+[ last_obs_row_precip, ~, ~ ] = find( not( isnan( precip ) ) );
 last_obs_row = max( [ reshape( last_obs_row_data, 1, [] ), ...
-                    reshape( last_obs_row_qc, 1, [] ) ] );
+                    reshape( last_obs_row_precip, 1, [] ) ] );
 
 sitecode = UNM_sites( sitecode );
 SWC_smoothed = false; % will set to true after SWC data have been smoothed
@@ -185,10 +184,10 @@ if not( SWC_smoothed )
 end
 draw_plots = false;
 Tsoil_smoothed = fill_soil_temperature_gaps( Tsoil_smoothed, ...
-                                             ds_qc.precip, ...
+                                             precip, ...
                                              draw_plots );
 cs616_Tc_smoothed = fill_soil_water_gaps( cs616_Tc_smoothed, ...
-                                          ds_qc.precip, ...
+                                          precip, ...
                                           draw_plots );
 
 % remove data from specific periods at specific probes that are obviously bogus
