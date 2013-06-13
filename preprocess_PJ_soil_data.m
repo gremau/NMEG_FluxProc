@@ -32,7 +32,7 @@ end
       case 4
         if year < 2012
             fname =  'PJC-23x-Compiled-04-24-12.csv';
-            n_col = 104;
+            n_col = 103;
         else
             fname =  sprintf( 'CR23X_PJ_%dall.dat', year );
             n_col = 103;
@@ -60,10 +60,12 @@ end
     % remove leading "x#_" and trailing __* from variable names
     disp( 'formatting variable names' );
     soil_data.Properties.VarNames = ...
-        regexprep( soil_data.Properties.VarNames, '^x[0-9]*_', '' );
+        regexprep( soil_data.Properties.VarNames, '^x[0-9]*_?', '' );
+    soil_data.Properties.VarNames = ...
+        regexprep( soil_data.Properties.VarNames, '[HL]$', '' );
     soil_data.Properties.VarNames = ...
         regexprep( soil_data.Properties.VarNames, '__[A-Z]$', '' );    
-    % replace T with Tsoil in var names
+    % replace leading T with Tsoil in var names
     soil_data.Properties.VarNames = ...
         regexprep( soil_data.Properties.VarNames, '^T', 'soilT' );
     
