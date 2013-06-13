@@ -73,15 +73,15 @@ switch sitecode
     
     switch year
       case 2009
-        Tsoil.soilT_P_2_5_AVG( 1:6350 ) = NaN;
-        Tsoil.soilT_J_1_5_AVG( 1:6350 ) = NaN;
-        Tsoil.soilT_J_1_10_AVG( 1:6350 ) = NaN;
-        Tsoil.soilT_J_2_30_AVG( 1:6450 ) = NaN;
-        Tsoil.soilT_O_1_5_AVG( 1:7330 ) = NaN;
-        Tsoil.soilT_O_1_10_AVG( 1:7330 ) = NaN;
-        Tsoil.soilT_O_2_5_AVG( 1:6470 ) = NaN;
-        Tsoil.soilT_O_2_10_AVG( 1:6470 ) = NaN;
-        Tsoil.soilT_O_2_30_AVG( 1:6370 ) = NaN;
+        Tsoil.soilT_P_2_5( 1:6350 ) = NaN;
+        Tsoil.soilT_J_1_5( 1:6350 ) = NaN;
+        Tsoil.soilT_J_1_10( 1:6350 ) = NaN;
+        Tsoil.soilT_J_2_30( 1:6450 ) = NaN;
+        Tsoil.soilT_O_1_5( 1:7330 ) = NaN;
+        Tsoil.soilT_O_1_10( 1:7330 ) = NaN;
+        Tsoil.soilT_O_2_5( 1:6470 ) = NaN;
+        Tsoil.soilT_O_2_10( 1:6470 ) = NaN;
+        Tsoil.soilT_O_2_30( 1:6370 ) = NaN;
         
         SWC.cs616SWC_O_2_30( 6500:7230 ) = 0.078;
       
