@@ -475,7 +475,7 @@ switch args.Results.sitecode
     RBDrc.press_max = 130;
     
 
-  case UNM_sites.TX_grassland
+  case UNM_sites.TX_grass
     if year == 2005
         RBDrc.filelength_n = 17524;
         RBDrc.lastcolumn = 'DT';

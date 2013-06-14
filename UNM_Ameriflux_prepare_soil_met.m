@@ -140,7 +140,7 @@ switch sitecode
                                     'TCAV_[A-Za-z]+.*' ) );
     
   case { UNM_sites.MCon }
-    cs616 = preprocess_MCon_soil_data( year );
+    cs616 = preprocess_MCon_soil_data( year, data.timestamp );
     cs616.timestamp = [];
     cs616_Tc = cs616;  % MCon SWC data are already in VWC form
 
