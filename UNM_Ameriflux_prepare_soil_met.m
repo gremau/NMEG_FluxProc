@@ -140,7 +140,7 @@ switch sitecode
                                     'TCAV_[A-Za-z]+.*' ) );
     
   case { UNM_sites.MCon }
-    cs616 = preprocess_MCon_soil_data( year );
+    cs616 = preprocess_MCon_soil_data( year, data.timestamp );
     cs616.timestamp = [];
     cs616_Tc = cs616;  % MCon SWC data are already in VWC form
 
@@ -154,7 +154,11 @@ switch sitecode
     % PJ and PJ_girdle store their soil data outside of FluxAll.
     % These data are already converted to VWC.
     
-    [ Tsoil, cs616, SHF ] = preprocess_PJ_soil_data( sitecode, year );
+    [ Tsoil, cs616, SHF ] = ...
+        preprocess_PJ_soil_data( sitecode, ...
+                                 year, ...
+                                 't_min', min( data.timestamp ), ...
+                                 't_max', max( data.timestamp ) );
     if any( ( Tsoil.tstamps - data.timestamp ) > 1e-10 )
         error( 'soil data timestamps do not match fluxall timestamps' );
     end
