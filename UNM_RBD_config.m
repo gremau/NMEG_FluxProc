@@ -126,7 +126,8 @@ switch args.Results.sitecode
     end
     RBDrc.n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     RBDrc.n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-    RBDrc.wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
+    RBDrc.wind_min = 330; 
+    RBDrc.wind_max = 30; % these are given a sonic_orient = 180;
     RBDrc.Tdry_min = 240;
     RBDrc.Tdry_max = 320;
     RBDrc.HS_min = -100;
@@ -183,7 +184,8 @@ switch args.Results.sitecode
     end
     RBDrc.n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     RBDrc.n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-    RBDrc.wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
+    RBDrc.wind_min = 15;
+    RBDrc.wind_max = 75; % these are given a sonic_orient = 225;
     RBDrc.Tdry_min = 240;
     RBDrc.Tdry_max = 320;
     RBDrc.HS_min = -100;
