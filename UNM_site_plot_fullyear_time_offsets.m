@@ -8,8 +8,12 @@ function UNM_site_plot_fullyear_time_offsets( sitecode, year, varargin )
 % INPUTS
 %    sitecode: integer or UNM_sites object
 %    year: integer
+% KEYWORD ARGUMENTS
 %    save_fig: optional, logical; if true, save the figure to an eps file
 %        (default false)
+%    data: optional; dataset array; data for the site year.  Must contain fields
+%        Rg and timestamp.  If omitted the data are obtained from
+%        fluxall_for_gapfilling
 %
 % OUTPUTS
 %    no outputs
@@ -25,6 +29,7 @@ args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'year', ...
                @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
 args.addParamValue( 'save_fig', false, @islogical );
+args.addParamValue( 'data', [], @(x) isa( x, 'dataset' ) );
 
 % parse optional inputs
 args.parse( sitecode, year, varargin{ : } );
@@ -39,7 +44,11 @@ year = args.Results.year;
 % -----
 % calculate the offsets
 % -----
-data = parse_forgapfilling_file( sitecode, year, 'use_filled', false );
+if isempty( args.Results.data )
+    data = parse_forgapfilling_file( sitecode, year, 'use_filled', false );
+else 
+    data = args.Results.data;
+end
 sol_ang = UNM_get_solar_angle( sitecode, data.timestamp );
 
 opt_off_Rg = repmat( NaN, 1, numel( 1:365 ) );
