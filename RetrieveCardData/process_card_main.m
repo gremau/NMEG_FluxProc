@@ -23,6 +23,7 @@ function main_success = process_card_main( this_site, varargin )
 %   data_location: string; Optional keyword argument specifying the location of
 %       the raw data to be processed. Legal values are 'card' and 'disk'; the
 %       default is 'card'.
+% KEYWORD ARGS
 %   data_path: string; the path to the directory containing the raw card data
 %       on disk.  Must be specified if data_location is 'disk'.  Ignored if
 %       data_location is 'card'.
@@ -62,6 +63,7 @@ fname_log = fullfile( getenv( 'FLUXROOT' ), ...
                       sprintf( '%s_%s_card_process.log', ...
                                datestr(now(), 'yyyy-mm-dd_HHMM' ), ...
                                char( UNM_sites( this_site ) ) ) );
+fprintf( 'logging session to %s\n', fname_log );
 diary( fname_log );
 
 %--------------------------------------------------------------------------
@@ -81,7 +83,7 @@ catch err
     % echo the error message
     fprintf( 'Error copying raw data from card to local drive.' )
     disp( getReport( err ) );
-    main_success = 1;
+    main_success = 0;
     % if copying the data was unsuccessful there is nothing to do, so return
     diary off
     return
@@ -122,10 +124,12 @@ catch err
     % echo the error report
     fprintf( 'Error converting time series data to TOB1 files.' )
     disp( getReport( err ) );
-    main_success = fluxdata_convert_sucess || tsdata_convert_sucess;
-    if not( main_sucess )
+    main_success = 0;
+    if not( main_success )
         % if neither data file was converted successfully, exit
+        fprintf( 'stopping logging... ' );
         diary off
+        fprintf( 'logging stopped\n' );
         return
     end
 end
