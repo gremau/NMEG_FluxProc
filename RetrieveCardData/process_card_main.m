@@ -97,20 +97,25 @@ try
                                                       raw_data_dir);
     fprintf(1, ' Done\n');
 catch err
+    fluxdata_convert_success = false;
     % echo the error message
     fprintf( 'Error converting 30-minute data to TOA5 file.' )
     disp( getReport( err ) );
-    main_success = fluxdata_convert_sucess;
+    main_success = 0;
 end
 
 %make diagnostic plots of the raw flux data from the card
 if args.Results.interactive
-    fluxraw = toa5_2_dataset(toa5_fname);
-    % save( 'fluxraw_viewer_restart.mat' );  main_success = 1;
-    % return
-    h_viewer = fluxraw_dataset_viewer(fluxraw, this_site, mod_date);
-    waitfor( h_viewer );
-    clear('fluxraw');
+    if fluxdata_convert_success
+        fluxraw = toa5_2_dataset(toa5_fname);
+        % save( 'fluxraw_viewer_restart.mat' );  main_success = 1;
+        % return
+        h_viewer = fluxraw_dataset_viewer(fluxraw, this_site, mod_date);
+        waitfor( h_viewer );
+        clear('fluxraw');
+    else
+        fprintf( 'there are no 30-minute data to display\n' );
+    end
 end
 
 %convert the time series (10 hz) data to TOB1 files
