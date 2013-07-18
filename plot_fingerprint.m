@@ -20,7 +20,8 @@ args.addParamValue( 'cmap', [], @isnumeric );
 args.addParamValue( 'clim', [], @isnumeric );
 args.addParamValue( 'h_fig', NaN, @isnumeric );
 args.addParamValue( 'h_ax', NaN, @isnumeric );
-args.addParamValue( 'center_caxis', false, @logical );
+args.addParamValue( 'center_caxis', false, @islogical );
+args.addParamValue( 'fig_visible', true, @islogical );
 
 % parse optional inputs
 args.parse( dtime, data, t_str, varargin{ : } );
@@ -32,15 +33,21 @@ fp_cmap = args.Results.cmap;
 fp_clim = args.Results.clim;
 h_fig = args.Results.h_fig;
 h_ax = args.Results.h_ax;
-
 % -----
 % define some defaults for cmap, h_fig, h_ax
 % -----
 
+% should figure be visible?
+if args.Results.fig_visible
+    fig_visible = 'on';
+else
+    fig_visible = 'off';
+end
+
 % if figure or axes were not specified as arguments, create them now
 if isnan( h_fig )
-    h_fig = figure();
-    figure( h_fig );
+    h_fig = figure( 'Visible', fig_visible );
+    %figure( h_fig );
 end
 if isnan( h_ax )
     h_ax = axes();
@@ -65,6 +72,11 @@ temp_data = dataset_fill_timestamps( temp_data, 'timestamp', ...
 
 dtime = temp_data.timestamp - datenum( 2004, 1, 0 );
 data = temp_data.data;
+
+% pad data so number of rows is a multiple of 48 (that is, if there is an
+% imcomplete day at the end, pad to a complete day.)
+padded_nrow = ceil( size( data, 1 ) / 48.0 ) * 48.0;
+data( end:padded_nrow, : ) = NaN;
 
 data_rect = reshape( data, 48, [] )';
 

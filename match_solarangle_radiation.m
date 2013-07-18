@@ -16,8 +16,8 @@ end
 % search a +/- five hour range of potential time offsets
 n_obs = 10; % observation interval is 30 mins; therefore 10 obs = 5 hours
 
-this_rad = rad( idx_doy_start : idx_doy_start + hours_12 );
-this_sol = sol( idx_doy_start : idx_doy_start + hours_12 );
+this_rad = rad( idx_doy_start : min( idx_doy_start + hours_12, numel( rad ) ) );  
+this_sol = sol( idx_doy_start : min( idx_doy_start + hours_12, numel( sol ) ) );
 
 % if any( diff( this_sol ) < 0 )
 %     warning( sprintf( 'solar angle is not monotonically increasing: doy %d', ...
@@ -27,7 +27,7 @@ this_sol = sol( idx_doy_start : idx_doy_start + hours_12 );
 % sunrise according to calculated solar angle
 idx_sol_sunrise = min( find( this_sol > 0 ) );
 % sunrise according to observed radiation
-rad_diff = [ NaN; diff( this_rad ) ];
+rad_diff = [ NaN; reshape( diff( this_rad ), [], 1 ) ];
 idx_rad_sunrise = min( find( rad_diff > 5.0 ) );
 
 % the optimal time offset matches solar angle sunrise to observed radiation
@@ -73,11 +73,13 @@ if debug
     set( h_ref, 'LineStyle', ':' );
     % label stuff
     datetick( ax( 1 ), 'x', 'HH:MM' );
+    datetick( ax( 2 ), 'x', 'HH:MM' );
     set( ax( 2 ), 'XTick', [ ] );
-    legend( [ h_sol, h_rad ], 'Solar angle', 'radiation difference', ...
+    legend( [ h_sol, h_rad, h_x ], ...
+            'Solar angle', 'radiation difference', 'sunrise', ...
             'Location', 'best' );
     title( sprintf( 'DOY: %d, offset: %0.2f hours', ...
                     this_doy, ...
-                    optimal_offset / 2 ) );
+                    optimal_offset ) );
 end
 

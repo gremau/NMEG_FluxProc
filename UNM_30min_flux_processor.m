@@ -45,22 +45,28 @@ end
 % Set up files and read in data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-filename = strcat(site,'_flux_all_',num2str(year))
-filein = strcat('C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
-datarange = strcat('BW',num2str(first_row),':','IL',num2str(last_row)); % specify what portion of spreadsheet to read in
-headerrange = strcat('BW2:IL2'); % specify portion of spreadsheet that is headers
+if year < 2012
+    filename = strcat(site,'_flux_all_',num2str(year))
+    filein = strcat('C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
+    datarange = strcat('BW',num2str(first_row),':','IL',num2str(last_row)); % specify what portion of spreadsheet to read in
+    headerrange = strcat('BW2:IL2'); % specify portion of spreadsheet that is headers
 
-[num text] = xlsread(filein,headerrange); % read in the text in the header
-headertext = text; % assign column headers to header text array
+    [num text] = xlsread(filein,headerrange); % read in the text in the header
+    headertext = text; % assign column headers to header text array
 
-[num text]=xlsread(filein,datarange);  %does not read in first column because its text!!!!!!!!
-data = num; % assign data to data array
-ncol = size(data,2); % find number of columns for use in locating headers below
-nrows = size(data,1);
+    [num text]=xlsread(filein,datarange);  %does not read in first column because its text!!!!!!!!
+    data = num; % assign data to data array
+    ncol = size(data,2); % find number of columns for use in locating headers below
+    nrows = size(data,1);
 
-[num text] = xlsread(filein,strcat(timestamp_col,num2str(first_row),':',timestamp_col,num2str(last_row))); % timestamps are text so read them in separately
-timestamp = text; % assign timestamp array
-
+    [num text] = xlsread(filein,strcat(timestamp_col,num2str(first_row),':',timestamp_col,num2str(last_row))); % timestamps are text so read them in separately
+    timestamp = text; % assign timestamp array
+else
+    ds = UNM_parse_fluxall_txt_file( sitecode, year );
+    headertext = ds.Properties.VarNames;
+    data = double( ds );
+    
+    
 [year month day hour minute second] = datevec(timestamp); %break timestamp into usable data and time variables
 
 % I don't think this jday calculator always works

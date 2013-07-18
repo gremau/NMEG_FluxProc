@@ -6,7 +6,12 @@ function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 %
 % USAGE:
 %    [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil )
-%    [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, draw_plots )
+%    [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, draw_plots, 'true' )
+%    [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, ...
+%                                        draw_plots, 'true', ...
+%                                        'save_plots', true, ...
+%                                        'sitecode', sitecode, ...
+%                                        'year', year )
 % INPUTS:
 %    raw_swc: N by M matrix of soil water content raw data (microseconds)
 %    T_soil: N by 1 matrix of soil temperature (C -- check this TWH )
@@ -23,9 +28,10 @@ function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 args = inputParser;
 args.addRequired( 'raw_swc', @(x) isnumeric(x) | isa( x, 'dataset' ) );
 args.addRequired( 'T_soil',  @(x) isnumeric(x) | isa( x, 'dataset' ) );
-args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
-args.addRequired( 'year', ...
-               @(x) ( isintval( x ) & ( x >= 2006 ) ) );
+args.addParamValue( 'sitecode', ...
+                    @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addParamValue( 'year', ...
+                    @(x) ( isintval( x ) & ( x >= 2006 ) ) );
 args.addParamValue( 'draw_plots', true, @islogical );
 args.addParamValue( 'save_plots', false, @islogical );
 

@@ -29,38 +29,43 @@ else
                                card_convert_exe, ...
                                toa5_ccf_file);
 
-    % card convert will try to apply the ccf file to every .dat file in
-    % the directory.  We want to use a different ccf file for the TS
-    % data, so temporarily change the .dat extension so CardConvert will
-    % ignore it for now.
-    ts_file_ignore = fullfile(raw_data_dir, ...
-                              strrep(ts_data_file.name, '.dat', '.donotconvert'));
-    sprintf('%s --> %s\n', fullfile(raw_data_dir, ts_data_file.name), ...
-            ts_file_ignore);
-    ts_file_fullpath = fullfile(raw_data_dir, ts_data_file.name);        
-    % matlab's movefile takes minutes to rename a 2 GB ts data file.  The
-    % java method does it instantly though
-    move_success = ...
-        java.io.File(ts_file_fullpath).renameTo(java.io.File(ts_file_ignore));
-    success = success & move_success;
-    if not(move_success)
-        error('thirty_min_2_TOA5:rename_fail', 'renaming TS data file failed');
+    if not( isempty( ts_data_file ) )
+        % card convert will try to apply the ccf file to every .dat file in
+        % the directory.  We want to use a different ccf file for the TS
+        % data, so temporarily change the .dat extension so CardConvert will
+        % ignore it for now.
+        ts_file_ignore = fullfile(raw_data_dir, ...
+                                  strrep(ts_data_file.name, '.dat', '.donotconvert'));
+        sprintf('%s --> %s\n', fullfile(raw_data_dir, ts_data_file.name), ...
+                ts_file_ignore);
+        ts_file_fullpath = fullfile(raw_data_dir, ts_data_file.name);        
+        % matlab's movefile takes minutes to rename a 2 GB ts data file.  The
+        % java method does it instantly though
+        move_success = ...
+            java.io.File(ts_file_fullpath).renameTo(java.io.File(ts_file_ignore));
+        success = success & move_success;
+        if not(move_success)
+            error('thirty_min_2_TOA5:rename_fail', 'renaming TS data file failed');
+        end
     end
 
+    
     % run CardConvert
     [convert_status, result] = system(card_convert_cmd);
     success = success & (convert_status == 0);
     if convert_status ~= 0
         error('thirty_min_2_TOA5:CardConvert', 'CardConvert failed');
     end
-    
-    %restore the .dat extension on the TS data file
-    move_success = ...
-        java.io.File(ts_file_ignore).renameTo(java.io.File(ts_file_fullpath));
-    success = success & move_success;
-    if not(move_success)
-        error('thirty_min_2_TOA5:rename_fail',...
-              'restoring TS data .dat extension failed');
+
+    if not( isempty( ts_data_file ) )
+        %restore the .dat extension on the TS data file
+        move_success = ...
+            java.io.File(ts_file_ignore).renameTo(java.io.File(ts_file_fullpath));
+        success = success & move_success;
+        if not(move_success)
+            error('thirty_min_2_TOA5:rename_fail',...
+                  'restoring TS data .dat extension failed');
+        end
     end
     
     %rename the TOA5 file according to the site and place it in the

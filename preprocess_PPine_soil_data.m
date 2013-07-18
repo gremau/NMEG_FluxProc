@@ -1,4 +1,4 @@
-function SWC = preprocess_PPine_soil_data( sitecode, year )
+function SWC = preprocess_PPine_soil_data( year )
 % PREPROCESS_PPINE_SOIL_DATA - 
 %   
 
@@ -16,6 +16,11 @@ SWC = ds( :, { 'timestamp', SWCvars{ : } } );
 SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
                                      'VWC', 'cs616SWC' );
 
+arr = double( SWC );
+arr( arr < 0 ) = NaN;
+SWC = replacedata( SWC, arr );
+
 % return data for requested year
 [ datayear, ~, ~, ~, ~, ~ ] = datevec( SWC.timestamp );
 SWC = SWC( datayear == year, : );
+

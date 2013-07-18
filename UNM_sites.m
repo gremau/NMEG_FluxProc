@@ -1,5 +1,24 @@
 classdef(Enumeration) UNM_sites < int32
-    % enumerated type to specify sitecodes.
+    % enumerated type to specify sitecodes.  May be specified with an integer
+    % argument or with a field; see examples section below.  Site--integer
+    % pairs are: 
+    %    GLand  1,
+    %    SLand  2,
+    %    JSav  3,
+    %    PJ  4,
+    %    PPine  5,
+    %    MCon  6,
+    %    TX  7,
+    %    TX_forest  8,
+    %    TX_grass  9,
+    %    PJ_girdle  10,
+    %    New_GLand  11,
+    %    SevEco   12 
+    %
+    % EXAMPLES:
+    %    sitecode = UNM_sites(1);
+    %    sitecode = UNM_sites.GLand;
+    %    character( sitecode );
     %
     % see also enumeration
     %
@@ -16,6 +35,7 @@ classdef(Enumeration) UNM_sites < int32
         TX_forest(8),
         TX_grass(9),
         PJ_girdle(10),
-        New_GLand(11)
+        New_GLand(11),
+        SevEco( 12 )
     end
 end

@@ -61,7 +61,8 @@ switch sitecode
           case { 2009, 2010, 2011 }
             % these SHF variables are labeled "hfp01_COVER_Avg" -- reformat these to
             % SHF_COVER_1       
-            SHF_vars = regexprep( SHF_vars, 'hfp01', 'SHF' );
+            SHF_vars = regexprep( SHF_vars, 'hfp(01)?', 'SHF' );
+            SHF_vars = regexprep( SHF_vars, '([0-9])_Avg', '$1' );
             SHF_vars = regexprep( SHF_vars, '_Avg', '_1' );
             fluxall.Properties.VarNames( idx_SHF ) = SHF_vars;
         end
@@ -248,7 +249,7 @@ switch sitecode
       case { 2011, 2012 }
         % this year cs616 SWC are labeled open1_12.5, grass2_2.5, etc.  They
         % are in columns 203 to 222
-        re = '^(open|grass)[12]_[0-9]{1,2}p5cm';  % regular expression to
+        re = '(^(open|grass)[12]_[0-9]{1,2}p5cm|swc.*)';  % regular expression to
                                                   % identify cs616 labels
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, re );
         % prepend 'cs616SWC_' to labels and separate cover type from pit number
@@ -265,7 +266,7 @@ switch sitecode
         % idx_cs616 = idx_cs616( [ 1:16, 18:21 ] );
 
         % change mux25t... labels to descriptive soilT labels
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
+        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '(mux25t|soilT)' );
         fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
         
         % some files in late 2012 are labeled "soilt..." not "soilT..."
@@ -333,7 +334,7 @@ switch sitecode
 
       case { 2011, 2012 }
         % change soil_h2o... labels to descriptive SWC labels
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'soil_h2o_.*_Avg' );
+        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, '(soil_h2o_.*_Avg|cs616SWC)' );
         fluxall.Properties.VarNames( idx_cs616 ) = descriptive_cs616_labels;
         
         % change mux25t... labels to descriptive soilT labels
@@ -383,15 +384,15 @@ switch sitecode
     
     cs616_descriptive_labels_postJul09 = { 'cs616SWC_juniper_1_2p5', ...
                         'cs616SWC_juniper_1_12p5', ...
-                        'cs616SWC_juniper_1_22p5', 'cs616SWC_juniper_2_2p5', ...
+                        'cs616SWC_juniper_1_32p5', 'cs616SWC_juniper_2_2p5', ...
                         'cs616SWC_juniper_2_12p5', ...
-                        'cs616SWC_juniper_2_22p5', 'cs616SWC_juniper_3_2p5', ...
+                        'cs616SWC_juniper_2_32p5', 'cs616SWC_juniper_3_2p5', ...
                         'cs616SWC_juniper_3_12p5', ...
-                        'cs616SWC_juniper_3_22p5', 'cs616SWC_open_1_2p5', ...
-                        'cs616SWC_open_1_12p5', 'cs616SWC_open_1_22p5', ...
+                        'cs616SWC_juniper_3_32p5', 'cs616SWC_open_1_2p5', ...
+                        'cs616SWC_open_1_12p5', 'cs616SWC_open_1_32p5', ...
                         'cs616SWC_open_2_2p5', 'cs616SWC_open_2_12p5', ...
-                        'cs616SWC_open_2_22p5', 'cs616SWC_open_3_2p5', ...
-                        'cs616SWC_open_3_12p5', 'cs616SWC_open_3_22p5' };
+                        'cs616SWC_open_2_32p5', 'cs616SWC_open_3_2p5', ...
+                        'cs616SWC_open_3_12p5', 'cs616SWC_open_3_32p5' };
     
     switch year
       case 2007
@@ -436,52 +437,38 @@ switch sitecode
         % instrument prior to 9 July, and from another after 9 July.  These
         % columns appear to have two headers at the top, one for each
         % instrument.  --TWH 
-        jul09 = datenum( 2009, 7, 9 ) - datenum( 2009, 1, 0 );
-        
-        % pull out pre-July 9 SWC data        
-        preJul09 = double( fluxall( :, [ 171:173, 174:176, ...
-                            162:164, 177:179 ] ) );
-        preJul09 ( DOYidx( jul09 ):end, : ) = NaN;
-        
-        preJul09 = dataset( { preJul09, ...
-                            cs616_descriptive_labels_preJul09{ [1:3, 5:7, ...
-                            9:11, 13:15] } } );
-
-        % pull out post-July 9 SWC data
-        postJul09 = double( fluxall( :, 162:179 ) );
-        postJul09( 1:DOYidx( jul09 ), : ) = NaN;
-        postJul09 = dataset( { postJul09, ...
-                             cs616_descriptive_labels_postJul09{ : } } );
-        
-        echo_SWC_labels.columns = 180:197;
-        echo_SWC_labels.labels = strrep( cs616_descriptive_labels_postJul09, ...
-                                         'cs616SWC', 'echoSWC' );
 
         vars = fluxall.Properties.VarNames;
+        
+        %CS616 SWC probes
+        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
+        if not( isempty( idx_cs616 ) )
+            vars( idx_cs616 ) = regexprep( vars( idx_cs616 ), ...
+                                           'cs616_', 'cs616SWC_' );
+            vars( idx_cs616 ) = replace_hex_chars( vars( idx_cs616 ) );
+            vars( idx_cs616 ) = format_probe_strings( vars( idx_cs616 ) );
+        end
         
         %soil T
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '[sS]oilT_' );
         if ~isempty( idx_Tsoil )
-            vars = regexprep( vars, '[sS]oilT_Avg', 'soilT' );
-            vars = replace_hex_chars( vars );
-            vars = format_probe_strings( vars );
+            vars( idx_Tsoil ) = regexprep( vars( idx_Tsoil ), ...
+                                           '[sS]oilT', 'soilT' );
+            vars( idx_Tsoil ) = regexprep( vars( idx_Tsoil ), '_Avg$', '' );
+            vars( idx_Tsoil ) = replace_hex_chars( vars( idx_Tsoil ) );
+            vars( idx_Tsoil ) = format_probe_strings( vars( idx_Tsoil ) );
         end
-
+        
         %TCAV
         [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
         if ~isempty( idx_TCAV )
             vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
             vars( idx_TCAV ) = format_probe_strings( vars( idx_TCAV ) );
         end
-
+        
         fluxall.Properties.VarNames = genvarname( vars );
-        
-        % remove fluxall SWC variables and replace with properly-labeled
-        % variables defined above, with one probe's measurement in each column.
-        fluxall( :, 162:197 ) = [];
-        fluxall = [ fluxall, preJul09, postJul09 ];
-        
-      case { 2010, 2011 }
+            
+      case { 2010, 2011, 2012 }
         % echo SWC probes
         vars = fluxall.Properties.VarNames;
         [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'SWC.*' );
@@ -491,9 +478,11 @@ switch sitecode
         
         %CS616 SWC probes
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
-        vars( idx_cs616 ) = cs616_descriptive_labels_postJul09;
-        vars( idx_cs616 ) = replace_hex_chars( vars( idx_cs616 ) );
-        vars( idx_cs616 ) = format_probe_strings( vars( idx_cs616 ) );
+        if not( isempty( idx_cs616 ) )
+            vars( idx_cs616 ) = cs616_descriptive_labels_postJul09;
+            vars( idx_cs616 ) = replace_hex_chars( vars( idx_cs616 ) );
+            vars( idx_cs616 ) = format_probe_strings( vars( idx_cs616 ) );
+        end
         
         %soil T
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'SoilT_' );
@@ -546,12 +535,21 @@ switch sitecode
 
     % PPine soil water content is in another file, parsed separately from
     % UNM_Ameriflux_prepare_soil_met.m
+    
     [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
-    fluxall.Properties.VarNames( idx_soilT ) = ...
-        { 'soilT_ponderosa_1_5', ...
-          'soilT_ponderosa_2_5', ...
-          'soilT_ponderosa_3_5', ... 
-          'soilT_ponderosa_4_5' };
+    if isempty( idx_soilT )
+        [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'soilT.*' );
+        if isempty( idx_soilT )
+            error( ['no soil temperature found (expecting ' ...
+                    'soilT_ponderosa_X_Y'] );
+        end
+    else
+        fluxall.Properties.VarNames( idx_soilT ) = ...
+            { 'soilT_ponderosa_1_5', ...
+              'soilT_ponderosa_2_5', ...
+              'soilT_ponderosa_3_5', ... 
+              'soilT_ponderosa_4_5' };
+    end
     
     [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
     if ~isempty( idx_TCAV )
@@ -564,11 +562,13 @@ switch sitecode
     % MCon soil water content is in another file, parsed separately from
     % UNM_Ameriflux_prepare_soil_met.m
     [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
-    fluxall.Properties.VarNames( idx_soilT ) = ...
-        { 'soilT_mcon_1_5', ...
-          'soilT_mcon_2_5', ...
-          'soilT_mcon_3_5', ... 
-          'soilT_mcon_4_5' };
+    if not( isempty( idx_soilT ) )
+        fluxall.Properties.VarNames( idx_soilT ) = ...
+            { 'soilT_mcon_1_5', ...
+              'soilT_mcon_2_5', ...
+              'soilT_mcon_3_5', ... 
+              'soilT_mcon_4_5' };
+    end
     
     [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
     if ~isempty( idx_TCAV )
@@ -577,7 +577,7 @@ switch sitecode
     
   case UNM_sites.New_GLand  % unburned grass
     
-    [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'Soilwcr.*' );
+    [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, '(Soilwcr.*|cs616.*)' );
     swc_vars = fluxall.Properties.VarNames( idx_cs616 );
     swc_vars = strrep( swc_vars, 'Soilwcr', 'cs616SWC' );
     swc_vars = replace_hex_chars( swc_vars );
@@ -601,24 +601,3 @@ end
     
 
 %==================================================
-function str_out = format_probe_strings( str_in )
-% FORMAT_PROBE_STRINGS - format "J3", "O2", etc. desinations to "J_3",
-% "O_2", etc.
-
-% open pits are usually designated with "O", but sometimes 'o' or '0'
-str_out = regexprep( str_in, '_[Oo0]([0-9])_', '_O_$1_' );
-% grass pits are usually designated with "g"
-str_out = regexprep( str_out, '_g([0-9])_', '_G_$1_' );
-% add separating underscore to J1, etc. probe designations
-str_out = regexprep( str_out, '_([GJOS])([0-9])_', '_$1_$2_' );
-% remove any parens that made it this far
-str_out = regexprep( str_out, '[\(\)]', '_' );
-% remove trailing underscores
-str_out = regexprep( str_out, '_$', '' );
-% change decimal points to "p" (for legal Matlab variable names)
-str_out = regexprep( str_out, '([0-9])\.([0-9])', '$1p$2' );
-% change _O_ to _open_, _J_ to _juniper_, _G_ to _grass_
-str_out = regexprep( str_out, '_O_', '_open_' );
-str_out = regexprep( str_out, '_J_', '_juniper_' );
-str_out = regexprep( str_out, '_G_', '_grass_' );
-str_out = regexprep( str_out, '_S_', '_cover_' );

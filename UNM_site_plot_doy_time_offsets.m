@@ -1,4 +1,4 @@
-function UNM_site_plot_doy_time_offsets( sitecode, year, doy )
+function UNM_site_plot_doy_time_offsets( sitecode, year, doy, varargin )
 % UNM_SITE_PLOT_DOY_TIME_OFFSETS - 
 %
 % USAGE
@@ -14,10 +14,34 @@ function UNM_site_plot_doy_time_offsets( sitecode, year, doy )
 %
 % (c) Timothy W. Hilton, UNM, June 2012
 
-data = parse_forgapfilling_file( sitecode, year, '' );
-sol_ang = UNM_get_solar_angle( sitecode, data.timestamp );
-opt_off = match_solarangle_radiation( data.Rg, ...
+[ this_year, ~, ~, ~, ~, ~ ] = datevec( now() );
+
+args = inputParser;
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'year', ...
+                  @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ...
+                         ) );
+args.addRequired( 'doy', @(x) ( isintval( x ) & ( x > 0 ) & ( x < 367 ) ) );
+args.addParamValue( 'Rg', [],  @(x) ( isnumeric( x ) ) );
+args.addParamValue( 'timestamp', [],  @(x) ( isnumeric( x ) ) );
+
+% parse optional inputs
+args.parse( sitecode, year, doy, varargin{ : } );
+
+if isempty( args.Results.Rg )
+    data = parse_forgapfilling_file( args.Results.sitecode, ...
+                                     args.Results.year );
+    timestamp = data.timestamp;
+    Rg = data.Rg;
+else
+    timestamp = args.Results.timestamp;
+    Rg = args.Results.Rg;
+end
+
+sol_ang = UNM_get_solar_angle( args.Results.sitecode, timestamp );
+opt_off = match_solarangle_radiation( Rg, ...
                                       sol_ang, ...
-                                      data.timestamp, ...
-                                      doy, year, true );
+                                      timestamp, ...
+                                      args.Results.doy, ...
+                                      args.Results.year, true );
 

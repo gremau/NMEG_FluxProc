@@ -1,4 +1,4 @@
-function SWC = preprocess_MCon_soil_data( sitecode, year )
+function SWC = preprocess_MCon_soil_data( year )
 % PREPROCESS_MCON_SOIL_DATA - parse combined MCon soil data file and return soil
 %   water content 
 

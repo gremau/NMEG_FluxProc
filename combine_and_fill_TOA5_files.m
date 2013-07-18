@@ -15,6 +15,10 @@ if nargin == 0
         fullfile( 'C:', 'Research_Flux_Towers', ...
                   'Flux_Tower_Data_by_Site' ), ...
         'MultiSelect', 'on' );
+    
+    if ischar( filename )
+        filename = { filename };
+    end
 else
     % the arguments are file names (with full paths)
     args = [ varargin{ : } ];
@@ -30,12 +34,12 @@ ds_array = cell( nfiles, 1 );
 for i = 1:nfiles
     fprintf( 1, 'reading %s\n', filename{ i } );
     
-    if numel( pathname ) == 1 
-        if iscell( pathname )
+    if  iscell( pathname ) &  ( numel( pathname ) == 1 )
             this_path = pathname{ 1 };
-        end
-    else
+    elseif iscell( pathname )
         this_path = pathname{ i };
+    else
+        this_path = pathname;
     end
     
     ds_array{ i } = toa5_2_dataset( fullfile( this_path, filename{ i } ) );
@@ -49,17 +53,23 @@ for i = 1:nfiles
         sitecode = UNM_sites.( toks{ 2 } );
         year = str2num( toks{ 3 } );
     end
-    ds_array{ i } = UNM_assign_soil_data_labels( sitecode, ...
-                                                 year, ...
-                                                 ds_array{ i } );
     
+    if ( sitecode == UNM_sites.JSav ) & ( year == 2009 )
+        ds_array{ i } = UNM_assign_soil_data_labels_JSav09( ds_array{ i } );
+    else
+        ds_array{ i } = UNM_assign_soil_data_labels( sitecode, ...
+                                                     year, ...
+                                                     ds_array{ i } );
+    end
+        
 end
 
 
 
 
 % combine ds_array to single dataset
-ds = dataset_append_common_vars( ds_array{ : } );
+%ds = dataset_append_common_vars( ds_array{ : } );
+ds = dataset_vertcat_fill_vars( ds_array{ : } );
 
 fprintf( 1, 'filling missing timestamps\n' );
 thirty_mins = 1 / 48;  %thirty minutes expressed in units of days

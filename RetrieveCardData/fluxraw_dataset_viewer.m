@@ -24,6 +24,8 @@ function fh =  fluxraw_dataset_viewer( ds, this_site, mod_date )
 % Initialization tasks
 %--------------------------
 
+
+
 % determine screensize
     scrsz = get(0,'ScreenSize');
     
@@ -32,7 +34,7 @@ function fh =  fluxraw_dataset_viewer( ds, this_site, mod_date )
     % create a figure to contain the GUI, use entire screen horizontally,
     % upper half of the screen vertically
     fh = figure( 'Name', sprintf( '%s datalogger record -- %s', ...
-                                  this_site, ...
+                                  char( this_site ), ...
                                   datestr( mod_date, 'dd mmm yyyy HH:MM' ) ), ...
                  'Units', 'normalized', ...
                  'Position', [ 0.1, 0.1, 0.7, 0.5 ], ...  
@@ -76,7 +78,7 @@ function fh =  fluxraw_dataset_viewer( ds, this_site, mod_date )
 %  plot first field
 %--------------------------
 
-plot( axh, ds.timestamp, ds( :, 1 ), '.k' );
+plot_fluxraw_field( axh, ds, 1 );
 xlabel( axh, 'date' );
 datetick( 'x', 'ddmmmyy' );
 t_str = ds.Properties.VarNames{ 1 };
@@ -95,33 +97,9 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     % decrement cur_col
     ud = get( fh, 'UserData' );
     ud.cur_col = max( ud.cur_col - 1, 1 );
-    % get the new variable names
-    this_var = ds.Properties.VarNames{ ud.cur_col };
-    this_data = ds.( this_var );
-    idx_huge = find( abs( this_data ) > 1e12 );
-    if ( numel( idx_huge ) <= 5 )
-        this_data( idx_huge ) = NaN;
-    end
-    if isnumeric( ds.( this_var ) )
-        plot( axh, this_data, '.k' );
-        this_units = ds.Properties.Units{ ud.cur_col };
-    else
-        cla( axh );
-    end
     set( fh, 'UserData', ud );
-
-    if ( numel( idx_huge ) <=5 )
-        title( sprintf( '%d extreme points (< or > 10^{12}) not shown' ) );
-    end
     
-    % label x axis on lower plot
-    xlabel( axh, 'date' );
-    datetick( 'x', 'dd-mmm-yy' );
-    
-    % title string
-    t_str = strrep( this_var, '_', '\_');
-    t_str = strrep( t_str, '0x2E', '.');
-    ylabel( axh, sprintf( '%s [%s]', t_str, this_units ) );
+    plot_fluxraw_field( axh, ds, ud.cur_col );
     
     % just backed up, so can't be on last column
     set( pbh_next, 'enable', 'on' );
@@ -140,35 +118,11 @@ function cur_col = next_but_cbk( source, eventdata, ...
     % decrement cur_col
     ud = get( fh, 'UserData' );
     ud.cur_col = min( ud.cur_col + 1, nfields );
+    set( fh, 'UserData', ud );
+    
     % get the new variable names
     this_var = ds.Properties.VarNames{ ud.cur_col };
-    this_data = ds.( this_var );
-    idx_huge = find( abs( this_data ) > 1e12 );
-    if ( numel( idx_huge ) <= 5 )
-        this_data( idx_huge ) = NaN;
-    end
-       
-    if isnumeric( ds.( this_var ) )
-        plot( axh, ds.timestamp, this_data, '.k' );
-        this_units = ds.Properties.Units{ ud.cur_col };
-    else
-        cla( axh );
-    end
-
-    if ( numel( idx_huge ) <=5 )
-        title( sprintf( '%d extreme points (< or > 10^{12}) not shown' ) );
-    end
-    
-    set( fh, 'UserData', ud );
-
-    % label x axis on lower plot
-    xlabel( axh, 'date' );
-    datetick( 'x', 'dd-mmm-yy' );
-    
-    % title string
-    t_str = strrep( this_var, '_', '\_');
-    t_str = strrep( t_str, '0x2E', '.');
-    ylabel( axh, sprintf( '%s [%s]', t_str, this_units ) );
+    plot_fluxraw_field( axh, ds, ud.cur_col );
 
     % just advanced, so can't be on first column
     set( pbh_prev, 'enable', 'on' );
@@ -211,3 +165,40 @@ switch eventdata.Key
     zoom_but_cbk( source, eventdata, nfields, axh, fh, ds );
     
 end
+
+%==================================================
+
+function plot_fluxraw_field( axh, ds, cur_col)
+% PLOT_FLUXRAW_FIELD - plots single field of fluxraw dataset to specified axes
+%   
+
+% get the new variable names
+this_var = ds.Properties.VarNames{ cur_col };
+this_data = ds.( this_var );
+idx_huge = find( abs( this_data ) > 1e12 );
+n_huge = numel( idx_huge );
+if ( n_huge <= 5 )
+    this_data( idx_huge ) = NaN;
+end
+if isnumeric( ds.( this_var ) )
+    plot( axh, ds.timestamp, this_data, '.k' );
+    this_units = ds.Properties.Units{ cur_col };
+else
+    cla( axh );
+end
+
+if ( n_huge <= 5 ) & ( n_huge > 0 )
+    t_str = sprintf( '%d extreme points (< or > 10^{12}) not shown', ...
+                     numel( idx_huge ) );
+    title( axh, t_str );
+end
+
+% label x axis on lower plot
+xlabel( axh, 'date' );
+dynamicDateTicks();  % dateticks that play nice with zooming & panning
+%datetick( axh, 'x', 'dd-mmm-yy' );
+
+% title string
+t_str = strrep( this_var, '_', '\_');
+t_str = strrep( t_str, '0x2E', '.');
+ylabel( axh, sprintf( '%s [%s]', t_str, this_units ) );

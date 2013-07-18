@@ -33,7 +33,9 @@ function [result, pdfname] = flux_raw_diagnostic_plot(fluxraw, site, mod_date)
         plot(fluxraw.timestamp, ...
              fluxraw.(this_var), ...
              '.k');
-        datetick('x', 'ddmmmyyyy');
+        dynamicDateTicks();  % Matlab FEX function - date ticks play nice
+                             % with zooming and panning
+        %datetick('x', 'ddmmmyyyy');
         xlabel('timestamp');
         ylabel(sprintf('%s (%s)', strrep(this_var, '_', '\_'), this_units));
         title(sprintf('%s %s', strrep(site, '_', '\_'), datestr(mod_date)));

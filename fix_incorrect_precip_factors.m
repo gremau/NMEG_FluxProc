@@ -37,7 +37,7 @@ if site_code == 1     % Gland
 % datalogger used multiplier of 0.254 for 2010 and 2011.  Correct multiplier is
 % 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) = 0.394.
 elseif site_code == 3   %JSav
-    idx = ismember( year, [ 2010, 2011 ] );
+    idx = ismember( year, [ 2010, 2011,2012,2013 ] );
     if any( idx ) 
         pcp_fixed( idx ) = pcp_in * 0.394;
     end

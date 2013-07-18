@@ -38,7 +38,7 @@ if ( sitecode == 1 ) & ( year == 2010 )
         regress_idx = [ (obs_per_day * 280 ) : ( obs_per_day * 295 ), ...
                         ( obs_per_day * 228 ) : ( obs_per_day * 238 ) ];
 
-        newgland10 = parse_forgapfilling_file( 10, 2010, '' );
+        newgland10 = parse_forgapfilling_file( 10, 2010 );
         regress_data = [ newgland10.NEE( regress_idx ), ...
                          ds_for_gapfill.NEE( regress_idx ) ];
         regress_data = replace_badvals( regress_data, [ -9999 ], 1e-6 );
@@ -74,7 +74,12 @@ if ( sitecode == 1 ) & ( year == 2010 )
     end
 end
 
+if ( sitecode == 5 ) & ( year == 2012 )
 
+    filled_idx = fix_PPine_2012_forgapfilling();
+    
+end
+    
 % %----------
 % % JSav 2009
 % if ( sitecode == 3 ) & ( year == 2009 )
@@ -89,7 +94,7 @@ end
 %     % if caller only requested the indices to be filled, don't bother
 %     % processng the data
 %     if nargout == 2
-%         jsav08 = parse_forgapfilling_file( 3, 2008, '' );
+%         jsav08 = parse_forgapfilling_file( 3, 2008 );
 %         % fill NEE, LE, and H for 1 to 21 Jan 2009 from 1 to 21 Jan 2008
 %         ds_for_gapfill.NEE( filled_idx ) = jsav08.NEE( filled_idx );
 %         ds_for_gapfill.qcNEE( filled_idx ) = ...

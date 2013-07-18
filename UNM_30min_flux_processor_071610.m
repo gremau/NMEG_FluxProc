@@ -223,38 +223,45 @@ end
 % Set up files and read in data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-filename = strcat(site,'_flux_all_',num2str(year));
-filein = strcat('C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
-datarange = strcat(data1c1,num2str(first_row),':',data1c2,num2str(last_row)); % specify what portion of spreadsheet to read in
-headerrange = strcat(data1c1,'2:',data1c2,'2'); % specify portion of spreadsheet that is headers
+if year < 2012
+    filename = strcat(site,'_flux_all_',num2str(year));
+    filein = strcat('C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
+    datarange = strcat(data1c1,num2str(first_row),':',data1c2,num2str(last_row)); % specify what portion of spreadsheet to read in
+    headerrange = strcat(data1c1,'2:',data1c2,'2'); % specify portion of spreadsheet that is headers
 
-[num text] = xlsread(filein,headerrange); % read in the text in the header
-headertext = text; % assign column headers to header text array
+    [num text] = xlsread(filein,headerrange); % read in the text in the header
+    headertext = text; % assign column headers to header text array
 
-[num text]=xlsread(filein,datarange);  %does not read in first column because its text!!!!!!!!
-data = num; % assign data to data array
-ncol = size(data,2); % find number of columns for use in locating headers below
-nrows = size(data,1);
+    [num text]=xlsread(filein,datarange);  %does not read in first column because its text!!!!!!!!
+    data = num; % assign data to data array
+    ncol = size(data,2); % find number of columns for use in locating headers below
+    nrows = size(data,1);
 
-% if no 30 minute data exist either, exit without altering flux all
-if numel( data ) == 0
-    return
+    % if no 30 minute data exist either, exit without altering flux all
+    if numel( data ) == 0
+        return
+    end
+
+    datarange2 = strcat(data2c1,num2str(first_row),':',data2c2,num2str(last_row));
+    [num text]=xlsread(filein,datarange2);
+    DATA_IN = num;
+
+    % 
+    [num text] = xlsread(filein,strcat(timestamp_col,num2str(first_row),':',timestamp_col,num2str(last_row))); % timestamps are text so read them in separately
+    timestamp = text; % assign timestamp array
+else
+    data = UNM_parse_fluxall_txt_file( sitecode, year );
+    timestamp = data.timestamp;
+    headertext = data.Properties.VarNames;
+    DATA_IN = double( data );
 end
-
-datarange2 = strcat(data2c1,num2str(first_row),':',data2c2,num2str(last_row));
-[num text]=xlsread(filein,datarange2);
-DATA_IN = num;
-
-% 
-[num text] = xlsread(filein,strcat(timestamp_col,num2str(first_row),':',timestamp_col,num2str(last_row))); % timestamps are text so read them in separately
-timestamp = text; % assign timestamp array
 
 [year2 month day hour minute second] = datevec(timestamp); % ,'dd/mm/yyyy HH:MM:SS'); %break timestamp into usable data and time variables
 %[year month day hour minute second] = datevec(timestamp); %break timestamp into usable data and time variables
 
 
-bad_v = NaN(nrows);
-[num text] = xlsread(filein,strcat(bad_variance_col,num2str(first_row),':',bad_variance_col,num2str(last_row))); % 
+% bad_v = NaN(nrows);
+% [num text] = xlsread(filein,strcat(bad_variance_col,num2str(first_row),':',bad_variance_col,num2str(last_row))); % 
 
 %bad_v = num; % assign bad_variance array
 

@@ -14,7 +14,39 @@ methods
 
 % --------------------------------------------------
     function obj = card_data_processor( sitecode, varargin )
-    % class constructor
+    % Class constructor for card_data_processor (CDP).  Creates a new CDP and
+    % initializes fields.  The main top-level method for the class is
+    % update_fluxall.  Typical use of CDP class, then, would typically look
+    % something like: 
+    % cdp = card_data_processor( UNM_sites.WHICH_SITE, options );
+    % cdp.update_fluxall();
+    %
+    % USAGE:
+    %    card_data_processor( sitecode, ... )
+    %
+    % INPUTS:
+    %    sitecode: UNM_sites object; the site to process
+    %    OPTIONAL KEYWORD-ARGUMENT PAIRS:
+    %       'date_start': matlab datenum; date to begin processing.  If
+    %           unspecified default is 00:00:00 on 1 Jan of current year. 
+    %       'date_end': Matlab datenum; date to end processing.  If
+    %           unspecified the default is result of now().
+    %       'rotation': sonic_rotation object; specifies rotation.  Defaults
+    %           to 3D.
+    %       'lag': 0 or 1; lag for 10hz data processing. defaults to 0.
+    %       'data_10hz_avg': dataset array; Allows previously processed 10hz
+    %           data to be supplied for insertion into FluxAll file.
+    %       'data_30min': dataset array; Allows 30-minute data to be supplied
+    %           for insertion into FluxAll file. 
+    %       'data_10hz_already_processed': logical; if true and data_10hz_avg
+    %           is unspecified CDP loads processed 10hz data from
+    %           $FLUXROOT/FluxOut/TOB1_data/SITE_TOB1_YYYY_filled.mat, with SITE
+    %           the character representation of sitecode and YYYY the present
+    %           year.
+    %
+    % (c) Timothy W. Hilton, UNM, 2012
+    %
+    % see also sonic_rotation, UNM_sites
         
     
     % -----
@@ -81,7 +113,20 @@ methods
 % --------------------------------------------------
 
     function [ obj, toa5_files ] = get_30min_data( obj )
-    
+    % Obtain 30-minute data for a card_data_processor (CDP).  Parses all TOA5
+    % files containing data between obj.date_start and obj.date_end, concatenates
+    % their data and makes sure timestamps include all 30-minute intervals
+    % between obj.date_start and obj.date_end without duplicated timestamps,
+    % and places the data into obj.data_30min.
+    %
+    % USAGE:
+    %    [ obj, toa5_files ] = get_30min_data( obj )
+    % INPUTS:
+    %    obj: card_data_processor object
+    % OUTPUTS:
+    %    obj: CDP object with data_30min field updated.
+    %    toa5_files: cell array; the TOA5 files whose data were added.
+
     toa5_files = get_data_file_names( obj.date_start, ...
                                       obj.date_end, ...
                                       obj.sitecode, ...
@@ -89,12 +134,38 @@ methods
     
     obj.data_30min = combine_and_fill_TOA5_files( toa5_files );
     
+    % JSav soil water content data come in on separate flash cards -- merge
+    % these data in
+    if obj.sitecode == UNM_sites.JSav
+        [ year, ~ ] = datevec( obj.date_start );
+        JSav_SWC = JSav_CR1000_to_dataset( year );
+        idx = ( JSav_SWC.timestamp >= obj.date_start ) & ...
+              ( JSav_SWC.timestamp <= obj.date_end );
+        JSav_SWC = JSav_SWC( idx, : );
+        obj.data_30min = dataset_foldin_data( obj.data_30min, JSav_SWC );
+    end
+    
     end  % get_30min_data
 
 % --------------------------------------------------
 
     function obj = process_10hz_data( obj )
-    
+    % Place processed 10hz data into data_10hz field of card_data_processor (CDP).
+    % If obj.data_10hz_already_processed is false, processes all TOB1 files
+    % containing data between obj.date_start and obj.date_end to 30-minute
+    % averages, concatenates their data and makes sure timestamps include all
+    % 30-minute intervals between obj.date_start and obj.date_end without
+    % duplicated timestamps, and places the data into obj.data_30min.
+    % If obj.data_10hz_already_processed is true, reads pre-processed data
+    % from .mat file (see docs for card_data_processor constructor).
+    %
+    % USAGE:
+    %    [ obj ] = get_30min_data( obj )
+    % INPUTS:
+    %    obj: card_data_processor object
+    % OUTPUTS:
+    %    obj: CDP object with data_10hz field updated.
+
     if obj.data_10hz_already_processed
         tob1_files = get_data_file_names( obj.date_start, ...
                                           obj.date_end, ...
@@ -103,9 +174,11 @@ methods
         tstamps = cellfun( @get_TOA5_TOB1_file_date, tob1_files );
         obj.date_end = min( max( tstamps ), obj.date_end );
         
+        [ this_year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
         fname = fullfile( 'C:\Research_Flux_Towers\FluxOut\TOB1_data\', ...
-                          sprintf( '%s_TOB1_2012_filled.mat', ...
-                                   char( obj.sitecode ) ) );
+                          sprintf( '%s_TOB1_%d_filled.mat', ...
+                                   char( obj.sitecode ), ...
+                                   this_year ) );
         load( fname );
         all_data.date = str2num( all_data.date );
         all_data = all_data( all_data.timestamp < obj.date_end, : );
@@ -133,8 +206,14 @@ methods
 % --------------------------------------------------
 
     function obj = update_fluxall( obj, varargin )
-    
+    % merges new 30-minute and processed 10-hz data into the site's
+    % fluxall_YYYY file.  If obj.data_10hz_avg is empty, calls process_10_hz
+    % method.  If obj.data_30min is empty, calls get_30min_data method.
+    %
+    % USAGE
+    %    obj.update_fluxall()
 
+    
     % -----
     % parse and typecheck inputs
     p = inputParser;
@@ -213,8 +292,9 @@ methods
 % --------------------------------------------------
 
     function new_data = merge_data( obj )
-    % MERGE_DATA - merges the 10hz data and the datalogger data together
-    %   
+    % MERGE_DATA - merges the 10hz data and the datalogger data together.
+    % Internal function for card_data_processor class; not really intended
+    % for top-level use.
 
     [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
 
@@ -263,7 +343,11 @@ end
 % --------------------------------------------------
 
     function write_fluxall( obj, fluxall_data )
-    % write fluxall data to a tab-delimited text fluxall file
+    % write fluxall data to a tab-delimited text fluxall file.  Called
+    % automatically from update_fluxall, so the only time to call this
+    % function explicitly is if new fluxall data has been created from the
+    % Matlab prompt and it needs to be written out fo the fluxall file.
+    %
     % USAGE
     %    obj.write_fluxall( fluxall_data )
     
@@ -281,7 +365,8 @@ end
         [copy_success, msg, msgid] = copyfile( full_fname, bak_fname );
     end
 
-    export_dataset_tim( full_fname, fluxall_data, '\t' )
+    fprintf( 'writing %s\n', full_fname );
+    export_dataset_tim( full_fname, fluxall_data )
     
     end   % write_fluxall
 

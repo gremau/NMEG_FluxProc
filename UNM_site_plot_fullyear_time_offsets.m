@@ -39,7 +39,7 @@ year = args.Results.year;
 % -----
 % calculate the offsets
 % -----
-data = parse_forgapfilling_file( sitecode, year, '' );
+data = parse_forgapfilling_file( sitecode, year );
 sol_ang = UNM_get_solar_angle( sitecode, data.timestamp );
 
 opt_off_Rg = repmat( NaN, 1, numel( 1:365 ) );
@@ -49,10 +49,6 @@ for doy = 1:365
                                                     sol_ang, ...
                                                     data.timestamp, ...
                                                     doy, year, false );
-    % opt_off_PAR( doy ) = match_solarangle_radiation( data.PAR, ...
-    %                                              sol_ang, ...
-    %                                              data.timestamp, ...
-    %                                              doy, year, false );
 end
 
 t_str = sprintf( '%s %d radiation offset', char( sitecode ), year ); 

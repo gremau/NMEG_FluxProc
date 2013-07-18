@@ -53,3 +53,5 @@ fluxall = dataset_append_common_vars( fluxall, new_data );
 [ ~, idx_sort ] = sort( fluxall.timestamp );
 fluxall = fluxall( idx_sort, : );    
 
+fluxall = fluxall_fill_timestamps( fluxall );
+

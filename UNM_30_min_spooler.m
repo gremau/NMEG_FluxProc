@@ -53,6 +53,9 @@ if sitecode == 1 % GLand
     elseif year == 2011
 %        UNM_30min_flux_processor_071610(1,2011,1899,1999);
         UNM_30min_flux_processor_071610(1,2011,10587,10588);
+    elseif year == 2012
+        UNM_30min_flux_processor_Tim(1,2012, DOYidx( 196 ), DOYidx( 216 ) );
+        UNM_30min_flux_processor_Tim(1,2012, DOYidx( 226 ), DOYidx( 241 ) );
     end
     
 elseif sitecode == 2 % SLand
@@ -85,6 +88,9 @@ elseif sitecode == 2 % SLand
     elseif year == 2011
         UNM_30min_flux_processor_071610(2,2011,1901,2002);    
         UNM_30min_flux_processor_071610(2,2011,8669,8759); 
+    
+    elseif year == 2012
+        UNM_30min_flux_processor_071610(2,2012,16704,17568);    
     end
 
 elseif sitecode == 3 % JSav
@@ -116,8 +122,12 @@ elseif sitecode == 3 % JSav
         UNM_30min_flux_processor_071610(3,2010,10967,10969);
     elseif year == 2011 % added by MF
         UNM_30min_flux_processor_071610(3,2011,1541,1613);
-    end
 
+    elseif year == 2012 % added by TWH
+        UNM_30min_flux_processor_Tim(3,2012,4211,5119);
+        UNM_30min_flux_processor_Tim(3,2012,10540,12691);
+        UNM_30min_flux_processor_Tim(3,2012,16512,17567);
+    end    
 elseif sitecode == 4 % PJ_control
     if year == 2009
         UNM_30min_flux_processor_062909(4,2009,10354,10372);

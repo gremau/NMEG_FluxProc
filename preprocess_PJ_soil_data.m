@@ -1,6 +1,21 @@
 function [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, year )
-% PREPROCESS_PJ_SOIL_DATA - 
-%   
+% PREPROCESS_PJ_SOIL_DATA - parse CR23X soil data for PJ or PJ_girdle and create
+% datasets for soil temperature, soil water content, and soil heat flux with
+% complete 30-minute timestamp record and duplicate timestamps removed.  When
+% duplicate timestamps are detected, the first is kept and subsequent
+% duplicates are discarded.
+%
+% USAGE
+%    [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, year )
+%
+% INPUTS
+%    sitecode: integer or UNM_sites object; either PJ or PJ_girdle
+%    year: integer; year of data to preprocess
+%
+% OUTPUTS:
+%    soilT, SWC, SHF: matlab dataset arrays containing soil data
+%
+% (c) Timothy W. Hilton, UNM, 2012
 
 if isa( sitecode, 'UNM_sites' )
     sitecode = int8( sitecode );
@@ -11,19 +26,32 @@ end
 
     fpath = fullfile( getenv( 'FLUXROOT' ), ...
                       'Flux_Tower_Data_by_Site', ...
-                      sitename );
+                      sitename,  ...
+                      'soil' );
     switch sitecode
       case 4
-        fname =  'PJC-23x-Compiled-04-24-12.csv';
+        if year < 2012
+            fname =  'PJC-23x-Compiled-04-24-12.csv';
+            n_col = 104;
+        else
+            fname =  sprintf( 'CR23X_PJ_%dall.dat', year );
+            n_col = 103;
+        end
       case 10
-        fname =  'PJG-23x-Compiled-04-24-12.csv';
+        if year < 2012
+            fname =  'PJG-23x-Compiled-04-24-12.csv';
+            n_col = 104;
+        else
+            fname = sprintf( 'CR23X_PJ_Girdle_%dall.dat', year );
+            n_col = 152;
+        end
     end
     fname = fullfile( fpath, fname );
     
     
     % parse data file to matlab dataset
     fmt = [ repmat( '%d', 1, 4 ), repmat( '%f', 1, 100 ) ];
-    fmt = repmat( '%f', 1, 104 );
+    fmt = repmat( '%f', 1, n_col );
     soil_data = dataset( 'File', fname, 'Delimiter', ',', 'Format', fmt );
     
     % not sure what this column is, and its name is not a legal Matlab variable
@@ -71,6 +99,19 @@ end
     SHF_vars = cellfun( @(x) ~isempty( x ), ...
                         regexp( soil_data.Properties.VarNames, '^shf_.*', 'once' ) );
     
+    % output a csv file for all soil variables with a complete record of
+    % 30-minute timestamps and with duplicate timestamps removed
+    fname_complete = fullfile( getenv( 'FLUXROOT' ), ...
+                               'Flux_Tower_Data_by_Site', ...
+                               sitename, ...
+                               'soil', ...
+                               sprintf( '%s_%d_soil_complete.dat', ...
+                                        sitename, ...
+                                        year ) );
+    fprintf( 'writing %s...', fname_complete );
+    export_dataset_tim( fname_complete, soil_data );
+    fprintf( 'done\n' );
+    
     soilT = soil_data( :, T_vars );
     SWC = soil_data(  :, SWC_vars );
     SHF = soil_data(  :, SHF_vars );
@@ -94,15 +135,24 @@ end
     SWC.tstamps = soil_data.tstamps;
     SHF.tstamps = soil_data.tstamps;
     
+    soilT.Properties.VarNames = regexprep( soilT.Properties.VarNames, ...
+                                           '_AVG$', '' );
+    [ ~, idx ] = regexp_ds_vars( soilT, '_STD$' );
+    soilT( :, idx ) = [];
+    
     SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
                                          '^WC_', 'cs616SWC_' );
     SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
                                          '_AVG$', '' );
+    [ ~, idx ] = regexp_ds_vars( SWC, '_STD$' );
+    SWC( :, idx ) = [];
     
     SHF.Properties.VarNames = regexprep( SHF.Properties.VarNames, ...
                                          '_AVG$', '' );
     SHF.Properties.VarNames = regexprep( SHF.Properties.VarNames, ...
                                          '^shf', 'SHF' );
+    [ ~, idx ] = regexp_ds_vars( SHF, '_STD$' );
+    SHF( :, idx ) = [];
 
     all_but_timestamps = 1:( size( SHF, 2 ) - 1 );
     SHF.Properties.VarNames( all_but_timestamps ) = ...

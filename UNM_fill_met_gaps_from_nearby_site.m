@@ -1,27 +1,41 @@
-function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
-                                                      draw_plots, ...
-                                                      linfit )
+function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, varargin )
 % UNM_FILL_MET_GAPS_FROM_NEARBY_SITE - fills gaps in site's meteorological data
 %   from the closest nearby site
 %
 % USAGE
-%     result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, draw_plots,
-%                                                 linfit )
+%     result = UNM_fill_met_gaps_from_nearby_site( sitecode, year )
+%     result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, draw_plots )
 %
 % INPUTS
 %     sitecode [ integer ]: code of site to be filled
 %     year [ integer ]: year to be filled
-%     draw_plots [ logical ]: if true, plot observed and filled T, Rg, RH
-%     linfit [ logical ]: if true, use a linear regression model to fill from
-%                            the nearby Rg rather than a simple replacement.  If
-%                            1x3 logical array, turns regression on/off for T,
-%                            RH, Rg, respectively
+%     draw_plots [ logical ], optional : if true, plot observed and filled T,
+%         Rg, RH.  Default is true
 %
 % OUTPUTS
 %     result [ integer ]: 0 on success, -1 on failure
 %
 % (c) Timothy W. Hilton, UNM, March 2012
   
+% -----
+% define optional inputs, with defaults and typechecking
+% -----
+[ this_year, ~, ~ ] = datevec( now() );
+args = inputParser;
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'year', ...
+                  @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
+args.addParamValue( 'draw_plots', true, ...
+                    @(x) ( islogical( x ) & numel( x ) == 1 ) );
+args.parse( sitecode, year, varargin{ : } );
+% -----
+
+sitecode = args.Results.sitecode;
+year = args.Results.year;
+draw_plots = args.Results.draw_plots;
+
+linfit = specify_site_linfits( sitecode );
+
 if isintval( sitecode )
     sitecode = UNM_sites( sitecode )
 else
@@ -38,16 +52,28 @@ filled_file_false = false;
     
 fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("destination")\n', ...
          get_site_name( sitecode ), year );
-this_data = parse_forgapfilling_file( sitecode, year, filled_file_false );
+this_data = parse_forgapfilling_file( sitecode, year, ...
+                                      'use_filled', filled_file_false );
 
 %--------------------------------------------------
 % parse data with which to fill T & RH
                 
 switch sitecode    
-  case UNM_sites.GLand    % fill GLand from SLand, then Sev Deep Well station (# 40)
-    fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
-             get_site_name( 2 ), year );  %
-    nearby_data = parse_forgapfilling_file( 2, year, filled_file_false );
+  case UNM_sites.GLand    % fill GLand from SLand, then Sev Deep Well station
+                          % (# 40)
+    try
+        fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
+                 get_site_name( 2 ), year );  %
+        nearby_data = parse_forgapfilling_file( 2, year, ...
+                                                'use_filled', filled_file_false );
+    catch err
+        if strcmp( err.identifier, 'MATLAB:FileIO:InvalidFid' )
+            error( ['unable to open SLand for gapfill file -- cannot fill ' ...
+                    'GLand'] );
+            rethrow( err )
+        end
+    end
+        
     if ( year < 2011 )  
         % no sev met data available for 2011 yet - TWH 21 May 2012
         nearby_2 = UNM_parse_sev_met_data( year );
@@ -56,7 +82,8 @@ switch sitecode
   case UNM_sites.SLand    % fill SLabnd from GLand, then Sev Five Points station (# 49 )
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
-    nearby_data = parse_forgapfilling_file( 1, year, filled_file_false );
+    nearby_data = parse_forgapfilling_file( 1, year, ...
+                                            'use_filled', filled_file_false );
     if ( year < 2011 )  
         % no sev met data available for 2011 yet - TWH 21 May 2012
         nearby_2 = UNM_parse_sev_met_data( year );
@@ -65,16 +92,19 @@ switch sitecode
   case UNM_sites.JSav    % fill JSav from PJ, with regressions
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 4 ), year );
-    nearby_data = parse_forgapfilling_file( 4, year, filled_file_false );
+    nearby_data = parse_forgapfilling_file( 4, year, ...
+                                            'use_filled', filled_file_false );
   case UNM_sites.PJ     % fill PJ from PJ girdle    
     if year > 2009  % use PJ_girdle after 2009
         fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
                  get_site_name( 10 ), year );
-        nearby_data = parse_forgapfilling_file( 10, year, filled_file_false );
+        nearby_data = parse_forgapfilling_file( 10, year, ...
+                                                'use_filled', filled_file_false );
     else  % use JSav before 2009
         fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
                  get_site_name( 3 ), year );
-        nearby_data = parse_forgapfilling_file( 3, year, filled_file_false );
+        nearby_data = parse_forgapfilling_file( 3, year, ...
+                                                'use_filled', filled_file_false );
     end
   case UNM_sites.PPine     % fill PPine from Valles Caldera HQ met station (
                            % station 11 ) 
@@ -90,11 +120,13 @@ switch sitecode
   case UNM_sites.PJ_girdle    % fill PJ_girdle from PJ
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 4 ), year );
-    nearby_data = parse_forgapfilling_file( 4, year, filled_file_false );
+    nearby_data = parse_forgapfilling_file( 4, year, ...
+                                            'use_filled', filled_file_false );
   case UNM_sites.New_GLand    % fill New_GLand from GLand
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
-    nearby_data = parse_forgapfilling_file( 1, year, filled_file_false );
+    nearby_data = parse_forgapfilling_file( 1, year, ...
+                                            'use_filled', filled_file_false );
   otherwise
     fprintf( 'filling not yet implemented for %s\n', ...
              get_site_name( sitecode ) );
@@ -126,7 +158,7 @@ if not( isempty( nearby_2 ) )
 end
 
 %--------------------------------------------------
-% fill T, RH
+% fill T, RH, Rg
 
 if numel( linfit ) == 1
     % T      RH    Rg
@@ -145,6 +177,8 @@ end
 [ this_data, RH_filled_1, RH_filled_2 ] = ...
     fill_variable( this_data, nearby_data, nearby_2, ...
                    'rH', 'rH', 'rH', linfit( 2 ) );
+this_data.rH( this_data.rH > 1.0 ) = 1.0;
+this_data.rH( this_data.rH < 0.0 ) = 0.0;
 
 % replace missing Rg with nearby site
 [ this_data, Rg_filled_1, Rg_filled_2 ] = ...
@@ -179,7 +213,7 @@ outfile = fullfile( get_site_directory( sitecode ), ...
                              get_site_name( sitecode ), year ) );
 fprintf( 'writing %s\n', outfile );
 this_data.timestamp = [];
-export( this_data, 'file', outfile );
+export_dataset_tim( outfile, this_data, 'write_units', true );
 %export( this_data( :, 2:end ), 'file', outfile );
 
 result = 0;
@@ -367,3 +401,19 @@ function result = linfit_var2( x, y, idx )
     result = x;
     result( idx ) = ( x( idx ) * linfit( 1 ) ) + linfit( 2 );
     
+function linfit = specify_site_linfits( sitecode )
+% SPECIFY_SITE_LINFITS - defines which variables (temp, relative humidity, and
+%   PAR) to perform a regression for data from a nearby site
+
+switch sitecode
+  case { UNM_sites.GLand, UNM_sites.SLand, ...
+         UNM_sites.PJ, UNM_sites.PJ_girdle }
+    linfit = [ false false false ];
+  case { UNM_sites.JSav, UNM_sites.New_GLand }
+    linfit = [ true true true ];
+  case { UNM_sites.PPine, UNM_sites.MCon }
+    linfit = [ false false true ];
+  otherwise
+    error( sprintf( 'Not implemented for %s\n', char( sitecode ) ) );
+end
+

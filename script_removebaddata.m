@@ -1,10 +1,40 @@
-sites = [ 1, 2, 4, 6 ];
+% script to convert fluxall files to text, and save session transcript to a file
 
-for i = 1:numel( sites )
-    for y = [ 2007, 2008 ]
-        UNM_RemoveBadData( sites( i ), y );
-        close all
-        %UNM_Ameriflux_file_maker_TWH( sites( i ), y );
+[ y, mon, d, h, m, s ] = datevec( now() );
+fname = sprintf( 'C:\\Users\\Tim\\Matlab_Transcripts\\%d-%02d-%02d_%02d%02d_matlab_transcript.txt', ...
+                 y, mon, d, h, m );
+diary( fname );
+
+for this_site = UNM_sites( [ 1, 2, 3, 4, 6, 5, 10, 11 ] )
+    for this_year = 2007:2011
+        try 
+            UNM_RemoveBadData_pre2012( this_site, this_year, ...
+                                       'draw_fingerprints', false, ...
+                                       'draw_plots', false, ...
+                                       'write_QC', true, ...
+                                       'write_GF', true );
+            close all
+        catch err
+            % if an error occurs, write the message and continue with next year
+            disp( getReport( err ) );
+        end
     end
 end
 
+% for this_site = UNM_sites.TX
+%     for this_year = 2007:2010
+%         try 
+%             UNM_RemoveBadData_pre2012( this_site, this_year, ...
+%                                        'draw_fingerprints', false, ...
+%                                        'draw_plots', false, ...
+%                                        'write_QC', true, ...
+%                                        'write_GF', true );
+%             close all
+%         catch err
+%             % if an error occurs, write the message and continue with next year
+%             disp( getReport( err ) );
+%         end
+%     end
+% end
+
+diary off
