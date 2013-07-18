@@ -1,5 +1,22 @@
 function success = copy_uncompressed_raw_card_data(site, raw_data_dir)
-% COPY_UNCOMPRESSED_TOB_FILES to MyBook drive
+% COPY_UNCOMPRESSED_RAW_CARD_DATA.  Copies uncompressed raw datalogger files
+% from arbitrary directory to "Raw uncompressed data folders\SITE" directory on
+% MyBook drive (with SITE the abbreviated site name). Creates this directory if
+% it does not exist. Returns true on success.  Issues error on failure.
+%
+% USAGE
+%    success = copy_uncompressed_raw_card_data(site, raw_data_dir);
+%
+% INPUTS
+%    site: integer or UNM_sites object; the site whose data are to be copied,
+%        used to choose the destination directory on MyBook.
+%    raw_data_dir: full path to the directory containing the raw datalogger
+%        files
+%
+% OUTPUTS
+%    success: true if all files copied successfully.
+%
+% (c) Timothy W. Hilton, UNM, Nov 2011
 
 site = UNM_sites( site );
 

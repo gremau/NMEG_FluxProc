@@ -1,6 +1,6 @@
 function main_success = process_card_main( this_site, varargin )
-% PROCESS_CARD_MAIN - main function for retrieving flux tower data from a flash
-%   card:
+% PROCESS_CARD_MAIN - main function for retrieving flux tower data from a
+% datalogger flash card:
 %    * Copies the raw data from the card to the appropriate 'Raw data from
 %      cards' directory
 %    * converts 30-minute data to a TOA5 file
@@ -9,6 +9,8 @@ function main_success = process_card_main( this_site, varargin )
 %    * copies uncompressed raw data to Story USB hard drive
 %    * compresses the raw data on the internal hard drive
 %    * FTPs the compressed raw data to EDAC
+%    * calculates 30-minute averages of 10-hz eddy covariance data
+%    * inserts the data into the appropriate annual FLUXALL file.
 %
 % USAGE: 
 %    process_card_main( this_site )

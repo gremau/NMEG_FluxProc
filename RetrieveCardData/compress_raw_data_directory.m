@@ -1,7 +1,22 @@
-function success = compress_raw_data_directory(raw_data_dir)
-% COMPRESS_RAW_DATA_DIRECTORY - compresses a directory containing raw flux
-% data
+function success = compress_raw_data_directory( raw_data_dir )
+% COMPRESS_RAW_DATA_DIRECTORY - compresses a directory using 7-zip.  Wait
+% until compression is complete before resuming Matlab execution.
+%
+% USAGE:
+%    compress_raw_data_directory( raw_data_dir );
+%
+% INPUTS:
+%    raw_data_dir: string; complete path to the directory to be compressed.    
+%
+% OUTPUTS:
+%    success: 0 on success, 1 on failure.
+%
+% (c) Timothy W. Hilton, UNM, Oct 2011
     
+success = 1;
+
+try
+
     blk_fname = create_blocking_file();
     
     seven_zip = 'C:\Program Files\7-Zip\7z.exe';
@@ -30,3 +45,10 @@ function success = compress_raw_data_directory(raw_data_dir)
         rmdir(raw_data_dir);
         fprintf(1, 'removed %s\n', raw_data_dir);
     end
+    
+catch err
+    disp( getReport( err ) );
+    success = 0;
+end
+
+    

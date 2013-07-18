@@ -6,6 +6,17 @@ function success = build_TOA5_card_convert_ccf_file(ccf_file, raw_data_dir, ...
 %   CardConvert From a Command Line).  I just copied everything from
 %   lastrun.ccf.
 %
+% USAGE:
+%    build_TOA5_card_convert_ccf_file(ccf_file, raw_data_dir, toa5_data_dir);
+%
+% INPUTS
+%    ccf_file: string; the full path of the configuration file to be written.
+%    raw_data_dir: the full path to the directory containing the raw card
+%        data
+%    toa5data_dir: the directory in which to place the converted TOA5 files.
+%
+% OUTPUTS
+%    success: 1 on success, 0 on failure
 %   Timothy W. Hilton, University of New Mexico, Oct 2011
 
     success = 0;
