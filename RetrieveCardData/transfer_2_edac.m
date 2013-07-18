@@ -1,5 +1,17 @@
 function success = transfer_2_edac(site, compressed_data_fname)
-% TRANSFER_2_EDAC - transfer compressed tower raw data to EDAC server
+% TRANSFER_2_EDAC - transfer compressed tower raw data to EDAC server.  Places
+% data into edacdata1.unm.edu:/data/epscor/private/data/Upland_node/SITE/Raw/,
+% with SITE the abbreviated name of the UNM site.  Requires user to enter the
+% password for user jdelong on edacdata1.unm.edu.  Note that following UNIX
+% convention nothing is echoed to the display while the password is typed (no
+% ****, ....., etc.).
+%
+% NOTES
+% (1) Requires Cygwin's sftp (secure file transfer protocol) to be available on
+% the system.  See http://www.cygwin.com/.%
+% (2) Spawns a Windows command prompt window.  This window will not close
+% automatically when the transfer is complete.  It will display a message
+% when the user may close the window.% 
 %
 % USAGE
 %    success = transfer_2_edac(site, compressed_data_fname)
