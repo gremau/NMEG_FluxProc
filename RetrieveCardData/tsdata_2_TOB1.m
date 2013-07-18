@@ -1,6 +1,21 @@
 function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir)
-% THIRTY_MIN_2_TOA5 - convert the thirty minute file (*.flux.dat) to a TOA5
-% file
+% TSDATA_2_TOB1 - convert a datalogger 10-hz raw data file to a series of daily
+% TOB1 files and places the TOB1 files in of the output of get_site_dir().  The
+% file to be converted must be named in the format *.ts_data.dat.  If no 10-hz
+% raw data file is found, prompts user to select one.  Issues error if multiple
+% files in raw_data_dir match *.flux_data.dat.
+%
+% INPUTS
+%    site: integer or UNM_sites object; the site whose data are to be
+%        processed
+%    raw_data_dir: string; full path to the directory containing the raw
+%        datalogger data files.
+%
+% OUTPUTS
+%    success: logical; true if conversion successful, false otherwise.
+%    all_ts_fnames: cell array of strings; full paths to all new TOB1 files.
+%
+% (c) Timothy W. Hilton, UNM, Oct 2012
 
 site = UNM_sites( site );
 

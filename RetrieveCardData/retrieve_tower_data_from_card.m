@@ -27,7 +27,8 @@ switch data_location
   case 'card'
     % the data are on a flash card    
     %data_path = locate_drive( 'Removable Disk' );
-    %% would like a more flexible way to 
+    % would like a more flexible way to determine the drive letter; locate_drive
+    % does not seem to work for the compact flash reader.
     data_location = 'g:\'; 
     tower_files = dir( fullfile( sprintf( '%s', data_location ), ...
                                  '*.dat') );

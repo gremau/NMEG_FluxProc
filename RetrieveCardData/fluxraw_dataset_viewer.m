@@ -1,15 +1,21 @@
 function fh =  fluxraw_dataset_viewer( ds, this_site, mod_date )
-% dataset_viewer -- a graphical user interface to view matlab variables of
-% class dataset column by column
+%FLUXRAW_DATASET_VIEWER --  graphical user interface to view TOA5 files
+%containing 30-minute datalogger data.  This is intended for use during card
+%conversion for a quick visual inspection to identify problems with
+%instruments or the datalogger.  Provides a plot of each variable in the TOA5
+%file, one at a time, and "previous" and "next" buttons to move among
+%variables.  Support Matlab's zooming and scrolling capabilities.
 %       
-% USAGE
-%    fh = datasetviewer( ds )
+% USAGE 
+%    fh = fluxraw_dataset_viewer( ds, this_site, mod_date )
 %
 % INPUTS:
-%    ds: variable of class dataset
+%    ds: dataset array; the data to be plotted.
+%    this_site: UNM_sites object; which UNM site?
+%    mod_date: the modification time of the 30-minute datalogger file (used
+%        to identify the TOA5 file)
 %
 % OUTPUTS:
-%
 %    fh: handle to the figure window created
 %
 % (c) Timothy W. Hilton, UNM, Mar 2012

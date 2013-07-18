@@ -1,7 +1,27 @@
 function [success, toa5_fname] = JSavCR1000_2_TOA5( varargin )
 % JSavCR1000_2_TOA5 - convert the soil water content from the CR1000 datalogger
-% at JSav to a TOA5 file
-
+% at JSav to a TOA5 file.  Places the TOA5 file in the "soil" subdirectory of
+% the output of get_site_dir().  The thirty-minute data file to be converted
+% must be named in the format *.soilwcr.dat.  Issues an error if there is not
+% exactly one file in raw_data_dir matching *.flux.dat.
+%
+% USAGE
+%   [success, toa5_fname] = JSavCR1000_2_TOA5( 'raw_data_dir', 'path/to/data' );
+%   [success, toa5_fname] = JSavCR1000_2_TOA5( ..., 'dryrun', true );
+% 
+% KEYWORD ARGUMENTS
+%   raw_data_dir: string; the path to the directory containing the raw data.
+%       If empty (the default), prompts user to select the directory.
+%   dryrun: logical; if true, performs the conversion but discards the new
+%       TOA5 without placing it into JSav's soil directory.  Useful for debugging
+%       CardConvert call.  Default is false.
+%
+% OUTPUTS
+%    success: true if soil data are successfully converted to TOA5 file and
+%        placed in appropriate directory.  False aotherwise.
+%    toa5_fname: string; full path of the new TOA5 file.
+%
+% (c) Timothy W. Hilton, UNM, Nov 2012
 
 % -----
 % define optional inputs, with defaults and typechecking

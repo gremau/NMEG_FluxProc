@@ -1,6 +1,6 @@
 function main_success = process_card_main( this_site, varargin )
-% PROCESS_CARD_MAIN - main function for retrieving flux tower data from a flash
-%   card:
+% PROCESS_CARD_MAIN - main function for retrieving flux tower data from a
+% datalogger flash card:
 %    * Copies the raw data from the card to the appropriate 'Raw data from
 %      cards' directory
 %    * converts 30-minute data to a TOA5 file
@@ -9,8 +9,8 @@ function main_success = process_card_main( this_site, varargin )
 %    * copies uncompressed raw data to Story USB hard drive
 %    * compresses the raw data on the internal hard drive
 %    * FTPs the compressed raw data to EDAC
-%    * captures all output, error messages, etc. to a log file in
-%      $FLUXROOT/Card_Processing_Logs 
+%    * calculates 30-minute averages of 10-hz eddy covariance data
+%    * inserts the data into the appropriate annual FLUXALL file.
 %
 % USAGE: 
 %    process_card_main( this_site )
@@ -97,20 +97,25 @@ try
                                                       raw_data_dir);
     fprintf(1, ' Done\n');
 catch err
+    fluxdata_convert_success = false;
     % echo the error message
     fprintf( 'Error converting 30-minute data to TOA5 file.' )
     disp( getReport( err ) );
-    main_success = fluxdata_convert_sucess;
+    main_success = 0;
 end
 
 %make diagnostic plots of the raw flux data from the card
 if args.Results.interactive
-    fluxraw = toa5_2_dataset(toa5_fname);
-    % save( 'fluxraw_viewer_restart.mat' );  main_success = 1;
-    % return
-    h_viewer = fluxraw_dataset_viewer(fluxraw, this_site, mod_date);
-    waitfor( h_viewer );
-    clear('fluxraw');
+    if fluxdata_convert_success
+        fluxraw = toa5_2_dataset(toa5_fname);
+        % save( 'fluxraw_viewer_restart.mat' );  main_success = 1;
+        % return
+        h_viewer = fluxraw_dataset_viewer(fluxraw, this_site, mod_date);
+        waitfor( h_viewer );
+        clear('fluxraw');
+    else
+        fprintf( 'there are no 30-minute data to display\n' );
+    end
 end
 
 %convert the time series (10 hz) data to TOB1 files
