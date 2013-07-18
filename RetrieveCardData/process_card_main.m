@@ -104,6 +104,8 @@ fprintf(1, 'Done compressing\n');
 % transfer the compressed raw data to edac
 fprintf(1, '\n----------\n');
 fprintf(1, 'transfering compressed raw data to edac...\n');
+h = msgbox( 'click to begin FTP transfer', '' );
+waitfor( h );
 transfer_2_edac(this_site, sprintf('%s.7z', raw_data_dir))
 fprintf(1, 'Done transferring.\n');
 
@@ -115,7 +117,7 @@ save( 'card_restart_01.mat' );
 % merge the new data into the fluxall file
 fprintf(1, '\n----------\n');
 fprintf(1, 'merging new data into FLUXALL file...\n');
-dates = cellfun( @get_TOA5_TOB1_file_date, ts_data_fnames );...
+dates = cellfun( @get_TOA5_TOB1_file_date, ts_data_fnames );
 cdp = card_data_processor( UNM_sites( this_site ), ...
                            'date_start', min( dates ), ...
                            'date_end', max( dates ) + 1 );

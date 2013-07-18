@@ -3,6 +3,20 @@ function [ ts, keep_idx ] = datenum_2_round30min(ts_in, tol, t0)
 % tol minutes of a "round" half hour (e.g. 00 or 30 minutes past the hour)
 % are rounded to the nearest half hour.  Rows with timestamps not within tol
 % minutes of a "round" half hour are discarded.
+%
+% USAGE
+%    [ ts, keep_idx ] = datenum_2_round30min( ts_in, tol, t0 )
+%
+% INPUTS
+%    ts_in: vector of matlab datenums
+%    tol: tolerance for rounding
+%    t0: arbitrary reference date -- must be earlier than min( ts_in )
+%
+% OUTPUTS
+%    ts: vector of matlab datenums containing rounded timestamps
+%    keep_idx: vector of indices of the input timestamps that were not discarded
+%
+% (c) Timothy W. Hilton, UNM, 2012
 
 %% convert matlab datenums to seconds since 00:00 of the day of the first
 %% timestamp in the series 
