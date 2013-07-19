@@ -1,16 +1,68 @@
-function hf = plot_CZO_Valles_figure( sitecode, years, ylims )
-% PLOT_CZO_VALLES_FIGURE - 
+function hf = plot_CZO_figure( sitecode, years, varargin )
+% PLOT_CZO_FIGURE - produces a four-panel plot showing monthly integrated NEE
+% bar plot (top panel), monthly integrated GPP and RE bar plots (second panel)
+% panel), monthly evapotranspiration (ET) and incoming shortwave radiation (Rg)
+% (third panel), and monthly total precipitation and mean air temperature
+% (bottom panel).  The horizontal axes are linked to zoom simultaneously.
+%
+% NOTES
+% For mixed conifer site, precip is replaced with the precip from the Redondo
+% met station as per 30 July 2012 conversation with Marcy.
 %
 % USAGE
-%    hf = plot_CZO_Valles_figure( sitecode, years, binary_data )
+%    hf = plot_CZO_figure( sitecode, years );
+%    hf = plot_CZO_figure( sitecode, years, ylims );
+%    hf = plot_CZO_figure( sitecode, years, ..., binary_data );
+%
+% INPUTS
+%    sitecode: integer or UNM_sites object; which site to plot
+%    years: numeric vector; which years to plot
+% KEYWORD ARGUMENTS
+%    ylims: 2 by 6 numeric vector.  Contains vertical-axis limits for the NEE
+%        plot (first row), GPP/RE plot (second row), ET plot( third row ), Rg
+%        plot( fourth row), pcp plot (fifth row) and air T plot (sixth row).
+%        First column contains lower axis limit, second column contains upper
+%        axis limit.  If unspecified vertical axes are sized to the range of data
+%        in the plot.
+%    binary_data: if true, seeks to load ameriflux files from
+%        $BINARYDATA/SITE_with_gaps.mat, where $BINARYDATA is an operating system
+%        environment variable.  If false (the default) the annual with_gaps
+%        Ameriflux files are parsed to obtain the data.
+%
+% OUTPUTS
+%    hf: handle to the figure window containing the plot.
 %
 % (c) Timothy W. Hilton, UNM, July 2012
 
-% load ameriflux data for requested years
-aflx_data = assemble_multi_year_ameriflux( sitecode, years, ...
-                                           'binary_data', false);
+[ this_year, ~, ~ ] = datevec( now );
 
-if sitecode == UNM_sites.PPine
+% -----
+% define optional inputs, with defaults and typechecking
+% -----
+args = inputParser;
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'years', ...
+               @(x) ( all( x >= 2006 ) & ...
+                      all( x <= this_year ) ) );
+args.addParamValue( 'ylims', NaN, @isnumeric );                    
+args.addParamValue( 'binary_data', false, @islogical );
+
+% parse optional inputs
+args.parse( sitecode, years, varargin{ : } );
+
+% if ylims specified, issue error if it is not a 6 by 2 numeric array.
+if not( all( isnan( args.Results.ylims ) ) )
+    validateattributes( args.Results.ylims, {'numeric'}, {'size',[4,6,2]} );
+end
+
+% -----
+
+% load ameriflux data for requested years
+aflx_data = assemble_multi_year_ameriflux( args.Results.sitecode, ...
+                                           args.Results.years, ...
+                                           'binary_data', args.Results.binary_data );
+
+if args.Results.sitecode == UNM_sites.PPine
     idx = ( aflx_data.YEAR == 2009 ) & ...
           ( aflx_data.DTIME > 149 ) & ...
           ( aflx_data.DTIME < 195 );
@@ -36,7 +88,7 @@ tstamp = datenum( aflx_data.YEAR, 1, 0 ) + aflx_data.DTIME;
                     'GPPgc', 'REgc', 'ETmm' } ) ), ...
     @nansum );
 
-if sitecode == UNM_sites.MCon
+if args.Results.sitecode == UNM_sites.MCon
     % sub in Redondo pcp for Mcon pcp as per conversation with Marcy 30 Jul 2012
     valles = UNM_parse_valles_met_data( 2011 );
     redondo = valles( valles.sta == 14, : );
@@ -47,7 +99,6 @@ if sitecode == UNM_sites.MCon
                                              @nansum );
     agg_sums( end-11:end, 1 ) = monthly_pcp_11;
 end
-    
 
 % calculate monthly means for air T
 [ year_mon, T_mean, idx ] = consolidator( ...
@@ -70,19 +121,14 @@ agg.timestamp = datenum( agg.year, agg.month, 1 );
 % plot the figure
 %================
 
-hf = figure( 'Units', 'Inches' );
-% set figure dimensions to US letter paper, landscape orientation
-% pos = get( hf, 'Position' );
-% pos( 3:4 ) = [ 11, 8.5 ];
-set( hf, 'Position', [ 0, 0, 11, 8.5 ] );
-ylim( ylims( 1, : ) );
+hf = figure( 'Visible', 'off' );
 
 % set horizontal axis limit to time frame requested +- 30 days
 x_limits = [ datenum( agg.year( 1 ), agg.month( 1 ), 1 ) - 30, ...
              datenum( agg.year( end ), agg.month( end ), 1 ) + 30 ];
 
 tick_years = reshape( repmat( unique( agg.year )', 4, 1 ), [], 1 );
-tick_months = repmat( [ 1, 4, 7, 10 ]', numel( unique( years ) ), 1 );
+tick_months = repmat( [ 1, 4, 7, 10 ]', numel( unique( args.Results.years ) ), 1 );
 x_ticks = datenum( tick_years, tick_months, 1 );
 %x_limits = [ min( x_ticks ) - 30, max( x_ticks ) + 30 ];
 
@@ -94,12 +140,14 @@ ax1 = subplot( 4, 1, 1 );
 h_NEE = bar( agg.timestamp, agg.NEE );
 set( ax1, 'XLim', x_limits, ...
           'XTick', x_ticks, ...
-          'XTickLabel', [], ...
-          'YLim', ylims( 1, : ) );
+          'XTickLabel', [] );
+if not( isnan( args.Results.ylims ) )
+    set( ax1, 'YLim', args.Results.ylims( 1, : ) );
+end
 ylabel( 'NEE [ gC m^{-2} ]' );
 info = parse_UNM_site_table();
-title( info.SITE_NAME( sitecode ) );
-ylim( [ -150, 250 ] );
+title( info.SITE_NAME( args.Results.sitecode ) );
+%ylim( [ -150, 250 ] );
 
 %--
 % RE and GPP
@@ -107,11 +155,13 @@ ax2 = subplot( 4, 1, 2 );
 h_GPP = bar( agg.timestamp, agg.GPP, 'FaceColor', med_blue );
 hold( ax2, 'on' );
 h_RE = bar( agg.timestamp, agg.RE * -1.0 );
-ylim( [ -400, 250 ] );
+%ylim( [ -400, 250 ] );
 set( ax2, 'XLim', x_limits, ...
           'XTick', x_ticks, ...
-          'XTickLabel', [], ...
-          'YLim', ylims( 2, : ) );
+          'XTickLabel', [] );
+if not( isnan( args.Results.ylims ) )
+    set( ax2, 'YLim', args.Results.ylims( 2, : ) );
+end
 ylabel( 'GPP & RE [ gC m^{-2} ]' );
 legend( [ h_GPP, h_RE ], 'GPP', 'RE', 'Location', 'best' );
 
@@ -131,9 +181,12 @@ h_ET = bar( double( agg.timestamp ), double( agg.ET ), ...
 ylabel('ET [ mm ]')
 set( ax3L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...
-           'XTickLabel', [], ...
-           'YLim', ylims( 3, : ), ...
+           'XTickLabel', [], ...           
            'YColor', get( h_ET, 'FaceColor' ) );
+
+if not( isnan( args.Results.ylims ) )
+    set( ax3L, 'YLim', args.Results.ylims( 3, : ) );
+end
 
 ax3R = axes( 'Position', get( ax3L, 'Position' ) );
 plot( double( agg.timestamp ), double( agg.Rg ), '-ok', ...
@@ -144,8 +197,12 @@ set(ax3R, 'YAxisLocation', 'right', ...
           'Layer', 'top', ...
           'XAxisLocation', 'top', ...
           'XTick', x_ticks, ...
-          'XTickLabel', [], ...
-          'YLim', ylims( 4, : ) );
+          'XTickLabel', [] );
+
+if not( isnan( args.Results.ylims ) )
+    set( ax3R, 'YLim', args.Results.ylims( 4, : ) );
+end
+
 ylabel( 'Rg [ W m^{-2} ]' );
 
 set( ax3L, 'box', 'off' );
@@ -160,10 +217,12 @@ h_pcp = bar( agg.timestamp, agg.PCP, ...
         'FaceColor', med_blue );
 ylabel('precipitation [ mm ]')
 set( ax4L, 'XLim', x_limits, ...
-           'XTick', x_ticks, ...
-           'YLim', ylims( 5, : ), ...
+           'XTick', x_ticks, ...           
            'YColor', get( h_ET, 'FaceColor' ), ...
            'XTickLabel', datestr( x_ticks, 'mmm yy' ) );
+if not( isnan( args.Results.ylims ) )
+    set( ax4L, 'YLim', args.Results.ylims( 5, : ) );
+end
 
 ax4R = axes('Position', get( ax4L, 'Position' ) );
 plot( double( agg.timestamp ), double( agg.TA ), '-ok', ...
@@ -174,11 +233,18 @@ set(ax4R, 'YAxisLocation', 'right', ...
           'XTick', x_ticks, ...
           'Layer', 'top', ...
           'XAxisLocation', 'top', ...
-          'XTickLabel', [], ...
-          'YLim', ylims( 6, : ) );
+          'XTickLabel', [] );
+if not( isnan( args.Results.ylims ) )
+    set( ax4R, 'YLim', args.Results.ylims( 6, : ) );
+end
+
 ylabel( 'Air temp [ ^{\circ}C ]' );
 
 set( ax4L, 'box', 'off' );
 set( ax4R, 'box', 'off' );
 
 linkaxes( [ ax1, ax2, ax3L, ax3R, ax4L, ax4R ], 'x' );
+
+% set figure dimensions to US letter paper, landscape orientation
+set( hf, 'Units', 'Inches', ...
+         'Position', [ 0, 0, 11, 8.5 ] );
