@@ -1,6 +1,33 @@
-function clean_names = clean_up_varnames(messy_names)
-% CLEAN_UP_VARNAMES - processes variable name strings into names that matlab
-%   will find acceptable
+function clean_names = clean_up_varnames( messy_names )
+% CLEAN_UP_VARNAMES - Reformat variable name strings into names that matlab will
+% find acceptable.  
+%
+% The operations performed here remove characters that occur commonly within
+% UNM data file variables that are not legal in matlab variable names while
+% attempting to preserve the readability of the variable name.
+%
+% Within variable names, the following operations are performed in the
+% following order:
+%    - the following symbols are replaced with _ (underscore): ( ) , ;
+%    - the following symbols are removed: ^ " - space
+%    - leading and trailing underscores are removed
+%    - decimal points (defined as '.' occuring between two digits 0-9) are
+%      replaced with 'p' (as in 'point')
+%    - trailing whitespace is removed
+%    - tab characters are removed
+%
+% USAGE
+%    clean_names = clean_up_varnames( messy_names );
+% 
+% INPUTS
+%     messy_names: string or cell array of strings; the variable names to be
+%         "cleaned"
+%
+% OUTPUTS
+%     clean_names: cell array of strings; the cleaned up variable names
+%
+% (c) Timothy W. Hilton, UNM, Oct 2011
+
 
 % replace ( ) , ; with _
 clean_names = regexprep( messy_names, '[\(\),/;]', '_' );

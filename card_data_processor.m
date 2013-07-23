@@ -16,8 +16,8 @@ methods
     function obj = card_data_processor( sitecode, varargin )
     % Class constructor for card_data_processor (CDP).  Creates a new CDP and
     % initializes fields.  The main top-level method for the class is
-    % update_fluxall.  Typical use of CDP class, then, would typically look
-    % something like: 
+    % update_fluxall.  Typical use of CDP class, then, would look something
+    % like:
     % cdp = card_data_processor( UNM_sites.WHICH_SITE, options );
     % cdp.update_fluxall();
     %

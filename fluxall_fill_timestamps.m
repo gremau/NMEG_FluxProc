@@ -1,6 +1,20 @@
 function fluxall = fluxall_fill_timestamps( fluxall )
-% FLUXALL_FILL_TIMESTAMPS - makes sure a FLUXALL dataset has a complete record of 30-minute timestamps
-%   
+% FLUXALL_FILL_TIMESTAMPS - makes sure a FLUXALL dataset has a complete record
+% of 30-minute timestamps using dataset_fill_timestamps and that all
+% timestamp-related fields (jday, date) for added timestamps are non-nan.
+% Begins each year's fluxall file at 00:30:00 on 1 Jan as per UNM convention.
+%  
+% INPUTS:
+%    fluxall: dataset array; parsed fluxall data (arbitrary site and year)
+%
+% OUTPUTS:
+%    fluxall: dataset array; fluxall data with complete record of 30-minute
+%        timestamps 
+%
+% SEE ALSO:
+%     dataset_fill_timestamps
+%
+% (c) Timothy W. Hilton, UNM, Dec 2012
 
 year = mode( fluxall.year );
 

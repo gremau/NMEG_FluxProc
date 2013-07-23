@@ -22,6 +22,9 @@ function swc = fill_soil_water_gaps( swc, pcp, draw_plots )
 %   swc_filled: MxN numeric array; swc input argument with gaps filled as
 %       described above.
 %
+% SEE ALSO
+%   plot_soil_pit_data
+%
 % (c) Timothy W. Hilton, UNM, Aug 2012
 
 swc_dbl = double( swc );

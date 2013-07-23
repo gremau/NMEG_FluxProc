@@ -5,7 +5,7 @@ function ds_out = dataset_foldin_data( ds_in1, ds_in2 )
 % data in ds_in2, the non-NaN value is kept.  Where a variable is non-NaN in
 % both, the value from ds_in1 is kept).  Both datasets must contain a
 % 'timestamp' variable of matlab datenums.  Timestamps within two minutes of
-% each other are created equal.  This function is envisioned (and tested) on
+% each other are assumed equal.  This function was created for (and tested on)
 % 30-minute data, but should in concept work for timeseries data with any
 % observation interval greater than two minutes.
 %
@@ -18,6 +18,9 @@ function ds_out = dataset_foldin_data( ds_in1, ds_in2 )
 %
 % OUTPUTS:
 %   dataset array containing all data from ds_in1 and ds_in2
+%
+% SEE ALSO
+%   dataset
 %
 % (c) Timothy W. Hilton, UNM, Dec 2012
 

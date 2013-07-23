@@ -1,18 +1,18 @@
 function success = fix_MCon_2012_forgapfilling()
-% FIX_PPINE_2012_FORGAPFILLING - The gapfiller/partitioner places two large
+% FIX_MCon_2012_FORGAPFILLING - The gapfiller/partitioner places two large
 %   spikes in NEE in late July/early August 2012.  This function scales the NEE
 %   spikes down to more reasonable peaks and writes a new for_gapfilling
 %   file.  Returns 0 on success.
 %
 % USAGE
-%    success = fix_PPine_2012_forgapfilling()
+%    success = fix_MCon_2012_forgapfilling()
 %
 % (c) Timothy W. Hilton, UNM, Oct 2012
 
-fgf = parse_forgapfilling_file( UNM_sites.PPine, 2012, true );
+fgf = parse_forgapfilling_file( UNM_sites.MCon, 2012, true );
 aflx_gf = parse_ameriflux_file( fullfile( getenv( 'FLUXROOT' ), ...
                                           'FluxOut', ...
-                                          'US-Vcp_2012_gapfilled.txt' ) );
+                                          'US-Vcm_2012_gapfilled.txt' ) );
 
 spike_idx = find( aflx_gf.FC_flag & ...
                   ( aflx_gf.DTIME >= 200 ) & ...
@@ -31,9 +31,9 @@ plot( aflx_gf.DTIME( 1:size( fgf, 1 ) ), fgf.NEE, '.' );
 
 fgf.timestamp = [];
 
-fname = fullfile( get_site_directory( UNM_sites.PPine ),...
+fname = fullfile( get_site_directory( UNM_sites.MCon ),...
                   'processed_flux', ...
-                  'PPine_flux_all_2012_for_gap_filling_filled_despiked.txt' );
+                  'MCon_flux_all_2012_for_gap_filling_filled_despiked.txt' );
 export_dataset_tim( fname, fgf, 'replace_nans', true); 
 fprintf( 'wrote %s\n', fname );
 

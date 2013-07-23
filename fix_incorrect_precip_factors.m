@@ -1,8 +1,22 @@
 function pcp_fixed = fix_incorrect_precip_factors(site_code, year, doy, pcp_in)
-% FIX_INCORRECT_PRECIP_FACTORS - several sites had incorrect conversion factors
-% in their datalogger programs at various times.  This code fixes those
-% problems.
+% FIX_INCORRECT_PRECIP_FACTORS - several sites (currently thought to be GLand,
+% JSav, and PJ) had incorrect rain gauge calibration factors in their datalogger
+% programs at various times.  This code fixes those problems and returns the
+% precipitation with the correct calibrations applied.
 %  
+% INPUTS
+%    site_code: UNM_sites object; which site?
+%    year: the year.  Either single value or N-element vector if data span
+%        more than one year.
+%    doy: day of year; N-element vector of DOY values (1 <= DOY <= 367)
+%    pcp_in: N-element vector; precipitation observations from the datalogger
+%
+% OUTPUTS
+%    pcp_fixed: N-element vector; corrected precipitation
+%
+% SEE ALSO
+%    UNM_sites
+%
 % Timothy W. Hilton, UNM, Nov 2011
 
 %initialize pcp_fixed to original values

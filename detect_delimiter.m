@@ -1,6 +1,18 @@
 function delim = detect_delimiter(fpath)
-% DETECT_DELIMITER - makes a best guess at the delimiter used in the file
-%   
+% DETECT_DELIMITER - makes a best guess between space, tab, comma, and
+% semicolon at the delimiter used in a text file by choosing the most
+% frequently occuring within the text.
+% 
+% USAGE
+%    delim = detect_delimiter( fpath );
+%
+% INPUTS
+%    fpath: full path to file to analyze
+% 
+% OUTPUTS
+%    delim: character; the best-guess delimiter
+%
+% (c) Timothy W. Hilton, UNM, Oct 2011
     
     [n, lines] = parse_file_lines(fpath);
     

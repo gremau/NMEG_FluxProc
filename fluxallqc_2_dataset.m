@@ -1,7 +1,12 @@
 function ds = fluxallqc_2_dataset( qc_num, sitecode, year )
-% FLUXALLQC_2_DATASET( qc_num, sitecode, year ) - places Flux_all_QC data into
-% matlab dataset
+% FLUXALLQC_2_DATASET( qc_num, sitecode, year ) - converts parsed Flux_all_QC
+% data from numeric matrix to matlab dataset array.
 %   
+%
+% SEE ALSO
+%   dataset 
+%
+% (c) Timothy W. Hilton, UNM, Jan 2012
 
     timestamp = excel_date_2_matlab_datenum( qc_num( :, 1 ) );
     ds = dataset( { timestamp, 'timestamp' } );

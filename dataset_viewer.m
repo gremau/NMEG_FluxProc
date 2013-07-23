@@ -1,19 +1,23 @@
 function fh =  dataset_viewer( ds, varargin )
-% dataset_viewer -- a graphical user interface to view matlab variables of
-% class dataset column by column
+% dataset_viewer -- a graphical user interface to view matlab variables from
+% a dataset array column by column.
 %       
 % USAGE
 %    fh = datasetviewer( ds )
 %    fh = datasetviewer( ds, 't_var', 'timestamp_variable' )
 %
 % INPUTS:
-%    ds: variable of class dataset
+%    ds: variable of class dataset array
+% KEYWORD ARGUMENTS
 %    t_var: optional; if specified, each column is plotted against timestamps
 %         in this column.  Values in specified column must be matlab datenums
 %
 % OUTPUTS:
 %
 %    fh: handle to the figure window created
+%
+% SEE ALSO
+%    dataset
 %
 % (c) Timothy W. Hilton, UNM, Mar 2012
 

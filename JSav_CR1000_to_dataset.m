@@ -12,7 +12,7 @@ fnames = get_data_file_names( datenum( year, 1, 1), ...
                               UNM_sites.JSav, ...
                               'soil' );
 
-ds = combine_and_fill_JSav_soil_files( fnames );
+ds = combine_and_fill_TOA5_files( fnames );
 
 [ ~, discard_vars ] = regexp_ds_vars( ds, 'PA.*' );
 ds( :, discard_vars ) = [];

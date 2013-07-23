@@ -62,21 +62,6 @@ for i = 1:size( VWC, 2 )
 end
 
 %--------------------------------------------------
-% function VWC_Tc = echo_SWC_T_correction( )
-% % ECHO_SWC_T_CORRECTION - demonstrates the decagon application note example
-
-% data = dlmread( 'ec5_T_Correction_example.csv' );
-% VWC_interp = data( :, 3 );
-% VWC_obs = data( :, 1 );
-% T = data( :, 2 );
-% pcp = zeros( size( T ) );
-% tstamp =  1:(1/24):5;
-% tstamp = tstamp( 1: numel( T ) )';
-% t_str = 'Decagon application note example';
-
-% VWC_Tc = echo_SWC_T_correction_single_probe( VWC_obs, T, pcp, tstamp, t_str )
-
-%--------------------------------------------------
 function VWC_Tc = echo_SWC_T_correction_single_probe( VWC, T, pcp, ...
                                                   tstamp, t_str, ...
                                                   debug_plots )

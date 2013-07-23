@@ -1,3 +1,6 @@
+% script to combine, verify and fill timestamps, and reformat variable names
+% for 2010 and 2011 unburned grassland 30-minute datalogger files.
+
 %% define file locations
 path = 'C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\New_GLand\toa5\';
 

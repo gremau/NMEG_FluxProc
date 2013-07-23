@@ -2,7 +2,7 @@ function hf_site = calculate_site_average_heat_flux(hf_by_cover)
 % CALCULATE_SITE_AVERAGE_HEAT_FLUX - calculates average heat flux by ground cover type, and a site-wide average
 %   
     
-%   shf_by_cover: N x M dataset containing soil heat flux measurements.  Each
+%   hf_by_cover: N x M dataset containing soil heat flux measurements.  Each
 %        variable must be labeled in the format COVER_NUM_remainder, where COVER
 %        is the cover type (e.g. grass, open, pinon, etc.) and NUM is the pit
 %        number (integer).  remainder may be arbitrary text; Calculates average,

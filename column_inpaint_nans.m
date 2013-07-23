@@ -1,7 +1,10 @@
 function data_out = column_inpaint_nans( data_in, method )
 % COLUMN_INPAINT_NANS - Wrapper for John D'Errico's inpaint_nans function.
 % Applys inpaint_nans to each column of a matrix.
-%   
+%
+% USAGE
+%    data_out = column_inpaint_nans( data_in, method );
+%
 % INPUTS
 %   data_in: NxM numeric array containing data to be filled
 %   method: integer, 1-6: the inpaint_nans method to use.  See inpaint_nans
@@ -9,6 +12,9 @@ function data_out = column_inpaint_nans( data_in, method )
 %
 % OUTPUT
 %   data_out: the input data with inpaint_nans applied to each column
+%
+% SEE ALSO
+%   inpaint_nans
 %
 % Timothy W. Hilton, UNM, Aug 2012
 

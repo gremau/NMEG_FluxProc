@@ -1,8 +1,7 @@
 function success = export_dataset_tim( fname, ds, varargin )
 % EXPORT_DATASET_TIM - write a dataset array to a delimited text file.  The
 %   builtin dataset export method is really slow; this is pretty quick.  An
-%   existing file named fname will be overwritten.  NaNs in data are replaced
-%   with -9999.
+%   existing file named fname will be overwritten.  
 % 
 % USAGE
 %     success = export_dataset_tim( fname, ds )

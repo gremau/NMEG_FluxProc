@@ -14,7 +14,7 @@ function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 %                                        'year', year )
 % INPUTS:
 %    raw_swc: N by M matrix of soil water content raw data (microseconds)
-%    T_soil: N by 1 matrix of soil temperature (C -- check this TWH )
+%    T_soil: N by 1 matrix of soil temperature (C)
 % OUTPUTS:
 %    vwc: N by M matrix of non-temperature-corrected SWC
 %    vwc_Tc: N by M matrix of temperature-corrected SWC

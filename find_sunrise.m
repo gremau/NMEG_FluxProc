@@ -1,14 +1,13 @@
 function [ sunrise_obs, sunrise_calc ] = find_sunrise( ds, sitecode, year )
-% FIND_RUNRISE - Finds sunrise for each day in the dataset ds.  ds must
-%   contain data from only one calendar year.
+% FIND_RUNRISE - Finds the observed and calculated sunrise for each day in the
+% dataset ds.  ds must contain data from only one calendar year.
 
 sd = parse_UNM_site_table();
+
+% convert Mountain standard time to and from UTC
 utc2mst = @( t ) t - ( 7 / 24 );
 mst2utc = @( t ) t + ( 7 / 24 );
 
-doy = floor( ds.DTIME );
-sunrise_obs = repmat( NaN, 366, 1 );
-sunrise_calc = repmat( NaN, 366, 1 );
 for d = 1:366
     this_data = ds( doy == d, : );
     idx = find( this_data.Rg > 5 );
