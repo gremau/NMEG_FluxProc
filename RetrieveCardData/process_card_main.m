@@ -12,6 +12,17 @@ function main_success = process_card_main( this_site, varargin )
 %    * captures all output, error messages, etc. to a log file in
 %      $FLUXROOT/Card_Processing_Logs 
 %
+% DATALOGGER FILE REQUIREMENTS: 
+% process_card_main expects to find exactly one thirty-minute data file and
+% exactly one 10-hz data file in the directory containing the datalogger data.
+% The thirty-minute data file must be named *.flux.dat and the 10 hz data file
+% must be named *.ts_data.dat.  If these requirements are not met
+% preocess_card_main will not be able to find the datalogger data.  If a
+% LoggerNet "repair" operation is necessary the unrepaired datalogger files
+% should be moved to a different directory (this may be a subdirectory within
+% the data directory), and the repaired file names must satisfy the above format
+% requirements.
+%
 % USAGE: 
 %    process_card_main( this_site )
 %    process_card_main( this_site, 'card' )
@@ -33,7 +44,7 @@ function main_success = process_card_main( this_site, varargin )
 %       skipped (useful for non-interactive processing).  Default is true.
 %
 % SEE ALSO:
-%    process_card_partial: designed to pick up processing part way through the
+%    process_card_partial: designed to pick up processing partway through the
 %    pipeline, requiring some by-hand intervention in the code to setup how far
 %    through the pipeline to pickup.  This can be useful if, for example, there
 %    is a garbled file on a card so that process_card_main crashes, or if the
@@ -198,7 +209,7 @@ catch err
     fprintf( 'continuing with processing\n' );
 end
 
-save( 'card_restart_01.mat' );
+save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'card_restart_01.mat' ) );
 
 % --------------------------------------------------
 % the data are now copied from the card and backed up.
