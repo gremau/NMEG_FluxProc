@@ -5,27 +5,41 @@ function [ result, all_data ] = UNM_process_10hz_main( sitecode, ...
 % UNM_PROCESS_10HZ_MAIN: top-level function for matlab processing of 10-hz data
 % from flux towers to 30-minute average.  t_start and t_end may not span two
 % different calendar years.
+%
+% I found that attempting to process a year at a time quickly ran out of RAM on
+% jemez.  To work around this I added the period_n_days parameter argument to
+% divide the processing into smaller "chunks".  I find that 30 days (the default
+% for period_n_days) works nicely on Jemez and on my laptop with 8GB RAM.  5
+% days seems to be about all my laptop with 2GB RAM can handle.  --TWH
 %   
 %USAGE
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end )
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end, lag)
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end, ..., rotation)
 %    result = UNM_process_10hz_main( sitecode, t_start, t_end, ..., ts_data_dir)
+%    result = UNM_process_10hz_main( sitecode, t_start, t_end, ..., period_n_days)
 %    [ result, data ] = UNM_process_10hz_main( sitecode, t_start, t_end, ... )
 %
 %INPUTS
-%    sitecode ( integer ): sitecode to process
+%    sitecode ( UNM_sites object or integer ): sitecode to process
 %    t_start (matlab datenum): data timestamp for starting processing
 %    t_end (matlab datenum): data timestamp for ending processing
+%
+% PARAMETER-VALUE PAIRS
 %    lag (integer): optional, 1 or 0 (default 0)
 %    rotation (sonic_rotation object): sonic_rotation.planar or 
 %        sonic_rotation.threeD (default threeD)
 %    ts_data_dir: directory containing the TOB1 files.  Defaults to
 %        $FLUXROOT/SITENAME/ts_data 
+%    period_n_days: size of "chunks" to process in one go, in days.  Default
+%        is 30
 %
 % OUTPUTS:
 %    result: 0 on success, non-zero on failure
-%    all_data: matlab dataset array containing the averaged data
+%    all_data: dataset array containing the averaged data
+%
+% SEE ALSO
+%    UNM_sites, sonic_rotation, dataset
 %
 % (c) Timothy W. Hilton, UNM, April 2012
 
@@ -45,6 +59,9 @@ p.addParamValue( 'rotation', ...
 p.addParamValue( 'ts_data_dir', ...
                  [], ...
                  @ischar );
+p.addParamValue( 'period_n_days', ...
+                 30, ...
+                 @(x) isnumeric( x ) & ( x > 0 ) );
     
 % parse optional inputs
 p.parse( sitecode, t_start, t_end, varargin{ : } );
@@ -55,7 +72,7 @@ t_end = p.Results.t_end;
 lag = p.Results.lag;
 rotation = p.Results.rotation;
 ts_data_dir = p.Results.ts_data_dir;
-
+period_n_days = p.Results.period_n_days;
 % -----
 % if called with more than two output arguments, throw exception
 % -----
@@ -80,7 +97,6 @@ else
 end
 
 %process a few days at a time -- a whole year bogged down for lack of memory
-period_n_days = 30;
 process_periods = t_start : period_n_days : t_end;
 if ( process_periods( end ) < t_end )
     process_periods = [ process_periods, t_end ];

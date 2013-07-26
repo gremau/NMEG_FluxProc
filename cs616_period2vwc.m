@@ -13,11 +13,29 @@ function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 %                                        'sitecode', sitecode, ...
 %                                        'year', year )
 % INPUTS:
-%    raw_swc: N by M matrix of soil water content raw data (microseconds)
-%    T_soil: N by 1 matrix of soil temperature (C)
+%
+%    raw_swc: N by M matrix or dataset array; soil water content raw data
+%        (microseconds)
+%    T_soil: N by 1 matrix or dataset array; soil temperature (C)
+%
+% PARAMETER-VALUE PAIRS
+%    site_code: UNM_sites object; sitecode (only necessary if save_plots is true).
+%    year: integer; the year (only necessary if save_plots is true)
+%    draw_plots: {true}|false; if true, draw diagnostic plots (described
+%        below).
+%    save_plots: true|{false}; if true, save plots to multi-page pdf file in
+%        $PLOTS/SWC_Plots/SITE_YYYY_SWC.pdf.  Requires Imagemagick to be
+%        installed (see http://www.imagemagick.org/). If true, site_code and
+%        year input parameters must be provided.
+%
 % OUTPUTS:
-%    vwc: N by M matrix of non-temperature-corrected SWC
-%    vwc_Tc: N by M matrix of temperature-corrected SWC
+%    vwc: N by M matrix or dataset array; non-temperature-corrected SWC (has
+%        same type as raw_swc)
+%    vwc_Tc: N by M matrix or dataset array; temperature-corrected SWC (has
+%        same type as T_soil)
+%
+% SEE ALSO
+%    dataset
 %
 % (c) Timothy W. Hilton, UNM, Apr 2012
 

@@ -34,6 +34,9 @@ function SHF_with_storage = calculate_heat_flux( TCAV, ...
 %    SHF_with_storage: N x M dataset; heat flux plus storage.  Has same column
 %        labels and order as shf input; [ W / m2 ]
 %
+% SEE ALSO
+%    dataset
+%
 % (c) Timothy W. Hilton, UNM, Dec 2011
 
 nrow = size( TCAV, 1 );

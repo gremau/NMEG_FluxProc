@@ -1,12 +1,45 @@
 function [ sunrise_obs, sunrise_calc ] = find_sunrise( ds, sitecode, year )
-% FIND_RUNRISE - Finds the observed and calculated sunrise for each day in the
-% dataset ds.  ds must contain data from only one calendar year.
+% FIND_RUNRISE - Finds the observed and theoretical sunrise for each day in the
+% dataset ds.  ds must contain data from only one calendar year.  The
+% theoretical sunrise is calculated by SolarAzEl
+% (http://www.mathworks.com/matlabcentral/fileexchange/file_infos/23051-vectorized-solar-azimuth-and-elevation-estimation)
+% based on the latitude, longitude, and elevation specified by sitecode (as
+% determined by parse_UNM_site_table). Observed sunrise is defined as the first
+% timestamp of the day at which incoming shortwave radiation (Rg) exceeds 5 w
+% m-2.
+% 
+% INPUTS
+%    ds: dataset array; data from which to extract the dates and observed
+%        sunrise times.  ds must contain fields Rg, from which observed sunrise
+%        is calculated, and DTIME, from which the observed time of sunrise is
+%        calculated.  ds.Rg should be in units of w m-2.  ds.DTIME must contain
+%        the fractional day of year.
+%    sitecode: UNM_sites object; which UNM site the data in ds represent
+%    year: integer; which year the data represent
+%
+% OUTPUTS
+%    sunrise_obs: 366 element numerical vector; the observed sunrise times
+%        from ds in hours past 00:00 for each day of year.  sunrise_obs( 366 )
+%        equals NaN for non-leap years.
+%    sunrise_calc: 366 element numerical vector; the calculated sunrise times
+%        from SolarAzEl in hours past 00:00 for each day of year. sunrise_obs( 366 )
+%        equals NaN for non-leap years.
+%
+% SEE ALSO
+%    dataset, SolarAzEl, UNM_sites, parse_UNM_site_table,
+%    get_solar_elevation, parse_UNM_site_table
+%
+% (c) Timothy W. Hilton, UNM, June 2012
 
 sd = parse_UNM_site_table();
 
 % convert Mountain standard time to and from UTC
 utc2mst = @( t ) t - ( 7 / 24 );
 mst2utc = @( t ) t + ( 7 / 24 );
+
+doy = floor( ds.DTIME );
+sunrise_obs = repmat( NaN, 366, 1 );
+sunrise_calc = repmat( NaN, 366, 1 );
 
 for d = 1:366
     this_data = ds( doy == d, : );

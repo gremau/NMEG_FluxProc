@@ -2,7 +2,7 @@
 % parse data
 % ------------------------------------------------------------
 
-pal = brewer_palettes( 'Dark2' );
+pal = cbrewer( 'qual', 'Dark2', 8 );
 
 filename = fullfile(  'C:', 'Users', 'Tim', ...
                      'DataSandbox', ...

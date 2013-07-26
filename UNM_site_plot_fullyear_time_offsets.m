@@ -40,7 +40,7 @@ year = args.Results.year;
 % calculate the offsets
 % -----
 data = parse_forgapfilling_file( sitecode, year );
-sol_ang = UNM_get_solar_angle( sitecode, data.timestamp );
+sol_ang = get_solar_elevation( sitecode, data.timestamp );
 
 opt_off_Rg = repmat( NaN, 1, numel( 1:365 ) );
 opt_off_PAR = repmat( NaN, 1, numel( 1:365 ) );

@@ -6,7 +6,7 @@ function [ QC, fgf ] = ...
 
 debug = true;
 
-sol_ang = UNM_get_solar_angle( sitecode, timestamp );
+sol_ang = get_solar_elevation( sitecode, timestamp );
 
 n_days = 365;
 if isleapyear( year )

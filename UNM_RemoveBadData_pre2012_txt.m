@@ -1429,7 +1429,7 @@ if iteration > 4
     if xx( end ) > length( decimal_day )
         xx(end) = length(decimal_day);
     end
-    pal = brewer_palettes( 'Dark2' );
+    pal = cbrewer( 'qual', 'Dark2', 8 );
 
     if draw_plots
         h_co2_fig = figure( 'Name', '[CO2]' );
@@ -1659,11 +1659,11 @@ end
 % and (2) seem to mess up the Lasslop flux partitioning.  Replace them
 % here with NaN.
 FA.fc_raw_massman_wpl = ...
-    replace_consecutive_zeros( FA.fc_raw_massman_wpl, 1, NaN );
+    replace_consecutive( FA.fc_raw_massman_wpl, 1 );
 FA.HL_wpl_massman = ...
-    replace_consecutive_zeros( FA.HL_wpl_massman, 1, NaN );
+    replace_consecutive( FA.HL_wpl_massman, 1 );
 FA.HSdry_massman = ...
-    replace_consecutive_zeros( FA.HSdry_massman, 1, NaN );
+    replace_consecutive( FA.HSdry_massman, 1 );
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2533,7 +2533,7 @@ if draw_plots
 
     max_par = nanmax( [ par, par_norm ] );
 
-    pal = brewer_palettes( 'Dark2' );
+    pal = cbrewer( 'qual', 'Dark2', 8 );
     h_par = plot( doy, par, 'ok' );
     hold on;
     h_par_norm = plot( doy, par_norm, 'x', 'Color', pal( 1, : ) );

@@ -264,7 +264,7 @@ function update_filled_plot( axh_gap, axh_filled, ...
 
 cla( axh_filled );
 
-pal = brewer_palettes( 'Dark2' );
+pal = cbrewer( 'qual', 'Dark2', 8 );
 flag_val = zeros( size( data_filled.DTIME ) );
 flag_col = find( strcmp( data_filled.Properties.VarNames, ...
                          sprintf( '%s_flag', vars.var_filled ) ) );

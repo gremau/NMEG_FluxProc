@@ -32,6 +32,9 @@ function SHF_with_storage = calculate_SHF_by_pits( soilT, ...
 %    SHF_with_storage: dataset; soil heat flux including storage calculated
 %    for each pit in soilT and VWC.
 %
+% SEE ALSO
+%    dataset
+%
 % (c) Timothy W. Hilton, UNM, April 2012
 
 soilT_vars = regexp( soilT.Properties.VarNames, '_', 'split' );

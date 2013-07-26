@@ -9,7 +9,7 @@ this_data = parse_ameriflux_file( fname );
 this_data.timestamp = datenum( year, 1, 0 ) + this_data.DTIME;
 this_data.SolEl = get_solar_elevation( sitecode, this_data.timestamp );
 
-pal = brewer_palettes( 'Dark2' );
+pal = cbrewer( 'qual', 'Dark2', 8 );
 t_str = sprintf( '%s %d', ...
                  sd.SITE_NAME{ sitecode }, ...
                  year );

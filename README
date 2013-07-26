@@ -76,10 +76,10 @@ something breaks, the best bet is to step into the Matlab code and
 debug.
 
 1. Insert the datalogger flash card into the computer.  
-2. Call UNM_retrieve_card_data_GUI.  This copies the data to disk and
-   displays a figure that plots each 30-minute data field
-   sequentially.  Step through each field and scan the plot to make
-   sure it looks reasonable!  When done, close the plot figure.
+2. Within Matlab, call UNM_retrieve_card_data_GUI.  This copies the
+   data to disk and displays a figure that plots each 30-minute data
+   field sequentially.  Step through each field and scan the plot to
+   make sure it looks reasonable!  When done, close the plot figure.
    Matlab will now openCampbell Scientific's CardConvert to process
    the raw data into TOA5 files and daily TOB1 10-hz files, copy those
    files to their backup locations, compress the raw data, and copy

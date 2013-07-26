@@ -22,6 +22,9 @@ function success = export_dataset_tim( fname, ds, varargin )
 % OUTPUTS
 %     success: 0 if file written successfully; non-zero otherwise
 % 
+% SEE ALSO
+%    dataset
+%
 % (c) Timothy W. Hilton, UNM, Oct 2012
 
 args = inputParser;

@@ -34,7 +34,7 @@ function cleaned = clean_data_by_hand( data_in )
 %        data_in with user-selected data points removed.
 %
 % SEE ALSO
-%    brush
+%    brush, dataset
 %
 % (c) Timothy W. Hilton, UNM, Nov 2012
 

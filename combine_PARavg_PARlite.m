@@ -20,6 +20,9 @@ function result = combine_PARavg_PARlite(headertext, data)
 % OUTPUTS
 %    result: M by 1 numeric array: the combined PAR time series.
 %
+% SEE ALSO
+%    dataset
+%
 % (c) Timothy W. Hilton, UNM, Apr 2012
 
 lite_col = find( strcmp( 'par_lite_avg', lower( headertext ) ) );

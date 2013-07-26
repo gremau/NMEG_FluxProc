@@ -29,7 +29,7 @@ PAR = data( :, PAR_col );
 % -----
 
 % calculate solar angle
-sol_ang = UNM_get_solar_angle( sitecode, timestamp );
+sol_ang = get_solar_elevation( sitecode, timestamp );
 
 % how many days are in this year?
 n_days = 365 + isleapyear( year );

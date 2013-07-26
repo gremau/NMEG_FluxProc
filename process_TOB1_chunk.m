@@ -1,12 +1,39 @@
-function ds_avg_30min = process_TOB1_chunk(sitecode, t_start, t_end, lag, ...
-                                           rotation, ts_data_dir )
+function ds_avg_30min = process_TOB1_chunk(sitecode, ...
+                                           t_start, ...
+                                           t_end, ...
+                                           lag, ...
+                                           rotation, ...
+                                           ts_data_dir )
 % PROCESS_TOB1_CHUNK - process 10 hz data within a specified time window to
 % 30-minute averages.  Returns a matlab dataset, each row of which contains
 % the processed and averaged 10-hz data for a 30 minute window.  If no data
 % are found within the requested time period, returns an empty dataset.
+%
+% process_TOB1_chunk is envisioned as a helper function to be called within
+% UNM_process_10hz_main.
+%
+% I created this function to help divide up annual processing into small chunks
+% because attempting a year at a time quickly ran out of RAM on jemez.
 %   
 % USAGE
-%    ds_avg_30min = process_TOB1_chunk( sitecode, t_start, t_end, lag, rotation )
+% ds_avg_30min = process_TOB1_chunk( sitecode, ...
+%                                    t_start, ...
+%                                    t_end, ...
+%                                    lag, ...
+%                                    rotation, ...
+%                                    ts_data_dir );
+%
+% INPUTS
+%    sitecode ( integer ): sitecode to process
+%    t_start (matlab datenum): data timestamp for starting processing
+%    t_end (matlab datenum): data timestamp for ending processing
+%    lag (integer): optional, 1 or 0
+%    rotation (sonic_rotation object): sonic_rotation.planar or 
+%        sonic_rotation.threeD
+%    ts_data_dir: directory containing the TOB1 files
+%
+% SEE ALSO
+%    UNM_process_10hz_main, UNM_sites, sonic_rotation
 %
 % (c) Timothy W. Hilton, UNM, Feb 2012
 

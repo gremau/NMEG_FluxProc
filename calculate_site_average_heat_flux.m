@@ -7,7 +7,10 @@ function hf_site = calculate_site_average_heat_flux(hf_by_cover)
 %        is the cover type (e.g. grass, open, pinon, etc.) and NUM is the pit
 %        number (integer).  remainder may be arbitrary text; Calculates average,
 %        so units are irrelevant.
-
+%
+% SEE ALSO
+%    dataset
+%
 % get unique cover types and their indices from the variable names
     pit_names = hf_by_cover.Properties.VarNames;
     cover_str = regexp( pit_names, '_', 'split' );

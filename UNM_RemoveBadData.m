@@ -258,7 +258,6 @@ obs_per_day = 48;  % half-hourly observations
 
     headertext = data.Properties.VarNames;
     [year month day hour minute second] = datevec( data.timestamp );
-    data.timestamp = [];
     ncol = size( data, 2 );
     filelength_n = size( data, 1 );
         
@@ -271,7 +270,10 @@ obs_per_day = 48;  % half-hourly observations
     data = replacedata( data, ...
                         UNM_fix_datalogger_timestamps( sitecode, ...
                                                       year_arg, ...
-                                                      double( data ) ) );
+                                                      double( data ), ...
+                                                      headertext, ...
+                                                      data.timestamp ) );
+    data.timestamp = [];
     shift_t_str = 'shifted';
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1445,7 +1447,7 @@ obs_per_day = 48;  % half-hourly observations
         if xx( end ) > length( decimal_day )
             xx(end) = length(decimal_day);
         end
-        pal = brewer_palettes( 'Dark2' );
+        pal = cbrewer( 'qual', 'Dark2', 8 );
 
         if draw_plots
             h_co2_fig = figure( 'Name', '[CO2]' );
@@ -1803,11 +1805,11 @@ obs_per_day = 48;  % half-hourly observations
     % and (2) seem to mess up the Lasslop flux partitioning.  Replace them
     % here with NaN.
     fc_raw_massman_wpl = ...
-        replace_consecutive_zeros( fc_raw_massman_wpl, 1, NaN );
+        replace_consecutive( fc_raw_massman_wpl, 1 );
     HL_wpl_massman = ...
-        replace_consecutive_zeros( HL_wpl_massman, 1, NaN );
+        replace_consecutive( HL_wpl_massman, 1 );
     HSdry_massman = ...
-        replace_consecutive_zeros( HSdry_massman, 1, NaN );
+        replace_consecutive( HSdry_massman, 1 );
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2199,6 +2201,9 @@ switch sitecode
         CO2_mean( idx ) = NaN;
         H2O_mean( idx ) = NaN;
         HL_wpl_massman( idx ) = NaN;
+      case 2013
+        idx = DOYidx( 46 ) : DOYidx( 75 );
+        Par_Avg( idx ) = normalize_vector( Par_Avg( idx ), 0, 2170 );
     end
     
   case UNM_sites.JSav
@@ -2710,7 +2715,7 @@ if draw_plots
 
     max_par = nanmax( [ par, par_norm ] );
 
-    pal = brewer_palettes( 'Dark2' );
+    pal = cbrewer( 'qual', 'Dark2', 8 );
     h_par = plot( doy, par, 'ok' );
     hold on;
     h_par_norm = plot( doy, par_norm, 'x', 'Color', pal( 1, : ) );

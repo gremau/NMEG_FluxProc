@@ -44,9 +44,11 @@ methods
     %           the character representation of sitecode and YYYY the present
     %           year.
     %
+    % SEE ALSO
+    %    sonic_rotation, UNM_sites, dataset
     % (c) Timothy W. Hilton, UNM, 2012
-    %
-    % see also sonic_rotation, UNM_sites
+
+
         
     
     % -----

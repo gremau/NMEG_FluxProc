@@ -15,7 +15,7 @@ function Tsoil = fill_soil_temperature_gaps( Tsoil, pcp, draw_plots )
 %         described above.
 %
 % SEE ALSO
-%     plot_soil_pit_data
+%     plot_soil_pit_data, dataset
 %
 % (c) Timothy W. Hilton, UNM, Aug 2012
 
