@@ -266,6 +266,12 @@ switch sitecode
         data( Aug11_1710:Nov14_1200, : ) = ...
             shift_data( data( Aug11_1710:Nov14_1200, : ), 4.5, ...
         'cols_to_shift', col_idx );
+        
+      case 2013
+        idx = 1 : DOYidx( 142 );
+        data( idx , : ) = shift_data( data( idx, : ), 1.0 );
+        idx = DOYidx( 142 ) : DOYidx( 182 );
+        data( idx , : ) = shift_data( data( idx, : ), 0.5 );
     end
 
   case UNM_sites.TX

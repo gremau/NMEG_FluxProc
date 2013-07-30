@@ -2562,6 +2562,14 @@ switch sitecode
 
       case 2012
         DOY_co2_max( DOYidx( 344 ) : end ) = 2.0;
+      case 2013
+        DOY_co2_max( 1 : DOYidx( 18 ) ) = 1.0;
+        DOY_co2_max( DOYidx( 27 ) : DOYidx( 31 ) ) = 0.8;
+        DOY_co2_min( DOYidx( 27 ) : DOYidx( 31 ) ) = -1.5;
+        DOY_co2_max( DOYidx( 67.5 ) : DOYidx( 69.55 ) ) = 1.0;
+        DOY_co2_min( DOYidx( 67.5 ) : DOYidx( 69.55 ) ) = -2.0;
+        DOY_co2_max( DOYidx( 76 ) : DOYidx( 76.6 ) ) = 1.0;
+        DOY_co2_min( DOYidx( 76 ) : DOYidx( 76.6 ) ) = -2.0;
     end  % MCon
 
   case UNM_sites.TX
