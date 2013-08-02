@@ -121,14 +121,14 @@ agg.timestamp = datenum( agg.year, agg.month, 1 );
 % plot the figure
 %================
 
-hf = figure( 'Visible', 'off' );
+hf = figure( 'Visible', 'on' );
 
 % set horizontal axis limit to time frame requested +- 30 days
 x_limits = [ datenum( agg.year( 1 ), agg.month( 1 ), 1 ) - 30, ...
              datenum( agg.year( end ), agg.month( end ), 1 ) + 30 ];
 
-tick_years = reshape( repmat( unique( agg.year )', 4, 1 ), [], 1 );
-tick_months = repmat( [ 1, 4, 7, 10 ]', numel( unique( args.Results.years ) ), 1 );
+tick_years = reshape( repmat( unique( agg.year )', 2, 1 ), [], 1 );
+tick_months = repmat( [ 1, 7 ]', numel( unique( args.Results.years ) ), 1 );
 x_ticks = datenum( tick_years, tick_months, 1 );
 %x_limits = [ min( x_ticks ) - 30, max( x_ticks ) + 30 ];
 
