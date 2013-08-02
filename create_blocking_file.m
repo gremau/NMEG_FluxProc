@@ -4,15 +4,15 @@ function blk_file_name = create_blocking_file( varargin )
 % met.
 %
 % Matlab's various commands to pause execution (waitfor, pause, etc.) will not
-% wait for the completion of a windows system call.  This is a someone inelegant
-% brute-force workaround for this problem.  A temporary "blocking" file is
-% created in the directory specified by tempname().  The file contains the
-% text "placeholder file to pause Matlab execution" and the time the file was
-% created, followed by an optional user message (e.g. "this file was create
-% to pause Matlab for XYZ".  The full path of the file is returned.  If the
-% last command of the Windows system call deletes the blocking file, then
-% placing this code immediately after the system call causes Matlab to wait
-% for the system call to complete before continuing:
+% wait for the completion of a windows system call.  This is a somewhat
+% inelegant brute-force workaround for this problem.  A temporary "blocking"
+% file is created in the directory specified by tempname().  The file contains
+% the text "placeholder file to pause Matlab execution" and the time the file
+% was created, followed by an optional user message (e.g. "this file was create
+% to pause Matlab for XYZ".  The full path of the file is returned.  If the last
+% command of the Windows system call deletes the blocking file, then placing
+% this code immediately after the system call causes Matlab to wait for the
+% system call to complete before continuing:
 %
 % pause on;
 % while( exist( blk_fname ) == 2 )
@@ -42,26 +42,25 @@ function blk_file_name = create_blocking_file( varargin )
 
 
 
-    fprintf( fid, 'created %s
-        
-    p = inputParser();
-    p.addOptional( 'user_message', '', @ischar );
-    p.parse( varargin{ : } );
-    
-    t_string = datestr( now(), 'blocking_yyyymmdd_HHMMSS' );
-    
-    blk_file_name = sprintf( '%s%s.txt', tempname(), t_string );
-    fid = fopen( blk_file_name, 'w' );
 
 
-    fprintf( fid, 'placeholder file to pause Matlab execution\r\n' );
-    fprintf( fid, 'created %s\r\n', datestr( now() ) );
-    if not( isempty( p.Results.user_message ) )
-        fprintf( fid, '%s\r\n', p.Results.user_message );
-    end
-    
-    fclose( fid );
-    
-    
-    
-    
+p = inputParser();
+p.addOptional( 'user_message', '', @ischar );
+p.parse( varargin{ : } );
+
+t_string = datestr( now(), 'blocking_yyyymmdd_HHMMSS' );
+
+blk_file_name = sprintf( '%s%s.txt', tempname(), t_string );
+fid = fopen( blk_file_name, 'w' );
+
+
+fprintf( fid, 'placeholder file to pause Matlab execution\r\n' );
+fprintf( fid, 'created %s\r\n', datestr( now() ) );
+if not( isempty( p.Results.user_message ) )
+    fprintf( fid, '%s\r\n', p.Results.user_message );
+end
+
+fclose( fid );
+
+
+
