@@ -62,7 +62,8 @@ ds = dataset( 'File', fname, ...
               'format', fmt, ...
               'delimiter', '\t', ...
               'MultipleDelimsAsOne', true, ...
-              'HeaderLines', 2 );
+              'HeaderLines', 2, ...
+              'readVarNames', false );
 
 ds_names = ds.Properties.VarNames;
 ds_dbl = double( ds );
@@ -72,5 +73,19 @@ clear ds;
 ds = dataset( { ds_dbl, col_headers{:} } );
 
 % create a matlab datenum timestamp column
-ts = datenum( ds.year, ds.month, ds.day, ds.hour, ds.minute, 0 );
+
+%detect time format
+if all( ismember( { 'year', 'month', 'day', 'hour', 'minute' }, ...
+                  ds.Properties.VarNames ) )
+    ts = datenum( ds.year, ds.month, ds.day, ds.hour, ds.minute, 0 );
+elseif all( ismember( { 'Year', 'DoY', 'Hour' }, ...
+                      ds.Properties.VarNames ) )
+    HOURS_PER_DAY = 24.0;
+    ts = datenum( ds.Year, 1, 0 ) + ...
+         ds.DoY + ...
+         ( ds.Hour / HOURS_PER_DAY );
+else
+    error( 'unrecognized time format' );
+end
+
 ds.timestamp = ts;
