@@ -44,8 +44,13 @@ if debug
     
     % -----
     % identify Rg and PAR columns from data
-    Rg_col = find( strcmp('Rad_short_Up_Avg', headertext) | ...
-                   strcmp('pyrr_incoming_Avg', headertext) ) - 1;
+    Rg_col = find( strcmp('Rad_short_Up_Avg', headertext) );
+    if isempty( Rg_col )
+        Rg_col = find( strcmp('pyrr_incoming_Avg', headertext) );
+    end
+    if isempty( Rg_col )
+        error( 'could not find incoming shortwave column' );
+    end
     
     nrows = size( data, 1 );
     dtime = timestamp - datenum( year, 1, 0 );
@@ -55,10 +60,13 @@ if debug
     h_fig = figure();
     h_ax = subplot( 2, 1, 1 );
 
+    % set figure location and size
+    pos = get( h_fig, 'Position' );
     % make the figure twice as tall as the default, so it can contain both
     % before and after plots at the default size
-    pos = get( h_fig, 'Position' );
-    pos( 4 ) = pos( 4 ) * 2;
+    pos( 4 ) = pos( 4 ) * 2;  
+    % place the figure at the bottom of the screen so it still fits
+    pos( 2 ) = 0;
     set( h_fig, 'Position', pos );
     
     t_str = sprintf( '%s %d Rg before timing fixed', ...
@@ -208,7 +216,7 @@ switch sitecode
       case 2008
         idx = DOYidx( 341.0 ) : size( data, 1 );
         data( idx, : ) = shift_data( data( idx, : ), 1.0 );
-        idx = 1 : DOYidx( 155 )
+        idx = 1 : DOYidx( 155 );
         data( idx, : ) = shift_data( data( idx, : ), -0.5 );
       case 2009
         idx = DOYidx( 351.5 ) : size( data, 1 );
@@ -276,7 +284,10 @@ switch sitecode
 
   case UNM_sites.TX
     switch year
+      case { 2007, 2008, 2010, 2011, 2012 }
+        data = shift_data( data, 1.0 );
       case 2009
+        data = shift_data( data, 1.0 );
         idx = DOYidx( 314 ) : size( data, 1 );
         data( idx, : ) = shift_data( data( idx, : ), 1.0 );
     end

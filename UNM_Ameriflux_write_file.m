@@ -4,8 +4,27 @@ function result = UNM_Ameriflux_write_file( sitecode, ...
                                             fname_suffix, ...
                                             varargin )
 % UNM_AMERIFLUX_WRITE_FILE - writes a dataset containing ameriflux data out to
-%   an Ameriflux ASCII file with appropriate headers
-    
+%   an Ameriflux ASCII file with appropriate headers.  Primnarily a helper
+%   function for UNM_Ameriflux_File_Maker.
+%
+% USAGE
+%    UNM_Ameriflux_write_file( sitecode, year, ds_aflx, fname_suffix )
+%
+% INPUTS
+%     sitecode: UNM_sites object or integer; specifies site to process
+%     year: integer; year to process
+%     ds_aflx: dataset array; the data to write.  Usually the output of
+%         UNM_Ameriflux_prepare_output_data 
+%     fname_suffix: char; 'gapfilled' or 'with_gaps'
+% KEYWORD ARGUMENTS
+%     email: contact email address to list in the Ameriflux file header.
+%         Default is mlitvak@unm.edu
+%     outdir: char; full path to directory to write ameriflux files to.
+%         Defaults to get_out_directory( sitecode ).
+%
+% (c) Timothy W. Hilton, UNM, 2012
+
+
 [ this_year, ~, ~ ] = datevec( now );
 
 % parse and validate arguments

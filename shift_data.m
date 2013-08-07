@@ -1,6 +1,6 @@
 function data = shift_data( data, offset_hours, varargin )
 % SHIFT_DATA - Helper function for UNM_fix_datalogger_timestamps,
-%   UNM_ameriflux_file_maker.m
+%   UNM_Ameriflux_file_maker.m
 %
 % USAGE
 %    data = shift_data( data, offset_hours )

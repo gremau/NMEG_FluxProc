@@ -1,4 +1,6 @@
-function [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, year )
+function [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, ...
+                                                  year, ...
+                                                  varargin )
 % PREPROCESS_PJ_SOIL_DATA - parse CR23X soil data for PJ or PJ_girdle and create
 % datasets for soil temperature, soil water content, and soil heat flux with
 % complete 30-minute timestamp record and duplicate timestamps removed.  When
@@ -11,11 +13,28 @@ function [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, year )
 % INPUTS
 %    sitecode: integer or UNM_sites object; either PJ or PJ_girdle
 %    year: integer; year of data to preprocess
+% KEYWORD ARGUMENTS
+%    t_min, t_max: matlab datenums; if specified, data will be truncated to
+%        the interval t_min, t_max
 %
 % OUTPUTS:
 %    soilT, SWC, SHF: matlab dataset arrays containing soil data
 %
 % (c) Timothy W. Hilton, UNM, 2012
+
+args = inputParser;
+args.addRequired( 'sitecode', @( x ) isa( x, 'UNM_sites' ) );
+args.addRequired( 'year', @isnumeric );
+args.addParamValue( 't_min', ...
+                    datenum( year, 1, 1, 0, 0, 0 ), ...
+                    @isnumeric );
+args.addParamValue( 't_max', ...
+                    datenum( year, 12, 31, 23, 30, 0 ), ...
+                    @isnumeric );
+args.parse( sitecode, year, varargin{ : } );
+
+sitecode = args.Results.sitecode;
+year = args.Results.year;
 
 if isa( sitecode, 'UNM_sites' )
     sitecode = int8( sitecode );
@@ -32,7 +51,7 @@ end
       case 4
         if year < 2012
             fname =  'PJC-23x-Compiled-04-24-12.csv';
-            n_col = 104;
+            n_col = 103;
         else
             fname =  sprintf( 'CR23X_PJ_%dall.dat', year );
             n_col = 103;
@@ -59,13 +78,15 @@ end
     
     % remove leading "x#_" and trailing __* from variable names
     disp( 'formatting variable names' );
-    soil_data.Properties.VarNames = regexprep( soil_data.Properties.VarNames, ...
-                                               '^x[0-9]*_', '' );
-    soil_data.Properties.VarNames = regexprep( soil_data.Properties.VarNames, ...
-                                               '__[A-Z]$', '' );    
-    % replace T with Tsoil in var names
-    soil_data.Properties.VarNames = regexprep( soil_data.Properties.VarNames, ...
-                                               '^T', 'soilT' );    
+    soil_data.Properties.VarNames = ...
+        regexprep( soil_data.Properties.VarNames, '^x[0-9]*_?', '' );
+    soil_data.Properties.VarNames = ...
+        regexprep( soil_data.Properties.VarNames, '[HL]$', '' );
+    soil_data.Properties.VarNames = ...
+        regexprep( soil_data.Properties.VarNames, '__[A-Z]?$', '' );    
+    % replace leading T with Tsoil in var names
+    soil_data.Properties.VarNames = ...
+        regexprep( soil_data.Properties.VarNames, '^T', 'soilT' );
     
     % build matlab datenums from year, day, hour, minute columns
     HH = floor( soil_data.Hour_Minute_RTM / 100 );
@@ -82,9 +103,8 @@ end
     thirty_minutes = 1 / 48;  % 30 mins expressed in units of days
     soil_data = dataset_fill_timestamps( soil_data, ...
                                          'tstamps', ...
-                                         't_min', datenum( year, 1, 1 ), ...
-                                         't_max', datenum( year, 12, 31, 23, 30, 0 ) );
-    soil_data.tstamps = datenum( soil_data.tstamps );
+                                         't_min', args.Results.t_min, ...
+                                         't_max', args.Results.t_max );
 
     % replace -9999 and -99999 with NaN
     badvals = [ -9999, 9999, -99999, 99999 ];

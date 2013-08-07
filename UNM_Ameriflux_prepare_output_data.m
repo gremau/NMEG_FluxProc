@@ -1,7 +1,6 @@
 function [ amflux_gaps, amflux_gf ] = ...
         UNM_Ameriflux_prepare_output_data( sitecode, ...
                                            year, ...
-                                           data, ...
                                            ds_qc, ...
                                            ds_pt, ...
                                            ds_soil )
@@ -23,7 +22,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     HL = @( x, L, H )  (x < L) | (x > H);
 
     % initialize flags to 1
-    f_flag = int8( repmat( 1, size( data, 1 ), 1 ) );
+    f_flag = int8( repmat( 1, size( ds_qc, 1 ), 1 ) );
     NEE_flag = f_flag;
     LE_flag = f_flag;
     H_flag = f_flag;
@@ -32,8 +31,12 @@ function [ amflux_gaps, amflux_gf ] = ...
     VPD_flag = f_flag;
     rH_flag = f_flag;
     
-    VPD_f = ds_pt.VPD_f ./ 10; % convert to kPa
-                             % what is "_g"?  "good" values?  --TWH
+    if ismember( 'VPD_f', ds_pt.Properties.VarNames )
+        VPD_f = ds_pt.VPD_f ./ 10; % convert to kPa
+                                   % what is "_g"?  "good" values?  --TWH
+    else
+        VPD_f = dummy;
+    end
     VPD_g = dummy;
     VPD_g( ~isnan( ds_qc.rH ) ) = VPD_f( ~isnan( ds_qc.rH ) );
     Tair_f = ds_pt.Tair_f;
@@ -76,6 +79,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     NEE_obs( idx ) =   ds_qc.fc_raw_massman_wpl( idx );
     NEE_flag( idx ) = 0;
     % set NEE_flag to 1 where local gapfilling was performed
+    %idx_filled = repmat( 1, size( dummy ) ); 
     idx_filled = UNM_gapfill_from_local_data( sitecode, year, dataset( [] ) );
     NEE_flag( idx_filled ) = 1;
     % LE,
@@ -220,7 +224,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gaps.DOY = floor( amflux_gaps.DTIME );
     amflux_gaps.HRMIN = str2num( datestr( amflux_gaps.timestamp, 'HHMM' ) ); 
     amflux_gaps.UST = ds_qc.u_star;
-    amflux_gaps.TA = Tair_obs;
+    amflux_gaps.TA = ds_qc.Tdry - 273.15;
     amflux_gaps.WD = ds_qc.wnd_dir_compass;
     amflux_gaps.WS = ds_qc.wnd_spd;
     amflux_gaps.NEE = dummy;
@@ -252,7 +256,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gaps.RE = RE_obs;
     amflux_gaps.GPP = GPP_obs;
     amflux_gaps.APAR = dummy;
-    
+
     % assign values to amflux_gaps
     amflux_gf.YEAR = str2num( datestr( amflux_gf.timestamp, 'YYYY' ) );
     amflux_gf.DTIME = amflux_gf.timestamp - datenum( amflux_gf.YEAR, 1, 1 ) + 1;
@@ -269,7 +273,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gf.WS = ds_qc.wnd_spd;
     amflux_gf.NEE = dummy;
     amflux_gf.FC = NEE_2;
-    amflux_gf.FC_old = NEE_old;
+    %amflux_gf.FC_old = NEE_old;
     amflux_gf.FC_flag = NEE_flag;
     amflux_gf.SFC = dummy;
     amflux_gf.H = H_2;
@@ -279,7 +283,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gf.LE_flag = LE_flag;
     amflux_gf.SLE = dummy;
     amflux_gf.G1 = dummy; %SHF_mean;
-    %amflux_gf.TS_2p5cm = dummy; %ds_soil.Tsoil_1;
+                          %amflux_gf.TS_2p5cm = dummy; %ds_soil.Tsoil_1;
     amflux_gf.PRECIP = ds_qc.precip;
     amflux_gf.RH = ds_pt.rH .* 100;
     amflux_gf.RH_flag = rH_flag;
@@ -301,15 +305,15 @@ function [ amflux_gaps, amflux_gf ] = ...
     amflux_gf.FH2O = ds_qc.E_wpl_massman .* 18;
     amflux_gf.H20 = ds_qc.H2O_mean;
     amflux_gf.RE = RE_2;
-    amflux_gf.RE_old = RE_old;
+    %amflux_gf.RE_old = RE_old;
     amflux_gf.RE_flag = NEE_flag;
     amflux_gf.GPP = GPP_2;
-    amflux_gf.GPP_old = GPP_old;
+    %amflux_gf.GPP_old = GPP_old;
     amflux_gf.GPP_flag = NEE_flag;
     amflux_gf.APAR = dummy;    
     %amflux_gf.SWC_2 = []; %dummy; %ds_soil.SWC_2;
     %amflux_gf.SWC_3 = []; %dummy; %ds_soil.SWC_3;
-    
+
     amflux_gaps.timestamp = [];
     amflux_gf.timestamp = [];
 

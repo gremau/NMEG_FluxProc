@@ -36,7 +36,7 @@ scrsz = get(0,'ScreenSize');
 sites_ds = parse_UNM_site_table();
 
 if args.Results.prompt_for_files
-    start_dir = fullfile( getenv( 'FLUXROOT' ), 'Ameriflux_Files', '*.txt' );
+    start_dir = fullfile( getenv( 'FLUXROOT' ), 'Ameriflux_files', '*.txt' );
     h = msgbox( 'Select the with-gaps Ameriflux file', '' );
     waitfor( h );
     [ fname_gaps, path_gaps ] ...
@@ -51,7 +51,7 @@ if args.Results.prompt_for_files
     
 else
     if isempty( args.Results.AFlux_dir )
-        AFlux_dir = fullfile( getenv( 'FLUXROOT' ), 'Ameriflux_Files' );
+        AFlux_dir = fullfile( getenv( 'FLUXROOT' ), 'Ameriflux_files' );
     else
         AFlux_dir = args.Results.AFlux_dir;
     end

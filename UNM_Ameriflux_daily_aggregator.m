@@ -1,4 +1,4 @@
-classdef UNM_ameriflux_daily_aggregator
+classdef UNM_Ameriflux_daily_aggregator
 % aggregates UNM gap-filled Ameriflux data to daily values.  Applies mean,
 % sum, and integrated sum where appropriate (details below).
 %
@@ -11,9 +11,9 @@ classdef UNM_ameriflux_daily_aggregator
 % variables aggregated by integrated sum (C fluxes): FC, GPP, RE
 %
 % USAGE: 
-%     agg = UNM_ameriflux_daily_aggregator( sitecode )
-%     agg = UNM_ameriflux_daily_aggregator( sitecode, years )
-%     agg = UNM_ameriflux_daily_aggregator( sitecode, ..., 'binary_data' )
+%     agg = UNM_Ameriflux_daily_aggregator( sitecode )
+%     agg = UNM_Ameriflux_daily_aggregator( sitecode, years )
+%     agg = UNM_Ameriflux_daily_aggregator( sitecode, ..., 'binary_data' )
 %
 % INPUTS:
 %     sitecode: UNM_sites object
@@ -22,7 +22,7 @@ classdef UNM_ameriflux_daily_aggregator
 %          parsing ameriflux files
 %
 % OUTPUTS:
-%     agg: UNM_ameriflux_daily_aggregator object
+%     agg: UNM_Ameriflux_daily_aggregator object
 %
 % FIELDS:
 %     sitecode
@@ -57,7 +57,7 @@ methods
 
 % --------------------------------------------------
 
-    function obj = UNM_ameriflux_daily_aggregator( sitecode, varargin );
+    function obj = UNM_Ameriflux_daily_aggregator( sitecode, varargin );
 
     % -----
     % parse user arguments & typecheck
@@ -178,7 +178,7 @@ function write_daily_file( obj, varargin )
 
 % -----
 args = inputParser;
-args.addRequired( 'obj', @(x) isa( x, 'UNM_ameriflux_daily_aggregator' ) );
+args.addRequired( 'obj', @(x) isa( x, 'UNM_Ameriflux_daily_aggregator' ) );
 args.addParamValue( 'outdir', '', @ischar );
 args.addParamValue( 'use_Ameriflux_code', true, @islogical );
 args.parse( obj, varargin{ : } );

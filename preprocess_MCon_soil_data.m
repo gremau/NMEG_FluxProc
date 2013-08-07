@@ -1,4 +1,4 @@
-function SWC = preprocess_MCon_soil_data( year )
+function SWC = preprocess_MCon_soil_data( year, timestamps )
 % PREPROCESS_MCON_SOIL_DATA - parse combined MCon soil data file and return soil
 %   water content 
 
@@ -41,5 +41,5 @@ SWC = SWC( datayear == year, : );
 % make sure it is a complete series of 30-minute timestamps
 SWC = dataset_fill_timestamps( SWC, ...
                                'timestamp', ...
-                               't_min', datenum( year, 1, 1 ), ...
-                               't_max', datenum( year, 12, 31, 23, 59, 59 ) );
+                               't_min', min( timestamps ), ...
+                               't_max', max( timestamps ) );
