@@ -1,66 +1,65 @@
-function [ pt_in_MR, pt_in_GL ] = ...
-        UNM_parse_gapfilled_partitioned_output( sitecode, year )
+function ds_gf_pt = UNM_parse_gapfilled_partitioned_output( sitecode, year )
 % UNM_PARSE_GAPFILLED_PARTITIONED_OUTPUT - parse the output of Jena's online
-% gapfilling/partitioning tool into Matlab Datasets.  In January 2012 Jena
-% updated the tool to merge the old DatasetAfterGapfill.txt into
-% DataSetAfterPartition_GL2010.txt for jobs that requested partitioning.  This
-% version of this function expects to find two partitioned output files:
-% DataSetAfterPartition_GL2010.txt and DataSetAfterPartition.txt.
-%   
-% [ pt_in_MR, pt_in_GL ] = ...
-%     UNM_parse_gapfilled_partitioned_output( sitecode, year )
+% gapfilling/partitioning tool into Matlab dataset array.  
+%
+% In January 2012 Jena updated the online tool to merge the old
+% DatasetAfterGapfill.txt into DataSetAfterPartition_GL2010.txt for jobs that
+% requested partitioning.  In July 2013 Jena released REddyProc, an R package
+% for gapfilling and partitioning.  REddyProc allows local gapfilling and
+% partitioning.  As of 7 Aug 2013, the partitioning component of REddyProc is in
+% a testing phase and is not activated in the publicly released package.
+%
+% This version of UNM_parse_gapfilled_partitioned_output expects to find the
+% gapfilled and partitioned output in a single file:
+% data_gapfilled_partitioned_SITE_YEAR.txt.  This file may be created using
+% UNM_run_gapfiller.
+%
+% data_gapfilled_partitioned_SITE_YEAR.txt must contain columns for year, month,
+% day, hour, and minute.  This function converts these to Matlab serial
+% datenumbers and appends these to the output in a column labeled "timestamp".
+% 
+% USAGE
+%    ds_gf_pt = UNM_parse_gapfilled_partitioned_output( sitecode, year )
+%
+% INPUTS:
+%    sitecode: UNM_sites object; specifies the UNM site
+%    year: integer; specifies the four-digit year
 %
 % OUTPUT:
-%   pt_in_MR: Matlab dataset containing data from DataSetAfterPartition.txt
-%             (partitioning algorithm of Markus Reichstein 2005)
-%   pt_in_GL: Matlab dataset containing data from 
-%             DataSetAfterPartition_GL2010.txt (partitioning algorithm of
-%             Gita Lasslop 2010)
+%    df_gf_pt: dataset array; the gapfilled and (hopefully soon) partitioned
+%        data
+%
+% SEE ALSO
+%   dataset, UNM_sites, datenum, UNM_run_gapfiller
 %
 % (c) Timothy W. Hilton, UNM, Feb 2012
-    
-%% parse the Lasslop 2010 partitioned file
-    fname = fullfile( get_site_directory( sitecode ), ...
-                      'processed_flux', ...
-                      sprintf( 'DataSetafterFluxpartGL2010_%d.txt', year ) );
 
-    [ ~, fname_short, ext ] = fileparts( fname );
-    fprintf( 'reading %s.%s... ', fname_short, ext );
+% parse the gapfilled and partitioned data
+fname = fullfile( get_site_directory( sitecode ), ...
+                  'processed_flux', ...
+                  sprintf( 'data_gapfilled_partitioned_%s_%d.txt', ...
+                           char( sitecode ), ...
+                           year ) );
 
-    % exception handling added by MF, modified by TWH
-    try
-        pt_in_GL = parse_jena_output( fname );  %GL == Gita Lasslop
-    catch err
-        error( sprintf( 'error parsing %s', fname) );
-    end
-    seconds = zeros( size( pt_in_GL.Year ) );
-    pt_in_GL.timestamp = datenum( pt_in_GL.Year, ...
-                                  pt_in_GL.Month, ...
-                                  pt_in_GL.Day, ...
-                                  pt_in_GL.Hour, ...
-                                  pt_in_GL.Minute, ...
-                                  seconds );
+[ ~, fname_short, ext ] = fileparts( fname );
+fprintf( 'reading %s.%s... ', fname_short, ext );
 
-    %% parse the Reichstein 2005 partitioned file
-    fname = fullfile( get_site_directory( sitecode ), ...
-                      'processed_flux', ...
-                      sprintf( 'DataSetafterFluxpart_%d.txt', year ) );
-    % exception handling added by MF, modified by TWH
-    try
-        pt_in_MR = parse_jena_output( fname );  %MR == Markus Reichstein
-    catch err
-        error( sprintf( 'error parsing %s', fname ) );
-    end
-    seconds = zeros( size( pt_in_MR.Year ) );
-    pt_in_MR.timestamp = datenum( pt_in_MR.Year, ...
-                                  pt_in_MR.Month, ...
-                                  pt_in_MR.Day, ...
-                                  pt_in_MR.Hour, ...
-                                  pt_in_MR.Minute, ...
-                                  seconds );
-    
-    fprintf( 'done\n');    
-    
+try
+    ds_gf_pt = parse_jena_output( fname );  %GL == Gita Lasslop
+catch err
+    error( sprintf( 'error parsing %s', fname) );
+end
+
+seconds = 0;
+ds_gf_pt.timestamp = datenum( ds_gf_pt.year, ...
+                              ds_gf_pt.month, ...
+                              ds_gf_pt.day, ...
+                              ds_gf_pt.hour, ...
+                              ds_gf_pt.minute, ...
+                              seconds );
+
+fprintf( 'done\n');    
+
 
 
 
