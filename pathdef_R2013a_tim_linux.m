@@ -1,3 +1,5 @@
+restoredefaultpath;
+
 addpath( '/home/tim/UNM/Code/Matlab/TimFluxUtils' );
 addpath( '/home/tim/UNM/Code/Matlab/TimUtils/moving_average_v3.1' );
 addpath( '/home/tim/UNM/Code/Matlab/TimUtils/hfdep' );
@@ -15,6 +17,7 @@ addpath( '/home/tim/UNM/Code/Matlab/TimUtils/Inpaint_nans/doc' );
 addpath( '/home/tim/UNM/Code/Matlab/TimUtils/Inpaint_nans/demo/html' );
 addpath( '/home/tim/UNM/Code/Matlab/TimUtils/Inpaint_nans/demo' );
 addpath( '/home/tim/UNM/Code/Matlab/TimUtils/Inpaint_nans' );
+addpath( '/home/tim/UNM/Code/Matlab/TimUtils/AcklamTimeUtils' );
 addpath( '/home/tim/UNM/Code/Matlab/TimUtils' );
-addpath( '/home/tim/UNM/Code/Matlab/UNM_Flux_Code_CardDev/RetrieveCardData' );
-addpath( '/home/tim/UNM/Code/Matlab/UNM_Flux_Code_CardDev' );
+addpath( '/home/tim/UNM/Code/Matlab/UNM_Flux_Code/RetrieveCardData' );
+addpath( '/home/tim/UNM/Code/Matlab/UNM_Flux_Code' );
