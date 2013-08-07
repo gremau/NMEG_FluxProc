@@ -249,6 +249,15 @@ switch sitecode
 
     end
     
+    [ ~, ~, ~, hr, ~, ~ ] = datevec( datenum( year_arg, 1, 0 ) + decimal_day );
+    isnight = ( Par_Avg < 20.0 ) | ( sw_incoming < 20 );
+    isnight = isnight | ( hr >= 22 ) | ( hr <= 5 );
+    %remove nighttime Rg and RgOut values outside of [ -5, 5 ] added 15 Jun 2013 in
+    % response to problems noted by Sebastian Wolf
+    sw_incoming( isnight & ( abs( sw_incoming ) > 10 ) ) = NaN;
+    sw_outgoing( isnight & ( abs( sw_outgoing ) > 10 ) ) = NaN;
+    Par_Avg( isnight & ( abs( Par_Avg ) > 10 ) ) = NaN;
+    
   case UNM_sites.TX_forest
     % for TX forest 2009, there was no PAR observation in the fluxall file on
     % 15 Mat 2012.  We substituted in PAR from the TX savana site. --  TWH &
