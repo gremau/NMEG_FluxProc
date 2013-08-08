@@ -55,7 +55,8 @@ ds_qc = UNM_parse_QC_txt_file( sitecode, year );
 % dataset_gapfilled_partitioned)
 ds_gf_pt = UNM_parse_gapfilled_partitioned_output( UNM_sites( sitecode ), ...
                                                   year );
-
+fp_tol = 1e-6;  %floating point tolerance for badvalue replacement
+ds_gf_pt = replace_badvals( ds_gf_pt, -9999, fp_tol );
 % make sure that QC, FluxAll, and gapfilled/partitioned have identical, complete
 % 30 minute timeseries
 fprintf( 'synchronizing timestamps... ');
