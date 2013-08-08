@@ -11,10 +11,10 @@ function result = UNM_Ameriflux_File_Maker( sitecode, year, varargin )
 % USAGE
 %    result = UNM_Ameriflux_file_maker_TWH( sitecode, year, ... )
 %
-% KEYWORD ARGUMENTS:
-%    write_files: logical; if false, do not write the Ameriflux files (useful
+% PARAMETER-VALUE PAIRS:
+%    write_files: {true}|false; if false, do not write the Ameriflux files (useful
 %        for debugging without writing over good ameriflux files)
-%    write_daily_files: logical; if true, write daily aggregated data for
+%    write_daily_files: {true}|false; if true, write daily aggregated data for
 %        selected variables to a separate file.  For a list of aggregated
 %        variables, see help for UNM_Ameriflux_daily_aggregator.
 %
@@ -51,24 +51,21 @@ end
 % parse the QC file
 ds_qc = UNM_parse_QC_txt_file( sitecode, year );
 
-% parse gapfilled and partitioned fluxes
-[ ds_pt_GL, ds_pt_MR ] = ...
-    UNM_parse_gapfilled_partitioned_output( sitecode, year );
+% parse gapfilled and partitioned fluxes (ds_gf_pt abbreviates
+% dataset_gapfilled_partitioned)
+ds_gf_pt = UNM_parse_gapfilled_partitioned_output( UNM_sites( sitecode ), ...
+                                                  year );
 
-% make sure that QC, FluxAll, gapfilled, and partitioned have identical,
-% complete 30 minute timeseries
+% make sure that QC, FluxAll, and gapfilled/partitioned have identical, complete
+% 30 minute timeseries
 fprintf( 'synchronizing timestamps... ');
 t0 = now(); % record running time
 
-t_min = min( [ ds_qc.timestamp; ds_pt_GL.timestamp; ds_pt_MR.timestamp ] );
-t_max = max( [ ds_qc.timestamp; ds_pt_GL.timestamp; ds_pt_MR.timestamp ] );
+t_min = min( [ ds_qc.timestamp; ds_gf_pt.timestamp ] );
+t_max = max( [ ds_qc.timestamp; ds_gf_pt.timestamp ] );
 
-[ ds_pt_GL, ds_qc ] = ...
-    merge_datasets_by_datenum( ds_pt_GL, ds_qc, ...
-                               'timestamp', 'timestamp', ...
-                               3, t_min, t_max );
-[ ds_pt_MR, ds_qc ] = ... 
-    merge_datasets_by_datenum( ds_pt_MR, ds_qc, ...
+[ ds_gf_pt, ds_qc ] = ...
+    merge_datasets_by_datenum( ds_gf_pt, ds_qc, ...
                                'timestamp', 'timestamp', ...
                                3, t_min, t_max );
 
@@ -76,15 +73,9 @@ Jan1 = datenum( year, 1, 1, 0, 0, 0 );
 Dec31 = datenum( year, 12, 31, 23, 59, 59 );
 ds_qc = dataset_fill_timestamps( ds_qc, 'timestamp', ...
                                  't_min', Jan1, 't_max', Dec31 );
-ds_pt_GL = dataset_fill_timestamps( ds_pt_GL, 'timestamp', ...
+ds_gf_pt = dataset_fill_timestamps( ds_gf_pt, 'timestamp', ...
                                     't_min', Jan1, 't_max', Dec31 );
-ds_pt_MR = dataset_fill_timestamps( ds_pt_MR, 'timestamp', ...
-                                    't_min', Jan1, 't_max', Dec31 );
-% merge gapfilling/partitioning output into one dataset so we don't have
-% to worry about which variables are in which dataset
-cols = setdiff( ds_pt_MR.Properties.VarNames, ...
-                ds_pt_GL.Properties.VarNames );
-ds_pt = [ ds_pt_GL, ds_pt_MR( :, cols ) ];
+
 
 seconds_per_day = 60 * 60 * 24;
 t_run = ceil( ( now() - t0 ) * seconds_per_day );
@@ -148,15 +139,15 @@ switch sitecode
       case 2009
         
         NEE_vars = cellfun( @(x) not(isempty(x)), ...
-                            regexp( ds_pt_GL.Properties.VarNames, '.*NEE.*' ) );
+                            regexp( ds_gf_pt.Properties.VarNames, '.*NEE.*' ) );
         GPP_vars = cellfun( @(x) not(isempty(x)), ...
-                            regexp( ds_pt_GL.Properties.VarNames, '.*GPP.*' ) );
+                            regexp( ds_gf_pt.Properties.VarNames, '.*GPP.*' ) );
         RE_vars = cellfun( @(x) not(isempty(x)), ...
-                           regexp( ds_pt_GL.Properties.VarNames, '.*RE.*' ) );
+                           regexp( ds_gf_pt.Properties.VarNames, '.*RE.*' ) );
         LE_vars = cellfun( @(x) not(isempty(x)), ...
-                           regexp( ds_pt_GL.Properties.VarNames, '.*LE.*' ) );
+                           regexp( ds_gf_pt.Properties.VarNames, '.*LE.*' ) );
         H_vars = cellfun( @(x) not(isempty(x)), ...
-                          regexp( ds_pt_GL.Properties.VarNames, '.*H_.*' ) );
+                          regexp( ds_gf_pt.Properties.VarNames, '.*H_.*' ) );
         shift_vars = find( NEE_vars | GPP_vars | RE_vars | H_vars );
         idx = 1:DOYidx( 20 );
         temp_arr = double( ds_pt );
@@ -202,7 +193,7 @@ ds_soil = [];  % dummy for now  -- TWH 29 May 2013
 % create the variables to be written to the output files
 [ amflux_gaps, amflux_gf ] = ...
     UNM_Ameriflux_prepare_output_data( sitecode, year, ...
-                                       ds_qc, ds_pt, ds_soil );
+                                       ds_qc, ds_gf_pt, ds_soil );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot the data before writing out to files

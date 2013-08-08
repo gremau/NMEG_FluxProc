@@ -43,8 +43,8 @@ function gf_data_outfile = ...
 % http://www.bgc-jena.mpg.de/REddyProc/brew/REddyProc.rhtml.
 %
 % UNM_run_gapfiller generates an R script that uses REddyProc to gapfill and
-% partition a dataset.  R and REddyProc must be installed on the system; see
-% http://www.r-project.org/ and
+% partition a dataset.  R and REddyProc (both free and open source) must be
+% installed on the system; see http://www.r-project.org/ and
 % http://cran.r-project.org/doc/manuals/r-release/R-admin.html#Installing-packages.
 %
 % (c) Timothy W. Hilton and Litvak Lab, UNM, July 2013
@@ -72,13 +72,9 @@ gf_R_outfile = fullfile( getenv( 'FLUXROOT' ), ...
                                   year ) );
 
 % make system call to R to run the gapfiller
-cmd = sprintf( 'R CMD BATCH %s %s', ...
+cmd = sprintf( 'R CMD BATCH --no-restore --no-save %s %s', ...
                gf_R_infile, ...
                gf_R_outfile );
-
-% calling R from within Matlab requires some environment variable
-% manipulation.  See call_R (below) for details.
-success = call_R( cmd );
 
 fprintf( '\n-------------------------\nGAPFILLING/PARTITIONING\n' );
 fprintf( 'R script: %s\n', gf_R_infile );
@@ -87,10 +83,16 @@ fprintf( 'gapfiller input data file: %s\n', fullfile( gf_data_dir, gf_data_infil
 fprintf( 'gapfiller output data file: %s\n', gf_data_outfile );
 fprintf( 'system call: %s\n', cmd );
 fprintf( 'gapfiller running ', cmd );
+
+% calling R from within Matlab requires some environment variable
+% manipulation.  See call_R (below) for details.
+success = call_R( cmd );
 % wait for the gapfiller, checking every 5 seconds whether it has completed
 pause on;
 while( exist( block_fname ) == 2 )
     fprintf( '.' );
+    % flush non-graphics queues
+    drawnow( 'update' );
     pause( 5 );
 end
 fprintf( '  done\n' );
@@ -176,7 +178,7 @@ fprintf( fid, [ 'EddyDataWithPosix.F <- fConvertTimeToPosix(EddyData.F,', ...
 fprintf( fid, '##+++ Initalize R5 reference class sEddyProc for processing of eddy data\n' );
 fprintf( fid, '##+++ with all variables needed for processing later\n' );
 fprintf( fid, ['EddyProc.C <- sEddyProc$new("%s", EddyDataWithPosix.F, ' ...
-               'c("NEE","Rg", "Tair", "VPD"))\n\n'], ...
+               'c("NEE","Rg", "Tair", "VPD", "LE", "H" ))\n\n'], ...
          site_info.Ameriflux{ sitecode } );
 
 fprintf( fid, '##+++ Generate plots of all data in directory plots (of current R working dir)\n' );
@@ -188,8 +190,11 @@ fprintf( fid, 'EddyProc.C$sPlotHHFluxesY("NEE", Year.i=%d)\n', year );
 fprintf( fid, 'EddyProc.C$sPlotFingerprintY("NEE", Year.i=%d)\n\n', year );
 
 fprintf( fid, '##+++ Fill gaps in variables with MDS gap filling algorithm\n' );
+fprintf( fid, 'EddyProc.C$sMDSGapFill("Tair", FillAll.b=TRUE)\n\n' );
+fprintf( fid, 'EddyProc.C$sMDSGapFill("Rg", FillAll.b=TRUE)\n\n' );
 fprintf( fid, 'EddyProc.C$sMDSGapFill("NEE", FillAll.b=TRUE)\n' );
-fprintf( fid, 'EddyProc.C$sMDSGapFill("Rg", FillAll.b=FALSE)\n\n' );
+fprintf( fid, 'EddyProc.C$sMDSGapFill("LE", FillAll.b=TRUE)\n\n' );
+fprintf( fid, 'EddyProc.C$sMDSGapFill("H", FillAll.b=TRUE)\n\n' );
 
 fprintf( fid, '##+++ Generate plots of filled data in directory /plots (of current R working dir)\n' );
 fprintf( fid, 'EddyProc.C$sPlotHHFluxes("NEE_f")\n' );
@@ -209,8 +214,25 @@ fprintf( fid, 'FilledEddyData.F <- EddyProc.C$sExportResults()\n\n' );
 fprintf( fid, '##+++ Save results into (tab-delimited) text file in directory /out\n' );
 fprintf( fid, 'CombinedData.F <- cbind(EddyData.F, FilledEddyData.F)\n' );
 
-out_dir = tempdir();
-gf_out_fname = sprintf( '%s_%d-filled.txt', char( sitecode ), year );
+fprintf( fid, ['##+++ until REddyProc partitioning is released, fill RE and ' ...
+               'GPP with NAs\n']); 
+fprintf( fid, 'CombinedData.F[[ "Reco_HBLR" ]] <- NA\n' );
+fprintf( fid, 'CombinedData.F[[ "GPP_HBLR" ]] <- NA\n' );
+
+fprintf( fid, ['##+++ Replace "." with "_" in variable names for Matlab ' ...
+               'compatibility\n'] ); 
+% to replace a literal '.' in R, need to escape it twice -- once for Matlab,
+% once for R.  Therefore need four backslashes.
+fprintf( fid, ['names( CombinedData.F ) ', ...
+               '<- gsub( "\\\\.", "_", names( CombinedData.F ) ) \n' ] );
+
+out_dir = fullfile( getenv( 'FLUXROOT' ), ...
+                    'Flux_Tower_Data_by_Site', ...
+                    char( sitecode ), ...
+                    'processed_flux' );
+gf_out_fname = sprintf( 'data_gapfilled_partitioned_%s_%d.txt', ...
+                        char( sitecode ), ...
+                        year );
 fprintf( fid, 'fWriteDataframeToFile(CombinedData.F, FileName.s="%s", Dir.s="%s")\n\n',...
          gf_out_fname, out_dir );
 fprintf( fid, 'file.remove( "%s" )', blk_file );
