@@ -14,7 +14,7 @@ function [ vars, varargout ] = regexp_ds_vars( ds, re )
 %    vars: cell array of strings; variable names from ds that match re
 %    idx: optional; vector of column indices of the matches
 %
-% (c) Timothy W. Hilton, UNM, Jan 2012
+% author: Timothy W. Hilton, UNM, Jan 2012
     
     vars = regexp( ds.Properties.VarNames, re, 'match' );
     idx = find( ~cellfun( 'isempty', vars ) );

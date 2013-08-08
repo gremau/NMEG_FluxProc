@@ -18,7 +18,7 @@ function result = UNM_Ameriflux_File_Maker( sitecode, year, varargin )
 %        selected variables to a separate file.  For a list of aggregated
 %        variables, see help for UNM_Ameriflux_daily_aggregator.
 %
-% (c) Timothy W. Hilton, UNM, 2011 - 2013
+% author: Timothy W. Hilton, UNM, 2011 - 2013
 
 load_t0 = now();
 

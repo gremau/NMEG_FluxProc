@@ -26,7 +26,7 @@ function clean_names = clean_up_varnames( messy_names )
 % OUTPUTS
 %     clean_names: cell array of strings; the cleaned up variable names
 %
-% (c) Timothy W. Hilton, UNM, Oct 2011
+% author: Timothy W. Hilton, UNM, Oct 2011
 
 
 % replace ( ) , ; with _

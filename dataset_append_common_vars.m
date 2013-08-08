@@ -16,7 +16,7 @@ function ds = dataset_append_common_vars( varargin )
 % SEE ALSO
 %    dataset
 %
-% (c) Timothy W. Hilton, UNM, Oct 2012
+% author: Timothy W. Hilton, UNM, Oct 2012
 
 fill_vars = true;
 

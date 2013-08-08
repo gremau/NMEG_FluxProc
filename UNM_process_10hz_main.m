@@ -41,7 +41,7 @@ function [ result, all_data ] = UNM_process_10hz_main( sitecode, ...
 % SEE ALSO
 %    UNM_sites, sonic_rotation, dataset
 %
-% (c) Timothy W. Hilton, UNM, April 2012
+% author: Timothy W. Hilton, UNM, April 2012
 
 % -----
 % define inputs, with defaults for optionals, and with type-checking

@@ -5,7 +5,7 @@ function rh_hmp = thmp_and_h2ohmp_2_rhhmp( t_hmp, h2o_hmp)
 % is below, in Matlab comments.  This code rearranges the LANL equations to
 % calculate rh_hmp.
 %
-% (c) Timothy W. Hilton, UNM, May 2012
+% author: Timothy W. Hilton, UNM, May 2012
     
 %constants:
     A_0 = 6.107800;           %Coefficients for the sixth order approximating

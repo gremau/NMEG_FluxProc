@@ -46,7 +46,7 @@ classdef UNM_sites_info
 %
 % US-Mpj
 %
-% (c) Timothy W. Hilton, UNM, Nov 2012
+% author: Timothy W. Hilton, UNM, Nov 2012
 
 properties
     

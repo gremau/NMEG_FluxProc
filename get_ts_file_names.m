@@ -15,7 +15,7 @@ function fnames = get_ts_file_names( site, date_start, date_end, data_dir );
 % OUTPUTS
 %   fnames: cell array of file names (with full paths)
 %
-% (c) Timothy W. Hilton, UNM
+% author: Timothy W. Hilton, UNM
 
     if exist(data_dir) ~= 7
         error('get_ts_file_names:dir_not_found',...

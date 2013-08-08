@@ -14,7 +14,7 @@ function fluxall = fluxall_fill_timestamps( fluxall )
 % SEE ALSO:
 %     dataset_fill_timestamps
 %
-% (c) Timothy W. Hilton, UNM, Dec 2012
+% author: Timothy W. Hilton, UNM, Dec 2012
 
 year = mode( fluxall.year );
 

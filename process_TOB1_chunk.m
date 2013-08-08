@@ -35,7 +35,7 @@ function ds_avg_30min = process_TOB1_chunk(sitecode, ...
 % SEE ALSO
 %    UNM_process_10hz_main, UNM_sites, sonic_rotation
 %
-% (c) Timothy W. Hilton, UNM, Feb 2012
+% author: Timothy W. Hilton, UNM, Feb 2012
 
     t0 = now(); % monitor running time
 

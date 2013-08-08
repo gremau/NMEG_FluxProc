@@ -16,7 +16,7 @@ function ds = parse_forgapfilling_file( sitecode, year, varargin )
 % OUTPUTS
 %     ds [ matlab dataset ]: the data contained in the file
 %
-% (c) Timothy W. Hilton, UNM, March 2012
+% author: Timothy W. Hilton, UNM, March 2012
 
 [ this_year, ~, ~, ~, ~, ~ ] = datevec( now() );
 

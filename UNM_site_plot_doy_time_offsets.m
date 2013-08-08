@@ -12,7 +12,7 @@ function UNM_site_plot_doy_time_offsets( sitecode, year, doy, varargin )
 % OUTPUTS
 %   no outputs
 %
-% (c) Timothy W. Hilton, UNM, June 2012
+% author: Timothy W. Hilton, UNM, June 2012
 
 [ this_year, ~, ~, ~, ~, ~ ] = datevec( now() );
 

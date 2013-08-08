@@ -14,7 +14,7 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
 % OUTPUTS:
 %   fnames: cell array of strings; list of complete paths of TOB1 files
 %
-% (c) Timothy W. Hilton, UNM, Dec 2011
+% author: Timothy W. Hilton, UNM, Dec 2011
     
     switch type
       case 'TOA5'

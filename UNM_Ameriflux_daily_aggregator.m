@@ -42,7 +42,7 @@ classdef UNM_Ameriflux_daily_aggregator
 %          outdir: optional, char; path to directory in which to write output
 %              files.  Default is $FLUXROOT/Ameriflux_files.
 %
-% (c) Timothy W. Hilton, UNM, December 2012
+% author: Timothy W. Hilton, UNM, December 2012
 
 properties
     

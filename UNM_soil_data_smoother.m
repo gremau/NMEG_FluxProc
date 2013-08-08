@@ -18,7 +18,7 @@ function data_out = UNM_soil_data_smoother( data_in, ...
 % OUTPUTS
 %   data_out: data with outlier elements removed.
 %
-% (c) Timothy W. Hilton, UNM, Sep 2012
+% author: Timothy W. Hilton, UNM, Sep 2012
 
 input_is_dataset = isa( data_in, 'dataset' );
 

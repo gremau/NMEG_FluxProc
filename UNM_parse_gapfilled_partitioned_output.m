@@ -32,7 +32,7 @@ function ds_gf_pt = UNM_parse_gapfilled_partitioned_output( sitecode, year )
 % SEE ALSO
 %   dataset, UNM_sites, datenum, UNM_run_gapfiller
 %
-% (c) Timothy W. Hilton, UNM, Feb 2012
+% author: Timothy W. Hilton, UNM, Feb 2012
 
 % parse the gapfilled and partitioned data
 fname = fullfile( get_site_directory( sitecode ), ...

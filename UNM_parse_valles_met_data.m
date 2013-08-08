@@ -17,7 +17,7 @@ function met_data_ds = UNM_parse_valles_met_data( year )
 % SEE ALSO
 %     dataset
 %
-% (c) Timothy W. Hilton, UNM, March 2012
+% author: Timothy W. Hilton, UNM, March 2012
 
 fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
                   sprintf( 'valles_met_data_%d.dat', year ) );

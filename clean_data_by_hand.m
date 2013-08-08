@@ -36,7 +36,7 @@ function cleaned = clean_data_by_hand( data_in )
 % SEE ALSO
 %    brush, dataset
 %
-% (c) Timothy W. Hilton, UNM, Nov 2012
+% author: Timothy W. Hilton, UNM, Nov 2012
 
 input_is_dataset = isa( data_in, 'dataset' );
 if input_is_dataset

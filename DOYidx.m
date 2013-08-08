@@ -14,7 +14,7 @@ function idx = DOYidx( DOY )
 % OUTPUTS
 %    idx: index of DOY in an annual thirty-minute dataset.  0 <= idx <= 17569.
 %
-% (c) Timothy W. Hilton, UNM, June 2012
+% author: Timothy W. Hilton, UNM, June 2012
 
 if ( DOY < 0 ) | ( DOY >= 367 )
     error( 'DOY must satisfy 0 <= DOY < 367' );

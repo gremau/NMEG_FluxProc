@@ -9,7 +9,7 @@ function run_mean = running_mean(x, window)
 % OUTPUTS
 %    run_mean: the running mean.  Computed column-wise if M > 1.
 %
-% (c) Timothy W. Hilton, UNM, Apr 2012
+% author: Timothy W. Hilton, UNM, Apr 2012
 
     if mod( window, 2 ) ~= 1
         error( 'window must be odd integer' );

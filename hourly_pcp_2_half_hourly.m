@@ -13,7 +13,7 @@ function hh = hourly_pcp_2_half_hourly( pcp, timestamps )
 % OUTPUTS:
 %     hh: matlab dataset object containing half-hourly pcp and timestamps
 %
-% (c) Timothy W. Hilton, UNM, July 2012
+% author: Timothy W. Hilton, UNM, July 2012
 
 mins30 = 1/48;  % thirty minutes in units of days
 

@@ -4,7 +4,7 @@ function amflux_ds = parse_ameriflux_file( fname )
 % USAGE:
 %   amflux_ds = parse_ameriflux_file( fname )
 %
-% (c) Timothy W. Hilton, UNM, Dec 2011
+% author: Timothy W. Hilton, UNM, Dec 2011
 
 headerlines = 3;
 delim = detect_delimiter( fname );

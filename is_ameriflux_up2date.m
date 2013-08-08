@@ -22,7 +22,7 @@ function up2date = is_ameriflux_up2date( sitecode, year )
 % If any of the files do not satisfy that order (or do not exist), all five
 % files and their modification dates are written to stdout.
 %
-% (c) Timothy W. Hilton, UNM, May 2012
+% author: Timothy W. Hilton, UNM, May 2012
 
 site_info = parse_UNM_site_table();
 

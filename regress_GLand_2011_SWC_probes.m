@@ -17,7 +17,7 @@ function coeff = regress_GLand_2011_SWC_probes( data, varargin )
 % OUTPUTS
 %    coeff: slope and intercept of linear regression
 %
-% (c) Timothy W. Hilton, UNM, Sep 2012
+% author: Timothy W. Hilton, UNM, Sep 2012
 
 % -----
 % define optional inputs, with defaults and typechecking

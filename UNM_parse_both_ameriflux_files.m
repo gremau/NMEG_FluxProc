@@ -5,7 +5,7 @@ function [ds_gaps, ds_GF ] = UNM_parse_both_ameriflux_files( sitecode, year )
 % USAGE:
 %   [ds_gaps, ds_GF ] = UNM_parse_both_ameriflux_files( sitecode, year )
 %
-% (c) Timothy W. Hilton, UNM, June 2012
+% author: Timothy W. Hilton, UNM, June 2012
 
 % read site names
 sites_ds = parse_UNM_site_table();

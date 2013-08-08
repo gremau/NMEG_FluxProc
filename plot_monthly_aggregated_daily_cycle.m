@@ -12,7 +12,7 @@ function plot_monthly_aggregated_daily_cycle( mm, varargin )
 %        encapsulated postscript (eps) file.  If not specified plot is not
 %        saved. 
 %
-% (c) Timothy W. Hilton, UNM, May 2013
+% author: Timothy W. Hilton, UNM, May 2013
 
 args = inputParser;
 args.addRequired( 'mm', @(x) isa( x, 'dataset' ) );

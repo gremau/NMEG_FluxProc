@@ -5,7 +5,7 @@ function [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...
     % modified by Krista Anderson-Teixeira 1/08
     % substantially rewritten by Timothy W. Hilton, Jan 2012
     %
-    % (c) Timothy W. Hilton, UNM, Jan 2012
+    % author: Timothy W. Hilton, UNM, Jan 2012
 
     Nfields = size( data, 2 );
 

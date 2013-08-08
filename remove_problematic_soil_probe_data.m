@@ -22,7 +22,7 @@ function [ Tsoil, SWC ] = remove_problematic_soil_probe_data( sitecode, year, Ts
 %    SWC: dataset array object; soil water content data for the specified 
 %        site-year with the periods specified below removed
 %
-% (c) Timothy W. Hilton, UNM, Sep 2012
+% author: Timothy W. Hilton, UNM, Sep 2012
 
 if isnumeric( sitecode )
     sitecode = UNM_sites( sitecode );

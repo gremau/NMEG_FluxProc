@@ -22,7 +22,7 @@ function VWC_Tc = echo_SWC_T_correction_GLand( VWC, T, pcp, tstamp, year, ...
 % SEE ALSO
 %    dataset
 %
-% (c) Timothy W. Hilton, UNM, Sep 2012
+% author: Timothy W. Hilton, UNM, Sep 2012
 
 VWC_varnames = strrep( VWC.Properties.VarNames, 'cs616SWC_', '' );
 VWC_varnames = strrep( VWC_varnames, 'cm', '' );
@@ -85,7 +85,7 @@ function VWC_Tc = echo_SWC_T_correction_single_probe( VWC, T, pcp, ...
 % OUTPUTS
 %     VWC_Tc: temperature-corrected volumetric water content
 %
-% (c) Timothy W. Hilton, UNM, Sep 2012
+% author: Timothy W. Hilton, UNM, Sep 2012
 
 fprintf( 'temperature correcting ECH2O soil water: %s\n', t_str );
 

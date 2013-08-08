@@ -17,7 +17,7 @@ function  out  = replace_consecutive_with_condition( in, cond )
 % OUTPUTS:
 %    out: data from in with consecutive daytime values removed
 %
-% (c) Timothy W. Hilton, UNM, 2013
+% author: Timothy W. Hilton, UNM, 2013
 
 runs = rle( in );
 in_row = reshape( in, 1, [] );

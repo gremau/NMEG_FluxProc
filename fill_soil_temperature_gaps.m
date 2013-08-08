@@ -17,7 +17,7 @@ function Tsoil = fill_soil_temperature_gaps( Tsoil, pcp, draw_plots )
 % SEE ALSO
 %     plot_soil_pit_data, dataset
 %
-% (c) Timothy W. Hilton, UNM, Aug 2012
+% author: Timothy W. Hilton, UNM, Aug 2012
 
 Tsoil_dbl = double( Tsoil );
 nan_idx = isnan( Tsoil_dbl );

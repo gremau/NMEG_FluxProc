@@ -15,7 +15,7 @@ function [ NR_sw, NR_lw, NR_tot ] = ...
 %                                       lw_incoming, lw_outgoing, ...
 %                                       NR_tot, wnd_spd, decimal_day );
 %
-% (c) Timothy W. Hilton, UNM, 2013
+% author: Timothy W. Hilton, UNM, 2013
 
 % calculate new net radiation values
 NR_lw = lw_incoming - lw_outgoing; % calculate new net long wave

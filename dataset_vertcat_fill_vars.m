@@ -17,7 +17,7 @@ function ds_out = dataset_vertcat_fill_vars( varargin )
 % SEE ALSO
 %    dataset
 %
-% (c) Timothy W. Hilton, UNM, Feb 2012
+% author: Timothy W. Hilton, UNM, Feb 2012
     
     all_vars = varargin{1}.Properties.VarNames;
     for i = 2:numel( varargin )

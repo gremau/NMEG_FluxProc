@@ -13,7 +13,7 @@ function [str] = build_sitecode_name_string(site_names)
 % OUTPUTS
 %    str: string; site code --site name pairs separated by newline characters
 % 
-% (c) Timothy W. Hilton, UNM, Aug 2011
+% author: Timothy W. Hilton, UNM, Aug 2011
   
   str = '';
   for i=1:numel(site_names)

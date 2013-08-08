@@ -29,7 +29,7 @@ function [ sunrise_obs, sunrise_calc ] = find_sunrise( ds, sitecode, year )
 %    dataset, SolarAzEl, UNM_sites, parse_UNM_site_table,
 %    get_solar_elevation, parse_UNM_site_table
 %
-% (c) Timothy W. Hilton, UNM, June 2012
+% author: Timothy W. Hilton, UNM, June 2012
 
 sd = parse_UNM_site_table();
 

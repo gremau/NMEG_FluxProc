@@ -13,7 +13,7 @@ function dn = nan_datenum( str, fmt )
 % OUTPUTS
 %   dn: if str represents a date, a matlab datenum.  If str is NaN, NaN.
 %
-% (c) Timothy W. Hilton, UNM, April 2012
+% author: Timothy W. Hilton, UNM, April 2012
 
 dn = NaN;
 

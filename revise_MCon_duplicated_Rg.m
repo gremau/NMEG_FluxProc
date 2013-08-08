@@ -17,7 +17,7 @@ function data = revise_MCon_duplicated_Rg( data, headertext, t, varargin )
 %     rad: radiation observations with duplicated measurements replaced by
 %         interpolated measurements.
 %
-% (c) Timothy W. Hilton, UNM, May 2013
+% author: Timothy W. Hilton, UNM, May 2013
 
 
 % -----

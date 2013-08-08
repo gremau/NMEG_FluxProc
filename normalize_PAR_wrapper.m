@@ -2,7 +2,7 @@ function [ Par_Avg ] = normalize_PAR_wrapper( sitecode, year_arg, ...
                                               decimal_day, Par_Avg, ...
                                               draw_plots )
 % NORMALIZE_PAR_WRAPPER - normalize PAR to account for calibration problems at
-% some sites.This is a helper function for UNM_RemoveBadData.  It is not
+% some sites. This is a helper function for UNM_RemoveBadData.  It is not really
 % intended to be called on its own.  Input and output arguments are defined in
 % UNM_RemoveBadData.
 %
@@ -11,7 +11,13 @@ function [ Par_Avg ] = normalize_PAR_wrapper( sitecode, year_arg, ...
 %                                            decimal_day, Par_Avg, ...
 %                                            draw_plots );
 %
-% (c) Timothy W. Hilton, UNM, 2013
+% author: Timothy W. Hilton, UNM, 2013
+
+if ( sitecode == UNM_sites.SLand ) & ( year_arg == 2013 )
+    % something caused the PAR observation on this card to be really low.
+    idx = DOYidx( 46 ) : DOYidx( 75 );
+    Par_Avg( idx ) = normalize_vector( Par_Avg( idx ), 0, 2050 );
+end
 
 if ismember( sitecode, [ UNM_sites.GLand, ...
                         UNM_sites.SLand, ...
@@ -19,9 +25,9 @@ if ismember( sitecode, [ UNM_sites.GLand, ...
                         UNM_sites.PJ, ...
                         UNM_sites.TX, ...
                         UNM_sites.New_GLand, ...
-                        UNM_sites.PJ_girdle ] );
+                        UNM_sites.PJ_girdle ] )
     par_max = 2500;
-    if ( sitecode == 3 ) & ( year_arg == 2008 )
+    if ( sitecode == UNM_sites.JSav ) & ( year_arg == 2008 )
         % there is a small but suspicious-looking step change at DOY164 -
         % normalize the first half of the year separately from the second
         doy164 = DOYidx( 164 );
@@ -38,7 +44,7 @@ if ismember( sitecode, [ UNM_sites.GLand, ...
         Par_Avg = [ Par_Avg1; Par_Avg2 ];
         
 
-    elseif ( sitecode == 10 ) & ( year_arg == 2010 )
+    elseif ( sitecode == UNM_sites.PJ_girdle ) & ( year_arg == 2010 )
         % two step changes in this one
         doy138 = DOYidx( 138 );
         doy341 = DOYidx( 341 );

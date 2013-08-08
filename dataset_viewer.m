@@ -19,7 +19,7 @@ function fh =  dataset_viewer( ds, varargin )
 % SEE ALSO
 %    dataset
 %
-% (c) Timothy W. Hilton, UNM, Mar 2012
+% author: Timothy W. Hilton, UNM, Mar 2012
 
 %-------------------------
 % parse optional arguments

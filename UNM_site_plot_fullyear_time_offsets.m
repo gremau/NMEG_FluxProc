@@ -18,7 +18,7 @@ function UNM_site_plot_fullyear_time_offsets( sitecode, year, varargin )
 % OUTPUTS
 %    no outputs
 %
-% (c) Timothy W. Hilton, UNM, June 2012
+% author: Timothy W. Hilton, UNM, June 2012
 
 % -----
 % define optional inputs, with defaults and typechecking

@@ -11,7 +11,7 @@ function changed_idx = fix_PPine_2008_forgapfilling()
 %    changed_idx: 1xN vector; true where fluxes were manipulated, false
 %        elsewhere 
 %
-% (c) Timothy W. Hilton, UNM, Apr 2013
+% author: Timothy W. Hilton, UNM, Apr 2013
 
 fgf = parse_forgapfilling_file( UNM_sites.PPine, 2008 );
 aflx_gf = parse_ameriflux_file( fullfile( getenv( 'FLUXROOT' ), ...

@@ -10,7 +10,7 @@ classdef(Enumeration) sonic_rotation < int32
     %
     % see also enumeration
     %
-    % (c) Timothy W. Hilton, UNM, May 2012
+    % author: Timothy W. Hilton, UNM, May 2012
 
 
     enumeration

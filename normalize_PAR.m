@@ -1,6 +1,7 @@
 function par_norm = normalize_PAR( sitecode, par, doy, draw_plots, par_max )
 % NORMALIZE_PAR - normalizes 98.8 percentile of observed PAR to a specified
-% maximum.
+% maximum.  98.8 percetile chosen visually; this value seems to work well for
+% producing a smooth annual cycle of PAR. 
 %
 % USAGE:
 %     par_norm = normalize_PAR( sitecode, par, doy, draw_plots, par_max )
@@ -8,14 +9,14 @@ function par_norm = normalize_PAR( sitecode, par, doy, draw_plots, par_max )
 % INPUTS:
 %     sitecode: UNM_sites object; the site to normalize
 %     par: unnormalized PAR
-%     doy: day of year
+%     doy: day of year (used for plotting)
 %     draw_plots: logical; if true, draw a "before/after" plot
 %     par_max: value to normalize 98.8 percentile of PAR to
 %   
 % OUTPUTS
 %     par_norm: normalized PAR
 %
-% (c) Timothy W. Hilton, UNM, 2013
+% author: Timothy W. Hilton, UNM, 2013
 
 doy = floor( doy );
 norm_factor = par_max / prctile( par, 99.8 );
@@ -27,7 +28,7 @@ if draw_plots
 
     max_par = nanmax( [ par, par_norm ] );
 
-    pal = brewer_palettes( 'Dark2' );
+    pal = cbrewer( 'qual', 'Dark2', 8 );
     h_par = plot( doy, par, 'ok' );
     hold on;
     h_par_norm = plot( doy, par_norm, 'x', 'Color', pal( 1, : ) );

@@ -7,7 +7,7 @@ function UNM_Ameriflux_Data_Viewer( sitecode, year, varargin )
 %    UNM_Ameriflux_Data_Viewer( sitecode, year, prompt_for_files )
 %    UNM_Ameriflux_Data_Viewer( sitecode, year, 'AFlux_dir', 'some/path'  )
 %
-% (c) Timothy W. Hilton, UNM, Feb 2012
+% author: Timothy W. Hilton, UNM, Feb 2012
 
 %-------------------------
 % Initialization tasks

@@ -10,7 +10,7 @@ function aa = annual_aggregate( t, x, aggfun)
 %   aa: annually aggregated data. dataset array with variables year, val, with
 %      val the aggregated values of x.
 %
-% (c) Timothy W. Hilton, UNM, May 2013
+% author: Timothy W. Hilton, UNM, May 2013
 
 [ y, ~, ~, ~, ~, ~ ] = datevec( t );
 [ tcon, ycon ] = consolidator( [ y ], x, aggfun );

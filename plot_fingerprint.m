@@ -4,7 +4,7 @@ function [ h_fig, h_ax ] = plot_fingerprint( dtime, data, t_str, varargin )
 % USAGE
 %    [ h_fig, h_ax ] = plot_fingerprint( dtime, data, t_str )
 %
-% (c) Timothy W. Hilton, UNM, June 2012
+% author: Timothy W. Hilton, UNM, June 2012
 
 
 % -----

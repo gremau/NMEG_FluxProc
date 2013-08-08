@@ -32,7 +32,7 @@ function hf = plot_CZO_figure( sitecode, years, varargin )
 % OUTPUTS
 %    hf: handle to the figure window containing the plot.
 %
-% (c) Timothy W. Hilton, UNM, July 2012
+% author: Timothy W. Hilton, UNM, July 2012
 
 [ this_year, ~, ~ ] = datevec( now );
 

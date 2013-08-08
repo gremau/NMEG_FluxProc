@@ -8,7 +8,7 @@ function [ var_names, var_units, file_lines, first_data_line, delim ] = ...
 % USAGE
 %    [ var_names, var_units, file_lines, first_data_line, delim ] = parse_TOA5_file_headers( infile )
 %
-% (c) Timothy W. Hilton, UNM, Feb 2012
+% author: Timothy W. Hilton, UNM, Feb 2012
 
     n_header_lines = 4;
     first_data_line = n_header_lines + 1;

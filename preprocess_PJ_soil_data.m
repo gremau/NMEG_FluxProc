@@ -20,7 +20,7 @@ function [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, ...
 % OUTPUTS:
 %    soilT, SWC, SHF: matlab dataset arrays containing soil data
 %
-% (c) Timothy W. Hilton, UNM, 2012
+% author: Timothy W. Hilton, UNM, 2012
 
 args = inputParser;
 args.addRequired( 'sitecode', @( x ) isa( x, 'UNM_sites' ) );

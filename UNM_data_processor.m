@@ -10,7 +10,7 @@ function [ chunks_30_min ] = UNM_data_processor( sitecode, filename, file_date, 
     % modified by Krista Anderson-Teixeira 1/08
     % substantially rewritten by Timothy W. Hilton, Jan 2012
     %
-    % (c) Timothy W. Hilton, UNM, Jan 2012
+    % author: Timothy W. Hilton, UNM, Jan 2012
 
     ds = read_TOB1_file( filename );
     

@@ -12,7 +12,7 @@ function tstamps = tstamps_from_TOB1_filenames( fnames )
 % OUTPUTS
 %   tstamps: array of datenums corresponding to file names
 %
-% (c) Timothy W. Hilton, UNM, Sep 2012
+% author: Timothy W. Hilton, UNM, Sep 2012
 
 %read the time stamps from the file names into matlab datenums
 tstamp_strings = regexp( fnames, ...

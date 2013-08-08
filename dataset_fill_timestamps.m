@@ -26,7 +26,7 @@ function ds_filled = dataset_fill_timestamps( ds, t_var, varargin )
 % SEE ALSO
 %    dataset
 %
-% (c) Timothy W. Hilton, UNM, Dec. 2011
+% author: Timothy W. Hilton, UNM, Dec. 2011
     
 % -----
 % define optional inputs, with defaults

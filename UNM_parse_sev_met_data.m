@@ -4,7 +4,7 @@ function met_data = UNM_parse_sev_met_data( year )
 % USAGE
 %     met_data = UNM_parse_valles_met_data( year )
 %
-% (c) Timothy W. Hilton, UNM, March 2012
+% author: Timothy W. Hilton, UNM, March 2012
 
     fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
                       sprintf( 'sev_met_data_%d.dat', year ) );

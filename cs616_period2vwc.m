@@ -37,7 +37,7 @@ function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 % SEE ALSO
 %    dataset
 %
-% (c) Timothy W. Hilton, UNM, Apr 2012
+% author: Timothy W. Hilton, UNM, Apr 2012
 
 
 % -----

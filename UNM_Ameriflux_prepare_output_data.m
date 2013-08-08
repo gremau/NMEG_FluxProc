@@ -9,7 +9,7 @@ function [ amflux_gaps, amflux_gf ] = ...
     %   names they should have for Ameriflux.
     % This code is largely taken from UNM_Ameriflux_file_maker_011211.m
     %
-    % (c) Timothy W. Hilton, UNM, January 2012
+    % author: Timothy W. Hilton, UNM, January 2012
 
     soil_moisture = false; % turn off soil moisture processing for now
     

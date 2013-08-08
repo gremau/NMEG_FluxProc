@@ -38,7 +38,7 @@
 % OUTPUTS:
 %     This function has no outputs
 %
-% (c) Timothy W. Hilton, UNM, May 2012
+% author: Timothy W. Hilton, UNM, May 2012
 
 
 function [] = UNM_RemoveBadData( sitecode, year, varargin )
@@ -1849,9 +1849,6 @@ switch sitecode
         CO2_mean( idx ) = NaN;
         H2O_mean( idx ) = NaN;
         HL_wpl_massman( idx ) = NaN;
-      case 2013
-        idx = DOYidx( 46 ) : DOYidx( 75 );
-        Par_Avg( idx ) = normalize_vector( Par_Avg( idx ), 0, 2170 );
     end
     
   case UNM_sites.JSav

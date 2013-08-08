@@ -7,7 +7,7 @@ function success = fix_PPine_2010_forgapfilling()
 % USAGE
 %    success = fix_PPine_2012_forgapfilling()
 %
-% (c) Timothy W. Hilton, UNM, Oct 2012
+% author: Timothy W. Hilton, UNM, Oct 2012
 
 fgf = parse_forgapfilling_file( UNM_sites.PPine, 2010 );
 aflx_gf = parse_ameriflux_file( fullfile( getenv( 'FLUXROOT' ), ...

@@ -12,7 +12,7 @@ function mm = monthly_aggregated_daily_cycle( t, x, aggfun)
 %   mm: monthly mean data. dataset array with variables year, month, hour,
 %       val, with val the aggregated values of x.
 %
-% (c) Timothy W. Hilton, UNM, May 2013
+% author: Timothy W. Hilton, UNM, May 2013
 
 [ y, m, ~, h, ~, ~ ] = datevec( t );
 [ tcon, ycon ] = consolidator( [ y, m, h ], x, aggfun );

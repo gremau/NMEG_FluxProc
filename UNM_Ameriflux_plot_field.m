@@ -11,7 +11,7 @@ function h = UNM_Ameriflux_plot_field( ds, field, year )
 % OUTPUTS
 %   h: handle to the figure window created
 %
-% (c) Timothy W. Hilton, UNM, January 2012
+% author: Timothy W. Hilton, UNM, January 2012
     
     h = figure( 'Visible', 'off' );
     var_idx = find( strcmp( ds.Properties.VarNames, field ) );

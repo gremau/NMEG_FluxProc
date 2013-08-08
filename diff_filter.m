@@ -13,7 +13,7 @@ function data_out = diff_filter( data_in, delta )
 % OUTPUTS
 %    data_out: data_in with elements failing the filter set to NaN
 %
-% (c) Timothy W. Hilton, UNM, Sep 2012
+% author: Timothy W. Hilton, UNM, Sep 2012
 
 % if delta is [ NaN, NaN ] do not apply the filter.
 if all( isnan( delta ) )

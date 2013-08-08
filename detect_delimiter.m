@@ -12,7 +12,7 @@ function delim = detect_delimiter(fpath)
 % OUTPUTS
 %    delim: character; the best-guess delimiter
 %
-% (c) Timothy W. Hilton, UNM, Oct 2011
+% author: Timothy W. Hilton, UNM, Oct 2011
     
     [n, lines] = parse_file_lines(fpath);
     

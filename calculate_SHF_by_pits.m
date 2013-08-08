@@ -35,7 +35,7 @@ function SHF_with_storage = calculate_SHF_by_pits( soilT, ...
 % SEE ALSO
 %    dataset
 %
-% (c) Timothy W. Hilton, UNM, April 2012
+% author: Timothy W. Hilton, UNM, April 2012
 
 soilT_vars = regexp( soilT.Properties.VarNames, '_', 'split' );
 soilT_vars = vertcat( soilT_vars{ : } ); 

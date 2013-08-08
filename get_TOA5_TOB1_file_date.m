@@ -6,7 +6,7 @@ function dn = get_TOA5_TOB1_file_date( fname )
 % USAGE
 %   dn = get_TOA5_TOB1_file_date( fname )
 %
-% (c) Timothy Hilton, UNM, Feb 2012
+% author: Timothy Hilton, UNM, Feb 2012
     
     %tokenize the filename into the year, month, etc. components
     [ toks, sz, errmsg, nxtidx ] = sscanf( fname, ...

@@ -12,7 +12,7 @@ function data = shift_data( data, offset_hours, varargin )
 %    cols_to_shift: which columns to shift.  defaults to [ 74: size( data, 2 ) ]
 %            -- this corresponds to the 30-minute portion of the FLUXALL files.
 %
-% (c) Timothy W. Hilton, UNM, June 2012
+% author: Timothy W. Hilton, UNM, June 2012
 
 % -----
 % define optional inputs, with defaults and typechecking

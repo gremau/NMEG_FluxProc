@@ -6,7 +6,7 @@ function ds = fluxallqc_2_dataset( qc_num, sitecode, year )
 % SEE ALSO
 %   dataset 
 %
-% (c) Timothy W. Hilton, UNM, Jan 2012
+% author: Timothy W. Hilton, UNM, Jan 2012
 
     timestamp = excel_date_2_matlab_datenum( qc_num( :, 1 ) );
     ds = dataset( { timestamp, 'timestamp' } );

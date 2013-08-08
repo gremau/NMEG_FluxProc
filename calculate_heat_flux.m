@@ -37,7 +37,7 @@ function SHF_with_storage = calculate_heat_flux( TCAV, ...
 % SEE ALSO
 %    dataset
 %
-% (c) Timothy W. Hilton, UNM, Dec 2011
+% author: Timothy W. Hilton, UNM, Dec 2011
 
 nrow = size( TCAV, 1 );
 

@@ -12,7 +12,7 @@ function sol_el = get_solar_elevation( sitecode, t_mst )
 % OUTPUTS
 %   sol_el: solar elevation angle, degrees
 %
-% (c) Timothy W. Hilton, UNM, June 2012
+% author: Timothy W. Hilton, UNM, June 2012
 
 % convert UTC <-> MST
 seven_hours = 7 / 24;  % seven hours in units of days

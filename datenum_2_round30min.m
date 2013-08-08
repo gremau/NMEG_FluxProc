@@ -19,7 +19,7 @@ function [ ts, keep_idx ] = datenum_2_round30min(ts_in, tol, t0)
 % SEE ALSO
 %    datenum
 %
-% (c) Timothy W. Hilton, UNM, Jan 2012
+% author: Timothy W. Hilton, UNM, Jan 2012
 
 %% convert matlab datenums to seconds since 00:00 of the day of the first
 %% timestamp in the series 

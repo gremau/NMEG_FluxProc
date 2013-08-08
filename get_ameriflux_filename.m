@@ -12,7 +12,7 @@ function fpath = get_ameriflux_filename( sitecode, year, suffix)
 % OUTPUTS
 %    fpath: char array: the full path to the requested Ameriflux file.
 %
-% (c) Timothy W. Hilton, UNM, May 2012
+% author: Timothy W. Hilton, UNM, May 2012
 
 [ this_year, ~, ~, ~, ~, ~ ] = datevec( now() );
 

@@ -4,7 +4,7 @@ function outfile = UNM_online_gapfiller_submit_job(sitecode, year)
 %
 % USAGE: outfile = UNM_online_gapfiller_submit_job(sitecode, year)
 %
-% (c) Timothy W. Hilton, UNM, Mar 2012
+% author: Timothy W. Hilton, UNM, Mar 2012
 
 site_name = get_site_name( sitecode );
 siteinfo = parse_UNM_site_table();

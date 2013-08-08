@@ -38,7 +38,7 @@ methods
         %   draw_plots; logical, default true
         %   process_soil_data; logical, default true
         %
-        % (c) Timothy W. Hilton, UNM, 2013
+        % author: Timothy W. Hilton, UNM, 2013
 
 
         args = inputParser;

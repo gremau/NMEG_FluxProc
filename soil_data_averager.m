@@ -29,7 +29,7 @@ function [ avg_soil_data, avg_by_cover, avg_by_depth ] = ...
 %    avg_by_cover: average across all depths by cover type
 %    avg_by_depth: average across all covers by depth
 %
-% (c) Timothy W. Hilton, UNM, April 2012
+% author: Timothy W. Hilton, UNM, April 2012
 
 %-----
 % parse arguments

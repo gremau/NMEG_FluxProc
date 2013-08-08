@@ -22,7 +22,7 @@ function ds_out = dataset_foldin_data( ds_in1, ds_in2 )
 % SEE ALSO
 %   dataset
 %
-% (c) Timothy W. Hilton, UNM, Dec 2012
+% author: Timothy W. Hilton, UNM, Dec 2012
 
 % -----
 % make sure the two datasets have identical timestamps:

@@ -38,7 +38,7 @@ function blk_file_name = create_blocking_file( varargin )
 % SEE ALSO
 %    tempname, now
 %
-% (c) Timothy W. Hilton, UNM, May 2012
+% author: Timothy W. Hilton, UNM, May 2012
 
 
 

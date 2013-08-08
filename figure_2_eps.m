@@ -11,7 +11,7 @@ function figure_2_eps( h_fig, fname )
 % OUTPUTS
 %   no outputs
 %
-% (c) Timothy W. Hilton, UNM, June 2012
+% author: Timothy W. Hilton, UNM, June 2012
 
 % force matlab to respect the figure size (without this, it "pads" the figure
 % margins so the eps image will occupy an entire 8.5 by 11 inch piece of paper

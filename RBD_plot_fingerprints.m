@@ -10,7 +10,7 @@ function h_fig = RBD_plot_fingerprints( sitecode, year, decimal_day, ...
 %                        sw_incoming, rH, Tair, NEE, LE, H_dry, ...
 %                        main_t_str )
 %
-% (c) Timothy W. Hilton, UNM, June 2012
+% author: Timothy W. Hilton, UNM, June 2012
 
 h_fig = figure( 'Units', 'Normalized' );
 

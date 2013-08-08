@@ -39,7 +39,7 @@
 % OUTPUTS:
 %     This function has no outputs
 %
-% (c) Timothy W. Hilton, UNM, May 2012
+% author: Timothy W. Hilton, UNM, May 2012
 
 
 function [] = UNM_RemoveBadData_pre2012_txt( sitecode, year, varargin )

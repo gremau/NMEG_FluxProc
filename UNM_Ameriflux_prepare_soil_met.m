@@ -392,7 +392,7 @@ function SHF_pars = define_SHF_pars( sitecode, year )
 % DEFINE_SHF_PARS - specifies parameters for calculating soil heat flux.
 % Helper function for UNM_Ameriflux_prepare_soil_met
 %   
-% (c) Timothy W. Hilton, UNM, April 2012
+% author: Timothy W. Hilton, UNM, April 2012
 
 % set parameter values for soil heat flux
 % scap and wcap do not vary among sites

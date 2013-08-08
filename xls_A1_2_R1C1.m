@@ -11,7 +11,7 @@ function R1C1 = xls_A1_2_R1C1( A1 )
 % OUTPUTS:
 %   R1C1: column reference in "R1C1" style: B becomes 2
 %
-% (c) Timothy W. Hilton, UNM, April 2012
+% author: Timothy W. Hilton, UNM, April 2012
     
     if length( A1 ) == 1
         R1C1 = A1 - 'A' + 1;

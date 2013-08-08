@@ -12,7 +12,7 @@ function arr = replace_badvals(arr, badvals, tol)
 % OUTPUTS
 %     arr: input array with specified bad values replaced with NaNs
 %
-% (c) Timothy W. Hilton, UNM
+% author: Timothy W. Hilton, UNM
     
 arg_is_dataset = false;
 if isa( arr, 'dataset' )

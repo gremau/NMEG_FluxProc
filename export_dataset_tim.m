@@ -25,7 +25,7 @@ function success = export_dataset_tim( fname, ds, varargin )
 % SEE ALSO
 %    dataset
 %
-% (c) Timothy W. Hilton, UNM, Oct 2012
+% author: Timothy W. Hilton, UNM, Oct 2012
 
 args = inputParser;
 args.addRequired( 'fname', @ischar );

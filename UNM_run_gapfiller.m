@@ -47,7 +47,7 @@ function gf_data_outfile = ...
 % installed on the system; see http://www.r-project.org/ and
 % http://cran.r-project.org/doc/manuals/r-release/R-admin.html#Installing-packages.
 %
-% (c) Timothy W. Hilton and Litvak Lab, UNM, July 2013
+% author: Timothy W. Hilton and Litvak Lab, UNM, July 2013
 
 % create blocking file
 msg = sprintf( 'generated for gapfilling of %s-%d', ...
@@ -140,7 +140,7 @@ function [ gf_data_outfile, R_code_file ] = ...
 % SEE ALSO
 %    create_blocking_file
 %
-% (c) Timothy W. Hilton and Litvak Lab, UNM, July 2013
+% author: Timothy W. Hilton and Litvak Lab, UNM, July 2013
 
 
 gf_data_outfile = '';
@@ -277,7 +277,7 @@ function success = call_R( cmd )
 % SEE ALSO:
 %     system
 %
-% (c) Timothy W. Hilton & Litvak Lab, UNM, July 2013
+% author: Timothy W. Hilton & Litvak Lab, UNM, July 2013
 
 success = 0;
 

@@ -15,7 +15,7 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, varargin )
 % OUTPUTS
 %     result [ integer ]: 0 on success, -1 on failure
 %
-% (c) Timothy W. Hilton, UNM, March 2012
+% author: Timothy W. Hilton, UNM, March 2012
   
 % -----
 % define optional inputs, with defaults and typechecking
@@ -37,7 +37,7 @@ draw_plots = args.Results.draw_plots;
 linfit = specify_site_linfits( sitecode );
 
 if isintval( sitecode )
-    sitecode = UNM_sites( sitecode )
+    sitecode = UNM_sites( sitecode );
 else
     error( 'sitecode must be an integer' );
 end

@@ -16,7 +16,7 @@ function h_fig = plot_radiation_NEE( sitecode, year, varargin )
 % OUTPUTS
 %     h_fig: handle to the figure containing the plot
 %
-% (c) Timothy W. Hilton, UNM, July 2012
+% author: Timothy W. Hilton, UNM, July 2012
 
 [ this_year, ~, ~, ~, ~, ~ ] = datevec( now() );
 

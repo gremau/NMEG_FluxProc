@@ -22,7 +22,7 @@ function result = UNM_Ameriflux_write_file( sitecode, ...
 %     outdir: char; full path to directory to write ameriflux files to.
 %         Defaults to get_out_directory( sitecode ).
 %
-% (c) Timothy W. Hilton, UNM, 2012
+% author: Timothy W. Hilton, UNM, 2012
 
 
 [ this_year, ~, ~ ] = datevec( now );

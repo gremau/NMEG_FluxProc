@@ -19,7 +19,7 @@ function [sw_incoming, sw_outgoing, Par_Avg ] = ...
 %                                          NR_tot, wnd_spd, CNR1TK )
 %
 %
-% (c) Timothy W. Hilton, UNM, 2013
+% author: Timothy W. Hilton, UNM, 2013
 
 
 

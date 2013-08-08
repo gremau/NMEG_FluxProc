@@ -3,7 +3,7 @@ function fluxes_with_SWC = soil_water_for_matt( sitecode, year )
 % USAGE
 %    fluxes_with_SWC = soil_water_for_matt( sitecode, year )
 %
-% (c) Timothy W. Hilton, UNM, July 2012
+% author: Timothy W. Hilton, UNM, July 2012
 
 %get the soil water data
 

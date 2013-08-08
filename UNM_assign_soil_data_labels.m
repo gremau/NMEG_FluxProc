@@ -18,7 +18,7 @@ function fluxall = UNM_assign_soil_data_labels( sitecode, year, fluxall )
 %   fluxall: matlab dataset object; fluxall.xls data with relabeled soil data
 %       columns
 %
-% (c) Timothy W. Hilton, UNM, May-July 2012
+% author: Timothy W. Hilton, UNM, May-July 2012
 
 if ~isa( sitecode, 'UNM_sites' )
     sitecode = UNM_sites( sitecode );

@@ -5,7 +5,7 @@ function UNM_Ameriflux_Data_Viewer_CFlux( sitecode, year, data_dir )
 % USAGE
 %    UNM_Ameriflux_Data_Viewer( sitecode, year )
 %
-% (c) Timothy W. Hilton, UNM, Feb 2012
+% author: Timothy W. Hilton, UNM, Feb 2012
     
 %-------------------------
 % Initialization tasks

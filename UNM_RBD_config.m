@@ -9,7 +9,7 @@ function RBDrc = UNM_RBD_config( sitecode, year, varargin )
 %     sitecode: UNM_sites object or integer; specifies site to process
 %     year: integer; year to process
 %
-% (c) Timothy W. Hilton, UNM, 2013
+% author: Timothy W. Hilton, UNM, 2013
 
 [ this_year, ~, ~ ] = datevec( now );
 

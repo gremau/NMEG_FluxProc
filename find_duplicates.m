@@ -12,7 +12,7 @@ function [ dupindx, dupvals ] = find_duplicates( A )
 %     dupindx: the indices of duplicated rows
 %     dupvals: the values in the duplicated rows; that is A( dupidx ).
 %
-% (c) Timothy W. Hilton, UNM, Dec 2011
+% author: Timothy W. Hilton, UNM, Dec 2011
 [b, m, n]=unique(A) ;
 dupindx=find(diff(sort(m))>1)+1 ;
 dupvals=A(dupindx) ; 

@@ -10,7 +10,7 @@ function run_std = running_stddev(x, window)
 % OUTPUTS
 %    run_std: the running standard deviation.  Computed column-wise if M > 1.
 %
-% (c) Timothy W. Hilton, UNM, Apr 2012
+% author: Timothy W. Hilton, UNM, Apr 2012
 
     if mod( window, 2 ) ~= 1
         error( 'window must be odd integer' );

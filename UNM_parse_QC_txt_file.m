@@ -4,7 +4,7 @@ function qc_ds = UNM_parse_QC_txt_file( sitecode, year )
 % USAGE:
 %     qc_ds = UNM_parse_QC_txt_file( sitecode, year )
 %
-% (c) Timothy W. Hilton, UNM, April 2012
+% author: Timothy W. Hilton, UNM, April 2012
 
 site = get_site_name( sitecode );
 
