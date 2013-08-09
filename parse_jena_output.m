@@ -16,6 +16,9 @@ function out = parse_jena_output(fname)
 % Missing values (-9999, -999, etc) are kept.  They may be replace with NaNs
 % using replace_badvals.
 %
+% USAGE
+%      out = parse_jena_output(fname);
+%
 % INPUTS
 %     fname: string; full path to the data file to be parsed
 % OUTPUTS

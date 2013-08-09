@@ -1,4 +1,11 @@
 classdef FLUXALL_data
+% this class is meant to unify the Matlab representation of data in the
+% (pre-2012) Excel spreadsheet fluxall files and the 2012-present delimited
+% ASCII fluxall files.  It is a work in progress (As of Aug 2013).  The idea is
+% to provide storage for all of the data that might be present in a given
+% fluxall files and methods to read both fluxall formats (currently performed by
+% the file parsing parts of UNM_RemoveBadData).  Then RemoveBadData would do
+% just that - remove the bad data.
 
 properties
     

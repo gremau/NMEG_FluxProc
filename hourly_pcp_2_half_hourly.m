@@ -13,14 +13,17 @@ function hh = hourly_pcp_2_half_hourly( pcp, timestamps )
 % OUTPUTS:
 %     hh: matlab dataset object containing half-hourly pcp and timestamps
 %
+% SEE ALSO
+%     datenum
+%
 % author: Timothy W. Hilton, UNM, July 2012
 
-mins30 = 1/48;  % thirty minutes in units of days
+thirty_min = 1/48;  % thirty minutes in units of days
 
 % make sure we have row vectors of doubles
 pcp = reshape( double( pcp ), 1, [] );
 timestamps = reshape( double( timestamps ), 1, [] );
 
 hh_pcp = (reshape( repmat( pcp, 2, 1 ), 1, [] ) )' / 2.0;
-hh_timestamps = ( reshape( [ timestamps; timestamps + mins30 ], 1, [] ) )';
+hh_timestamps = ( reshape( [ timestamps; timestamps + thirty_min ], 1, [] ) )';
 hh = dataset( { [ hh_pcp, hh_timestamps ], 'pcp' ,'timestamp' } );

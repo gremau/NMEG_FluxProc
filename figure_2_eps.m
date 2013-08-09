@@ -1,5 +1,6 @@
 function figure_2_eps( h_fig, fname )
-% FIGURE_2_EPS - save a figure to an eps file
+% FIGURE_2_EPS - save a figure to an eps file with the the eps image the same
+% size as the on-screen figure.
 %
 % USAGE
 %   figure_2_eps( h_fig, fname )

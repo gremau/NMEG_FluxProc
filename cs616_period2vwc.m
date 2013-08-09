@@ -35,7 +35,7 @@ function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 %        same type as T_soil)
 %
 % SEE ALSO
-%    dataset
+%    dataset, UNM_sites
 %
 % author: Timothy W. Hilton, UNM, Apr 2012
 

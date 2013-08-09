@@ -1,8 +1,20 @@
 function amflux_ds = parse_ameriflux_file( fname )
 % PARSE_AMERIFLUX_FILE - parse an ameriflux file to a matlab dataset
+%
+% If necessary, variable names are converted to Matlab-legal variable names
+% using genvarname.
 % 
 % USAGE:
 %   amflux_ds = parse_ameriflux_file( fname )
+%
+% INPUTS
+%   fname: character string; full path to the Ameriflux file to be parsed
+%
+% OUTPUTS
+%   amflux_ds: dataset array containing the parsed Ameriflux data
+%
+% SEE ALSO
+%   dataset, genvarname
 %
 % author: Timothy W. Hilton, UNM, Dec 2011
 

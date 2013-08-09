@@ -17,7 +17,8 @@ function hf = plot_CZO_figure( sitecode, years, varargin )
 % INPUTS
 %    sitecode: integer or UNM_sites object; which site to plot
 %    years: numeric vector; which years to plot
-% KEYWORD ARGUMENTS
+%
+% PARAMETER-VALUE PAIRS
 %    ylims: 2 by 6 numeric vector.  Contains vertical-axis limits for the NEE
 %        plot (first row), GPP/RE plot (second row), ET plot( third row ), Rg
 %        plot( fourth row), pcp plot (fifth row) and air T plot (sixth row).

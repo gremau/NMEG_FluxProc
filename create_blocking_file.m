@@ -4,15 +4,16 @@ function blk_file_name = create_blocking_file( varargin )
 % met.
 %
 % Matlab's various commands to pause execution (waitfor, pause, etc.) will not
-% wait for the completion of a windows system call.  This is a somewhat
-% inelegant brute-force workaround for this problem.  A temporary "blocking"
-% file is created in the directory specified by tempname().  The file contains
-% the text "placeholder file to pause Matlab execution" and the time the file
-% was created, followed by an optional user message (e.g. "this file was create
-% to pause Matlab for XYZ".  The full path of the file is returned.  If the last
-% command of the Windows system call deletes the blocking file, then placing
-% this code immediately after the system call causes Matlab to wait for the
-% system call to complete before continuing:
+% wait for the completion of a windows system call (as of Matlab version
+% R2011b).  This is a somewhat inelegant brute-force workaround for this
+% problem.  A temporary "blocking" file is created in the directory specified by
+% tempname().  The file contains the text "placeholder file to pause Matlab
+% execution" and the time the file was created, followed by an optional user
+% message (e.g. "this file was create to pause Matlab for XYZ").  The full path
+% of the file is returned.  If the last command of the Windows system call
+% deletes the blocking file, then placing the following code immediately after
+% the system call causes Matlab to wait for the system call to complete before
+% continuing:
 %
 % pause on;
 % while( exist( blk_fname ) == 2 )
@@ -30,7 +31,7 @@ function blk_file_name = create_blocking_file( varargin )
 %
 % INPUTS
 %    variable: if provided, a character string will be placed in the blocking
-%        file
+%        file.  Additional arguments are ignored.
 %
 % OUTPUTS
 %    blk_file_name: the full path to the blocking file

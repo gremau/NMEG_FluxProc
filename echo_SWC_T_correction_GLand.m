@@ -20,7 +20,7 @@ function VWC_Tc = echo_SWC_T_correction_GLand( VWC, T, pcp, tstamp, year, ...
 %         the temperature correction.
 %
 % SEE ALSO
-%    dataset
+%    dataset, datenum
 %
 % author: Timothy W. Hilton, UNM, Sep 2012
 

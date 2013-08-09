@@ -8,13 +8,16 @@ function ds = parse_forgapfilling_file( sitecode, year, varargin )
 %     sitecode [ integer ]: code of site to be filled
 %     year [ integer ]: year to be filled
 %     OPTIONAL PARAMETERS
-%     use_filled [logical]: use forgapfilling file with T, RH, Rg filled from
+%     use_filled: {true}|false; use forgapfilling file with T, RH, Rg filled from
 %          nearby site.  Default is true.
 %     fname: character; path to file to read.  If unspecified, looks for
 %          $FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux/SITE_flux_all_YYYY_for_gapfilling[_filled].txt 
 %
 % OUTPUTS
 %     ds [ matlab dataset ]: the data contained in the file
+%
+% SEE ALSO
+%     dataset
 %
 % author: Timothy W. Hilton, UNM, March 2012
 

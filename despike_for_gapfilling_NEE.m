@@ -20,10 +20,10 @@ function [ fgf, spike_idx ] = ...
 % OUTPUTS
 %    fgf: dataset array; new for-gapfilling dataset with NEE normalized and
 %       the corresponding NEE QC flags set to "1".
+%    spike_idx: the indices of observations and QC flags that were normalized
 %
 % SEE ALSO
 %    dataset, datenum, parse_ameriflux_file, parse_forgapfilling_file
-%    spike_idx: the indices of observations and QC flags that were normalized
 %
 % author: Timothy W. Hilton, UNM, Apr 2013
 

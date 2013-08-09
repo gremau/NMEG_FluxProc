@@ -1,3 +1,6 @@
+% add UNM eddy covariance flux processing code directories to Matlab path on
+% Tim's laptop.
+
 restoredefaultpath;
 
 addpath( '/home/tim/UNM/Code/Matlab/TimFluxUtils' );

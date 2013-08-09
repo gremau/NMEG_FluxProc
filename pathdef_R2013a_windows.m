@@ -1,3 +1,6 @@
+% add UNM eddy covariance flux processing code directories to Matlab path on
+% Jemez (or other Windows machine with the same file setup).
+
 restoredefaultpath;
 
 addpath( 'C:\Code\TimFluxUtils' );

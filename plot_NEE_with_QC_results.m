@@ -2,8 +2,20 @@ function [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
     sitecode, year, decimal_day, fc_raw_massman_wpl, idx_NEE_good,ustarflag, ...
     precipflag, nightnegflag, windflag, maxminflag, lowco2flag,highco2flag, ...
     nanflag, stdflag, n_bins, endbin, startbin, bin_ceil, bin_floor, mean_flux )
-% PLOT_NEE_WITH_QC_RESULTS - plot CO2 NEE with QC flags and standard deviation windows
-%   
+% PLOT_NEE_WITH_QC_RESULTS - plot CO2 NEE with QC flags and standard
+% deviation windows.  This is a helper function for UNM_RemoveBadData -- it
+% is not intended to be called as a stand-alone function.  
+%
+% INPUTS
+%     Inputs are defined as variables within UNM_Remove_Bad_Data.M
+%
+% OUTPUTS
+%     h_fig_flux: handle to the figure created
+%     ax_NEE: handle to the upper axis (that contains the NEE time series)
+%     ax_flags: handle to the upper axis (that contains the various NEE QC
+%         flags)
+%
+% author: Timothy W. Hilton, UNM, May 2012
 
 
 pal = cbrewer( 'qual', 'Dark2', 5 );

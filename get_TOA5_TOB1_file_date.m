@@ -6,6 +6,16 @@ function dn = get_TOA5_TOB1_file_date( fname )
 % USAGE
 %   dn = get_TOA5_TOB1_file_date( fname )
 %
+% INPUTS
+%   fname: character string; filename in format
+%       TOB1_site_year_month_day_hrmin.dat
+%
+% OUTPUTS
+%    dn: matlab serial datenumber representing year, month, day, hrmin
+%
+% SEE ALSO
+%    datenum
+%
 % author: Timothy Hilton, UNM, Feb 2012
     
     %tokenize the filename into the year, month, etc. components

@@ -10,7 +10,7 @@ function cleaned = clean_data_by_hand( data_in )
 %
 % To remove data points: 
 % When a plot opens, select "brush" from the "tools" menu.  Clicking on a data
-%   point will hilight the point in red.  You may click a drag a box to select
+%   point will hilight the point in red.  You may click and drag a box to select
 %   multiple data points.  Holding shift while clicking or click-dragging adds
 %   the new selection to the previous selection.  When a point or points to
 %   remove are selected, right click a selected point and choose "replace with
@@ -19,7 +19,7 @@ function cleaned = clean_data_by_hand( data_in )
 %   select "Create variable".  Name the variable "this_cleaned" and click OK.
 %   Then close the figure window.  Matlab will now replace that column or
 %   variable of data_in with this_cleaned, and move on to the next
-%   column/variable.  After the last column or variable is selected, Matlab
+%   column/variable.  After the last column or variable is selected
 %   clean_data_by_hand returns the amended data in cleaned.
 %
 % USAGE

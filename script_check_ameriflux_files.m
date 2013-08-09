@@ -1,6 +1,6 @@
 % this script runs a series of checks on completed Ameriflux files to makes
-% sure that somethings that ORNL has pointed out to us in the past are, in
-% fact, corrected.  I intend to turn this into a stand-along function to run at
+% sure that some things that ORNL has pointed out to us in the past are, in
+% fact, corrected.  I intend to turn this into a stand-alone function to run at
 % the end of Ameriflux_File_Maker.  -TWH, June 2013
 
 sites = UNM_sites( 7 );

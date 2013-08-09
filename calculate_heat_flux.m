@@ -77,8 +77,28 @@ SHF_with_storage = dataset( { SHF_with_storage, SHF_labels{ : } } );
 
 function [TCAV, VWC, SHF] = match_cover_types( TCAV, VWC, SHF )
 % MATCH_COVER_TYPES - makes sure TCAV, VWC, and SHF observations observe the
-%   same set of ground covers; sorts their observations if necessary
-
+%   same set of ground covers; sorts their columns if necessary to put cover
+%   types in same order.  Issues error if duplicate cover types are
+%   encountered or if one or more inputs are missing a cover type that is
+%   present elsewhere in the inputs.
+%
+% USAGE
+%    [TCAV, VWC, SHF] = match_cover_types( TCAV, VWC, SHF );
+%
+% INPUTS:
+%    TCAV, VWC, SHF: dataset arrays; observations of temperature (TCAV), soil
+%        volumetric water content (VWC), and soil heat flux (SHF).  The
+%        variables must be named in the format VAR_COVER_DEPTH, where VAR
+%        is the variable observed (T, VWC, SHF), COVER is the cover type
+%        (e.g. grass, open, juniper, etc.), and depth the depth of the probe
+%        in cm.
+%
+% OUTPUTS:
+%    TCAV, VWC, SHF: dataset arrays; as inputs, but with the cover types
+%        guaranteed to be identical and in the same order.  
+%
+% SEE ALSO
+%    dataset
 % -----
 % make sure there are no duplicated cover types -- we are reporting one soil
 % heat flux plus storage per cover type.

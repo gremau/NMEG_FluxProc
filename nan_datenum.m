@@ -8,10 +8,13 @@ function dn = nan_datenum( str, fmt )
 %
 % INPUTS
 %   str: character array (representing a date), or NaN
-%   fmt: character array specifying date format (see datenum docs)
+%   fmt: character array specifying date format (see datenum documentation)
 %
 % OUTPUTS
 %   dn: if str represents a date, a matlab datenum.  If str is NaN, NaN.
+%
+% SEE ALSO
+%   datenum
 %
 % author: Timothy W. Hilton, UNM, April 2012
 

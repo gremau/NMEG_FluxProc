@@ -20,7 +20,20 @@ function up2date = is_ameriflux_up2date( sitecode, year )
 % least recent
 %
 % If any of the files do not satisfy that order (or do not exist), all five
-% files and their modification dates are written to stdout.
+% file names and their modification dates are written to stdout.
+%
+% USAGE
+%    up2date = is_ameriflux_up2date( sitecode, year );
+%
+% INPUTS: 
+%    sitecode: UNM_sites object
+%    year: four digit year
+%
+% OUTPUTS
+%    up2date: true|false; true if files are up to date
+%
+% SEE ALSO
+%    dataset
 %
 % author: Timothy W. Hilton, UNM, May 2012
 

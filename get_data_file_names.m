@@ -1,7 +1,9 @@
 function fnames = get_data_file_names( date_start, date_end, site_code, type )
 % GET_TOB1_FILE_NAMES - generates a list of filenames containing all TOB1 or
 % TOA5 files within the site's data directory that contain data from between
-% start date and end date
+% start date and end date.  The directories searched are SITEDIR/ts_data,
+% SITEDIR/TOA5, or SITEDIR/soil, where SITEDIR is the output of
+% get_site_directory( site_code ).
 %
 % USAGE:
 %   fnames = get_data_file_names( date_start, date_end, site_code, type )
@@ -13,6 +15,9 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
 %   type: string; TOA5 or TOB1
 % OUTPUTS:
 %   fnames: cell array of strings; list of complete paths of TOB1 files
+%
+% SEE ALSO
+%   get_site_directory
 %
 % author: Timothy W. Hilton, UNM, Dec 2011
     

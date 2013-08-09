@@ -1,9 +1,14 @@
 function sol_el = get_solar_elevation( sitecode, t_mst )
 % GET_SOLAR_ELEVATION - calculate solar elevation angle given UNM sitecode and
-%   timestamps
+% timestamps.
+%
+% sunrise is calculated by SolarAzEl
+% (http://www.mathworks.com/matlabcentral/fileexchange/file_infos/23051-vectorized-solar-azimuth-and-elevation-estimation)
+% based on the latitude, longitude, and elevation specified by sitecode (as
+% determined by parse_UNM_site_table).
 %
 % USAGE
-%   el = get_solar_elevation( sitecode, t )
+%   sol_el = get_solar_elevation( sitecode, t_mst )
 %
 % INPUTS
 %   sitecode: UNM site, UNM_sites object or integer
@@ -11,6 +16,9 @@ function sol_el = get_solar_elevation( sitecode, t_mst )
 %
 % OUTPUTS
 %   sol_el: solar elevation angle, degrees
+%
+% SEE ALSO
+%   SolarAzEl, datenum, parse_UNM_site_table
 %
 % author: Timothy W. Hilton, UNM, June 2012
 

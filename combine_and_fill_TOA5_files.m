@@ -1,6 +1,7 @@
 function ds = combine_and_fill_TOA5_files( varargin )
 % combine_and_fill_TOA5_files() -- combines multiple TOA5 files into one matlab
-% dataset and fill in any missing 30-minute time stamps.
+% dataset, fill in any missing 30-minute time stamps and discard duplicated or
+% erroneous timestamp.
 %
 % Variables not present in all datasets are filled with NaN for timestamps in
 % the datasets missing them.  The combined dataset is vetted to make sure each
@@ -18,10 +19,10 @@ function ds = combine_and_fill_TOA5_files( varargin )
 %                                      'path\to\second\TOA5\file', ... );
 %
 % INPUTS
-%    variable: either a series of strings containing full paths to the TOA5
+%    either a series of strings containing full paths to the TOA5
 %    files to be combined.  If called with no inputs the user is presented a
 %    graphical file selection dialog (via uigetfile) which allows for multiple
-%    files to be selected.
+%    files to be selected interactively.
 %
 % OUTPUTS
 %    ds: Matlab dataset array; the combined and filled data

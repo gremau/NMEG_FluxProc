@@ -1,8 +1,44 @@
 function [ h_fig, h_ax ] = plot_fingerprint( dtime, data, t_str, varargin )
-% PLOT_FINGERPRINT - plot Jena-style fingerprint plot of data
+% PLOT_FINGERPRINT - plot Jena-style "fingerprint" plot of data.  
+%
+% A "fingerprint" plot is a color map with day of year (DOY) on the
+% vertical axis, hour of day on the horizontal axis, and a color map of some
+% observed quanitity.  These are useful for summarizing annual and daily
+% cycles concisely and for quickly spotting datalogger timestamp glitches.
 %   
 % USAGE
 %    [ h_fig, h_ax ] = plot_fingerprint( dtime, data, t_str )
+%
+% INPUTS
+%    dtime: 1xN numeric; fractional day of year (1.0 is 00:00 on 1 Jan; 3.5
+%        is 12:00 on 3 Jan, etc.)
+%    data: 1xN numeric: the data to be plotted
+%    t_str: character string; title for the plot
+%    
+% PARAMETER-VALUE PAIRS
+%    cmap: numeric colormap.  See doc colormap for details of how to specify
+%        a colormap.  If unspecified, the default is a 100-color sequence ranging
+%        from yellow to blue created by interpolating the colors provided by
+%        cbrewer( 'seq', 'YlGnBu', 9 ).
+%    clim: 2-element numeric vector: data values outside of [ min(clim),
+%        max(clim) ] will be displayed at the the extremes of the colormap.
+%        Defaults to the range of values in data.  If provided, center_caxis
+%        is ignored.
+%    h_fig: figure handle; if provided, the plot is drawn in the specified
+%        figure.  If unspecified a new figure is created.
+%    h_ax: axis handle; if provided, the plot is drawn in the specified
+%        axes.  If unspecified a new axes object is created in h_fig.
+%    center_caxis: true|{false}; if true, the color map is forced to span +/-
+%       +/- max( abs( data ) ) (with zero, by definition, in the center of
+%       the colormap).  If unspecified the colormap spans the range of values
+%       in data.  Ignored if clim is specified.
+%    fig_visible: {true}|false; if true, the figure is drawn on screen.  If
+%       false, the figure is created but kept invisible (useful for batch
+%       processing).
+%
+% OUTPUTS:
+%    h_fig: handle to the figure window used for the plot
+%    h_ax:  handle to the axes used for the plot
 %
 % author: Timothy W. Hilton, UNM, June 2012
 

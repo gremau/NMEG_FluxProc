@@ -1,6 +1,25 @@
 function ds = JSav_CR1000_to_dataset( year )
-% JSAV_CR1000_TO_DATASET - 
+% JSAV_CR1000_TO_DATASET - return all CR1000 soil data from a specified year
+% in a dataset array.
+
+% searches $FLUXROOT/Flux_Tower_Data_by_Site/JSav/soil for all CR1000 soil data
+% files from a specified year.  Year must be greater than or equal to 2012.
+% Prior to May 2012 JSav soil data were in the same TOA5 file as all other
+% 30-minute variables.
 %   
+% USAGE:
+%     ds = JSav_CR1000_to_dataset( year );
+%
+% INPUTS: 
+%     year: four digit year >= 2012.
+%
+% OUTPUTS
+%     ds: dataset array; JSav soil data for the requested year
+%
+% SEE ALSO
+%     dataset
+%
+% author: Timothy W. Hilton, UNM, Dec 2012
 
 if year < 2012
     error( ['Prior to May 2012 JSav soil water data were in the same TOA5 ' ...

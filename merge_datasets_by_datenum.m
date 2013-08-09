@@ -29,6 +29,9 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
 % OUTPUTS
 %     ds_out1, ds_out2: matlab dataset objects containing the filled data.
 %
+% SEE ALSO
+%     dataset
+% 
 % author: Timothy W. Hilton, UNM, October 2011
 
 discard_idx = ( ( ds_in1.( tvar1 ) < t_start ) | ...

@@ -1,5 +1,4 @@
-function ds_filled = dataset_fill_timestamps( ds, t_var, varargin )
-    
+function ds_filled = dataset_fill_timestamps( ds, t_var, varargin )    
 % DATASET_FILL_TIMESTAMPS - fill in missing timestamps in a dataset containing a
 % regularly-spaced time series.  If a timestamp occurs more than once, the
 % first row is kept and subsequent rows discarded.  Observations

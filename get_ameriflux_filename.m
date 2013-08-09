@@ -2,15 +2,19 @@ function fpath = get_ameriflux_filename( sitecode, year, suffix)
 % GET_AMERIFLUX_FILENAME - returns the full path to the Ameriflux file for the
 %   specified site-year.  Does not confirm that the file exists -- this
 %   function is meant to be used either to open an existing Ameriflux file or
-%   to define the location when creating a new one.
+%   to define the location when creating a new one.  The Ameriflux site
+%   abbreviation is obtained from sites_info.Ameriflux( sitecode ).
 %
 % INPUTS
-%    sitecode: UNM_sitecode object (or corresponding integer)
+%    sitecode: UNM_sites object (or corresponding integer)
 %    year: integer: four digit year
-%    suffix: "gapfilled" or "with_gaps"
+%    suffix: "gapfilled", "with_gaps", or "soil"
 %
 % OUTPUTS
 %    fpath: char array: the full path to the requested Ameriflux file.
+%
+% SEE ALSO
+%    UNM_sites, sites_info
 %
 % author: Timothy W. Hilton, UNM, May 2012
 

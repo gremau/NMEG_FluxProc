@@ -9,15 +9,16 @@ function fh =  dataset_viewer( ds, varargin )
 % INPUTS:
 %    ds: variable of class dataset array
 % KEYWORD ARGUMENTS
-%    t_var: optional; if specified, each column is plotted against timestamps
-%         in this column.  Values in specified column must be matlab datenums
+%    t_var: optional; if specified, each column is plotted against timestamps in
+%         this column.  Values in specified column must be matlab serial
+%         datenumbers.
 %
 % OUTPUTS:
 %
 %    fh: handle to the figure window created
 %
 % SEE ALSO
-%    dataset
+%    dataset, datenum
 %
 % author: Timothy W. Hilton, UNM, Mar 2012
 

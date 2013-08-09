@@ -1,14 +1,30 @@
+function [ lastcolumn, filelength_n ] = ...
+        get_FluxAll_File_Properties( sitecode, year )    
 % This function simply hardcodes in the number of columns and the number of
 % lines in the FluxAll file by site-year.  I pulled this code out of
 % UNM_Ameriflux_File_Builder into it's own function to make
 % Ameriflux_File_Building more compact and to pave the way for reading this
 % information on the fly.
 %
+% USAGE
+% [ lastcolumn, filelength_n ] = ...
+%         get_FluxAll_File_Properties( sitecode, year );
+%
+% INPUTS
+%    sitecode: UNM_sites object
+%    year: four-digit year
+%
+% OUTPUTS
+%    lastcolumn: the last column of the site-year's xls fluxall file
+%    filelength_n: the number of row in the site-year's xls fluxall file
+%
+% SEE ALSO
+%    UNM_sites, UNM_Ameriflux_File_Builder
+%
 % Timothy W. Hilton, University of New Mexico, Jan 2012
 
-function [ lastcolumn, filelength_n ] = ...
-        get_FluxAll_File_Properties( sitecode, year )
-    
+
+
 if not( isa( sitecode, 'UNM_sites' ) )
     sitecode = UNM_sites( sitecode );
 end

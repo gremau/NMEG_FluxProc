@@ -1,5 +1,29 @@
-function optimal_offset = match_solarangle_radiation( rad, sol, t, this_doy, ...
-                                                  year, debug )
+function optimal_offset = ...
+    match_solarangle_radiation( rad, sol, t, this_doy, year, debug )
+% MATCH_SOLARANGLE_RADIATION - find the time offset that results in the best
+% match of sunrise in observed radiation to calculated sunrise.
+%
+% USAGE
+%   optimal_offset = ...
+%        match_solarangle_radiation( rad, sol, t, this_doy, year, debug );
+%
+% INPUTS
+%   rad: 1xN numeric; solar radiation observations
+%   sol: 1xN numeric: calculated solar angle (as from SolarAzEl)
+%   t: 1xN matlab serial datenumbers: timestamps for rad and sol
+%   this_doy: 0 < this_doy <= 366; the day of year to calculate offset
+%   year: four digit year
+%   debug: true|false; if true, draws diagnostic plots
+%
+% OUTPUTS
+%   optimal_offset: the offset, in hours, to add to t to make the daily cycle
+%       in rad for this_doy most closely match the daily cycle in sol for
+%       this_doy
+%
+% SEE ALSO
+%   SolarAzEl
+%
+% author: Timothy W. Hilton, UNM, Jan 2012
 
 doy = t - datenum( year, 1, 0 );
 idx_doy_start = min( find( floor( doy ) == this_doy ) );

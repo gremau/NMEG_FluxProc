@@ -4,6 +4,9 @@ function Tsoil = fill_soil_temperature_gaps( Tsoil, pcp, draw_plots )
 % observation and the first post-gap observation.  Gaps longer than five days
 % are left alone.
 %
+% USAGE
+%    Tsoil = fill_soil_temperature_gaps( Tsoil, pcp, draw_plots );
+%
 % INPUTS:
 %     Tsoil: dataset array; soil temperature data
 %     pcp: numeric vector: preciptation observations

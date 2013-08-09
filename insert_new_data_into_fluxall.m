@@ -1,10 +1,28 @@
 function fluxall = insert_new_data_into_fluxall( new_data, ...
                                                  fluxall, ...
                                                  varargin )
-% INSERT_NEW_DATA_INTO_FLUXALL - inserts new data into fluxall.  Default is to
-%   take care not to overwrite data from the fluxall with NaNs from new
-%   data, but this can be turned off.  new_data and fluxall must have
-%   complete timestamp records (no missing 30-minute timestamps).
+% INSERT_NEW_DATA_INTO_FLUXALL - inserts new data into existing fluxall data.  
+%
+%   new_data and fluxall must have complete timestamp records (no missing
+%   30-minute timestamps).  Variables that do not occur in both new_data and
+%   fluxall will be discarded in the output.  Output is sorted
+%   chronologically by timestamps.
+%
+% USAGE: 
+%    fluxall = insert_new_data_into_fluxall( new_data, fluxall );
+%
+% INPUTS
+%    new_data: dataset array: the data to be inserted to fluxall dataset
+%    fluxall: dataset array; existing fluxall data (may be output of
+%        UNM_parse_fluxall_txt_file) 
+%
+% OUTPUTS
+%    fluxall: fluxall input with new_data inserted.
+%
+% SEE ALSO
+%    dataset
+%
+% author: Timothy W. Hilton, UNM, Oct 2012
 
 p = inputParser;
 p.addRequired( 'new_data', @( x ) isa( x, 'dataset' ) );

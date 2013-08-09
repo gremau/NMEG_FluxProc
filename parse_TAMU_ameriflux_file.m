@@ -1,9 +1,27 @@
 function amflux_ds = parse_TAMU_ameriflux_file( fname )
 % PARSE_AMERIFLUX_FILE - parse one of Jim Heilman and Ray Kamp's (from Texas A&M
-% University) Ameriflux files to a Matlab dataset.
+% University) Ameriflux files to a Matlab dataset, keeping variables we wish
+% to use to gapfill US-FR2.
+%
+% The variables kept are:  'YEAR', 'DTIME', 'PAR', 'Rg', 
+% 'PRECIP', 'PA', 'TA', 'RH', 'VPD', 'Rlong_in' };
+% 
+% Marcy's email of 25 Apr 2013: 
+% This site is super close to our site.  Can you grab the variables we need from
+% there please.  I would take PAR, Rg, ppt, pressure, AirT, RH at least.
+% Incoming longwave is probably fine.  Would not get outgoing.
 % 
 % USAGE:
 %   amflux_ds = parse_TAMY_ameriflux_file( fname )
+%
+% INPUTS
+%     fname: string; full path to the data file to be parsed
+%
+% OUTPUTS
+%     amflux_ds: matlab dataset array; the data in the file
+%
+% SEE ALSO
+%     dataset
 %
 % author: Timothy W. Hilton, UNM, Apr 2013
 

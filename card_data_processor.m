@@ -26,7 +26,7 @@ methods
     %
     % INPUTS:
     %    sitecode: UNM_sites object; the site to process
-    %    OPTIONAL KEYWORD-ARGUMENT PAIRS:
+    %    OPTIONAL PARAMETER-VALUE PAIRS:
     %       'date_start': matlab datenum; date to begin processing.  If
     %           unspecified default is 00:00:00 on 1 Jan of current year. 
     %       'date_end': Matlab datenum; date to end processing.  If
@@ -46,6 +46,7 @@ methods
     %
     % SEE ALSO
     %    sonic_rotation, UNM_sites, dataset
+    %
     % author: Timothy W. Hilton, UNM, 2012
 
 

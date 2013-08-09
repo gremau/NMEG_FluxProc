@@ -1,6 +1,8 @@
 function clean_names = clean_up_varnames( messy_names )
 % CLEAN_UP_VARNAMES - Reformat variable name strings into names that matlab will
-% find acceptable.  
+% find acceptable.
+%
+% See documentation for isvarname for rules for valid Matlab variable names.
 %
 % The operations performed here remove characters that occur commonly within
 % UNM data file variables that are not legal in matlab variable names while
@@ -25,6 +27,9 @@ function clean_names = clean_up_varnames( messy_names )
 %
 % OUTPUTS
 %     clean_names: cell array of strings; the cleaned up variable names
+%
+% SEE ALSO
+%     isvarname
 %
 % author: Timothy W. Hilton, UNM, Oct 2011
 

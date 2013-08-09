@@ -2,7 +2,20 @@ function success = create_flux_matlab_binaries( ameriflux, fluxall )
 % CREATE_FLUX_MATLAB_BINARIES - create matlab binary .mat files for all UNM
 %   site-years for Ameriflux files or fluxall files.  These files load into
 %   matlab more quickly than their text representations.
-
+%
+% USAGE
+%   success = create_flux_matlab_binaries( ameriflux, fluxall );
+%
+% INPUTS
+%   ameriflux: true|false; if true, create binaries for Ameriflux files.
+%   fluxall: true|false; if true, create binaries for fluxall files.
+%
+% OUTPUTS
+%   success: true|false; true if all requested binary files are created
+%       successfully, false otherwise.
+%
+% 
+% author: Timothy W. Hilton, UNM, July 2012
 success = true;
 
 all_sites = [ UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, UNM_sites.PJ, ...

@@ -4,8 +4,8 @@ function SHF_with_storage = calculate_SHF_by_pits( soilT, ...
                                                   SHF, ...
                                                   SHF_conv_factor )
 % CALCULATE_SHF_BY_PITS - calculates soil heat flux (SHF) with storage at
-% multiple pits.  The pits described in soilT and VWC (determined from column
-% names; see requirements in INPUTS, below.
+% multiple pits.  The pits are specified by the column names in soilT and
+% VWC; see requirements in INPUTS, below.
 %   
 % USAGE:
 % SHF_with_storage = calculate_SHF_by_pits( soilT, ...
@@ -19,21 +19,23 @@ function SHF_with_storage = calculate_SHF_by_pits( soilT, ...
 %         must be named with format obs_cover_idx_depth_*, where obs is the
 %         measurement (e.g. 'soilT' ), cover is the cover type ('open',
 %         'pinon', etc.), depth is the depth in cm (2p5, 12p5, etc.), and * is
-%         arbitrary text.
+%         arbitrary text.  The convention is to convert decimal points in
+%         depth to "p" (for "point"), because "." is not a legal character
+%         for Matlab variable names. 
 %    VWC: dataset; variable names formatted same as soilT (except obs will be
 %         different).
 %    SHF_pars: structure; Contains parameters for calculating SHF.  Must have
 %         fields wcap, scap, bulk, depth.  Output of define_SHF_pars.
-%    SHF: double vector; soil heat flux plate observation.
-%    SHF_conv_factor: double scalar: Constant multiplier to convert SHF from
-%         mV to W / m2.
+%    SHF: numeric vector; soil heat flux plate observation.
+%    SHF_conv_factor: numeric scalar: Constant multiplier to convert SHF from
+%         mV to W m-2.
 %
 % OUTPUTS:
-%    SHF_with_storage: dataset; soil heat flux including storage calculated
-%    for each pit in soilT and VWC.
+%    SHF_with_storage: dataset; soil heat flux (W m-2) including storage
+%        calculated for each pit in soilT and VWC.
 %
 % SEE ALSO
-%    dataset
+%    dataset, define_SHF_pars
 %
 % author: Timothy W. Hilton, UNM, April 2012
 

@@ -1,12 +1,21 @@
 function list = list_files( path, pat )
 % LIST_FILES - list files in a directory, with regular expression filtering
 % list = list_files( path, pat )
+%
+% USAGE
+%    list = list_files( path, pat );
+%
 % INPUTS
 %    path: full path of the directory to be listed
 %    pat: regular expression to match files against; only matching files are
 %         returned
 % OUTPUTS
 %    list: cell array of matching files
+%
+% SEE ALSO
+%    regexp, regexptranslate
+%
+% author: Timothy W. Hilton, UNM, Feb 2012
     
 
     if exist( path ) ~= 7

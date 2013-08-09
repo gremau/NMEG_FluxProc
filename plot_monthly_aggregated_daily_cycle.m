@@ -7,10 +7,15 @@ function plot_monthly_aggregated_daily_cycle( mm, varargin )
 %    mm: dataset with variables year, month, hour, and val, with val the
 %        aggregated value to be plotted.  mm is usually the output of
 %        monthly_aggregated_daily_cycle.
-%    main_title: string, optional; title to appear above all 12 panels
+%
+% PARAMETER-VALUE PAIRS
+%    main_title: string, optional; title to appear above entire plot
 %    figure_file_name: string, optional; specifies full path for plot to be saved to an
 %        encapsulated postscript (eps) file.  If not specified plot is not
 %        saved. 
+%
+% OUTPUTS
+%    none
 %
 % author: Timothy W. Hilton, UNM, May 2013
 

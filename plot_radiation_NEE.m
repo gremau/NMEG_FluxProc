@@ -1,5 +1,6 @@
 function h_fig = plot_radiation_NEE( sitecode, year, varargin )
-% PLOT_RADIATION_NEE - 
+% PLOT_RADIATION_NEE - plot PAR, Rg, and NEE alongside one another for a
+% specified site-year.
 %   
 % USAGE
 %    h_fig = plot_radiation_NEE( sitecode, year, 'source', source )

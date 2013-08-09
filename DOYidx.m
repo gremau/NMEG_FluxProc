@@ -1,7 +1,7 @@
 function idx = DOYidx( DOY )
 % DOYidx - calculates the array index for a specified day of year (DOY) assuming
-% 30-minute observation interval (48 observations per day).  DOY may be
-% fractional or integral.  0 <= DOY < 367.
+% a one year's worth of 30-minute observation interval (48 observations per
+% day).  DOY may be fractional or integral.  0 <= DOY < 367.
 %
 % Useful for finding a particular time range within an annual 30-minute dataset.
 %

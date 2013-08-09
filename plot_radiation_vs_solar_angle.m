@@ -1,5 +1,5 @@
 function this_fig = plot_radiation_vs_solar_angle( sitecode, year )
-    
+%     
 sd = parse_UNM_site_table();
 
 fname = get_ameriflux_filename( sitecode, ...

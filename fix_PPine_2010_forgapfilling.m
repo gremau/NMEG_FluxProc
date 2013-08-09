@@ -1,5 +1,5 @@
 function success = fix_PPine_2010_forgapfilling()
-% FIX_PPINE_2012_FORGAPFILLING - The gapfiller/partitioner places two large
+% FIX_PPINE_2010_FORGAPFILLING - The gapfiller/partitioner places two large
 %   spikes in NEE in late July and Nov 2010.  This function scales the NEE
 %   spikes down to more reasonable peaks and writes a new for_gapfilling
 %   file.  Returns 0 on success.
