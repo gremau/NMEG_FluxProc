@@ -1,1 +1,0 @@
-UNM_Ameriflux_Data_Viewer( 'prompt_for_files', true );
