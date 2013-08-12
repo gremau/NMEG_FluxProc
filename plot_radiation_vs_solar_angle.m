@@ -1,6 +1,19 @@
 function this_fig = plot_radiation_vs_solar_angle( sitecode, year )
-%     
-sd = parse_UNM_site_table();
+% PLOT_RADIATION_VS_SOLAR_ANGLE - plot site-year time series of incoming
+% shortwave, hilighting gap-filled and nighttime data points.
+%
+% Incoming shortwave time series is read from the gapfilled Ameriflux file
+% (which must be readable by parse_ameriflux_file( get_ameriflux_filename(
+% sitecode, year, 'gapfilled' ) ).  Nighttime is defined as solar angle < 0,
+% where solar angle is determined by SolarAzEl.
+%
+% This plot is useful for scanning Ameriflux data for implausible nighttime
+% radiation values.
+%
+% SEE ALSO
+%    SolarAzEl, parse_ameriflux_file, get_ameriflux_filename
+%
+% author: Timothy W. Hilton, UNM, June 2012
 
 fname = get_ameriflux_filename( sitecode, ...
                                 year, ...
@@ -11,7 +24,7 @@ this_data.SolEl = get_solar_elevation( sitecode, this_data.timestamp );
 
 pal = cbrewer( 'qual', 'Dark2', 8 );
 t_str = sprintf( '%s %d', ...
-                 sd.SITE_NAME{ sitecode }, ...
+                 UNM_sites_info( sitecode ).long_name, ...
                  year );
 this_fig = figure( 'NumberTitle', 'off', ...
                    'Name', t_str );

@@ -120,7 +120,7 @@ methods
 
     elseif this_site ==  UNM_sites.MCon
         obj.short_name = 'MCon';                            
-        obj.long_name = 'Valles Caldera Mixed Conelseifer';
+        obj.long_name = 'Valles Caldera Mixed Conifer';
         obj.ameriflux = 'US-Vcm';
         obj.ORNL = 'usvalcon';                            
         obj.latitude = 35.888;
