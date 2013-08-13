@@ -1,10 +1,48 @@
 function [ QC, fgf ] = ...
     UNM_synchronize_radiation_to_solarangle( sitecode, year, ...
                                              QC, fgf, timestamp )
-% UNM_SYNCHRONIZE_RADIATION_TO_SOLARANGLE - adjust data so that observed sunrise
-%   (as deterimined by Rg) corresponds to solar angle.
+% UNM_SYNCHRONIZE_RADIATION_TO_SOLARANGLE - adjust timestamps of parsed
+% fluxall_QC and for-gapfiller (fgf) data so that observed sunrise (as
+% deterimined by Rg or PAR) corresponds to calculated solar angle for each day
+% of a calendar year.
+%
+% This seems like a good idea in concept, but in practice seems to increase
+% errors about as frequently as it reduces errors.  I am therefore consigning
+% this code to the repository historical record as of Aug 2013 -- TWH
+%
+% Uses match_solarangle_radiation to determine the optimal offset to make the
+% daily cycle of Rg most closely match the daily cycle of calculated solar angle
+% for each day of a year, and applies these shifts to each day using shift_data.
+% Where Rg is used for fgf data, PAR for QC data.
+%
+% USAGE
+%    [ data ] = ...
+%       UNM_synchronize_radiation_to_solarangle( sitecode, ...
+%                                                year, ...
+%                                                QC, ...
+%                                                fgf, ...
+%                                                timestamp );
+%
+% INPUTS
+%     sitecode: UNM_sites object; specifies the site
+%     year: four digit year: specifies the year
+%     QC: NxM dataset array; parsed fluxall QC data.  Must contain a variable
+%         "Par_Avg" 
+%     fgf: NxL dataset array; parsed fluxall QC data.  Must contain a variable
+%         "Rg".  Typically the output of parse_forgapfilling_file.
+%     timestamp: 1xN serial datenumber vector; timestamps for fgf and QC
+%
+% OUTPUTS
+%     QC, fgf: NxM dataset arrays; input arguments, with the timestamps shifted
+%         as described above.
+%
+% SEE ALSO
+%     UNM_sites, dataset, datenum, UNM_parse_QC_txt_file,
+%     UNM_parse_QC_txt_file, match_solarangle_radiation, shift_data
+%
+% author: Timothy W. Hilton, UNM, May 2013
 
-debug = true;
+debug = true;  % if true, draw some diagnostic plots
 
 sol_ang = get_solar_elevation( sitecode, timestamp );
 

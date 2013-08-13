@@ -4,11 +4,54 @@ function [ data ] = ...
                                                   data, ...
                                                   headertext, ...
                                                   timestamp )
-% UNM_SYNCHRONIZE_RADIATION_TO_SOLARANGLE - adjust data so that observed sunrise
-%   (as deterimined by Rg) corresponds to solar angle.
+% UNM_SYNCHRONIZE_RADIATION_TO_SOLARANGLE_FADATA - adjust timestamps of parsed
+% FluxAll (FA) data so that observed sunrise (as deterimined by Rg or PAR)
+% corresponds to calculated solar angle for each day of a calendar year.
+%
+% This seems like a good idea in concept, but in practice seems to increase
+% errors about as frequently as it reduces errors.  I am therefore consigning
+% this code to the repository historical record as of Aug 2013 -- TWH
+%
+% Uses match_solarangle_radiation to determine the optimal offset to make the
+% daily cycle of Rg most closely match the daily cycle of calculated solar angle
+% for each day of a year, and applies these shifts to each day using shift_data.
+% Where Rg observations are not available but PAR observations are, PAR is used
+% instead.
+%
+% Rg column within data is identified by searching for 'Rad_short_Up_Avg' or
+% 'pyrr_incoming_Avg' within headertext.  PAR column is identified by searching
+% for one of 'par_correct_Avg', 'par_Avg(1)', 'par_Avg_1', 'par_Avg',
+% 'par_up_Avg', 'par_face_up_Avg', 'par_incoming_Avg', or 'par_lite_Avg'.
+%
+% USAGE
+%    [ data ] = ...
+%       UNM_synchronize_radiation_to_solarangle_FAdata( sitecode, ...
+%                                                     year, ...
+%                                                     data, ...
+%                                                     headertext, ...
+%                                                     timestamp );
+%
+% INPUTS
+%     sitecode: UNM_sites object; specifies the site
+%     year: four digit year: specifies the year
+%     data: NxM numeric; a data array with observations in columns and time in
+%         rows that includes Rg and PAR.  This would usually be a parsed fluxall
+%         file.
+%     headertext: cell array of strings; variable names for columns of data
+%     timestamp: 1xN serial datenumber vector; timestamps for rows of data
+%
+% OUTPUTS
+%     data: NxM numerical array; input argument data, with the timestamps
+%         shifted as described above. 
+%
+% SEE ALSO
+%     UNM_sites, datenum, match_solarangle_radiation, shift_data
+%
+% author: Timothy W. Hilton, UNM, May 2013
 
-debug = true;
-save_figs = false; 
+
+debug = true;  % if true, draw some diagnostic plots
+save_figs = false;  % if true, save figures to eps files
 
 % -----
 % identify Rg and PAR columns from data
