@@ -1,18 +1,17 @@
+function [] = UNM_RemoveBadData( sitecode, year, varargin )
+% UNM_REMOVEBADDATA - remove bogus observations from UNM flux data and write
+% filtered data to delimited ASCII files FOR SITE-YEARS 2012 AND LATER. 
+%
 % This program was created by Krista Anderson Teixeira in July 2007
 % Modified by John DeLong 2008 through 2009.
-% Modifed by Timothy W. Hilton, 2011 through 2012
+% Modifed by Timothy W. Hilton, 2011 through 2013
 %
-% The program reads site_fluxall_year excel files and pulls in a
-% combination of matlab processed ts data and data logged average 30-min
-% flux data.  It then flags values based on a variety of criteria and
-% writes out new files that do not have the identified bad values.  It
-% writes out a site_flux_all_qc file and a site_flux_all_for_gap_filling
-% file to send to the Reichstein online gap-filling program.  It can be
-% adjusted to make other subsetted files too.
-%
-% This program is set up to run as a function where you enter the command
-% along with the sitecode (1-7 see below) and the year.  This means that it
-% only runs on files that are broken out by year.
+% The program reads site_fluxall_year excel files and pulls in a combination of
+% matlab processed ts data and data logged average 30-min flux data.  It then
+% flags values based on a variety of criteria and writes out new files that do
+% not have the identified bad values.  It writes out a site_flux_all_qc file and
+% a site_flux_all_for_gap_filling file to send to REddyProc for gapfilling and
+% flux partitioning.  It can be adjusted to make other subsetted files too.
 %
 % USAGE
 %     UNM_RemoveBadData( sitecode, year )
@@ -24,24 +23,26 @@
 % INPUTS
 %     sitecode: UNM_sites object or integer; specifies site to process
 %     year: integer; year to process
-%     iteration: optional, integer 1-6; defines which set of bad data tasks
+% PARAMETER-VALUE PAIRS
+%     iteration: integer 1-6 (Default is 6); defines which set of bad data tasks
 %          to perform (see code for details)
-%     write_QC: optional, logical (default true); if true, writes flux_all_qc 
-%          file
-%     write_GF: optional, logical (default true); if true, writes
-%          flux_all_for_gapfilling file
-%     draw_plots: optional, logical (default true); if true, draws diagnostic
-%          plots.  If false, no plots are drawn.
-%     draw_fingerprints: optional, logical (default true ): if true, draw
-%          "fingerprint plot" to examine hour-of-day vs. observations
+%     write_QC: {true}|false; if true, writes flux_all_qc file
+%     write_GF: {true}|false; if true, writes flux_all_for_gapfilling file
+%     draw_plots: {true}|false; if true, draws diagnostic plots.  If false,
+%         no plots are drawn. 
+%     draw_fingerprints: {true}|false: if true, draw "fingerprint plot" to
+%         examine hour-of-day vs. observations 
 %
 % OUTPUTS:
 %     This function has no outputs
 %
-% author: Timothy W. Hilton, UNM, May 2012
+% SEE ALSO
+%     UNM_RemoveBadData_pre2012
+%
+% author: Timothy W. Hilton, UNM, 2012-2013
 
 
-function [] = UNM_RemoveBadData( sitecode, year, varargin )
+
 %clear all
 %close all
 

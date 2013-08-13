@@ -1,9 +1,23 @@
 function ds  = UNM_parse_fluxall_txt_file( sitecode, year, varargin )
 % UNM_PARSE_FLUXALL_TXT_FILE - parse fluxall data and timestamps from
-% tab-delimited text file to matlab dataset
+% tab-delimited text file to matlab dataset.  
 %   
 % ds  = UNM_parse_fluxall_txt_file( sitecode, year )
 % ds  = UNM_parse_fluxall_txt_file( sitecode, year, 'file', file )
+%
+% INPUTS
+%    sitecode: UNM_sites object; specifies the site to show
+%    year: four-digit year: specifies the year to show
+% PARAMETER-VALUE PAIRS
+%    file: character string; full path to the fluxall file to be read.  If
+%    not specified, default is 
+%    get_site_directory( sitecode )/SITE_FLUX_all_YEAR.txt
+%
+% OUTPUTS
+%    ds: dataset array: the data from the fluxall file
+%
+% SEE ALSO
+%    UNM_sites, dataset, get_site_directory
 %
 % Timothy W. Hilton, UNM, January 2012
 

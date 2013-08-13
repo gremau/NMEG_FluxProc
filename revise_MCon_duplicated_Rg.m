@@ -9,13 +9,16 @@ function data = revise_MCon_duplicated_Rg( data, headertext, t, varargin )
 %     rad = revise_MCon_duplicated_Rg( rad, t );
 %
 % INPUTS
-%     data: array of data from Fluxall file
-%     headertext: column headers for the fluxall file
-%     t: timestamps, matlab datenums
+%     data: numeric; array of data from Fluxall file
+%     headertext: cell array of strings; column headers for the fluxall file
+%     t: timestamps, Matlab serial datenumbers
 %
 % OUTPUTS
 %     rad: radiation observations with duplicated measurements replaced by
 %         interpolated measurements.
+%
+% SEE ALSO
+%     datenum
 %
 % author: Timothy W. Hilton, UNM, May 2013
 

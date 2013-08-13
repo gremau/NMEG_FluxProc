@@ -1,7 +1,21 @@
 function result = UNM_Ameriflux_plot_dataset_eps(ds, fname, year, start_col)
-% UNM_AMERIFLUX_PLOT_DATASET - 
+% UNM_AMERIFLUX_PLOT_DATASET - create a multipage pdf file containing plots of
+% each field of an ameriflux dataset.
 %   
-    
+% INPUTS:
+%    ds: dataset array: Ameriflux data to be plotted
+%    fname: character string; full path to the pdf file in which to save the
+%        plots 
+%    year: four-digit year; the year of the data (for plot labels)
+%    start_col: integer: ds( :, start_col:end ) is plotted.  The first few
+%        columns of Ameriflux files contain year, month, day, etc., and this
+%        allows the plotting to skip those.
+%
+% OUTPUTS
+%    no output
+%
+% author: Timothy W. Hilton, UNM, January 2012
+
     if exist( fname ) == 2
         delete( fname );
     end

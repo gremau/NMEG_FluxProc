@@ -1,5 +1,4 @@
 function fluxall = UNM_assign_soil_data_labels( sitecode, year, fluxall )
-
 % UNM_ASSIGN_SOIL_DATA_LABELS - assign labels to soil measurements.
 %   Labels are of the format soilT_cover_index_depth_*, where cover, index, and
 %   depth are character strings.  e.g. "soilT_O_2_12.5_avg" denotes cover type
@@ -12,11 +11,14 @@ function fluxall = UNM_assign_soil_data_labels( sitecode, year, fluxall )
 % INPUTS
 %   sitecode: integer or UNM_sites object; site to consider
 %   year: integer; year to consider
-%   fluxall: matlab dataset object; parsed fluxall.xls data
+%   fluxall: matlab dataset object; parsed fluxall.xls or fluxall.txt data
 %
 % OUTPUTS
 %   fluxall: matlab dataset object; fluxall.xls data with relabeled soil data
 %       columns
+%
+% SEE ALSO
+%    dataset, UNM_parse_fluxall_txt_file, UNM_parse_fluxall_xls_file
 %
 % author: Timothy W. Hilton, UNM, May-July 2012
 

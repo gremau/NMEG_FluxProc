@@ -1,3 +1,5 @@
+% parse and display TOA5 file headers for multiple site-years
+
 date_start = datenum( 2009, 1, 1 );
 date_end = datenum( 2011, 12, 31 ); 
 

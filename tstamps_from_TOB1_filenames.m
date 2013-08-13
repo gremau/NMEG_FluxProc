@@ -1,16 +1,19 @@
 function tstamps = tstamps_from_TOB1_filenames( fnames )
 % TSTAMPS_FROM_TOB1_FILENAMES - extracts timestamps from TOB1 file names and
-%   returns them as Matlab datenums.  Filename timestamps must be in format
-%   YYYY_MM_DD_HHMM.
+%   returns them as Matlab serial datenumbers.  Filename timestamps must be in
+%   format YYYY_MM_DD_HHMM.
 %
 % USAGE
-%   tstamps = tstamps_from_TOB1_filenames( fnames )
+%   tstamps = tstamps_from_TOB1_filenames( fnames );
 %
 % INPUTS
 %   fnames: cell array of strings containing file names
 %
 % OUTPUTS
 %   tstamps: array of datenums corresponding to file names
+%
+% SEE ALSO
+%   datenum
 %
 % author: Timothy W. Hilton, UNM, Sep 2012
 

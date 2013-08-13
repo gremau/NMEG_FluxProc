@@ -5,7 +5,8 @@ function FA = standardize_fluxall_variables( sitecode, ...
                                              data )
 % STANDARDIZE_FLUXALL_VARIABLES - this function assigns common names to the
 %   observed fields found in UNM FLUXALL files.  It accepts a dataset array
-%   data, and returns the dataset array with names standardized.
+%   data, and returns the dataset array with names standardized.  This is a
+%   work in progress, and needs testing/debugging.
 
 ncol = numel( headertext );
 

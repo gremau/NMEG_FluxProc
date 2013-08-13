@@ -16,7 +16,7 @@ function result = UNM_Ameriflux_write_file( sitecode, ...
 %     ds_aflx: dataset array; the data to write.  Usually the output of
 %         UNM_Ameriflux_prepare_output_data 
 %     fname_suffix: char; 'gapfilled' or 'with_gaps'
-% KEYWORD ARGUMENTS
+% PARAMETER-VALUE PAIRS
 %     email: contact email address to list in the Ameriflux file header.
 %         Default is mlitvak@unm.edu
 %     outdir: char; full path to directory to write ameriflux files to.

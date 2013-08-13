@@ -1,6 +1,7 @@
 function met_data_ds = UNM_parse_valles_met_data( year )
-% parse Valles Caldera annual met data file to matlab dataset.  The met data for
-% year YYYY must be located at
+% parse Valles Caldera annual met data file to matlab dataset.  
+%
+% The met data for year YYYY must be located at
 % $FLUXROOT/AncillaryData/MetData/valles_met_data_YYYY.dat.  Issues error if
 % this file does not exist.  The Valles meteorological data may be downloaded
 % from http://sev.lternet.edu/research/climate/meteorology/VCNP/index.html.

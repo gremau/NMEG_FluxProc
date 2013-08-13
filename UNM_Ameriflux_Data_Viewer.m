@@ -1,12 +1,36 @@
 function UNM_Ameriflux_Data_Viewer( sitecode, year, varargin )
 % UNM_Ameriflux_Data_Viewer -- a graphical user interface to view and compare
 % gapfilled and non-gapfilled Ameriflux data
-%       
+%
+% Creates new figure window and plots each variable from gapfilled (upper panel)
+% and with-gaps (lower panel) Ameriflux file.  Prev and Next buttons allow user
+% to navigate among all variable present in the files.  Gapfilled data points
+% are highlighted in the upper panel.  Panels are linked so that zooming
+% either panel causes both to zoom to the same region. 
+% 
+% If prompt_for_files is false (the default) and AFlux_dir is unspecified
+% searches for gapfilled and with-gaps Ameriflux files in
+% $FLUXROOT/Ameriflux_files.
+% 
 % USAGE
 %    UNM_Ameriflux_Data_Viewer( sitecode, year )
 %    UNM_Ameriflux_Data_Viewer( sitecode, year, prompt_for_files )
 %    UNM_Ameriflux_Data_Viewer( sitecode, year, 'AFlux_dir', 'some/path'  )
 %
+% INPUTS
+%    sitecode: UNM_sites object; specifies the site to show
+%    year: four-digit year: specifies the year to show
+% PARAMETER-VALUE PAIRS
+%    prompt_for_files: true|{false}; if true, presents user with selection
+%        dialog to select gapfilled and with-gaps Ameriflux files from local
+%        file system.  Supersedes AFlux_dir.
+%    AFlux_dir: character string; full path to the directory containing both
+%        gapfilled and with-gaps ameriflux files.  Ignored if
+%        prompt_for_files is true.
+%
+% OUTPUTS: 
+%    no outputs
+% 
 % author: Timothy W. Hilton, UNM, Feb 2012
 
 %-------------------------

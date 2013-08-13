@@ -19,7 +19,23 @@ function varargout =  UNM_gapfill_from_local_data( sitecode, ...
 % [ idx_filled, ds_for_gapfill ] = UNM_gapfill_from_local_data( sitecode, ...
 %                                                               year, ...
 %                                                               ds_for_gapfill )
-% author: Timothy W. Hilton, UNM, 2012
+% INPUTS
+%    sitecode: UNM_sites object; specifies the site to show
+%    year: four-digit year: specifies the year to show
+%    ds_for_gapfill: NxM dataset array; the data (for the gapfiller) to be
+%        "pre-filled" 
+%
+% OUTPUTS
+%    idx_filled: 1xM logical array; true for timestamps in which filling was
+%        performed 
+%    ds_for_gapfill: dataset array (optional): the input data with filling
+%        performed. 
+%
+% SEE ALSO
+%    dataset
+
+% author: Timothy W. Hilton, UNM, March 2012
+
 obs_per_day = 48;
 
 filled_idx = [];  %initialize to no gapfilling performed

@@ -2,10 +2,10 @@ function [ outfolder, result ] = get_out_directory( sitecode )
 % GET_OUT_DIRECTORY - return site-specific directory for Matlab-generated
 % output
 %
-% if 'outfolder' field is specified in UNM_flux_process_config it is returned.
-% Otherwise a default directory of $FLUXROOT/SITE/matlab_output is returned.
-% outfolder is created if it does not exist.  Issues error if outfolder does not
-% exist and could not be created successfully.
+% if 'outfolder' field is specified in UNM_flux_process_config that value is
+% returned.  Otherwise a default directory of $FLUXROOT/SITE/matlab_output is
+% returned.  outfolder is created if it does not exist.  Issues error if
+% outfolder does not exist and could not be created successfully.
 %
 % USAGE
 %     [ outfolder, result ] = get_out_directory( sitecode );

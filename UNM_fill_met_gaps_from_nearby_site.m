@@ -7,13 +7,16 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, varargin )
 %     result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, draw_plots )
 %
 % INPUTS
-%     sitecode [ integer ]: code of site to be filled
+%     sitecode [ UNM_sites object ]: code of site to be filled
 %     year [ integer ]: year to be filled
-%     draw_plots [ logical ], optional : if true, plot observed and filled T,
-%         Rg, RH.  Default is true
+% PARAMETER-VALUE PAIRS
+%     draw_plots: {true} | false; if true, plot observed and filled T, Rg, RH.
 %
 % OUTPUTS
 %     result [ integer ]: 0 on success, -1 on failure
+%
+% SEE ALSO
+%     UNM_sites
 %
 % author: Timothy W. Hilton, UNM, March 2012
   

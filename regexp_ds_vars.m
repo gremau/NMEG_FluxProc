@@ -1,6 +1,6 @@
 function [ vars, varargout ] = regexp_ds_vars( ds, re )
 % REGEXP_DS_VARS - returns cell array of strings of variable names from dataset
-%   ds that match regular expression re
+% array ds that match regular expression re
 %
 % USAGE
 %    vars = regexp_ds_vars( ds, re )
@@ -13,6 +13,9 @@ function [ vars, varargout ] = regexp_ds_vars( ds, re )
 % OUTPUTS
 %    vars: cell array of strings; variable names from ds that match re
 %    idx: optional; vector of column indices of the matches
+%
+% SEE ALSO
+%    dataset, regexp
 %
 % author: Timothy W. Hilton, UNM, Jan 2012
     

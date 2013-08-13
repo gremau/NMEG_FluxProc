@@ -1,3 +1,5 @@
+% script to fill for_gapfill files from nearby sites
+
 draw_plots = true;
 regress_on = true;
 regress_off = false;

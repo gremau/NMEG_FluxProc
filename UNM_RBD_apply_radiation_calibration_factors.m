@@ -5,11 +5,16 @@ function [sw_incoming, sw_outgoing, Par_Avg ] = ...
                                                  lw_incoming, lw_outgoing, ...
                                                  Par_Avg, NR_tot, ...
                                                  wnd_spd, CNR1TK )
-% UNM_RBD_APPLY_RADIATION_CALIBRATION_FACTORS - Some site-years or portions
-% thereof contain incorrect calibration factors in their datalogger code.  These
-% corrections fix those problems.  This is a helper function for
-% UNM_RemoveBadData.  It is not intended to be called on its own.  Input and
-% output arguments are defined in UNM_RemoveBadData.
+% UNM_RBD_APPLY_RADIATION_CALIBRATION_FACTORS - correct for radiation
+% calibration factors that were incorrectly specified in datalogger code at
+% various sites and time periods.
+%
+% Some site-years or portions thereof contain incorrect calibration factors in
+% their datalogger code.  These corrections fix those problems.  
+%
+% This is a helper function for UNM_RemoveBadData.  It is not intended to be
+% called on its own.  Input and output arguments are defined in
+% UNM_RemoveBadData.
 %   
 % [sw_incoming, sw_outgoing, Par_Avg ] = ...
 %     UNM_RBD_apply_radiation_calibration_factors( sitecode, year_arg, ...
@@ -18,6 +23,11 @@ function [sw_incoming, sw_outgoing, Par_Avg ] = ...
 %                                          lw_incoming, lw_outgoing, Par_Avg, ...
 %                                          NR_tot, wnd_spd, CNR1TK )
 %
+% INPUTS/OUTPUTS
+%     see UNM_RemoveBadData and UNM_RemoveBadData_pre2012
+% 
+% SEE ALSO:
+%     UNM_RemoveBadData, UNM_RemoveBadData_pre2012
 %
 % author: Timothy W. Hilton, UNM, 2013
 

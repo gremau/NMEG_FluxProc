@@ -1,5 +1,6 @@
 function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data, precip )
-% UNM_AMERIFLUX_PREPARE_SOIL_MET - 
+% UNM_AMERIFLUX_PREPARE_SOIL_MET - prepare soil variables for writing to
+% Ameriflux-like output file.
 %   
 % contains the section of UNM_Ameriflux_file_maker.m as of 15 Aug 2011 that
 % gathers/calculates all the soil met properties.  By modularizing it here it
@@ -7,8 +8,28 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data, precip 
 % through and replaced QC columns with ds_qc -- the dataset created by
 % fluxallqc_2_dataset.m.  Abbreviations: SWC: soil water content; VWC:
 % volumetric water content.
-%   
 %
+% Extracts variables from inut argument data whose names match one of:
+%     soilT_COVER_NUMBER_DEPTH
+%     SHF*, soil_heat_flux*, shf*
+%     cs616SWC_COVER_NUMBER_DEPTH
+%   
+% USAGE
+%    ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data, precip );
+%
+% INPUTS:
+%    sitecode: UNM_sites object; specifies the site
+%    year: four-digit year: specifies the year
+%    data: dataset array; parsed fluxall data.  Generally will be the output
+%        of UNM_parse_fluxall_txt_file or UNM_parse_fluxall_xls_file
+%
+% OUTPUTS
+%    ds_out: dataset array: soil variables extracted from data
+%
+% SEE ALSO
+%    dataset, UNM_parse_fluxall_txt_file, UNM_parse_fluxall_xls_file
+%
+% author: Timothy W. Hilton, UNM, January 2012
 
 [ last_obs_row_data, ~, ~ ] = find( not( isnan( double( data( :, 2:end ) ) ) ) );
 [ last_obs_row_precip, ~, ~ ] = find( not( isnan( precip ) ) );
@@ -51,7 +72,7 @@ switch sitecode
     % get the soil water content and soil T columns and labels
 
     re_Tsoil = '[Ss]oilT_[A-Za-z]+_[0-9]+_[0-9]+.*'; %regexp to identify
-                                                  %"soilT_COVER_NUMBER_DEPTH"
+                                                     %"soilT_COVER_NUMBER_DEPTH"
     Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
     if isempty( Tsoil )
         re_Tsoil_form2 = 'Tsoil_avg'; 

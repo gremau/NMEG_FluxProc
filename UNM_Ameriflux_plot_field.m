@@ -1,15 +1,20 @@
 function h = UNM_Ameriflux_plot_field( ds, field, year )
 % UNM_AMERIFLUX_PLOT_FIELD - create a new figure window; plot one field of an
-% ameriflux dataset against day of year
+% ameriflux dataset against day of year.
 %   
-% h = UNM_Ameriflux_plot_field( ds, field )
+% h = UNM_Ameriflux_plot_field( ds, field );
 %
 % INPUTS
 %   ds: matlab dataset; the Ameriflux data
-%   field: character string; the field to be plotted
-%   year: the year
+%   field: character string; the field to be plotted (from among
+%       ds.Properties.VarNames) 
+%   year: the year (for plot labels)
+%
 % OUTPUTS
 %   h: handle to the figure window created
+%
+% SEE ALSO
+%   dataset
 %
 % author: Timothy W. Hilton, UNM, January 2012
     

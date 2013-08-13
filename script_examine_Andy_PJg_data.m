@@ -1,3 +1,6 @@
+% compares 2009-2012 PJgirdle fluxes calculated by Andy Fox to those
+% calculated by Tim Hilton
+
 % ------------------------------------------------------------
 % parse data
 % ------------------------------------------------------------

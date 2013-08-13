@@ -1,7 +1,23 @@
 function [] = plot_soil_pit_data( soil_data, nan_idx_arg, pcp )
-% PLOT_SOIL_PIT_DATA - produce pit-by-pit plots of soil data.  Variable
-% labels must be in format VARIABLE_COVER_PIT_DEPTH_...
+% PLOT_SOIL_PIT_DATA - produce pit-by-pit plots of soil data showing filled
+% and unfilled soil data and precipitation.
+%
+% soil_data variable names must be in format VARIABLE_COVER_PIT_DEPTH or
+% VARIABLE_COVER_PIT_DEPTH_OptionalExtraText.
 %   
+% INPUTS
+%    soil_data: NxM dataset array; soil data to be plotted
+%    nan_idx: NxM numeric array; indices of filled data points in soil_data
+%    pcp: 1xM numeric; precipitation observations
+% 
+% OUTPUTS
+%    no outputs
+%
+% SEE ALSO
+%    dataset
+%
+% author: Timothy W. Hilton, UNM, August 2012
+
 
 grp_vars = regexp( soil_data.Properties.VarNames, '_', 'split' );
 grp_vars = vertcat( grp_vars{ : } );

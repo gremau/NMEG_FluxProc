@@ -1,3 +1,5 @@
+% script to produce plots of burned grassland soil water content observations
+
 SWC_cols = regexp( result.Properties.VarNames, ...
                    '^(open[12]|grass[12])_[0-9]' );
 SWC_cols = find( ~cellfun( 'isempty', SWC_cols ) );

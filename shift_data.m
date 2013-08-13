@@ -1,16 +1,23 @@
 function data = shift_data( data, offset_hours, varargin )
-% SHIFT_DATA - Helper function for UNM_fix_datalogger_timestamps,
-%   UNM_Ameriflux_file_maker.m
+% SHIFT_DATA - shifts the timestamps within a dataset by a specified number
+% of hours.
+%
+% Helper function for UNM_fix_datalogger_timestamps, UNM_Ameriflux_file_maker
+% to deal with various datalogger clock problems.
 %
 % USAGE
 %    data = shift_data( data, offset_hours )
 %    data = shift_data( data, offset_hours, 'cols_to_shift', N )
 %
 % INPUTS
-%    data: array of data to be "shifted"
+%    data: numeric; array of data to be "shifted"
 %    offset_hours: integer; number of hours to shift
+% PARAMETER-VALUE PAIRS
 %    cols_to_shift: which columns to shift.  defaults to [ 74: size( data, 2 ) ]
 %            -- this corresponds to the 30-minute portion of the FLUXALL files.
+%
+% OUTPUTS:
+%    data: input arguemnt data, with timestamps shifted
 %
 % author: Timothy W. Hilton, UNM, June 2012
 

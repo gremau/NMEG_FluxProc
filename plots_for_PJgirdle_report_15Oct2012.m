@@ -1,6 +1,18 @@
 function plots_for_PJgirdle_report_15Oct2012()
-% PLOTS_FOR_PJGIRDLE_REPORT_15OCT2012
+% PLOTS_FOR_PJGIRDLE_REPORT_15OCT2012 - create a series of plots for Marcy's
+% PJ/PJ girdle report of 15 Oct 2012.
 %   
+% Creates one plot each for cumulative NEE, GPP, and RE.  Each plot shows the
+% fluxes from PJ, PJ_girdle, and JSav alongside one another.  The fluxes are
+% plotted from March 2009 (establishment of the EC tower at PJ_girdled)
+% through the present, with a vertical line drawn on 1 Sep 2009 (approximate
+% date of girdling).
+%
+% USAGE:
+%    plots_for_PJgirdle_report_15Oct2012();
+%
+% author: Timothy W. Hilton, UNM, Oct 2012
+
 
 
 load( fullfile( getenv( 'FLUXROOT' ), ...

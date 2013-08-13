@@ -1,7 +1,11 @@
 function R1C1 = xls_A1_2_R1C1( A1 )
 % xls_A1_2_R1C1 - convert a spreadsheet column reference in "A1" format to
 % "R1C1" format
-%   
+% 
+% see, e.g.: 
+% http://office.microsoft.com/en-us/excel-help/about-cell-and-range-references-HP005198323.aspx
+% (valid as of Aug 2013)
+%
 % USAGE: 
 %   R1C1 = xls_A1_2_R1C1(letter_column)
 %

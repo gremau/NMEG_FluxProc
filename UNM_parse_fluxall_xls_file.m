@@ -1,8 +1,21 @@
 function ds  = UNM_parse_fluxall_xls_file( sitecode, year )
-% UNM_PARSE_FLUXALL_XLS_FILE - parse fluxall data and timestamps from excel
-% file to matlab matrices
-%   
+% UNM_PARSE_FLUXALL_XLS_FILE - parse fluxall data and timestamps from
+% Excel spreadsheet file to matlab dataset.  
+% 
+% The fluxall file is assumed to be is 
+%    get_site_directory( sitecode )/SITE_FLUX_all_YEAR.xls
+%
 % ds  = UNM_parse_fluxall_xls_file( sitecode, year )
+%
+% INPUTS
+%    sitecode: UNM_sites object; specifies the site to show
+%    year: four-digit year: specifies the year to show
+%
+% OUTPUTS
+%    ds: dataset array: the data from the fluxall file
+%
+% SEE ALSO
+%    UNM_sites, dataset, get_site_directory
 %
 % Timothy W. Hilton, UNM, January 2012
 

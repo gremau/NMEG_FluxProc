@@ -1,12 +1,22 @@
 function ds = toa5_2_dataset( fname )
-% TOA5_2_DATASET - parse a TOA5 file to a matlab dataset
+% TOA5_2_DATASET - parse a Campbell Scientific TOA5 file to a matlab dataset
+% array.  
+%
+% Uses parse_TOA5_file_headers to determine variable names, variable units,
+% file size, and delimiter.  Adds a 'timestamp' variable of the file's
+% timetamps converted to Matlab serial datenumbers.  Uses clean_up_varnames
+% to convert variable names to legal Matlab variables.
 % 
 % INPUTS:
-%    fname: full path of file to be parsed
-% OUTPUTS:
-%    ds: matlab dataset
+%    fname: string; full path of file to be parsed
 %
-% Timothy W. Hilton, UNM, Oct 2011
+% OUTPUTS:
+%    ds: matlab dataset array; the data from the TOA5 file
+%
+% SEE ALSO
+%    dataset, datenum, parse_TOA5_file_headers, clean_up_varnames
+%
+% author: Timothy W. Hilton, UNM, Oct 2011
     
     [ var_names, var_units, file_lines, first_data_line, delim ] = ...
         parse_TOA5_file_headers( fname );

@@ -1,22 +1,32 @@
 function result = UNM_Ameriflux_File_Maker( sitecode, year, varargin )
-% UNM_AMERIFLUX_FILE_MAKER
-%
-% Reads in the QC file and the gap-filled and flux partitioned files and
-% generates output in a format for submission to Ameriflux
+% UNM_AMERIFLUX_FILE_MAKER - Reads in the QC file and the gap-filled and flux
+% partitioned files and writes delimited ASCII files in the format for submission
+% to Ameriflux.
 %
 % Based on code created by Krista Anderson Teixeira in July 2007 and modified by
 % John DeLong 2008 through 2009.  Extensively modified by Timothy W. Hilton 2011
 % to 2013.
 %
+% Ameriflux files are written to the output of get_out_directory( sitecode ).
+%
 % USAGE
 %    result = UNM_Ameriflux_file_maker_TWH( sitecode, year, ... )
 %
+% INPUTS
+%    sitecode: UNM_sites object; specifies the site to show
+%    year: four-digit year: specifies the year to show
 % PARAMETER-VALUE PAIRS:
 %    write_files: {true}|false; if false, do not write the Ameriflux files (useful
 %        for debugging without writing over good ameriflux files)
 %    write_daily_files: {true}|false; if true, write daily aggregated data for
 %        selected variables to a separate file.  For a list of aggregated
 %        variables, see help for UNM_Ameriflux_daily_aggregator.
+%
+% OUTPUTS
+%    success: 0 on success; non-zero on failure.
+%
+% SEE ALSO
+%    UNM_sites, get_out_directory
 %
 % author: Timothy W. Hilton, UNM, 2011 - 2013
 

@@ -1,3 +1,6 @@
+% run UNM_Ameriflux_file_maker for multiple sites.  Continues processing with
+% next site if an error is encountered.
+
 close all
 clear all
 
@@ -9,7 +12,7 @@ for i = 1:numel(sitecodes)
         try
             fprintf( '-------------\nrunning %s -- %d\n', ...
                      get_site_name( sitecodes( i ) ), y );
-            result = UNM_Ameriflux_file_maker_TWH( sitecodes( i ), y );
+            result = UNM_Ameriflux_file_maker( sitecodes( i ), y );
         catch err
             % if an error occurs, display and message and keep going
             keyboard()

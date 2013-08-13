@@ -3,8 +3,9 @@ function [ result, all_data ] = UNM_process_10hz_main( sitecode, ...
                                                   t_end, ...
                                                   varargin )
 % UNM_PROCESS_10HZ_MAIN: top-level function for matlab processing of 10-hz data
-% from flux towers to 30-minute average.  t_start and t_end may not span two
-% different calendar years.
+% from flux towers to 30-minute average.  
+%
+% t_start and t_end may not span two different calendar years.
 %
 % I found that attempting to process a year at a time quickly ran out of RAM on
 % jemez.  To work around this I added the period_n_days parameter argument to

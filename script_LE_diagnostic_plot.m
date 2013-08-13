@@ -1,3 +1,5 @@
+% script to look into problems with nighttime LE observations
+
 pal = cbrewer( 'qual', 'Dark2', 8 );
 
 figure( 'Name', 'LE Debug', ...

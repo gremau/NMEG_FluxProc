@@ -1,3 +1,7 @@
+% within MPI Jena online gapfiller/partitioner output, compare data filled using
+% Markus Reichstein's (MR) algorithm to data filled using Gita Lasslop's (GL)
+% algorithm.
+
 [MR, GL] = UNM_parse_gapfilled_partitioned_output( 1, 2010 );
 
 % plot GL filling
@@ -10,7 +14,7 @@ h_GL = plot( GL.NEE_HBLR, 'r.' );
 title( 'GL gapfilled fluxes (UNM Ameriflux files from here)' );
 legend( [ h_orig, h_GL ], 'submitted to gapfiller', 'GL filled NEE' ); %
 
-% plot ML filling
+% plot MR filling
 figure()
 h_orig = plot( MR.NEEorig, 'ko' );
 ylim( [-8, 6] )

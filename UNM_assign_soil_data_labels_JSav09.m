@@ -1,6 +1,31 @@
 function ds_out = UNM_assign_soil_data_labels_JSav09( ds_in )
-% UNM_ASSIGN_SWC_DATA_LABELS_JSAV09 - 
+% UNM_ASSIGN_SWC_DATA_LABELS_JSAV09 - assigns labels to JSav 2009 fluxall
+% file soil variables.
 %   
+% The datalogger labels for JSav's soil probes changed substantially in July
+% 2009.  This assigns descriptive labels to the soil variables on either side
+% of the change.
+%
+% Labels are of the format soilT_cover_index_depth_*, where cover, index, and
+% depth are character strings.  e.g. "soilT_O_2_12.5_avg" denotes cover type
+% open, index (pit) 2, and depth of 12.5 cm.  Depth is followed by an
+% underscore, and then optional arbitrary text.
+%
+% USAGE:  
+%    ds_out = UNM_assign_soil_data_labels_JSav09( ds_in )
+%
+% INPUTS:
+%    ds_in: dataset array; parsed FLUXALL data (probably output of
+%        UNM_parse_fluxall_txt_file or UNM_parse_fluxall_xls_file 
+%
+% OUTPUTS
+%    ds_out: dataset array; ds_in with soil variable labels updated.
+%
+% SEE ALSO
+%    dataset, UNM_parse_fluxall_txt_file, UNM_parse_fluxall_xls_file
+%
+% author: Timothy W. Hilton, UNM, December 2012
+
 
 soilT_descriptive_labels_preJul09 = { 'soilT_open_1_5', 'soilT_open_1_10', ...
                     'soilT_open_1_20', 'soilT_open_1_40', ...

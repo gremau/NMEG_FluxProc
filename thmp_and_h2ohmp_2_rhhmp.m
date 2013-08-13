@@ -1,9 +1,21 @@
 function rh_hmp = thmp_and_h2ohmp_2_rhhmp( t_hmp, h2o_hmp)
-% THMP_AND_H2OHMP_2_RHHMP - Helper function for UNM_RemoveBadData.  Calculate
-% relative humidity (rh_hmp), in percent, from t_hmp and h2o_hmp according to
-% datalogger code equation provided by LANL.  The original LANL datalogger code
-% is below, in Matlab comments.  This code rearranges the LANL equations to
-% calculate rh_hmp.
+% THMP_AND_H2OHMP_2_RHHMP - calculate relative humidity from Vaisala HMP
+% probe data.
+%
+% Helper function for UNM_RemoveBadData.  Calculate relative humidity (rh_hmp),
+% in percent, from t_hmp and h2o_hmp according to datalogger code equation
+% provided by LANL.  The original LANL datalogger code is below, in Matlab
+% comments.  This code rearranges the LANL equations to calculate rh_hmp.
+%
+% USAGE:
+%     rh_hmp = thmp_and_h2ohmp_2_rhhmp( t_hmp, h2o_hmp)
+%
+% INPUTS
+%     t_hmp: hmp temperature, C
+%     h2o_hmp: hmp vapor density (mg m-3)
+%
+% OUTPUTS:
+%     rh_hmp: relative humidity, 0 to 100
 %
 % author: Timothy W. Hilton, UNM, May 2012
     

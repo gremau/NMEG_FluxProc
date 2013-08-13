@@ -1,3 +1,7 @@
+function [] = UNM_RemoveBadData_pre2012( sitecode, year, varargin )
+% UNM_REMOVEBADDATA - remove bogus observations from UNM flux data and write
+% filtered data to delimited ASCII files FOR SITE-YEARS 2011 AND EARLIER. 
+%
 %This program was created by Krista Anderson Teixeira in July 2007
 % Modified by John DeLong 2008 through 2009.
 % Modifed by Timothy W. Hilton, 2011 through 2013
@@ -10,10 +14,6 @@
 % file to send to the Reichstein online gap-filling program.  It can be
 % adjusted to make other subsetted files too.
 %
-% This program is set up to run as a function where you enter the command
-% along with the sitecode (1-7 see below) and the year.  This means that it
-% only runs on files that are broken out by year.
-%
 % USAGE
 %     UNM_RemoveBadData( sitecode, year )
 %     UNM_RemoveBadData( sitecode, year, 'iteration', iteration )
@@ -24,29 +24,23 @@
 % INPUTS
 %     sitecode: UNM_sites object or integer; specifies site to process
 %     year: integer; year to process
-%     iteration: optional, integer 1-6; defines which set of bad data tasks
+% PARAMETER-VALUE PAIRS
+%     iteration: integer 1-6 (Default is 6); defines which set of bad data tasks
 %          to perform (see code for details)
-%     load_binary: optional, logical (default true); if true, load binary
-%          (.mat) versions of fluxall data.  If false, parse Excel version (this
-%          is much slower).
-%     write_QC: optional, logical (default true); if true, writes flux_all_qc 
-%          file
-%     write_GF: optional, logical (default true); if true, writes
-%          flux_all_for_gapfilling file
-%     draw_plots: optional, logical (default true); if true, draws diagnostic
-%          plots.  If false, no plots are drawn.
-%     draw_fingerprints: optional, logical (default true); if true, draws
-%          fingerprint plot to assess observed variables vs hour of day.  If
-%          false, no fingerprint plot is drawn.
+%     write_QC: {true}|false; if true, writes flux_all_qc file
+%     write_GF: {true}|false; if true, writes flux_all_for_gapfilling file
+%     draw_plots: {true}|false; if true, draws diagnostic plots.  If false,
+%         no plots are drawn. 
+%     draw_fingerprints: {true}|false: if true, draw "fingerprint plot" to
+%         examine hour-of-day vs. observations 
 %
 % OUTPUTS:
 %     This function has no outputs
 %
-% author: Timothy W. Hilton, UNM, May 2012
-
-
-function [] = UNM_RemoveBadData_pre2012( sitecode, year, varargin )
-
+% SEE ALSO
+%     UNM_RemoveBadData
+%
+% author: Timothy W. Hilton, UNM, May 2012-2013
 
 [ this_year, ~, ~ ] = datevec( now );
 

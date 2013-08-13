@@ -6,17 +6,21 @@ function data_out = UNM_soil_data_smoother( data_in, ...
 % average.  NaNs in input are ignored when calculating running average.
 %
 % USAGE
-%   [ data2, data3, run_avg ] = UNM_soil_data_smoother( data_in )
+%   data_out = UNM_soil_data_smoother( data_in, win, debug_plots )
 %
 % INPUTS
 %   data_in: input data; matrix or dataset object.  If data_in is
 %       two-dimensional, operates on each column separately. 
 %   win: scalar.  1/2 the moving average window (number of elements on
 %       either side to consider when calculating average) for smoothing.
-%   debug_plots: logical: if true, draws plots after pass one and pass three.
+%   debug_plots: true|false: if true, draws plots after pass one and pass three.
 %
 % OUTPUTS
-%   data_out: data with outlier elements removed.
+%   data_out: data with outlier elements removed.  Has same type as data_in
+%       (dataset array or numeric array)
+%
+% SEE ALSO
+%   dataset
 %
 % author: Timothy W. Hilton, UNM, Sep 2012
 

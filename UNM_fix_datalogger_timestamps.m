@@ -7,7 +7,27 @@ function data = UNM_fix_datalogger_timestamps( sitecode, year, ...
 % the periods that need to be shifted (identified by running
 % UNM_site_plot_fullyear_time_offsets and visually examining the plots it draws)
 % and calls shift_data to correct them.
-%   
+% 
+% INPUTS
+%    sitecode: UNM_sites object; specifies the site to show
+%    year: four-digit year: specifies the year to show
+%    data: NxM numeric: the data to be fixed
+%    headertext: cell array of strings; variable names for the columns in
+%        data
+%    timestamp: 1xN array of Matlab serial datenumbers: timestamps for the
+%        observations in data
+% PARAMETER-VALUE PAIRS
+%    debug: {true}|false; if true, a several before & after correction plots
+%        are drawn to the screen
+%    save_figs: {true}|false; if true, the debug plots are saved to
+%        $PLOTS/Rad_Fingerprints/SITE_YEAR_Rg_fingerprints.eps.
+%        $PLOTS/Rad_Fingerprints is created if it does not exist.
+%
+% SEE ALSO
+%    UNM_sites, dataset, UNM_site_plot_fullyear_time_offsets, shift_data
+%
+% author: Timothy W. Hilton, UNM, June 2012
+
 
 [ this_year, ~, ~ ] = datevec( now );
 

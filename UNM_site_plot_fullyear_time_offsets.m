@@ -1,5 +1,7 @@
 function UNM_site_plot_fullyear_time_offsets( sitecode, year, varargin )
-% UNM_SITE_PLOT_DOY_TIME_OFFSETS - 
+% UNM_SITE_PLOT_DOY_TIME_OFFSETS - plot the offset between observed incoming
+% shortwave radiation daily cycle and calculated solar angle daily cycle for
+% each day of the specified year.
 %  
 % USAGE
 %    UNM_site_plot_fullyear_time_offsets( sitecode, year )
@@ -8,9 +10,8 @@ function UNM_site_plot_fullyear_time_offsets( sitecode, year, varargin )
 % INPUTS
 %    sitecode: integer or UNM_sites object
 %    year: integer
-% KEYWORD ARGUMENTS
-%    save_fig: optional, logical; if true, save the figure to an eps file
-%        (default false)
+% PARAMETER-VALUE PAIRS
+%    save_fig: true|{false}; if true, save the figure to an eps file
 %    data: optional; dataset array; data for the site year.  Must contain fields
 %        Rg and timestamp.  If omitted the data are obtained from
 %        fluxall_for_gapfilling
@@ -18,6 +19,9 @@ function UNM_site_plot_fullyear_time_offsets( sitecode, year, varargin )
 % OUTPUTS
 %    no outputs
 %
+% SEE ALSO
+%    dataset, UNM_site_plot_doy_time_offsets
+% 
 % author: Timothy W. Hilton, UNM, June 2012
 
 % -----

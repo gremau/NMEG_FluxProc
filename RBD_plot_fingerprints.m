@@ -1,14 +1,31 @@
 function h_fig = RBD_plot_fingerprints( sitecode, year, decimal_day, ...
                                         sw_incoming, rH, ...
                                         Tair, NEE, LE, H_dry, main_t_str )
-% RBD_PLOT_FINGERPRINTS - Helper function for UNM_RemoveBadData.  Creates a
-% figure with six panels displaying "fingerprint" plots for Rg, RH, T, NEE, LE,
-% H.
+% RBD_PLOT_FINGERPRINTS - Helper function for UNM_RemoveBadData (RBD).  Creates
+% a figure with six panels displaying "fingerprint" plots for Rg, RH, T, NEE,
+% LE, H.
 % 
 % USAGE
 % RBD_plot_fingerprints( sitecode, year, decimal_day, ...
 %                        sw_incoming, rH, Tair, NEE, LE, H_dry, ...
-%                        main_t_str )
+%                        main_t_str );
+%
+% INPUTS
+%     sitecode: UNM_sites object; specifies the site (for plot labels)
+%     year: four digit year: specifies the year (for plot labels)
+%     decimal_day: fractional day of year (internal variable within RBD)
+%     sw_incoming: incoming shortwave radiation (internal variable within RBD)
+%     rH: relative humidity (internal variable within RBD)
+%     NEE: net ecosystem exchange (internal variable within RBD)
+%     LE: latent heat (internal variable within RBD)
+%     H_dry: sensible heat (internal variable within RBD)
+%     main_t_str: title for the plot, to appear centered above all panels
+%
+% OUTPUTS
+%     h_fig: handle to the figure containing the plot
+%
+% SEE ALSO
+%     dataset, UNM_RemoveBadData, UNM_RemoveBadData_pre2012
 %
 % author: Timothy W. Hilton, UNM, June 2012
 

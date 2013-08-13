@@ -2,6 +2,8 @@ function RBDrc = UNM_RBD_config( sitecode, year, varargin )
 % UNM_RBDRC - setup configuration details (file lengths, ustar thresholds, CO2
 % flux max/min, etc.) for a specified site year
 %
+% This is a work in progress and is not tested, debugged, or ready to be used.
+%
 % USAGE
 %     RBDrc = UNM_RBDrc( sitecode, year, varargin )
 %

@@ -1,6 +1,34 @@
 function SWC = preprocess_MCon_soil_data( year, timestamps )
 % PREPROCESS_MCON_SOIL_DATA - parse combined MCon soil data file and return soil
-%   water content 
+%   water content.  
+%
+% Soil data for the mixed conifer site are collected by Desert Research
+% Institute (DRI) and posted online. Timothy W. Hilton wrote Matlab code to
+% combine the downloaded DRI files into a single data file
+% $FLUXROOT/Flux_Tower_Data_by_Site/MCon/soil_data/MCon_combined_soil_water_data.dat.
+% For details see README and concatenate_all_MCon_soil_data.m within
+% $FLUXROOT/Flux_Tower_Data_by_Site/MCon/soil_data/.  The combined file contains
+% many observations in addition to soil water content: wind data, sap data, etc.
+% preprocess_MCon_soil_data parses the combined file, extracts the soil water
+% content data for a specified year to a dataset array, and converts the
+% timestamps to Matlab serial datenumbers.  It then calls
+% dataset_fill_timestamps to remove duplicated timestamps and fill any missing
+% timestamps with NaNs.
+%
+% INPUTS: 
+%    year: four digit year to be processed
+%    timestamps: 1xN array of Matlab serial datenums; SWC timestamps are
+%        filled to contain a complete record of 30-minute timestamps between the
+%        earliest and latest dates contained in this argument.
+%
+% OUTPUTS:
+%    SWC: dataset array; soil water content observations
+% 
+% SEE ALSO
+%    datenum, dataset, dataset_fill_timestamps
+%
+% author: Timothy W. Hilton, UNM, Aug 2012
+
 
 fname = fullfile( get_site_directory( UNM_sites.MCon ), ...
                   'soil_data', ...
