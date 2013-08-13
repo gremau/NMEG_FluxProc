@@ -1,8 +1,9 @@
 function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 % CS616_PERIOD2VWC - apply Campbell Scientific CS616 conversion equation to
 % convert cs616 period (in microseconds) to volumetric water content
-% (fraction).  Returns temperature-corrected and non-temperature-corrected
-% VWC. 
+% (fraction).  
+%
+% Returns temperature-corrected and non-temperature-corrected VWC.
 %
 % USAGE:
 %    [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil )

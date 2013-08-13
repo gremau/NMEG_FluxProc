@@ -1,8 +1,9 @@
 function changed_idx = fix_PPine_2008_forgapfilling()
-% FIX_PPINE_2008_FORGAPFILLING - The gapfiller/partitioner places several large
-%   spikes in NEE in late in early 2008.  This function scales the NEE
-%   spikes down to more reasonable peaks and writes a new for_gapfilling
-%   file.  
+% FIX_PPINE_2008_FORGAPFILLING - fix some problems in MCon NEE for 2008.
+%
+% The gapfiller/partitioner places several large spikes in NEE in late in early
+% 2008.  This function scales the NEE spikes down to more reasonable peaks and
+% writes a new for_gapfilling file.
 %
 % USAGE
 %    changed_idx = fix_PPine_2008_forgapfilling()

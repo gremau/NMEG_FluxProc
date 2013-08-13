@@ -4,8 +4,10 @@ function [ NR_sw, NR_lw, NR_tot ] = ...
                                      lw_incoming, lw_outgoing, ...
                                      NR_tot, wnd_spd, decimal_day )
 % CALCULATE_NET_RADIATION - calculate net radition from incoming and outgoing
-% radiation.  This is a helper function for UNM_RemoveBadData.  It is not
-% intended to be called on its own.  Input and output arguments are defined in
+% radiation.  
+%
+% This is a helper function for UNM_RemoveBadData.  It is not intended to be
+% called on its own.  Input and output arguments are defined in
 % UNM_RemoveBadData.
 %   
 % USAGE

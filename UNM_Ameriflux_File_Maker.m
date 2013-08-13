@@ -1,7 +1,9 @@
 function result = UNM_Ameriflux_File_Maker( sitecode, year, varargin )
-% UNM_AMERIFLUX_FILE_MAKER - Reads in the QC file and the gap-filled and flux
-% partitioned files and writes delimited ASCII files in the format for submission
-% to Ameriflux.
+% UNM_AMERIFLUX_FILE_MAKER - writes delimited ASCII files in the format for
+% submission to Ameriflux.
+%
+% Reads in the QC file and the gap-filled and flux partitioned files and writes
+% delimited ASCII files in the format for submission to Ameriflux.
 %
 % Based on code created by Krista Anderson Teixeira in July 2007 and modified by
 % John DeLong 2008 through 2009.  Extensively modified by Timothy W. Hilton 2011

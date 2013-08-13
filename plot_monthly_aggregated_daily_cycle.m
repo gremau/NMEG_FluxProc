@@ -1,6 +1,8 @@
 function plot_monthly_aggregated_daily_cycle( mm, varargin )
 % PLOT_MONTHLY_AGGREGATED_DAILY_CYCLE - plot monthly aggregated daily cycle
-% data to a 3-row, 4-column panel figure, each panel showing the daily cycle
+% data.
+
+% Produces a 3-row, 4-column panel figure, each panel showing the daily cycle
 % for a month.
 %   
 % INPUTS

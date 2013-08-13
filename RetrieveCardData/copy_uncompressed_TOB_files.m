@@ -1,8 +1,12 @@
 function success = copy_uncompressed_TOB_files(site, tsdata_filenames)
-% COPY_UNCOMPRESSED_TOB_FILES 
+% COPY_UNCOMPRESSED_TOB_FILES - Copies uncompressed 10-hz TOB1 files to
+% MyBook drive.
+%
 % Copies uncompressed 10-hz TOB1 files from arbitrary directory to
 % "TOB1_TS_DATA_ARCHIVES\SITE" directory on MyBook drive (with SITE the
-% abbreviated site name).  Returns true on success.  Issues error on failure.
+% abbreviated site name).
+%
+% Returns true on success.  Issues error on failure.
 %
 % USAGE
 %    success = copy_uncompressed_TOB_files(site, raw_data_dir);

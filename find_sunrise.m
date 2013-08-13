@@ -1,12 +1,14 @@
 function [ sunrise_obs, sunrise_calc ] = find_sunrise( ds, sitecode, year )
-% FIND_RUNRISE - Finds the observed and theoretical sunrise for each day in the
-% dataset ds.  ds must contain data from only one calendar year.  The
-% theoretical sunrise is calculated by SolarAzEl
-% (http://www.mathworks.com/matlabcentral/fileexchange/file_infos/23051-vectorized-solar-azimuth-and-elevation-estimation)
-% based on the latitude, longitude, and elevation specified by sitecode (as
-% determined by parse_UNM_site_table). Observed sunrise is defined as the first
-% timestamp of the day at which incoming shortwave radiation (Rg) exceeds 5 w
-% m-2.
+% FIND_RUNRISE - Finds the observed and theoretical sunrise for each day in a
+% dataset.
+%
+% ds must contain data from only one calendar year.  The theoretical sunrise is
+% calculated by SolarAzEl
+%(http://www.mathworks.com/matlabcentral/fileexchange/file_infos/23051-vectorized-solar-azimuth-and-elevation-estimation)
+%based on the latitude, longitude, and elevation specified by sitecode (as
+%determined by parse_UNM_site_table). Observed sunrise is defined as the first
+%timestamp of the day at which incoming shortwave radiation (Rg) exceeds 5 w
+%m-2.
 % 
 % INPUTS
 %    ds: dataset array; data from which to extract the dates and observed

@@ -1,8 +1,10 @@
 function fh = plot_PAR_daily_cycle( sitecode )
 % PLOT_PAR_DAILY_CYCLE - plots PAR vs hour of day within each year from 2007 to
-% 2011 for a single UNM site.  Each site-year is plotted in its own panel.  This
-% helps indicate whether site-years are all using the same time convention
-% (e.g. daylight savings time vs. standard time).
+% 2011 for a single UNM site.  
+%
+% Each site-year is plotted in its own panel.  This helps indicate whether
+% site-years are all using the same time convention (e.g. daylight savings time
+% vs. standard time).
 %
 % USAGE
 %     fh = plot_PAR_daily_cycle( sitecode );

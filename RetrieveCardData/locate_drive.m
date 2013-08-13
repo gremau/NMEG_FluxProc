@@ -1,8 +1,9 @@
 function drive_letter = locate_drive(drive_name)
 % LOCATE_DRIVE - determines the current windows drive letter (e.g. "C:\", "E:\",
-% for a given drive name (e.g. "My Book", etc.).  Returns the letter (a
-% single character, with no ":\") if drive_name is found, or "0" if
-% drive_name is not found.
+% etc.)  for a given drive name (e.g. "My Book", etc.).
+%
+% Returns the letter (a single character, with no ":\") if drive_name is found,
+% or "0" if drive_name is not found.
 %
 % USAGE
 %   drive_letter = locate_drive(drive_name);

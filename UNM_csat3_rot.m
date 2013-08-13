@@ -1,5 +1,4 @@
 function [UVW2,UVWMEANROT,UVWTVAR,COVUVWT,USTAR,HBUOYANT,TRANSPORT,hsout]=UNM_csat3_rot(uvwt,SONDIAG,sitecode,rotation)
-
 % processes the measured SONIC outputs from the campbell CSAT 3 (half-hourly data)
 %
 % INPUTS:

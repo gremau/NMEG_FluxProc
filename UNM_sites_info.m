@@ -1,8 +1,7 @@
 classdef UNM_sites_info
-% class UNM_sites_info
+% This class defines a number of numerical and text constants for each UNM site.
 %
-% This class defines a number of numerical and text constants for each UNM
-% site.  Its fields are: 
+% Its fields are: 
 %    short_name: abbreviation used in UNM data files (fluxall, gapfilling, etc)
 %    long_name: a fuller (though still short) site description, perhaps useful
 %        for plot labels

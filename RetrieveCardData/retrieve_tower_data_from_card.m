@@ -1,8 +1,11 @@
 function [result, dest_dir, mod_date] = ...
     retrieve_tower_data_from_card( site, data_location )
-% RETRIEVE_TOWER_DATA_FROM_CARD - locates tower data from card or disk, creates
-% a permanent directory for the data under $FLUXROOT if necessary, and copies
-% the data to the permanent directory.
+% RETRIEVE_TOWER_DATA_FROM_CARD - copy raw datalogger data files to appropriate
+% directory on local disk.
+%
+% Locates tower data from card or disk, creates a permanent directory for the
+% data under $FLUXROOT if necessary, and copies the data to the permanent
+% directory.
 %
 % USAGE
 %    retrieve_tower_data_from_card( site, data_location )

@@ -1,5 +1,8 @@
 function fluxall = fluxall_fill_timestamps( fluxall )
-% FLUXALL_FILL_TIMESTAMPS - makes sure a FLUXALL dataset has a complete record
+% FLUXALL_FILL_TIMESTAMPS - Make sure a UNM annual fluxall file timestamp
+% record is complete and unambiguous.
+%
+% makes sure a FLUXALL dataset has a complete record
 % of 30-minute timestamps using dataset_fill_timestamps and that all
 % timestamp-related fields (jday, date) for added timestamps are non-nan.
 % Begins each year's fluxall file at 00:30:00 on 1 Jan as per UNM convention.

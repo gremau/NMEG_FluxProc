@@ -1,16 +1,17 @@
 function varargout =  UNM_gapfill_from_local_data( sitecode, ...
                                                    year, ...
                                                    ds_for_gapfill )
-% UNM_GAPFILL_FROM_LOCAL_DATA - Performs gapfilling for specified sites, date
-% ranges from other UNM sites.  This is intended to address periods where the
-% online gapfiller produces poor modeled fluxes and we believe that filling
-% in from other UNM sites will perform better.  The first output variable
-% contains the indices at the specified site-year where we wish to override
-% the online gapfiller.  The second (optional) output contains the input data
-% with the data from the nearby UNM site added.  This needs to be run twice
-% -- once in UNM_RemoveBadData to actually replace the data prior to
-% gapfilling, and once in UNM_Ameriflux_file_builder to set the "filled"
-% flags to filled.
+% UNM_GAPFILL_FROM_LOCAL_DATA - Performs gapfilling for specified sites and date
+% ranges from other UNM sites.  
+%
+% This is intended to address periods where the online gapfiller produces poor
+% modeled fluxes and we believe that filling in from other UNM sites will
+% perform better.  The first output variable contains the indices at the
+% specified site-year where we wish to override the online gapfiller.  The
+% second (optional) output contains the input data with the data from the nearby
+% UNM site added.  This needs to be run twice -- once in UNM_RemoveBadData to
+% actually replace the data prior to gapfilling, and once in
+% UNM_Ameriflux_file_builder to set the "filled" flags to filled.
 %
 % USAGE
 % [ idx_filled ] = UNM_gapfill_from_local_data( sitecode, ...

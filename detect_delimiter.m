@@ -1,7 +1,9 @@
-function delim = detect_delimiter(fpath)
+function delim = detect_delimiter( fpath )
 % DETECT_DELIMITER - makes a best guess between space, tab, comma, and
-% semicolon at the delimiter used in a text file by choosing the most
-% frequently occuring within the text.
+% semicolon at the delimiter used in a text file.
+%
+% Chooses the most frequently occuring delimiter among space, tab, comma, and
+% semicolon.
 % 
 % USAGE
 %    delim = detect_delimiter( fpath );

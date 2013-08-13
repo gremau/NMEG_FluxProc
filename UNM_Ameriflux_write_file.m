@@ -4,8 +4,9 @@ function result = UNM_Ameriflux_write_file( sitecode, ...
                                             fname_suffix, ...
                                             varargin )
 % UNM_AMERIFLUX_WRITE_FILE - writes a dataset containing ameriflux data out to
-%   an Ameriflux ASCII file with appropriate headers.  Primnarily a helper
-%   function for UNM_Ameriflux_File_Maker.
+%   an Ameriflux ASCII file with appropriate headers.  
+%
+% Primarily a helper function for UNM_Ameriflux_File_Maker.
 %
 % USAGE
 %    UNM_Ameriflux_write_file( sitecode, year, ds_aflx, fname_suffix )

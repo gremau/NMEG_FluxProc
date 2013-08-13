@@ -1,10 +1,12 @@
 function  out  = replace_consecutive_with_condition( in, cond )
 % REPLACE_CONSECUTIVE_WITH_CONDITION - replaces consecutive identical values
-% within an array where a given condition is satisfied.  MCon 2012 PAR record
-% features several instances of high, constant values for several days at a
-% time.  This function finds these bogus data and replaces them with NaN.  The
-% condition (daytime, in this case) is necessary to avoid replacing nighttime
-% PAR values, which should contain consecutive zeros (or near-zeros).
+% within an array where a given condition is satisfied.
+%
+% MCon 2012 PAR record features several instances of high, constant values for
+% several days at a time.  This function finds these bogus data and replaces
+% them with NaN.  The condition (daytime, in this case) is necessary to avoid
+% replacing nighttime PAR values, which should contain consecutive zeros (or
+% near-zeros).
 %
 % USAGE
 %     out  = replace_daytime_consecutive( in, cond );

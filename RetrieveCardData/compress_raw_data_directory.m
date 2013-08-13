@@ -1,6 +1,6 @@
 function success = compress_raw_data_directory( raw_data_dir )
-% COMPRESS_RAW_DATA_DIRECTORY - compresses a directory using 7-zip.  Wait
-% until compression is complete before resuming Matlab execution.
+% COMPRESS_RAW_DATA_DIRECTORY - compresses a directory using 7-zip; wait until
+% compression is complete before resuming Matlab execution.
 %
 % USAGE:
 %    compress_raw_data_directory( raw_data_dir );

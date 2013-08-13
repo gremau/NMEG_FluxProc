@@ -1,5 +1,7 @@
 function amflux_ds = parse_TAMU_ameriflux_file( fname )
-% PARSE_AMERIFLUX_FILE - parse one of Jim Heilman and Ray Kamp's (from Texas A&M
+% PARSE_AMERIFLUX_FILE - parse a Texas A&M Ameriflux file.
+%
+% parse one of Jim Heilman and Ray Kamp's (from Texas A&M
 % University) Ameriflux files to a Matlab dataset, keeping variables we wish
 % to use to gapfill US-FR2.
 %

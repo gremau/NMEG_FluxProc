@@ -1,8 +1,9 @@
 function success = fix_MCon_2012_forgapfilling()
-% FIX_MCon_2012_FORGAPFILLING - The gapfiller/partitioner places two large
-%   spikes in NEE in late July/early August 2012.  This function scales the NEE
-%   spikes down to more reasonable peaks and writes a new for_gapfilling
-%   file.  Returns 0 on success.
+% FIX_MCon_2012_FORGAPFILLING - fix some problems in MCon NEE for 2012.
+%
+% The gapfiller/partitioner places two large spikes in NEE in late July/early
+% August 2012.  This function scales the NEE spikes down to more reasonable
+% peaks and writes a new for_gapfilling file.  Returns 0 on success.
 %
 % USAGE
 %    success = fix_MCon_2012_forgapfilling()

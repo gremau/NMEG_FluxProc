@@ -1,7 +1,9 @@
 function [ site_name ] = get_site_name( this_site_code )
 % GET_SITE_NAME - return the site name abbreviation for a specified integer site
-% code.  Issues error and displays a list of valid site name - site code
-% pairs if input argument is not a valid site code.
+% code.  
+%
+% Issues error and displays a list of valid site name - site code pairs if input
+% argument is not a valid site code.
 %
 % USAGE
 %     [ site_name ] = get_site_name( this_site_code );

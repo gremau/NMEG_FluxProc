@@ -1,4 +1,7 @@
 function fnames = get_ts_file_names( site, date_start, date_end, data_dir );
+% within a specified directory find all TOB1 files for a specified site and date
+% range.
+% 
 % GET_TS_FILE_NAMES - returns the full paths of all TOB1 time series data files
 %   in a specified directory that contain data recorded between start_date and
 %   end_date

@@ -1,12 +1,12 @@
 function result = combine_PARavg_PARlite(headertext, data)
 % COMBINE_PARAVG_PARLITE - within a dataset combine Par_Avg datalogger column
-% with Par_lite column into single record.  A linear regression is performed to
-% adjust Par_Avg observations to Par_lite using all timestamps that have
-% observations from both instruments.
-% The output timeseries contains:
-%    - Par_lite measurements whenever they exist
-%    - adjusted (by regression, described above) Par_Avg measurements where
-%      Par_Avg measurement exists but Par_lite measurement does not.
+% with Par_lite column into single record.  
+%
+% A linear regression is performed to adjust Par_Avg observations to Par_lite
+% using all timestamps that have observations from both instruments.  The output
+% timeseries contains: - Par_lite measurements whenever they exist - adjusted
+% (by regression, described above) Par_Avg measurements where Par_Avg
+% measurement exists but Par_lite measurement does not.
 %
 % USAGE
 %     result = combine_PARavg_PARlite( headertext, data );

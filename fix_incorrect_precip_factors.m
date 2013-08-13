@@ -1,8 +1,11 @@
 function pcp_fixed = fix_incorrect_precip_factors(site_code, year, doy, pcp_in)
-% FIX_INCORRECT_PRECIP_FACTORS - several sites (currently thought to be GLand,
-% JSav, and PJ) had incorrect rain gauge calibration factors in their datalogger
-% programs at various times.  This code fixes those problems and returns the
-% precipitation with the correct calibrations applied.
+% FIX_INCORRECT_PRECIP_FACTORS - fix preciptiation data collecting using
+% incorrect calibration factors in datalogger code.
+%
+% several sites (currently thought to be GLand, JSav, and PJ) had incorrect rain
+% gauge calibration factors in their datalogger programs at various times.  This
+% code fixes those problems and returns the precipitation with the correct
+% calibrations applied.
 %  
 % INPUTS
 %    site_code: UNM_sites object; which site?

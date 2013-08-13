@@ -1,8 +1,9 @@
 function [ fgf, spike_idx ] = ...
     despike_for_gapfilling_NEE( aflx_gf, fgf, DOY0, DOY1, new_max )
 % DESPIKE_FOR_GAPFILLING_NEE - normalizes NEE to a new maximum within a
-%   specified period of time.  Useful for dampening RE spikes introduced by the
-%   gapfiller/partitioner.
+% specified period of time.
+%
+% Useful for dampening RE spikes introduced by the gapfiller/partitioner.
 %
 % USAGE
 %   [ fgf, spike_idx ] = despike_for_gapfilling_NEE( aflx_gf, fgf, ...

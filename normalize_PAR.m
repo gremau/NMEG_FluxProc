@@ -1,7 +1,9 @@
 function par_norm = normalize_PAR( sitecode, par, doy, draw_plots, par_max )
 % NORMALIZE_PAR - normalizes the 98.8th percentile of observed PAR to a
-% specified maximum.  98.8th percetile was chosen visually; this value seems to
-% work well for producing a smooth annual cycle of PAR.
+% specified maximum.  
+%
+% 98.8th percetile was chosen visually; this value seems to work well for
+% producing a smooth annual cycle of PAR.
 %
 % USAGE:
 %     par_norm = normalize_PAR( sitecode, par, doy, draw_plots, par_max );

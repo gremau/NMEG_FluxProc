@@ -3,10 +3,11 @@ function FA = standardize_fluxall_variables( sitecode, ...
                                              headertext, ...
                                              timestamp, ...
                                              data )
-% STANDARDIZE_FLUXALL_VARIABLES - this function assigns common names to the
-%   observed fields found in UNM FLUXALL files.  It accepts a dataset array
-%   data, and returns the dataset array with names standardized.  This is a
-%   work in progress, and needs testing/debugging.
+% STANDARDIZE_FLUXALL_VARIABLES - assign common names to the observed fields
+% found in UNM FLUXALL files.
+%
+% Accepts a dataset array data, and returns the dataset array with names
+% standardized.  This is a work in progress, and needs testing/debugging.
 
 ncol = numel( headertext );
 

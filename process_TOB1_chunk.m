@@ -5,9 +5,11 @@ function ds_avg_30min = process_TOB1_chunk(sitecode, ...
                                            rotation, ...
                                            ts_data_dir )
 % PROCESS_TOB1_CHUNK - process 10 hz data within a specified time window to
-% 30-minute averages.  Returns a matlab dataset array, each row of which
-% contains the processed and averaged 10-hz data for a 30 minute window.
-% Returns an empty dataset if no data are found within the requested time period.
+% 30-minute averages.
+%
+% Returns a matlab dataset array, each row of which contains the processed and
+% averaged 10-hz data for a 30 minute window.  Returns an empty dataset if no
+% data are found within the requested time period.
 %
 % process_TOB1_chunk is envisioned as a helper function to be called within
 % UNM_process_10hz_main.

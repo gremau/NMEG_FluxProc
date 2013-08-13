@@ -1,9 +1,11 @@
 function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir)
 % TSDATA_2_TOB1 - convert a datalogger 10-hz raw data file to a series of daily
-% TOB1 files and places the TOB1 files in of the output of get_site_dir().  The
-% file to be converted must be named in the format *.ts_data.dat.  If no 10-hz
-% raw data file is found, prompts user to select one.  Issues error if multiple
-% files in raw_data_dir match *.flux_data.dat.
+% TOB1 files in the appropriate directory.
+%
+% Places the TOB1 files in of the output of get_site_dir().  The file to be
+% converted must be named in the format *.ts_data.dat.  If no 10-hz raw data
+% file is found, prompts user to select one.  Issues error if multiple files in
+% raw_data_dir match *.flux_data.dat.
 %
 % INPUTS
 %    site: integer or UNM_sites object; the site whose data are to be

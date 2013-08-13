@@ -1,4 +1,6 @@
 classdef FLUXALL_data
+% Class to represent UNM annual FLUXALL file data.
+%
 % this class is meant to unify the Matlab representation of data in the
 % (pre-2012) Excel spreadsheet fluxall files and the 2012-present delimited
 % ASCII fluxall files.  It is a work in progress (As of Aug 2013).  The idea is

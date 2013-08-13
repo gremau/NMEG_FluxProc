@@ -2,7 +2,10 @@ function data = UNM_fix_datalogger_timestamps( sitecode, year, ...
                                                data, headertext,...
                                                timestamp, ...
                                                varargin )
-% UNM_FIX_DATALOGGER_TIMESTAMPS - called from UNM_RemoveBadData to correct
+% UNM_FIX_DATALOGGER_TIMESTAMPS - corrects shifts in the timestamps for
+% particular periods.
+%
+% called from UNM_RemoveBadData to correct
 % shifts in the timestamps for particular periods.  This file simply contains
 % the periods that need to be shifted (identified by running
 % UNM_site_plot_fullyear_time_offsets and visually examining the plots it draws)

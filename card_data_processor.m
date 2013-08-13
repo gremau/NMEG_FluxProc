@@ -14,6 +14,9 @@ methods
 
 % --------------------------------------------------
     function obj = card_data_processor( sitecode, varargin )
+    % Class for processing raw datalogger data files and inserting their data
+    % into UNM annual FluxAll files.
+    %
     % Class constructor for card_data_processor (CDP).  Creates a new CDP and
     % initializes fields.  The main top-level method for the class is
     % update_fluxall.  Typical use of CDP class, then, would look something

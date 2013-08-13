@@ -1,6 +1,7 @@
 function data_out = column_inpaint_nans( data_in, method )
-% COLUMN_INPAINT_NANS - Wrapper for John D'Errico's inpaint_nans function.
-% Applys inpaint_nans to each column of a matrix.
+% COLUMN_INPAINT_NANS - Applys inpaint_nans to each column of a matrix.
+%
+% This is a wrapper for John D'Errico's inpaint_nans function.
 %
 % inpaint_nans is free and open source, and available here (as of Aug 2013):
 % http://www.mathworks.com/matlabcentral/fileexchange/4551-inpaintnans

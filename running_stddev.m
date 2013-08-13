@@ -1,6 +1,8 @@
 function run_std = running_stddev( x, window )
 % RUNNING_stddev - computes running standard deviation of its input using
-% specified window size.  Pads window/2 elements at front and back of output
+% specified window size.
+%
+% Pads window/2 elements at front and back of output
 % with NaN.  Window size must be an odd integer.  Computes running standard deviation
 % using filter.
 %

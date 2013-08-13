@@ -1,9 +1,10 @@
 function out = parse_jena_output(fname)
 % PARSE_JENA_OUTPUT - parses an output file from the Jena online
-% gapfilling/partitioning tool.  The online tool places some leading whitespace
-% on each data line; this parser does not require that whitespace to be removed.
-% Likewise, this parser does not require the second header line of the data file
-% to be removed.
+% gapfilling/partitioning tool.  
+%
+% The online tool places some leading whitespace on each data line; this parser
+% does not require that whitespace to be removed.  Likewise, this parser does
+% not require the second header line of the data file to be removed.
 %
 % Though it was written for parsing output of the Jena gapfilling/partitioning
 % tool, it should in theory work for any whitespace-delimited ASCII data file

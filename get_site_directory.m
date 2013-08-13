@@ -1,8 +1,10 @@
 function [ sitefolder, result ] = get_site_directory( sitecode )
-% get_site_directory(sitecode) -- return full path to a site's data directory.
+% get_site_directory(sitecode) -- return full path to a site's data
+% directory.
+%
 % Looks in 'sitefolder' field of UNM_flux_process_config() for a directory named
-% for the site's abbreviation.  If that diretory does not exist, looks for
-% such a directory in $FLUXROOT.
+% for the site's abbreviation.  If that diretory does not exist, looks for such
+% a directory in $FLUXROOT.
 
 % USAGE
 %    [ sitefolder, result ] = get_site_directory( sitecode )

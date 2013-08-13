@@ -1,6 +1,7 @@
 classdef UNM_Ameriflux_daily_aggregator
-% aggregates UNM gap-filled Ameriflux data to daily values.  Applies mean,
-% sum, and integrated sum where appropriate (details below).
+% class that aggregates UNM gap-filled Ameriflux data to daily values.  
+%
+% Applies mean, sum, and integrated sum where appropriate.
 %
 % variables aggregated by mean: UST, WS, PA, CO2, VPD, H20, TA
 % variables aggregated by min: TA

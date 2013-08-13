@@ -1,7 +1,8 @@
 function dn = get_TOA5_TOB1_file_date( fname )
 % returns a matlab datenum for the date contained in a filename of format
-% 'TOB1_site_year_month_day_hrmin.dat'.  Helper function for
-% get_TOB1_file_names, TOA5_file_headers_2_csv, etc.
+% 'TOB1_site_year_month_day_hrmin.dat'.  
+%
+% Helper function for get_TOB1_file_names, TOA5_file_headers_2_csv, etc.
 %
 % USAGE
 %   dn = get_TOA5_TOB1_file_date( fname )

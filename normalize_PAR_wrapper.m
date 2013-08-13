@@ -2,8 +2,10 @@ function [ Par_Avg ] = normalize_PAR_wrapper( sitecode, year_arg, ...
                                               decimal_day, Par_Avg, ...
                                               draw_plots )
 % NORMALIZE_PAR_WRAPPER - normalize PAR to correct known calibration problems at
-% some sites. This is a helper function for UNM_RemoveBadData.  It is not really
-% intended to be called on its own.  Input and output arguments are defined in
+% some sites.
+%
+% This is a helper function for UNM_RemoveBadData.  It is not really intended to
+% be called on its own.  Input and output arguments are defined in
 % UNM_RemoveBadData.
 %
 % USAGE:

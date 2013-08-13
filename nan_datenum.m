@@ -1,7 +1,9 @@
 function dn = nan_datenum( str, fmt )
 % NAN_DATENUM - processes strings to matlab datenums, also handling missing
-% elements (NaNs).  Matlab's datenum function refuses to process NaNs if
-% given the optional format string as input.
+% elements (NaNs).  
+%
+% Matlab's datenum function refuses to process NaNs if given the optional format
+% string as input.
 %   
 % USAGE
 %   dn = nan_datenum( str, fmt )

@@ -4,8 +4,10 @@ function SHF_with_storage = calculate_SHF_by_pits( soilT, ...
                                                   SHF, ...
                                                   SHF_conv_factor )
 % CALCULATE_SHF_BY_PITS - calculates soil heat flux (SHF) with storage at
-% multiple pits.  The pits are specified by the column names in soilT and
-% VWC; see requirements in INPUTS, below.
+% multiple pits.  
+%
+% The pits are specified by the column names in soilT and VWC; see requirements
+% in INPUTS, below.
 %   
 % USAGE:
 % SHF_with_storage = calculate_SHF_by_pits( soilT, ...

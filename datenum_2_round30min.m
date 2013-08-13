@@ -1,8 +1,10 @@
 function [ ts, keep_idx ] = datenum_2_round30min(ts_in, tol, t0)
-% datenum_2_round30minn(ts_in, tol, t0)  -  Timestamps within
-% tol minutes of a "round" half hour (i.e. 00 or 30 minutes past the hour)
-% are rounded to the nearest half hour.  Rows with timestamps not within tol
-% minutes of a "round" half hour are discarded.
+% DATENUM_2_ROUND30MINN - round a set of timestamps to the nearest half hour,
+% with user-specified tolerance.
+%
+% round timestamps within tol minutes of a "round" half hour (i.e. 00 or 30
+% minutes past the hour) to the nearest half hour. Rows with timestamps not
+% within tol minutes of a "round" half hour are discarded.
 %
 % USAGE
 %    [ ts, keep_idx ] = datenum_2_round30min( ts_in, tol, t0 )

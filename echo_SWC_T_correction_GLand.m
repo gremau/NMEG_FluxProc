@@ -2,6 +2,7 @@ function VWC_Tc = echo_SWC_T_correction_GLand( VWC, T, pcp, tstamp, year, ...
                                                debug_plots )
 % echo_SWC_T_correction_GLand: applies temperature correction for ECH2O soil
 % water content probes installed at GLand between May 2010 and June 2011.
+%
 % For details of the temperature correction, see documentation for
 % echo_SWC_T_correction_single_probe, below.
 %   

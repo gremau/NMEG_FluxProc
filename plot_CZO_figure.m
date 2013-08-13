@@ -1,5 +1,8 @@
 function hf = plot_CZO_figure( sitecode, years, varargin )
-% PLOT_CZO_FIGURE - produces a four-panel plot showing monthly integrated NEE
+% PLOT_CZO_FIGURE - produces a four-panel summary plot of monthly data for a
+% specifed site.
+%
+% Produces a four-panel plot showing monthly integrated NEE
 % bar plot (top panel), monthly integrated GPP and RE bar plots (second panel)
 % panel), monthly evapotranspiration (ET) and incoming shortwave radiation (Rg)
 % (third panel), and monthly total precipitation and mean air temperature

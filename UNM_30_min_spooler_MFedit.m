@@ -1,10 +1,10 @@
 function [] = UNM_30_min_spooler_MFedit_1(sitecode,year)
-
 %This is a little spooling program to run all the 30-min processing chunks
-%for a given site and year at the same time.  All it does is call
-%UNM_30min_flux_processor over and over.  You can add more sets of rows to
-%run if you need to.  It runs as a function, just call it with the sitecode
-%and the year.
+%for a given site and year at the same time.  
+%
+% All it does is call UNM_30min_flux_processor over and over.  You can add more
+% sets of rows to run if you need to.  It runs as a function, just call it with
+% the sitecode and the year.
 
 %the sitecodes are
 % 1 = grassland

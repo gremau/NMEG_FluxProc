@@ -1,7 +1,8 @@
 function run_mean = running_mean(x, window)
-% RUNNING_MEAN - computes running mean of its input using specified window
-% size.  Pads window/2 elements at front and back of output with NaN.  Window
-% size must be an odd integer.  Running mean is computing using filter.
+% RUNNING_MEAN - computes running mean of its input using specified window size.
+%
+% Pads window/2 elements at front and back of output with NaN.  Window size must
+% be an odd integer.  Running mean is computing using filter.
 %
 % USAGE
 %     run_mean = running_mean( x, window )

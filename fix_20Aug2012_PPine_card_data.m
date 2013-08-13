@@ -1,5 +1,5 @@
 function [ toa5_data, tob1_data ] = fix_20Aug2012_PPine_card_data( )
-% FIX_20AUG2012_PPINE_CARD_DATA - 
+% FIX_20AUG2012_PPINE_CARD_DATA - correct problems in Aug 2012 PPine data.
 %   
 
 toa5_data_dir = fullfile( get_site_directory( UNM_sites.PPine ), ...

@@ -1,5 +1,4 @@
 function [uvwt,SONDIAG,THETA,UVWTMEAN,speed] = UNM_csat3(uvwt,diagson,sitecode)
-
 % processes the measured SONIC outputs from the campbell CSAT 3 (half-hourly data)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

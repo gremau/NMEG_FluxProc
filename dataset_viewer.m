@@ -1,6 +1,6 @@
 function fh =  dataset_viewer( ds, varargin )
-% dataset_viewer -- a graphical user interface to view matlab variables from
-% a dataset array column by column.
+% dataset_viewer -- a graphical user interface to view variables from a dataset
+% array column by column.
 %       
 % USAGE
 %    fh = datasetviewer( ds )
@@ -14,7 +14,6 @@ function fh =  dataset_viewer( ds, varargin )
 %         datenumbers.
 %
 % OUTPUTS:
-%
 %    fh: handle to the figure window created
 %
 % SEE ALSO

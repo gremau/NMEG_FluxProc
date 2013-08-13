@@ -1,6 +1,8 @@
 function main_success = process_card_main( this_site, varargin )
 % PROCESS_CARD_MAIN - main function for retrieving flux tower data from a
-% datalogger flash card:
+% datalogger flash card.
+%
+% Tasks performed:
 %    * Copies the raw data from the card to the appropriate 'Raw data from
 %      cards' directory
 %    * converts 30-minute data to a TOA5 file

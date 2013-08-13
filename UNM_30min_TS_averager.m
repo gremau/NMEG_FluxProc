@@ -1,8 +1,10 @@
 function [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...
                                              lag, rotation, data )
 % UNM_30MIN_TS_AVERAGER - calculates average values for a 30-minute chunk of
-% 10-hz timeseries data.  Mostly calls other functions to do the number
-% crunching.  Primarily a helper function for process_TOB1_chunk
+% 10-hz timeseries data.  
+%
+% Mostly calls other functions to do the number crunching.  Primarily a helper
+% function for process_TOB1_chunk
 %
 % USAGE: 
 %    [ ds_out ] = UNM_30min_TS_averager( sitecode, timestamp, ...

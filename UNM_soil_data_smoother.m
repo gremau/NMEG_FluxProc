@@ -3,7 +3,7 @@ function data_out = UNM_soil_data_smoother( data_in, ...
                                             debug_plots )
 %
 % Smooths its input data by removing outliers and applying a running
-% average.  NaNs in input are ignored when calculating running average.
+% average, ignoring NaNs in input.
 %
 % USAGE
 %   data_out = UNM_soil_data_smoother( data_in, win, debug_plots )

@@ -1,9 +1,10 @@
 function h_fig = RBD_plot_fingerprints( sitecode, year, decimal_day, ...
                                         sw_incoming, rH, ...
                                         Tair, NEE, LE, H_dry, main_t_str )
-% RBD_PLOT_FINGERPRINTS - Helper function for UNM_RemoveBadData (RBD).  Creates
-% a figure with six panels displaying "fingerprint" plots for Rg, RH, T, NEE,
-% LE, H.
+% RBD_PLOT_FINGERPRINTS - Creates a figure with six panels displaying
+% "fingerprint" plots for Rg, RH, T, NEE, LE, H.
+% 
+% Helper function for UNM_RemoveBadData (RBD).
 % 
 % USAGE
 % RBD_plot_fingerprints( sitecode, year, decimal_day, ...

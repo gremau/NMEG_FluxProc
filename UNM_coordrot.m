@@ -1,9 +1,10 @@
 %function [Urot,alpha,beta]=coordrot(U,IFLAG)
-%modified Jan 08 by K. Anderson-Teixeira to implement planar fit technique,
-%as described in Wilczak et al. 2001.
-%program retains ability to do double or triple rotation. 
 
 function [Urot,uvwmeanrot]=UNM_coordrot(U,SONDIAG)
+%modified Jan 08 by K. Anderson-Teixeira to implement planar fit technique
+%
+%as described in Wilczak et al. 2001.
+%program retains ability to do double or triple rotation. 
 
     %Marcy's code: 
     

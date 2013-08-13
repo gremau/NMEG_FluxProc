@@ -1,9 +1,11 @@
 function [success, toa5_fname] = thirty_min_2_TOA5(site, raw_data_dir)
 % THIRTY_MIN_2_TOA5 - convert a thirty minute datalogger file (*.flux.dat) to a
-% TOA5 file and place the TOA5 file in
-% the toa5 subdirectory of the output of get_site_dir().  The thirty-minute data file to
-% be converted must be named in the format *.flux.dat.  Issues an error if there
-% is not exactly one file in raw_data_dir matching *.flux.dat.
+% TOA5 file in the appropriate directory.
+%
+% Places the TOA5 file in the toa5 subdirectory of the output of get_site_dir().
+% The thirty-minute data file to be converted must be named in the format
+% *.flux.dat.  Issues an error if there is not exactly one file in raw_data_dir
+% matching *.flux.dat.
 %
 % USAGE
 %    [success, toa5_fname] = thirty_min_2_TOA5(site, raw_data_dir);

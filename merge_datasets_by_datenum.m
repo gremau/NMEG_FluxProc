@@ -3,8 +3,10 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
                                                       tol, ...
                                                       t_start, t_end )
 % MERGE_DATASETS_BY_DATENUM - fills in two 30-minute timeseries datasets so that
-% both have identical timestamps.  Where a timestamp is present in A but not B
-% or vice versa , adds the timestamp to B and fills data with NaNs.
+% both have identical timestamps.  
+%
+% Where a timestamp is present in A but not B or vice versa , adds the timestamp
+% to B and fills data with NaNs.
 %
 % USAGE
 %    [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...

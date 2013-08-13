@@ -1,10 +1,15 @@
 function UNM_retrieve_card_data_GUI(varargin)
-% UNM_retrieve_card_data -- creates a graphical user interface to select a site
-% and retrieve flux data from its flash card.  This is the top-level function
-% for processing datalogger cards from New Mexico Elevation Gradient sites.
-% This function simply promots the user to select a site and then calls
-% process_card_main to do the heavy lifting.  For a detailed description of what
-% processing operations are performed see documentation for process_card_main.
+% UNM_retrieve_card_data -- Top-level function for processing datalogger cards
+% from New Mexico Elevation Gradient sites.
+%
+% Creates a graphical user interface to select a UNM site and retrieve flux data
+% from a compact flash card.
+%
+% This is the top-level function for processing datalogger cards from New Mexico
+% Elevation Gradient sites.  This function simply prompts the user to select a
+% site and then calls process_card_main to do the heavy lifting.  For a detailed
+% description of what processing operations are performed see documentation for
+% process_card_main.
 %       
 % USAGE
 %    UNM_retrieve_card_data_GUI()

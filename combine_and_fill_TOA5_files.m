@@ -1,6 +1,6 @@
 function ds = combine_and_fill_TOA5_files( varargin )
 % combine_and_fill_TOA5_files() -- combines multiple TOA5 files into one matlab
-% dataset, fill in any missing 30-minute time stamps and discard duplicated or
+% dataset, fills in any missing 30-minute time stamps and discards duplicated or
 % erroneous timestamp.
 %
 % Variables not present in all datasets are filled with NaN for timestamps in

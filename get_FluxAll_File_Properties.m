@@ -1,5 +1,8 @@
 function [ lastcolumn, filelength_n ] = ...
         get_FluxAll_File_Properties( sitecode, year )    
+% GET_FLUXALL_FILE_PROPERTIES - Specifies dimensions of UNM annual fluxall
+% files.
+
 % This function simply hardcodes in the number of columns and the number of
 % lines in the FluxAll file by site-year.  I pulled this code out of
 % UNM_Ameriflux_File_Builder into it's own function to make

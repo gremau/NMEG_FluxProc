@@ -1,9 +1,10 @@
 function [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, ...
                                                   year, ...
                                                   varargin )
-% PREPROCESS_PJ_SOIL_DATA - parse CR23X soil data for PJ or PJ_girdle and create
-% datasets for soil temperature, soil water content, and soil heat flux with
-% complete 30-minute timestamp record and duplicate timestamps removed via
+% PREPROCESS_PJ_SOIL_DATA - parse CR23X soil data for PJ or PJ_girdle.
+%
+% Creates datasets for soil temperature, soil water content, and soil heat flux
+% with complete 30-minute timestamp record and duplicate timestamps removed via
 % dataset_fill_timestamps.  When duplicate timestamps are detected, the first is
 % kept and subsequent duplicates are discarded.
 %

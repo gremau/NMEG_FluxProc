@@ -1,7 +1,7 @@
 function cleaned = clean_data_by_hand( data_in )
-% CLEAN_DATA_BY_HAND - opens a figure window to allow a user to select
-% individual data points to remove from each column of a matrix or variable of
-% a dataset array.  
+% CLEAN_DATA_BY_HAND - Graphical interface that allows a user to select
+% individual data points to remove from each column of a matrix or variable of a
+% dataset array.
 %
 % Given an input data_in, the first column/variable of data_in is displayed in a
 % figure window.  Matlab waits for the user to close the window; when this

@@ -1,9 +1,11 @@
 function coeff = regress_GLand_2011_SWC_probes( data, varargin )
-% REGRESS_GLAND_2011_SWC_PROBES - calculates a regression for echo soil water
-%   content probes as a linear function of CS616 swc probes for the period in
-%   2011 when GLand had both types of probes (after June).  This allows the echo
-%   probes to be adjusted for May 2010 to June 2011 when there were no CS616
-%   probes at GLand.
+% REGRESS_GLAND_2011_SWC_PROBES - calculates regression equations for burned
+% grass soil water probes for 2011.
+%
+% calculates a regression for echo soil water content probes as a linear
+% function of CS616 swc probes for the period in 2011 when GLand had both types
+% of probes (after June).  This allows the echo probes to be adjusted for May
+% 2010 to June 2011 when there were no CS616 probes at GLand.
 %
 % USAGE
 %    coeff = regress_GLand_2011_SWC_probes( data )

@@ -1,5 +1,6 @@
 function fluxall = UNM_assign_soil_data_labels( sitecode, year, fluxall )
 % UNM_ASSIGN_SOIL_DATA_LABELS - assign labels to soil measurements.
+%
 %   Labels are of the format soilT_cover_index_depth_*, where cover, index, and
 %   depth are character strings.  e.g. "soilT_O_2_12.5_avg" denotes cover type
 %   open, index (pit) 2, and depth of 12.5 cm.  Depth is followed by an

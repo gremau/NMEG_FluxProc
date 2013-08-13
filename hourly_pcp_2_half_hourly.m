@@ -1,7 +1,9 @@
 function hh = hourly_pcp_2_half_hourly( pcp, timestamps )
 % HOURLY_PCP_2_HALF_HOURLY - convert a time series of hourly precipitation
-% observations to half hourly, with both half-hourly observations from a given
-% hour half the full-hour observation
+% observations to half hourly.
+%
+% Both half-hourly observations from a given hour are set to half the full-hour
+% observation
 % 
 % USAGE:
 %     hh = hourly_pcp_2_half_hourly( pcp, timestamps )

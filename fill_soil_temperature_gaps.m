@@ -1,8 +1,10 @@
 function Tsoil = fill_soil_temperature_gaps( Tsoil, pcp, draw_plots )
-% FILL_SOIL_TEMPERATURE_GAPS - fill gaps in soil temperature record between 0
-% and 5 days in length with linear interpolation between the last pre-gap
-% observation and the first post-gap observation.  Gaps longer than five days
-% are left alone.
+% FILL_SOIL_TEMPERATURE_GAPS - fill gaps in soil temperature record by linear
+% interpolation.
+%
+% Fill gaps between 0 and 5 days in length with linear interpolation between the
+% last pre-gap observation and the first post-gap observation.  Gaps longer than
+% five days are left alone.
 %
 % USAGE
 %    Tsoil = fill_soil_temperature_gaps( Tsoil, pcp, draw_plots );

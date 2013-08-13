@@ -1,7 +1,9 @@
 function data_out = diff_filter( data_in, delta )
 % DIFF_FILTER - replace with NaN all elements of data_in whose difference from
 % the previous non-nan element is greater than max( delta ) or less than min(
-% delta ).  Passing delta of [ NaN, NaN ] turns the filter off.
+% delta ).
+%
+% Passing delta of [ NaN, NaN ] turns the filter off.
 %
 % USAGE
 %    data_out = diff_filter( data_in, delta )

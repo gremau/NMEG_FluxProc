@@ -1,9 +1,12 @@
 function data = revise_MCon_duplicated_Rg( data, headertext, t, varargin )
-% REVISE_MCON_DUPLICATED_RG - in 2007 and 2008 the radiation sensor at MCon made
-%   hourly measurements.  These were, in most cases, duplicated so that the
-%   observations on the half hours are identical to the preceeding observations
-%   on the hours.  Here, we remove the duplicated measurements and replace them
-%   with the (most likely more realistic) linearly-interpolated measurements.
+% REVISE_MCON_DUPLICATED_RG - Interpolate hourly 2007 and 2008 MCon radiation
+% observations to half-hourly.
+%
+% in 2007 and 2008 the radiation sensor at MCon made hourly measurements.  These
+% were, in most cases, duplicated so that the observations on the half hours are
+% identical to the preceeding observations on the hours.  Here, we remove the
+% duplicated measurements and replace them with the (most likely more realistic)
+% linearly-interpolated measurements.
 %
 % USAGE
 %     rad = revise_MCon_duplicated_Rg( rad, t );

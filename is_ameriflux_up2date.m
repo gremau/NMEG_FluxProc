@@ -1,9 +1,11 @@
 function up2date = is_ameriflux_up2date( sitecode, year )
-% IS_AMERIFLUX_UP2DATE - Utility to check whether the ameriflux file for a
-% specified siteyear was produced from the most recently processed flux
-% files. Returns true if the Ameriflux file for the siteyear is up to date,
-% false otherwise.  The Ameriflux file is "up to date" if the modification times
-% of the precursor files satisfy:
+% IS_AMERIFLUX_UP2DATE - checks for more recent data than the modification
+% timestamp on the Ameriflux file.
+%
+% Utility to check whether the ameriflux file for a specified siteyear was
+% produced from the most recently processed flux files. Returns true if the
+% Ameriflux file for the siteyear is up to date, false otherwise.  The Ameriflux
+% file is "up to date" if the modification times of the precursor files satisfy:
 % 
 % most recent
 % -----------

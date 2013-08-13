@@ -1,14 +1,16 @@
 function swc = fill_soil_water_gaps( swc, pcp, draw_plots )
-% FILL_SOIL_WATER_GAPS - fills gaps in soil water content time series.  Gaps are
-% filled by linear interpolation where no precipitation occurred during the gap.
-% Where precipitation occured during the gap, the last valid soil water content
-% observation before the gap is filled forward to the beginning of the first
-% precipitation event, and the first valid soil water content observation after
-% the gap is filled backward to the end of the first precipitation event during
-% the gap.  During the first preciptiation event soil water content is then
-% filled by linear interpolation.  A precipitation event is defined to begin at
-% the first detection of precipitation and end at the beginning of the first
-% subsequent 1.5 hour period without precipitation.
+% FILL_SOIL_WATER_GAPS - fills gaps in soil water content time series by linear
+% interpolation.
+%
+% Gaps are filled by linear interpolation where no precipitation occurred during
+% the gap.  Where precipitation occured during the gap, the last valid soil
+% water content observation before the gap is filled forward to the beginning of
+% the first precipitation event, and the first valid soil water content
+% observation after the gap is filled backward to the end of the first
+% precipitation event during the gap.  During the first preciptiation event soil
+% water content is then filled by linear interpolation.  A precipitation event
+% is defined to begin at the first detection of precipitation and end at the
+% beginning of the first subsequent 1.5 hour period without precipitation.
 %
 % USAGE
 %

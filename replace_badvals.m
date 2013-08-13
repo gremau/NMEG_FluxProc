@@ -1,7 +1,8 @@
 function arr = replace_badvals(arr, badvals, tol)
 % REPLACE_BADVALS - replace specifed values within an array with NaN, with
-% floating point comparison (see, for example,
-% http://support.microsoft.com/kb/69333,
+% floating point comparison 
+% 
+% (see, for example, http://support.microsoft.com/kb/69333,
 % http://en.wikipedia.org/wiki/Floating_point).
 %
 % Elements of arr that are equal to any element of badvals are replaced with NaN.

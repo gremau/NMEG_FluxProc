@@ -1,11 +1,15 @@
 function result = download_gapfilled_partitioned_flux( job_num)
 % DOWNLOAD_GAPFILLED_PARTITIONED_FLUX - download the output of the online
-%   gapfiller/flux partitioner to the local disk.  Calls a bash script to do the
-%   downloading -- clicking "save file as" within a web browser seems to hang
-%   after 25 MB of downloaded data and results in a truncated file (as of Nov
-%   2012, at least).  I'm not sure if the problem is on the Max Planck Institute
-%   end or the UNM end - I suspect MPI.  The bash script knows to retry the
-%   download to get the complete file.
+%   gapfiller/flux partitioner to the local disk.  
+%
+% Calls a bash script to do the downloading -- clicking "save file as" within a
+% web browser seems to hang after 25 MB of downloaded data and results in a
+% truncated file (as of Nov 2012, at least).  I'm not sure if the problem is on
+% the Max Planck Institute end or the UNM end - I suspect MPI.  The bash script
+% knows to retry the download to get the complete file.
+%
+% NOTE: Deprecated as of July 2013 -- REddyProc performs gapfill and
+% partitioning locally.
 %
 % USAGE
 %   result = download_gapfilled_partitioned_flux( job_num )

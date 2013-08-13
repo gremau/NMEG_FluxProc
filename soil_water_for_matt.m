@@ -1,5 +1,6 @@
 function fluxes_with_SWC = soil_water_for_matt( sitecode, year )
 % SOIL_WATER_FOR_MATT - create dataset of soil water contents and fluxes
+%
 % USAGE
 %    fluxes_with_SWC = soil_water_for_matt( sitecode, year )
 %
