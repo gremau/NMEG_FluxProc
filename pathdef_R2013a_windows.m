@@ -21,6 +21,7 @@ addpath( 'C:\Code\TimUtils\Inpaint_nans\demo\html' );
 addpath( 'C:\Code\TimUtils\Inpaint_nans\demo' );
 addpath( 'C:\Code\TimUtils\Inpaint_nans' );
 addpath( 'C:\Code\TimUtils\AcklamTimeUtils' );
+addpath( 'C:\Code\TimUtils\m2html' );
 addpath( 'C:\Code\TimUtils' );
 addpath( 'C:\Code\UNM_Flux_Code\RetrieveCardData' );
 addpath( 'C:\Code\UNM_Flux_Code' );

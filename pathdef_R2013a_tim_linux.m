@@ -21,6 +21,7 @@ addpath( '/home/tim/UNM/Code/Matlab/TimUtils/Inpaint_nans/demo/html' );
 addpath( '/home/tim/UNM/Code/Matlab/TimUtils/Inpaint_nans/demo' );
 addpath( '/home/tim/UNM/Code/Matlab/TimUtils/Inpaint_nans' );
 addpath( '/home/tim/UNM/Code/Matlab/TimUtils/AcklamTimeUtils' );
+addpath( '/home/tim/UNM/Code/Matlab/TimUtils/m2html' );
 addpath( '/home/tim/UNM/Code/Matlab/TimUtils' );
 addpath( '/home/tim/UNM/Code/Matlab/UNM_Flux_Code/RetrieveCardData' );
 addpath( '/home/tim/UNM/Code/Matlab/UNM_Flux_Code' );
