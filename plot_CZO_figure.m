@@ -8,6 +8,9 @@ function hf = plot_CZO_figure( sitecode, years, varargin )
 % (third panel), and monthly total precipitation and mean air temperature
 % (bottom panel).  The horizontal axes are linked to zoom simultaneously.
 %
+% For mixed conifer site, precipitation for 2011 to present is replaced with the
+% Redondo met station precip record, as per 30 Jul 2012 consersation with Marcy.
+%
 % NOTES
 % For mixed conifer site, precip is replaced with the precip from the Redondo
 % met station as per 30 July 2012 conversation with Marcy.
@@ -28,6 +31,7 @@ function hf = plot_CZO_figure( sitecode, years, varargin )
 %        First column contains lower axis limit, second column contains upper
 %        axis limit.  If unspecified vertical axes are sized to the range of data
 %        in the plot.
+%    xlims: 2-element vector of serial date numbers; horizontal axis limits
 %    binary_data: if true, seeks to load ameriflux files from
 %        $BINARYDATA/SITE_with_gaps.mat, where $BINARYDATA is an operating system
 %        environment variable.  If false (the default) the annual with_gaps
@@ -35,6 +39,9 @@ function hf = plot_CZO_figure( sitecode, years, varargin )
 %
 % OUTPUTS
 %    hf: handle to the figure window containing the plot.
+%
+% SEE ALSO
+%    datenum
 %
 % author: Timothy W. Hilton, UNM, July 2012
 
@@ -48,7 +55,8 @@ args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'years', ...
                @(x) ( all( x >= 2006 ) & ...
                       all( x <= this_year ) ) );
-args.addParamValue( 'ylims', NaN, @isnumeric );                    
+args.addParamValue( 'ylims', NaN, @isnumeric );
+args.addParamValue( 'xlims', NaN, @isnumeric );
 args.addParamValue( 'binary_data', false, @islogical );
 
 % parse optional inputs
@@ -94,14 +102,11 @@ tstamp = datenum( aflx_data.YEAR, 1, 0 ) + aflx_data.DTIME;
 
 if args.Results.sitecode == UNM_sites.MCon
     % sub in Redondo pcp for Mcon pcp as per conversation with Marcy 30 Jul 2012
-    valles = UNM_parse_valles_met_data( 2011 );
-    redondo = valles( valles.sta == 14, : );
-    redondo.timestamp = datenum( redondo.year, 1, 0 ) +  redondo.day;
-    [ ~, red_month, ~, ~, ~, ~ ] = datevec( redondo.timestamp );
-    [ ~, monthly_pcp_11, ~ ] = consolidator( red_month, ...
-                                             redondo.ppt, ...
-                                             @nansum );
-    agg_sums( end-11:end, 1 ) = monthly_pcp_11;
+    redondo_pcp = get_redondo_monthly_pcp_2011_to_present();
+    for i = 1:size( redondo_pcp, 1 )
+        %idx = agg_sums( 
+        %agg_sums( , 1 ) = monthly_pcp_11;
+    end
 end
 
 % calculate monthly means for air T
@@ -126,10 +131,14 @@ agg.timestamp = datenum( agg.year, agg.month, 1 );
 %================
 
 hf = figure( 'Visible', 'on' );
-
-% set horizontal axis limit to time frame requested +- 30 days
-x_limits = [ datenum( agg.year( 1 ), agg.month( 1 ), 1 ) - 30, ...
-             datenum( agg.year( end ), agg.month( end ), 1 ) + 30 ];
+keyboard
+if  all( isnan( args.Results.xlims ) )
+    % set horizontal axis limit to time frame requested +- 30 days
+    x_limits = [ datenum( agg.year( 1 ), agg.month( 1 ), 1 ) - 30, ...
+                 datenum( agg.year( end ), agg.month( end ), 1 ) + 30 ];
+else
+    x_limits = args.Results.xlims;
+end
 
 tick_years = reshape( repmat( unique( agg.year )', 2, 1 ), [], 1 );
 tick_months = repmat( [ 1, 7 ]', numel( unique( args.Results.years ) ), 1 );
@@ -145,7 +154,7 @@ h_NEE = bar( agg.timestamp, agg.NEE );
 set( ax1, 'XLim', x_limits, ...
           'XTick', x_ticks, ...
           'XTickLabel', [] );
-if not( isnan( args.Results.ylims ) )
+if not( all( isnan( args.Results.ylims ) ) )
     set( ax1, 'YLim', args.Results.ylims( 1, : ) );
 end
 ylabel( 'NEE [ gC m^{-2} ]' );
@@ -252,3 +261,40 @@ linkaxes( [ ax1, ax2, ax3L, ax3R, ax4L, ax4R ], 'x' );
 % set figure dimensions to US letter paper, landscape orientation
 set( hf, 'Units', 'Inches', ...
          'Position', [ 0, 0, 11, 8.5 ] );
+
+%============================================================
+function [ redondo_monthly_pcp ] = get_redondo_monthly_pcp_2011_to_present()
+% GET_REDONDO_MONTHLY_PCP_2011_TO_PRESENT - aggregates precipitation for Redondo
+%   met station to monthly totals for 2011 to present
+%
+% USAGE
+%     redondo_monthly_pcp = get_redondo_monthly_pcp_2011_to_present();
+%
+% INPUTS:
+%     no inputs
+%
+% OUTPUTS:
+%     redondo_monthly_pcp: Mx3 dataset array; contains variables year, month,
+%         and monthly total precipitation (mm)
+%
+% SEE ALSO
+%     dataset
+
+HOURS_PER_DAY = 24.0;
+[ present_year, ~, ~, ~, ~, ~ ] = datevec( now() );
+fun = @(yr) { UNM_parse_valles_met_data( yr ) };
+valles = arrayfun( fun, 2011:present_year );
+valles = vertcat( valles{ : } );
+valles.timestamp = datenum( valles.year, 1, 0 ) +  ...
+    valles.day + valles.time / HOURS_PER_DAY;
+% Redondo is station 14
+redondo = valles( valles.sta == 14, : );
+redondo = dataset_fill_timestamps( redondo, 'timestamp' );
+
+[ red_year, red_month, ~, ~, ~, ~ ] = datevec( redondo.timestamp );
+[ year_month, monthly_pcp, ~ ] = consolidator( [ red_year, red_month ], ...
+                                               redondo.ppt, ...
+                                               @nansum );
+var_names = { 'year', 'month', 'pcp' };
+redondo_monthly_pcp = dataset( { [ year_month, monthly_pcp ], ...
+                    var_names{ : } } );

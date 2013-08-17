@@ -145,13 +145,17 @@ function [ gf_data_outfile, R_code_file ] = ...
 
 gf_data_outfile = '';
 
-site_info = parse_UNM_site_table();
-
 R_code_file = sprintf( '%s_%s_%d_REddyProc.R', ...
                     tempname(), ...
                     char( sitecode ), ...
                     year );
 fid = fopen( R_code_file, 'w' );
+
+% ------------------------------------------------------------
+
+%escape windows path backslashes for R
+gf_data_dir = preformat_win_path( gf_data_dir );
+gf_data_infile = preformat_win_path( gf_data_infile );
 
 % ------------------------------------------------------------
 % write R code to run the gapfiller to R_code_file
@@ -179,7 +183,7 @@ fprintf( fid, '##+++ Initalize R5 reference class sEddyProc for processing of ed
 fprintf( fid, '##+++ with all variables needed for processing later\n' );
 fprintf( fid, ['EddyProc.C <- sEddyProc$new("%s", EddyDataWithPosix.F, ' ...
                'c("NEE","Rg", "Tair", "VPD", "LE", "H" ))\n\n'], ...
-         site_info.Ameriflux{ sitecode } );
+         UNM_sites_info( sitecode ).ameriflux );
 
 fprintf( fid, '##+++ Generate plots of all data in directory plots (of current R working dir)\n' );
 fprintf( fid, 'EddyProc.C$sPlotHHFluxes("NEE")\n' );
@@ -230,12 +234,14 @@ out_dir = fullfile( getenv( 'FLUXROOT' ), ...
                     'Flux_Tower_Data_by_Site', ...
                     char( sitecode ), ...
                     'processed_flux' );
+out_dir = preformat_win_path( out_dir );
+
 gf_out_fname = sprintf( 'data_gapfilled_partitioned_%s_%d.txt', ...
                         char( sitecode ), ...
                         year );
 fprintf( fid, 'fWriteDataframeToFile(CombinedData.F, FileName.s="%s", Dir.s="%s")\n\n',...
          gf_out_fname, out_dir );
-fprintf( fid, 'file.remove( "%s" )', blk_file );
+fprintf( fid, 'file.remove( "%s" )', preformat_win_path( blk_file ) );
 
 fclose( fid );
 fprintf( 'wrote %s\n', R_code_file );
@@ -293,5 +299,39 @@ if isunix()
     
     % restore LD_LIBRARY_PATH to its original value
     setenv( 'LD_LIBRARY_PATH', LD_LIBRARY_PATH_orig );
+elseif ispc()
+    % seems to work OK on Windows without LD_LIBRARY_PATH issue
+    success = system( cmd );
+else
+    warning( 'ispc and isunix both return false' );
+    success = false;
 end
 
+% ============================================================
+
+function path_out = preformat_win_path( path_in )
+% PREFORMAT_WIN_PATHS - replace single backslashes with double backslashes in paths
+%
+% I'm not sure this is really the "right" way to do this...  Windows accepts
+% '/' as the path separator, and that seems to be the more recommended way to
+% write paths to work on both Windows and *nix on stackoverflow threads I've read.
+%
+% However, Matlab's fullfile inserts '\' for the path separator on Windows
+% machines, and windows environment variables (e.g. FLUXROOT) also commonly
+% contain '\' path separators.  And R interprets '\' as an escape character
+% , so using a single '\' as the separator in R code won't work.  Because of
+% all this, to replace '\' with '/' as the path separator I would need to
+% separate '\' characters that are path separators from '\' characters that
+% are legitimate escape characters (e.g. for spaces in file names).  The
+% double backslash path separator will still work, I think, because R accepts
+% \\ as a windows path separator...  
+%
+% Anyway, this seems kludgy, but seems to work.
+%
+% author: Timothy W. Hilton, Aug 2013
+
+if ispc()
+    path_out = strrep( path_in, '\', '\\' );
+else
+    path_out = path_in;
+end

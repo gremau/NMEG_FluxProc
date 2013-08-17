@@ -20,12 +20,14 @@ function success = create_flux_matlab_binaries( ameriflux, fluxall )
 % author: Timothy W. Hilton, UNM, July 2012
 success = true;
 
+[ this_year, ~, ~, ~, ~, ~ ] = datevec( now() );
+
 all_sites = [ UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, UNM_sites.PJ, ...
               UNM_sites.PPine, UNM_sites.MCon, UNM_sites.PJ_girdle, ...
               UNM_sites.New_GLand ];
-all_sites = all_sites( [ 3, 4, 7 ]  );
+
 for this_site = all_sites
-    for year = 2007:2012
+    for year = 2007:this_year
         fprintf( '%s %d\n', char( this_site ), year );
         if ameriflux            
             % Ameriflux binaries
@@ -52,17 +54,17 @@ for this_site = all_sites
                 update_combined_mat_file = update_combined_mat_file | wrote_file;
             end
             
-            if update_combined_mat_file
+            if update_combined_mat_file & ( year == this_year )
                 % if any of the site-years were updated, write a new combined 
                 % file
                 this_data = assemble_multi_year_ameriflux( this_site, ...
-                                                           2006:2012 );
+                                                           2006:this_year );
                 fname = fullfile( getenv( 'FLUXROOT' ), ...
                                   'FluxOut', ...
                                   'BinaryData', ...
                                   sprintf( '%s_all_%s.mat', ...
                                            char( this_site ), ...
-                                           suffix{ 1 } ) )
+                                           suffix{ 1 } ) );
                 fprintf( 'saving %s\n', fname );
                 save( fname, 'this_data' );
             end
@@ -70,7 +72,7 @@ for this_site = all_sites
         end
         
         if fluxall
-            if year < 2012
+            if year < this_year
                 ext = 'xls';
             else
                 ext = 'txt';
@@ -103,8 +105,27 @@ end
 %--------------------------------------------------            
 function [ success, wrote ] = write_binary_if_necessary(  sitecode, year, ...
                                                orig_fname, binary_fname)
-% WRITE_BINARY_IF_NECESSARY - determine whether binary file is older, or binary does not exist
+% WRITE_BINARY_IF_NECESSARY - write single-year binary file if it does not
+% exist, or exists but is older than the non-binary file that it represents.
 %   
+% Do nothing if binary file exists and is newer than the non-binary file.
+%
+% USAGE: 
+%     [ success, wrote ] = write_binary_if_necessary( sitecode, year, ...
+%                                               orig_fname, binary_fname );
+%
+% INPUTS: 
+%     sitecode: UNM_sites object; specifies the site
+%     year: four digit year: specifies the year
+%     orig_fname: character string; name of non-binary data file (Ameriflux
+%         or fluxall) 
+%     binary_fname: character string; name of binary data file to update if
+%         necessary 
+%
+% OUTPUTS
+%     success: true|false; true if function complete successfully
+%     wrote: true|false; true if new binary file was written, false if not
+%
 
 success = false;
 wrote = false;
