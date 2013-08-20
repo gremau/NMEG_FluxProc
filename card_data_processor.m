@@ -287,6 +287,22 @@ methods
     
     new_data = merge_data( obj );
     
+    % trim new_data down so it only includes time stamps between obj.date_start and
+    % obj.date_end. Without this, can introduce gaps in the fields derived from
+    % 10hz observations.  TOB1 files are daily, so in the 10-hz processing phase
+    % cdp will read at most <24 hours of data on either side that falls outside
+    % of ( date_start, date_end ).  TOA5 files span about a month, though, so if
+    % date_end falls, say, two weeks into a four-week TOA5 file new_data will
+    % contain about two weeks of data (from date_end to the end of the TOA5 file
+    % that contains date_end) of thirty-minute data with no accompanying data
+    % for the fields derived from 10-hz observations.  This manifests itself as
+    % a "gap" in the 10-hz-derived fields in the updated fluxall, when in
+    % reality the data exist but were not read.  Trimming new_data avoids this
+    % problem.
+    idx_keep = ( new_data.timestamp >= obj.date_start ) & ...
+        ( new_data.timestamp <= obj.date_end );
+    new_data = new_data( idx_keep, : );
+    
     if isempty( flux_all )
         flux_all = new_data;
     else
