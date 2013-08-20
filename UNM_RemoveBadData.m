@@ -2283,7 +2283,9 @@ switch sitecode
       case 2012
         DOY_co2_max( DOYidx( 260 ) : DOYidx( 280 ) ) = 2.0;
         DOY_co2_max( DOYidx( 285 ) : DOYidx( 290 ) ) = 1.5;
-        
+      case 2013
+        DOY_co2_max( DOYidx( 213 ) : DOYidx( 214  ) ) = 3.0;
+        DOY_co2_max( DOYidx( 222 ) : DOYidx( 226  ) ) = 4.0;
     end
     
   case UNM_sites.New_GLand
