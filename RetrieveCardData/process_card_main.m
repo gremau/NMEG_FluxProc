@@ -36,7 +36,7 @@ function main_success = process_card_main( this_site, varargin )
 %   data_location: string; Optional keyword argument specifying the location of
 %       the raw data to be processed. Legal values are 'card' and 'disk'; the
 %       default is 'card'.
-% KEYWORD ARGS
+% PARAMETER-VALUE PAIRS
 %   data_path: string; the path to the directory containing the raw card data
 %       on disk.  Must be specified if data_location is 'disk'.  Ignored if
 %       data_location is 'card'.
@@ -124,6 +124,7 @@ if args.Results.interactive
         % save( 'fluxraw_viewer_restart.mat' );  main_success = 1;
         % return
         h_viewer = fluxraw_dataset_viewer(fluxraw, this_site, mod_date);
+        figure( h_viewer );  % bring h_viewer to the front
         waitfor( h_viewer );
         clear('fluxraw');
     else

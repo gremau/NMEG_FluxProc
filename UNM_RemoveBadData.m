@@ -6,12 +6,13 @@ function [] = UNM_RemoveBadData( sitecode, year, varargin )
 % Modified by John DeLong 2008 through 2009.
 % Modifed by Timothy W. Hilton, 2011 through 2013
 %
-% The program reads site_fluxall_year excel files and pulls in a combination of
-% matlab processed ts data and data logged average 30-min flux data.  It then
-% flags values based on a variety of criteria and writes out new files that do
-% not have the identified bad values.  It writes out a site_flux_all_qc file and
-% a site_flux_all_for_gap_filling file to send to REddyProc for gapfilling and
-% flux partitioning.  It can be adjusted to make other subsetted files too.
+% The program reads site_fluxall_year delimited text files and pulls in a
+% combination of matlab processed ts data and data logged average 30-min flux
+% data.  It then flags values based on a variety of criteria and writes out new
+% files that do not have the identified bad values.  It writes out a
+% site_flux_all_qc file and a site_flux_all_for_gap_filling file to send to
+% REddyProc for gapfilling and flux partitioning.  It can be adjusted to make
+% other subsetted files too.
 %
 % USAGE
 %     UNM_RemoveBadData( sitecode, year )
@@ -2170,6 +2171,9 @@ switch sitecode
         
       case 2012
         DOY_co2_max( DOYidx( 307 ) : end ) = 1.0;
+      case 2013
+        DOY_co2_max( DOYidx( 195 ) : DOYidx( 195 ) ) = 2.0;
+        DOY_co2_max( DOYidx( 210 ) : DOYidx( 227 ) ) = 4.0;
     end  %PJ
 
   case UNM_sites.PPine

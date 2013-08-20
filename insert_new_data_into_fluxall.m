@@ -20,7 +20,7 @@ function fluxall = insert_new_data_into_fluxall( new_data, ...
 %    fluxall: fluxall input with new_data inserted.
 %
 % SEE ALSO
-%    dataset
+%    dataset, UNM_parse_fluxall_txt_file
 %
 % author: Timothy W. Hilton, UNM, Oct 2012
 
