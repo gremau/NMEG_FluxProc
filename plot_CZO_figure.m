@@ -33,8 +33,8 @@ function hf = plot_CZO_figure( sitecode, years, varargin )
 %        in the plot.
 %    xlims: 2-element vector of serial date numbers; horizontal axis limits
 %    binary_data: if true, seeks to load ameriflux files from
-%        $BINARYDATA/SITE_with_gaps.mat, where $BINARYDATA is an operating system
-%        environment variable.  If false (the default) the annual with_gaps
+%        $BINARYDATA/SITE_gapfilled.mat, where $BINARYDATA is an operating system
+%        environment variable.  If false (the default) the annual gapfilled
 %        Ameriflux files are parsed to obtain the data.
 %
 % OUTPUTS
@@ -72,6 +72,7 @@ end
 % load ameriflux data for requested years
 aflx_data = assemble_multi_year_ameriflux( args.Results.sitecode, ...
                                            args.Results.years, ...
+                                           'suffix', 'gapfilled', ...
                                            'binary_data', args.Results.binary_data );
 
 if args.Results.sitecode == UNM_sites.PPine
