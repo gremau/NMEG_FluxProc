@@ -1,5 +1,4 @@
-function gf_data_outfile = ...
-    UNM_run_gapfiller( sitecode, year, gf_data_dir, gf_data_infile )
+function gf_data_outfile = UNM_run_gapfiller( sitecode, year, varargin ) 
 % UNM_RUN_GAPFILLER - run the MPI gapfiller/partitioner for the specified site year.
 %   
 % This is the main wrapper function to use the Max Planck Institute's (MPI) eddy
@@ -22,6 +21,8 @@ function gf_data_outfile = ...
 % INPUTS
 %    sitecode: UNM_sites object; the site whose data are to be processed
 %    year: the year of the data to be processed.
+%
+% PARAMETER-VALUE PAIRS
 %    gf_data_dir: character string; the directory containing the data to be
 %        gapfilled and partitioned
 %    gf_data_infile: character string; the file (within gf_data_dir) containing
@@ -49,16 +50,48 @@ function gf_data_outfile = ...
 %
 % author: Timothy W. Hilton and Litvak Lab, UNM, July 2013
 
+
+%--------------------------------------------------
+% parse inputs
+
+args = inputParser();
+
+args.addRequired( 'sitecode', @(x) ( isnumeric(x) | isa( x, 'UNM_sites' ) ) ); 
+args.addRequired( 'year', @isnumeric );
+args.addParamValue( 'write_files', true, @(x) ( islogical(x) & ...
+                                                numel( x ) ==  1 ) );
+args.addParamValue( 'gf_data_dir', '', @ischar )
+args.addParamValue( 'gf_data_infile', '', @ischar );
+
+args.parse( sitecode, year, varargin{ : } );
+
+if isempty( args.Results.gf_data_dir )
+    gf_data_dir = fullfile( get_site_directory( args.Results.sitecode ), ...
+                            'processed_flux' );
+else
+    gf_data_dir = args.Results.gf_data_dir; 
+end
+
+if isempty( args.Results.gf_data_infile )
+    gf_data_infile = sprintf( '%s_flux_all_%d_for_gap_filling_filled.txt', ...
+                              char( args.Results.sitecode ), ...
+                              args.Results.year );
+else
+    gf_data_infile = args.Results.gf_data_infile;
+end
+
+%--------------------------------------------------
+
 % create blocking file
 msg = sprintf( 'generated for gapfilling of %s-%d', ...
-               char( sitecode ), ...
-               year );
+               char( args.Results.sitecode ), ...
+               args.Results.year );
 block_fname = create_blocking_file( msg );
 
 % generate R script
 [ gf_data_outfile, gf_R_infile ] = ...
-    generate_gapfill_R_code( sitecode, ...
-                             year, ...
+    generate_gapfill_R_code( args.Results.sitecode, ...
+                             args.Results.year, ...
                              gf_data_dir, ...
                              gf_data_infile, ...
                              block_fname );
@@ -68,8 +101,8 @@ gf_R_outfile = fullfile( getenv( 'FLUXROOT' ), ...
                          'Gapfiller_Logs', ...
                          sprintf( '%s_%s_%d_gapfill.log', ...
                                   datestr( now, 'yyyy-mm-dd_HHMMSS' ), ...
-                                  char( sitecode ), ...
-                                  year ) );
+                                  char( args.Results.sitecode ), ...
+                                  args.Results.year ) );
 
 % make system call to R to run the gapfiller
 cmd = sprintf( 'R CMD BATCH --no-restore --no-save %s %s', ...
