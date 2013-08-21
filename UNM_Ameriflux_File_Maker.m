@@ -1,3 +1,4 @@
+
 function result = UNM_Ameriflux_File_Maker( sitecode, year, varargin )
 % UNM_AMERIFLUX_FILE_MAKER - writes delimited ASCII files in the format for
 % submission to Ameriflux.
@@ -45,6 +46,8 @@ args.addParamValue( 'write_files', true, @(x) ( islogical(x) & ...
                                                 numel( x ) ==  1 ) );
 args.addParamValue( 'write_daily_files', true, @(x) ( islogical(x) & ...
                                                 numel( x ) ==  1 ) );
+args.addParamValue( 'draw_CZO_plot', true, ...
+                    @(x) ( numel(x) == 1 ) & islogical(x) );
 args.parse( sitecode, year, varargin{ : } );
 sitecode = args.Results.sitecode;
 year = args.Results.year;
@@ -240,6 +243,16 @@ UNM_Ameriflux_write_file( sitecode, year, amflux_gf, ...
 UNM_Ameriflux_write_file( sitecode, year, amflux_gaps, ...
                           'mlitvak@unm.edu', 'with_gaps' );
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% draw CZO (critical zone observatory) plot if requested
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if args.Results.draw_CZO_plot
+    [ this_year, ~, ~, ~, ~, ~ ] = datevec( now() );
+    plot_CZO_figure( sitecode, 2007:this_year );
+end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % write daily aggregated files if requested
