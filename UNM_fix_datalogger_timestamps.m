@@ -80,7 +80,7 @@ if debug
     [ y, ~, ~, ~, ~, ~ ] = datevec (timestamp );
     this_year = y == year;
 
-    h_fig = figure();
+    h_fig = figure( 'Name', 'datalogger timestamp correction results');
     h_ax = subplot( 2, 1, 1 );
 
     % set figure location and size

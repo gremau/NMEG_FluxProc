@@ -29,10 +29,27 @@ function [] = UNM_RemoveBadData( sitecode, year, varargin )
 %          to perform (see code for details)
 %     write_QC: {true}|false; if true, writes flux_all_qc file
 %     write_GF: {true}|false; if true, writes flux_all_for_gapfilling file
-%     draw_plots: {true}|false; if true, draws diagnostic plots.  If false,
-%         no plots are drawn. 
-%     draw_fingerprints: {true}|false: if true, draw "fingerprint plot" to
-%         examine hour-of-day vs. observations 
+%     draw_plots: 0|{1}|2|3; determines extent of plotting.  larger values
+%         cause more plots to be drawn. 
+%          0: draw no plots
+%          1 (default): plot only NEE time series with NEE filter results
+%          2: all plots from 1, plus:
+%             - PAR normalization results
+%             - radiation timing correction results
+%             - six-panel plot showing "fingerprints" for incoming shortwave
+%               (Rg), relative humidity (RH), air temperature (T), net ecosystem
+%               exchange (NEE), latent heat (LE), and sensible heat (H),
+%          3: all plots from 1 and 2, plus:
+%             - latent heat diagnostic plot showing LE and PAR time series
+%               with the results of various filters (see plot legend)
+%             - four-panel plot showing time series for NEE, T, carbon
+%               dioxide concentration ([CO2]), and pcp
+%             - NEE vs wind speed scatter plot
+%             - NEE vs wind direction scatter plot (split by day/night)
+%             - NEE vs friction velocity (ustar) scatter plot
+%             - [CO2] time series, with results of various filters (see plot
+%               legend) 
+%             - Burba cold temperature correction results
 %
 % OUTPUTS:
 %     This function has no outputs
@@ -60,8 +77,8 @@ args.addParamValue( 'iteration', 6, ...
                  @(x) ( isintval( x ) & ( x >= 1 ) & ( x <= 6 ) ) );
 args.addParamValue( 'write_QC', true, @islogical );
 args.addParamValue( 'write_GF', true, @islogical );
-args.addParamValue( 'draw_plots', true, @islogical );
-args.addParamValue( 'draw_fingerprints', true, @islogical );
+args.addParamValue( 'draw_plots', 1, ...
+                    @(x) ( isnumeric( x ) & ismember( x, [ 0, 1, 2, 3 ] ) ) );
 
 % parse optional inputs
 args.parse( sitecode, year, varargin{ : } );
@@ -280,12 +297,13 @@ obs_per_day = 48;  % half-hourly observations
     
     data = ...
         replacedata( data, ...
-                     UNM_fix_datalogger_timestamps( sitecode, ...
-                                                    year_arg, ...
-                                                    double( data ),...
-                                                    headertext, ...
-                                                    timestamp, ...
-                                                    'debug', args.Results.draw_plots ) );
+            UNM_fix_datalogger_timestamps( sitecode, ...
+                                           year_arg, ...
+                                           double( data ),...
+                                           headertext, ...
+                                           timestamp, ...
+                                           'debug', ...
+                                           args.Results.draw_plots > 1 ) );
     data.timestamp = [];
     if ( sitecode == UNM_sites.MCon )
         data = replacedata( data, ...
@@ -665,7 +683,7 @@ obs_per_day = 48;  % half-hourly observations
     
     % normalize PAR to account for calibration problems at some sites
     Par_Avg = normalize_PAR_wrapper( sitecode, year_arg, decimal_day, Par_Avg, ...
-                                     draw_plots );
+                                     draw_plots > 1 );
     
     
     save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
@@ -729,7 +747,7 @@ obs_per_day = 48;  % half-hourly observations
     dFc = (Si_top+Si_bot+Sip_spar) ./ RhoCp.*CO2_mg ./ t_meanK .* ...
           (1+1.6077.*H2O_g./pd);
 
-    if draw_plots
+    if draw_plots > 2
         h_burba_fig = figure( 'Name', 'Burba' );
         plot(dFc,'.'); ylim([-1 1]);
         title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
@@ -861,7 +879,7 @@ obs_per_day = 48;  % half-hourly observations
         end
 
         startbin;
-        if draw_plots
+        if draw_plots > 2
             figure( 'Name', 'determine Ustar cutoff', 'NumberTitle', 'Off' );
             clf;
             plot( ustar_mean, co2mean, '.k' );
@@ -1118,7 +1136,7 @@ obs_per_day = 48;  % half-hourly observations
         end
         pal = cbrewer( 'qual', 'Dark2', 8 );
 
-        if draw_plots
+        if draw_plots > 2
             h_co2_fig = figure( 'Name', '[CO2]' );
             CO2_mean_clean=CO2_mean;
             CO2_mean_clean(find(isnan(conc_record)))=-9999;
@@ -1179,7 +1197,7 @@ obs_per_day = 48;  % half-hourly observations
                                                   idx_NEE_good );
     end
 
-    if draw_plots
+    if draw_plots > 0
         [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
             sitecode, ...
             year, ...
@@ -1260,7 +1278,7 @@ obs_per_day = 48;  % half-hourly observations
     LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
     LH_night_flag = ( LH_rad < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
     LH_day_flag = ( LH_rad >= 20.0 ) & ( HL_wpl_massman < 0.0 );
-    if draw_plots
+    if draw_plots > 2
         script_LE_diagnostic_plot;
     end
     removed_LH_wpl_mass = numel( find( LH_maxmin_flag | ...
@@ -1368,7 +1386,7 @@ obs_per_day = 48;  % half-hourly observations
     %H_dry(dd_idx) = -9999;
     Tair = Tdry - 273.15;
 
-    if draw_plots
+    if draw_plots > 2
         figure('Name', 'NEE vs wind direction' );
         ax1 = subplot( 2, 1, 1 );
         idx = repmat( false, 1, size( fc_raw_massman_wpl, 1 ) );
@@ -1397,7 +1415,7 @@ obs_per_day = 48;  % half-hourly observations
         plot( wnd_spd( idx ), fc_raw_massman_wpl( idx ), '.' );
         ylabel( 'NEE' ); xlabel( 'wind speed' );
         
-        figure( 'Name', 'NEE and wind direction' );
+        figure( 'Name', 'NEE, T, [CO2], pcp' );
         ax1 = subplot( 4, 1, 1 );
         plot( decimal_day( idx ), fc_raw_massman_wpl( idx ), '.' );
         ylabel( 'NEE' ); xlabel( 'DOY' );
@@ -1417,11 +1435,11 @@ obs_per_day = 48;  % half-hourly observations
         Tair( 12993:end ) = Tair_TOA5(  12993:end );
     end
     
-    if args.Results.draw_fingerprints & args.Results.draw_plots
+    if args.Results.draw_plots > 1
         h_fps = RBD_plot_fingerprints( sitecode, year_arg, decimal_day, ...
                                        sw_incoming, rH, Tair, NEE, LE, ...
                                        H_dry, ...
-                                       shift_t_str );
+                                       'fingerprint plots' );
     end
     
     filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );
@@ -1965,18 +1983,18 @@ switch sitecode
 
         TAMU_data = replacedata( TAMU_data, TAMU_data_shifted );
 
-        draw_plots = false;
+        TX_draw_plots = false;
         TAMU_data.PAR = normalize_PAR( UNM_sites.TX_forest, ...
                                        TAMU_data.PAR, ...
                                        TAMU_data.DTIME, ...
-                                       draw_plots, ...
+                                       TX_draw_plots, ...
                                        2500 );
         
         TAMU_data.Rg = normalize_PAR( UNM_sites.TX_forest, ...
-                                       TAMU_data.Rg, ...
-                                       TAMU_data.DTIME, ...
-                                       draw_plots, ...
-                                       1200 );
+                                      TAMU_data.Rg, ...
+                                      TAMU_data.DTIME, ...
+                                      TX_draw_plots, ...
+                                      1200 );
 
         Par_Avg( isnan( Par_Avg ) ) = TAMU_data.PAR( isnan( Par_Avg ) );
         sw_incoming( isnan( sw_incoming ) ) = ...
@@ -2099,6 +2117,15 @@ switch sitecode
         DOY_co2_max(  DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = 2.5;
         std_exc_flag( DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = true;
         DOY_co2_max(  DOYidx( 328 ) : end ) = 0.5;
+      case 2013
+        DOY_co2_max(  DOYidx( 21 ) : DOYidx( 27 ) ) = 0.5;
+        DOY_co2_max(  DOYidx( 28 ) : DOYidx( 30 ) ) = 2.0;
+        DOY_co2_max(  DOYidx( 208 ) : DOYidx( 216 ) ) = 2;
+        DOY_co2_max(  DOYidx( 216 ) : DOYidx( 225 ) ) = 2.7;
+        DOY_co2_min(  DOYidx( 125 ) : DOYidx( 134 ) ) = -1;
+        DOY_co2_min(  DOYidx( 155 ) : DOYidx( 170 ) ) = -1;
+        DOY_co2_min(  DOYidx( 208 ) : DOYidx( 216 ) ) = -5;
+        DOY_co2_min(  DOYidx( 224 ) : DOYidx( 225 ) ) = -5;
     end %SLand
   
   case UNM_sites.JSav

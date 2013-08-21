@@ -131,7 +131,6 @@ agg.timestamp = datenum( agg.year, agg.month, 1 );
 %================
 
 hf = figure( 'Visible', 'on' );
-keyboard
 if  all( isnan( args.Results.xlims ) )
     % set horizontal axis limit to time frame requested +- 30 days
     x_limits = [ datenum( agg.year( 1 ), agg.month( 1 ), 1 ) - 30, ...
