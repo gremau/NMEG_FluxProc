@@ -131,7 +131,8 @@ agg.timestamp = datenum( agg.year, agg.month, 1 );
 % plot the figure
 %================
 
-hf = figure( 'Visible', 'on' );
+hf = figure( 'Visible', 'on', ...
+             'Name', sprintf( '%s CZO plot', char( args.Results.sitecode ) ) );
 if  all( isnan( args.Results.xlims ) )
     % set horizontal axis limit to time frame requested +- 30 days
     x_limits = [ datenum( agg.year( 1 ), agg.month( 1 ), 1 ) - 30, ...
