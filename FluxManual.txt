@@ -1,0 +1,209 @@
+--------------------------
+UNM Flux Processing Manual
+
+Timothy W. Hilton
+hilton@unm.edu
+July-August 2013
+
+--------------------------
+ABSTRACT
+
+This document covers processing of Marcy Litvak's New Mexico eddy
+covariance sites (Grassland (burned), Grassland (unburned), Shrubland,
+Juniper Savanna, Pinon-Juniper woodland (control), Pinon-Juniper
+woodland (girdled), Valles Caldera Ponderosa Pine, and Valles Caldera
+Mixed Conifer.  It also covers processing of three sites in Texas:
+Freeman Ranch, Freeman (forest), and Freeman (grassland).
+
+Timothy W. Hilton implemented an extensive overhaul of the processing
+pipeline between 2011 and 2013.  As of July 2013 the pipeline is very
+different from the pipeline as of August 2011.
+
+Processing eddy covariance fluxes from the New Mexico Elevation
+Gradient takes place in Matlab and is organized under a handful of
+"top-level" functions, described below.  There are a number of
+intermediate files produced between the raw data from the field and
+the finished Ameriflux files.  
+
+--------------------------
+TABLE OF CONTENTS
+
+I. Environment
+II. Suggested work flow
+III. Top-Level Functions
+IV. Helper functions (these may be sometimes independently useful)
+V. Additional notes
+--------------------------
+I. Environment
+
+--------
+1.a. Directory structure
+ 
+The processing code manipulates data files in a directory with its
+root in the environment variable FLUXROOT.  On Jemez FLUXROOT is set
+to C:\Research_Flux_Towers.  If setting up a new machine, FLUXROOT
+must be defined.
+
+Within FLUXROOT, the processing code expects to find the following
+structure: 
+$FLUXROOT/Flux_Tower_Data_by_Site 
+$FLUXROOT/AncillaryData/MetData/
+$FLUXROOT/Tower_Information/UNM_flux_site_name_table.csv
+$FLUXROOT/Gapfiller_Logs
+$FLUXROOT/Card_Processing_Logs/
+
+$FLUXROOT/Flux_Tower_Data_by_Site should contain a directory for each
+site (e.g. GLand, SLand, etc.).  Each site directory should contain:
+FLUXALL files (xls or txt, depending on year; see below) 
+$FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux
+$FLUXROOT/Flux_Tower_Data_by_Site/SITE/toa5
+
+
+the toa5 directory contains 30-minute data in Campbell Scientic's TOA5
+format.  The processed_flux directory contains FLUXALL_QC files,
+FLUXALL_for_gap_filling files, and the output from the MPI
+gapfiller/partitioner tool (see below).
+
+--------
+1.b Required software 
+
+The Matlab processing code relies on several external pieces of
+software.  These must be available through Matlab's system command.
+
+- CardConvert version 4.0 or later (Campbell Scientific proprietary
+  software)
+- 7zip (www.7-zip.org/‎) (used to compress data files)
+- sftp with command line interface.  openssh installed via Cygwin
+  (www.cygwin.com) includes this. (used to transfer data to offsite
+  servers for backup)
+
+--------------------------
+II. Suggested Work Flow
+
+This section describes the typical work flow for processing an
+incoming compact flash (CF) card from a site's datalogger.  This is a
+summary.  Complete documentation for Matlab functions (specific tasks
+performed, inputs, outputs, etc.) is available from Matlab's
+documentation (within Matlab, doc FUNCTIONNAME).
+
+1. Place the CF card in the computer's card reader.  
+
+2. Within Matlab, run UNM_retrieve_card_data_GUI.  Select the site
+whose data you are processing from the list and click "Go".  
+- Progress updates will appear in the Matlab window.  These updates
+  are also echoed to
+  $FLUXROOT/Card_Processing_Logs/YYYY_MM_DD_HHMM_SITE_card_process.log.
+- After the data are copied from the card to disk, processed to TOA5
+  and TOB1 files, and compressed, the compressed data are copied to
+  edacdata1.unm.edu by secure file transfer protocol (sftp).  The sftp
+  process opens in a Windows command window and requires the user to
+  enter the password for mlitvak@edacdata1.unm.edu.  Note that (by
+  design) nothing is echoed to the prompt during password entry.
+
+2.b. run UNM_site_plot_fullyear_time_offsets.  This produces a plot of
+calculated vs. observed sunrise for the site-year.  Adjustments to the
+datalogger timestamps are sometimes necessary for reasonable sunrise
+times.  The offsets in the plot should be as close to zero as
+possible.  The timing of necessary shifts are specified in
+UNM_fix_datalogger_timestamps.m.  Record any new adjustments there.
+
+3. Run UNM_RemoveBadData (or UNM_RemoveBadData_pre2012 for data from
+2011 or earlier).  Inspect the NEE plot to determine whether the
+default NEE filters are adequate.  If siteyear-specific changes are
+necessary, they go in one of the following three helper functions
+within UNM_RemoveBadData: 
+
+- remove_specific_problem_periods 
+- specify_siteyear_filter_exceptions 
+- specify_siteyear_co2_conc_filter_exceptions
+
+Adjust the filtering parameters, rerun UNM_RemoveBadData, and examine
+the NEE plot until satisfied with the filtering.
+
+4. When satisfied with the performance of UNM_RemoveBadData, run
+UNM_fill_met_gaps_from_nearby_site.  This creates a file to be
+submitted to the gapfiller/partitioner:
+$FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux/SITE_flux_all_YYYY_for_gap_filling_filled.txt.
+
+5. submit the for_gapfilling file to the online gapfiller/partitioner
+(http://www.bgc-jena.mpg.de/~MDIwork/eddyproc/upload.php)
+
+6. When the online gapfiller/partitioner has completed, download its
+output using the bash script
+C:\cygwin\home\Tim\bin\download_partitioned_flux.  This places the
+output in $FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux.
+
+7. Run UNM_Ameriflux_File_Maker.  This creates with_gaps and gapfilled
+Ameriflux files.
+
+--------------------------
+III. Top-Level functions
+
+These functions are intended as "top-level", to be called by users
+from the Matlab prompt.  Use "doc FUNCTIONNAME" within Matlab for more
+detailed documentation, inputs and outputs, etc.
+
+UNM_retrieve_card_data_GUI
+UNM_RemoveBadData
+UNM_RemoveBadData_pre2012
+UNM_fill_met_gaps_from_nearby_site
+UNM_Ameriflux_File_Maker
+
+--------------------------
+IV. Helper functions
+
+These functions are helper functions for the above top level
+functions, but are at times independently useful for exploring EC
+data.
+
+card_data_processor
+combine_and_fill_TOA5_files
+dataset_fill_timestamps
+dataset_vertcat_fill_vars
+dataset_viewer
+DOYidx
+export_dataset_tim
+figure_2_eps
+merge_datasets_by_datenum
+parse_ameriflux_file
+parse_forgapfilling_file
+parse_jena_output
+parse_TAMU_ameriflux_file
+parse_TOA5_file_headers
+parse_UNM_site_table
+plot_CZO_figure
+plot_fingerprint
+UNM_Ameriflux_Data_Viewer
+UNM_parse_both_ameriflux_files
+UNM_parse_fluxall_txt_file
+UNM_parse_fluxall_xls_file
+UNM_parse_gapfilled_partitioned_output
+UNM_parse_QC_txt_file
+UNM_parse_QC_xls_file
+UNM_parse_sev_met_data
+UNM_parse_valles_met_data
+UNM_site_plot_fullyear_time_offsets
+UNM_write_for_gapfiller_file
+PJG_PJ_cumulative_flux_plotter
+
+--------------------------
+V. Additional notes
+
+The directory C:\Code\UNM_Flux_Code_as_of_15Aug2011 (on Jemez)
+contains the UNM flux processing code as it existed on my arrival at
+UNM on 15 August 2011.
+
+Occasionally processing of a datalogger card as outlined in II fails
+because Matlab encounters an error.  This is usually caused by one of
+two things.  First, file permissions problems where the user currently
+logged in does not have read permission for a data file that the
+processing code needs to read, or does not have execute or write
+permissions for a directory in which the processing code is trying to
+write.  The bash script fix_file_permissions.sh addresses these
+problems.  Note that it must be run with administrator priveleges.
+Second, the processing code expects the datalogger card to contain
+exactly two files named *.flux.dat and *.ts_data.dat.  If this is not
+the case the code will fail.  At present manual intervention is
+necessary: extra files need to be moved and files named differently
+need to be renamed.  Different names frequently are the result of an
+external repair attempt in Campbell Scientific's CardConvert software.
