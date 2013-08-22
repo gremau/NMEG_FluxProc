@@ -240,7 +240,8 @@ end
 fprintf(1, '\n----------\n');
 fprintf(1, 'starting UNM_RemoveBadData...\n');
 [ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
-UNM_RemoveBadData( UNM_sites( this_site ), year, 'draw_plots', false );
+UNM_RemoveBadData( UNM_sites( this_site ), year, ...
+                   'draw_plots', double( args.Results.interactive ) );
 
 % compare sunrise as measured by observed solar radiation to runrise as
 % calculated by solar angle

@@ -3,6 +3,10 @@ function optimal_offset = ...
 % MATCH_SOLARANGLE_RADIATION - find the time offset that results in the best
 % match of sunrise in observed radiation to calculated sunrise.
 %
+% This is a quite low-level function.  Plots of calculated sunrise vs observed
+% radiation by site-year are available from UNM_site_plot_doy_time_offsets and
+% UNM_site_plot_fullyear_time_offsets.
+%
 % USAGE
 %   optimal_offset = ...
 %        match_solarangle_radiation( rad, sol, t, this_doy, year, debug );
@@ -21,7 +25,8 @@ function optimal_offset = ...
 %       this_doy
 %
 % SEE ALSO
-%   SolarAzEl
+%   SolarAzEl, UNM_site_plot_doy_time_offsets,
+%   UNM_site_plot_fullyear_time_offsets 
 %
 % author: Timothy W. Hilton, UNM, Jan 2012
 

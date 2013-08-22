@@ -5,6 +5,8 @@ function UNM_site_plot_doy_time_offsets( sitecode, year, doy, varargin )
 % Examining the two daily cycles side by side helps to identify periods where
 % the datalogger clock is incorrect.
 %
+% Uses match_solarangle_radiation to calculate the offsets.
+%
 % USAGE
 %   UNM_site_plot_doy_time_offsets( sitecode, year, doy )
 % 
@@ -22,7 +24,7 @@ function UNM_site_plot_doy_time_offsets( sitecode, year, doy, varargin )
 %
 % SEE ALSO
 %   UNM_sites, UNM_RemoveBadData, UNM_RemoveBadData_pre2012,
-%   UNM_site_plot_fullyear_time_offsets 
+%   UNM_site_plot_fullyear_time_offsets, match_solarangle_radiation
 %
 % author: Timothy W. Hilton, UNM, June 2012
 

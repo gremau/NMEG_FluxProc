@@ -31,6 +31,8 @@ for this_year = 2007:2011
     if exist( fname )
         fprintf( 'parsing %s\n', fname );
         this_data = parse_ameriflux_file( fname );
+    else
+        this_data = NaN;
     end
     years = horzcat( years, this_year );
     data = horzcat( data, { this_data } );

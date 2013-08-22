@@ -3,13 +3,13 @@
 % fact, corrected.  I intend to turn this into a stand-alone function to run at
 % the end of Ameriflux_File_Maker.  -TWH, June 2013
 
-sites = UNM_sites( 7 );
-years = 2007:2012;
+sites = UNM_sites.PJ;
+years = 2008:2013;
 
-parse_files = true;
-check_FH2O = true;
+parse_files = false;
+check_FH2O = false;
 check_Rg_daily_cycle = true;
-check_precip = true;
+check_precip = false;
  
 if parse_files
     % initialize empty cell array
@@ -56,6 +56,7 @@ if check_Rg_daily_cycle
         fname = fullfile( 'Monthly_mean_Rg', ...
                           sprintf( '%s_monthly_Rg_cycle_fromAflux.eps', ...
                                    char( this_site ) ) );
+        fname = '';  % empty fname causes figure not to be saved
         plot_monthly_aggregated_daily_cycle( mm, ...
                                              'main_title', char( this_site ), ...
                                              'figure_file_name', fname );
