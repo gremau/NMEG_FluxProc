@@ -12,7 +12,7 @@ function sol_el = get_solar_elevation( sitecode, t_mst )
 %
 % INPUTS
 %   sitecode: UNM site, UNM_sites object or integer
-%   t_mst: matlab datenums, mountain standard time (MST)
+%   t_mst: N-element vector of matlab serial datenumbers, mountain standard time (MST)
 %
 % OUTPUTS
 %   sol_el: solar elevation angle, degrees
@@ -29,9 +29,9 @@ mst2utc = @( t ) t + seven_hours;
 
 sd = parse_UNM_site_table();
 
-lat = repmat( sd.Latitude( sitecode ), numel( t_mst ), 1 );
-lon = repmat( sd.Longitude( sitecode ), numel( t_mst ), 1 );
-site_el = repmat( sd.Elevation( sitecode ), numel( t_mst ), 1 );
+lat = repmat( sd.Latitude( sitecode ), size( t_mst ) );
+lon = repmat( sd.Longitude( sitecode ), size( t_mst ) );
+site_el = repmat( sd.Elevation( sitecode ), size( t_mst ) );
 
 t_utc = mst2utc( t_mst );
 [ ~, sol_el ] = arrayfun( @( t, lat, lon, alt ) ...
