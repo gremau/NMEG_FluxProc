@@ -33,6 +33,8 @@ II. Suggested work flow
 III. Top-Level Functions
 IV. Helper functions (these may be sometimes independently useful)
 V. Additional notes
+VI. Wishlist
+
 --------------------------
 I. Environment
 
@@ -42,7 +44,7 @@ I. Environment
 The processing code manipulates data files in a directory with its
 root in the environment variable FLUXROOT.  On Jemez FLUXROOT is set
 to C:\Research_Flux_Towers.  If setting up a new machine, FLUXROOT
-must be defined.
+must be defined (and available to Matlab).
 
 Within FLUXROOT, the processing code expects to find the following
 structure: 
@@ -57,12 +59,14 @@ site (e.g. GLand, SLand, etc.).  Each site directory should contain:
 FLUXALL files (xls or txt, depending on year; see below) 
 $FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux
 $FLUXROOT/Flux_Tower_Data_by_Site/SITE/toa5
+$FLUXROOT/Flux_Tower_Data_by_Site/SITE/ts_data
 
 
 the toa5 directory contains 30-minute data in Campbell Scientic's TOA5
 format.  The processed_flux directory contains FLUXALL_QC files,
 FLUXALL_for_gap_filling files, and the output from the MPI
-gapfiller/partitioner tool (see below).
+gapfiller/partitioner tool (see below).  The ts_data directory
+contains 10hz data in Cambell Scientific's TOB1 format.
 
 --------
 1.b Required software 
@@ -76,6 +80,10 @@ software.  These must be available through Matlab's system command.
 - sftp with command line interface.  openssh installed via Cygwin
   (www.cygwin.com) includes this. (used to transfer data to offsite
   servers for backup)
+- R (version 3.0 or later, with REddyProc package installed (for gapfilling).
+  (http://www.r-project.org/,
+  http://www.bgc-jena.mpg.de/bgi/index.php/Services/REddyProcWebRPackage,
+  http://r-forge.r-project.org/projects/reddyproc/)
 
 --------------------------
 II. Suggested Work Flow
@@ -85,6 +93,14 @@ incoming compact flash (CF) card from a site's datalogger.  This is a
 summary.  Complete documentation for Matlab functions (specific tasks
 performed, inputs, outputs, etc.) is available from Matlab's
 documentation (within Matlab, doc FUNCTIONNAME).
+
+There are two scenarios considered here: the data are on the compact
+flash card from the field (section IIa), and the data have already
+been copied to the local disk (section IIb).  The second situation
+occurs sometimes when, for example, the cards are needed immediately
+in the field again and there is not time to fully process their data.
+
+IIa. processing data on a compact flash card
 
 1. Place the CF card in the computer's card reader.  
 
@@ -111,8 +127,7 @@ UNM_fix_datalogger_timestamps.m.  Record any new adjustments there.
 2011 or earlier).  Inspect the NEE plot to determine whether the
 default NEE filters are adequate.  If siteyear-specific changes are
 necessary, they go in one of the following three helper functions
-within UNM_RemoveBadData: 
-
+within UNM_RemoveBadData:
 - remove_specific_problem_periods 
 - specify_siteyear_filter_exceptions 
 - specify_siteyear_co2_conc_filter_exceptions
@@ -125,16 +140,22 @@ UNM_fill_met_gaps_from_nearby_site.  This creates a file to be
 submitted to the gapfiller/partitioner:
 $FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux/SITE_flux_all_YYYY_for_gap_filling_filled.txt.
 
-5. submit the for_gapfilling file to the online gapfiller/partitioner
-(http://www.bgc-jena.mpg.de/~MDIwork/eddyproc/upload.php)
+5. call UNM_run_gapfiller.  This gapfills the fluxall file via a
+system call to R and REddyProc.
 
-6. When the online gapfiller/partitioner has completed, download its
-output using the bash script
-C:\cygwin\home\Tim\bin\download_partitioned_flux.  This places the
-output in $FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux.
+6. Run UNM_Ameriflux_File_Maker.  This creates with_gaps and gapfilled
+Ameriflux files and produces several diagnostic plots.
 
-7. Run UNM_Ameriflux_File_Maker.  This creates with_gaps and gapfilled
-Ameriflux files.
+
+
+IIb. processing data that have been copied to local disk.
+
+1. The GUI interface currently does not handle this situation (see
+V. Wishlist, below).  process_card_main allows specification of a
+location on disk to look for data.  For example (from the Matlab
+command prompt):
+>> process_card_main( UNM_sites.GLand, 'disk', 'data_path', 'C:\Research_Flux_Towers\CF_Data_to_Process\DIRECTORY_CONTAINING_DATA); 
+2. proceed as usual from step 2b above (section IIa).
 
 --------------------------
 III. Top-Level functions
@@ -147,6 +168,7 @@ UNM_retrieve_card_data_GUI
 UNM_RemoveBadData
 UNM_RemoveBadData_pre2012
 UNM_fill_met_gaps_from_nearby_site
+UNM_run_gapfiller
 UNM_Ameriflux_File_Maker
 
 --------------------------
@@ -207,3 +229,37 @@ the case the code will fail.  At present manual intervention is
 necessary: extra files need to be moved and files named differently
 need to be renamed.  Different names frequently are the result of an
 external repair attempt in Campbell Scientific's CardConvert software.
+
+FLUXALL files for site-years 2011 and earlier are Microsoft Excel .xls
+documents, and must be processed with UNM_RemoveBadData_pre2012.
+Site-years 2012 and later FLUXALL files are delimited ASCII files, and
+must be processed with UNM_RemoveBadData_pre2012.
+
+--------------------------
+VI. Wishlist
+
+This section describes upgrades I have not had time to implement.
+
+- integrate handling of data that have been copied to local disk into
+  UNM_retrieve_card_data_GUI.  This situation is currently handled
+  (from the Matlab prompt only) in process_card_main.
+- move specification of exceptions to the filters in RemoveBadData to
+  configuration files.  They are currently put directly into matlab
+  code in helper functions remove_specific_problem_periods,
+  specify_siteyear_filter_exceptions, and
+  specify_siteyear_co2_conc_filter_exceptions.
+- Convert pre-2012 FLUX_all files to delimited ASCII text files
+  readable by UNM_RemoveBadData.  I have begun work on this on a
+  couple of occasions.  It's a big job because many observations have
+  different labels at different sites, and often have different labels
+  within the same site at different times as well.  I've reached the
+  conclusion that the only way to standardize observations labels
+  while maintaining confidence that nothing has been erroneously
+  combined or mislabel is to go through every column of each site-year
+  FLUXALL file and explicitly consider each label.  At 150+ columns
+  per site-year, this is a big job and I have not yet taken the time.
+  In addition to this some of the pre-2012 FLUX_all Excel files
+  contain variables (that is, columns) that were added by hand, or
+  sections that are not actually columnar data.  It is not entirely
+  clear whether some of these sections are important to preserve, and
+  these sections make automation somewhat troublesome.
