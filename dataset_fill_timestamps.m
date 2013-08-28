@@ -1,10 +1,19 @@
 function ds_filled = dataset_fill_timestamps( ds, t_var, varargin )    
 % DATASET_FILL_TIMESTAMPS - fill in missing timestamps in a dataset containing a
-% regularly-spaced time series and discard duplicate timestamps.
+% regularly-spaced time series and discard duplicate timestamps.  
+%
+% t_var specifies the name of the dataset variable containing the (unfilled)
+% timestamps for the data in ds.  The timestamps must be Matlab serial
+% datenumbers.  That is, ds.( t_var ) must contain a vector of Matlab serial datenumbers.
+%
+% dataset_fill_timestamps identifies missing timestamps in ds.( t_var ),
+% assuming a regular interval specified by the parameter-value pair delta_t.
+% The default delta_t value is 30 minutes.  Where timestamps are added to ds.(
+% t_var ) to complete the time series, all other variables are populated with
+% NaN.
 %
 % If a timestamp occurs more than once, the first row is kept and subsequent
-% rows discarded.  Observations corresponding to timestamps that are added are
-% populated with NaN.
+% rows discarded. 
 %
 % USAGE:
 %   ds_filled = dataset_fill_timestamps( ds, t_var )
@@ -15,7 +24,8 @@ function ds_filled = dataset_fill_timestamps( ds, t_var, varargin )
 % INPUTS:
 %   ds: dataset array; the data to be filled
 %   t_var: string containing the name of the time variable in ds
-%       (e.g. 'TIMESTAMP')
+%       (e.g. 'TIMESTAMP').  ds.( t_var ) must contain the timestamps for the
+%       data as matlab serial datenumbers. 
 %
 % PARAMETER-VALUE PAIRS
 %   delta_t: optional: interval of the time series, in days.  e.g., 30
@@ -25,7 +35,8 @@ function ds_filled = dataset_fill_timestamps( ds, t_var, varargin )
 %   t_max: Matlab serial datenumber; timestamp at which to end filling.
 %          Defaults to the latest timestamp in the dataset.
 %   tstamps_as_strings: true|{false}: if true, return timestamps as strings.
-%   If false (the default) return timestamps as Matlab serial datenumbers.
+%          If false (the default) return timestamps as Matlab serial
+%          datenumbers. 
 %
 % SEE ALSO
 %    dataset, datenum
