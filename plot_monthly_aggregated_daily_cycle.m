@@ -30,6 +30,7 @@ function plot_monthly_aggregated_daily_cycle( mm, varargin )
 % author: Timothy W. Hilton, UNM, May 2013
 
 % define some constants
+OBS_PER_DAY = 48;
 HOURS_PER_DAY = 24;
 MONTHS_PER_YEAR = 12;
 
@@ -55,11 +56,11 @@ h_fig = figure( 'NumberTitle', 'Off', ...
                 'DefaultAxesColorOrder', pal );
 
 y_max = nanmax( mm.val );
-vals = reshape( mm.val, HOURS_PER_DAY, MONTHS_PER_YEAR, [] );
+vals = reshape( mm.val, OBS_PER_DAY, MONTHS_PER_YEAR, [] );
 
 if not( isempty( args.Results.ref_vals ) )
     ref_vals = reshape( args.Results.ref_vals, ...
-                        HOURS_PER_DAY, ...
+                        OBS_PER_DAY, ...
                         MONTHS_PER_YEAR, ...
                         [] );
 end
@@ -82,7 +83,12 @@ for this_month = 1:12
     
     % set axis limits
     ylim( [ 0, y_max ] );
-    xlim( [ 1, 24 ] );
+    xlim( [ 1, OBS_PER_DAY ] );
+    % change horizontal axis tick labels from observations (1 to 48) to hours (1 to
+    % 24)
+    xlabs = get( gca, 'XTickLabel' );
+    xlabs = num2str( str2num( xlabs ) / 2 );
+    set( gca, 'XTickLabel', xlabs );
     % title, axis labels
     title( datestr( datenum( dummy_year, this_month, dummy_day ), 'mmmm' ) );
     if this_month > 8

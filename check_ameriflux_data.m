@@ -21,7 +21,14 @@ function check_ameriflux_data( sitecode, years, varargin )
 %    check_FH2O: {true}|false; if true, write the maximum FH2O value for each
 %        requested site-year to stdout
 %    check_Rg_daily_cycle: {true}|false; if true, draw a 12-panel figure showing
-%        the mean daily Rg cycle for each month of the requested site-years
+%        the mean daily Rg cycle for each month of the requested site-years.  A
+%        "reference" line is also drawn; this is the mean solar-angle daily
+%        cycle for the month with the maximum solar angle normalized to [0,
+%        max_Rg], with max_Rg the maximum Rg value for the month.  Thus the
+%        absolute magnitude of reference is meaningless (because it is a
+%        normalized angle) BUT the timing of its daily cycle should match the
+%        timing of the Rg daily cycle if the datalogger clock is set correctly
+%        (or properly adjusted during processing).
 %    check_precip: {true}|false; if true, write the total annual precip for
 %        each requested site-year to stdout
 %
@@ -42,7 +49,13 @@ args.addRequired( 'years', ...
                   @(x) ( all( arrayfun( @isintval, x ) ) & ...
                          all( x >= 2006 ) & ...
                          all( x <= this_year ) ) );
-args.addParamValue( 'data', [], @isnumeric );
+% parameter-value pair "data" is currently undocumented.  It allows an already
+% parsed dataset to be passed directly in to check_ameriflux_data. If provided
+% it will still be preempted by parsed data unless parse_files is set to false.
+% Data would usually be set to the output from assemble_multiyear_ameriflux.
+% This option is useful for debugging if binary data from
+% assemble_multiyear_ameriflux are not available.
+args.addParamValue( 'data', [], @(x) isa( x, 'dataset' ) );
 args.addParamValue( 'parse_files', true, @true_or_false );
 args.addParamValue( 'check_FH2O', true, @true_or_false );
 args.addParamValue( 'check_Rg_daily_cycle', true, @true_or_false );
@@ -55,6 +68,8 @@ if args.Results.parse_files
     data = assemble_multi_year_ameriflux( args.Results.sitecode, args.Results.years,...
                                           'suffix', 'with_gaps', ...
                                           'binary_data', false );
+else
+    data = args.Results.data;
 end
 
 

@@ -21,7 +21,7 @@ function mm = monthly_aggregated_daily_cycle( t, x, aggfun)
 %
 % author: Timothy W. Hilton, UNM, May 2013
 
-[ y, m, ~, h, ~, ~ ] = datevec( t );
-[ tcon, ycon ] = consolidator( [ y, m, h ], x, aggfun );
-var_names =  { 'year', 'month', 'hour', 'val' };
+[ y, mon, ~, h, minute, ~ ] = datevec( t );
+[ tcon, ycon ] = consolidator( [ y, mon, h, minute ], x, aggfun );
+var_names =  { 'year', 'month', 'hour', 'minute', 'val' };
 mm = dataset( { [ tcon, ycon ], var_names{ : } } );
