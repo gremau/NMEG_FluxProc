@@ -31,10 +31,11 @@ end
 
 %%-------------------------
 %% fix GLand
-% datalogger used multiplier of 0.254 for 2009 to 2011.  Correct multiplier is
+% datalogger used multiplier of 0.254 for 2009 to 2012.  Correct multiplier is
 % 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) = 0.394.
+% RJL extended to 2013 on 12/03/2013 per discussion with Marcy.
 if site_code == 1     % Gland
-    idx = ismember( year, [ 2009:2011 ] );
+    idx = ismember( year, [ 2009:2013 ] );
     if any( idx ) 
         pcp_fixed( idx ) = pcp_in * 0.394;
     end
@@ -53,8 +54,9 @@ if site_code == 1     % Gland
 % fix JSav
 % datalogger used multiplier of 0.254 for 2010 and 2011.  Correct multiplier is
 % 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) = 0.394.
+% RJL extended to 2013 on 12/03/2013 per discussion with Marcy.
 elseif site_code == 3   %JSav
-    idx = ismember( year, [ 2010, 2011,2012,2013 ] );
+    idx = ismember( year, [ 2010:2013 ] );
     if any( idx ) 
         pcp_fixed( idx ) = pcp_in * 0.394;
     end
@@ -64,11 +66,11 @@ elseif site_code == 3   %JSav
 % datalogger used multiplier of 0.254 for 1 Jan to 12 May 2010.  Correct
 % multiplier is 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) =
 % 0.394.
+% RJL extended to 2013 on 12/03/2013 per discussion with Marcy.
 elseif site_code == 4     % PJ
-    May12 = datenum( 2010, 5, 12 ) - datenum( 2010, 1, 1 ) + 1;
-    idx = find( ( year == 2010 ) & ( doy <= May12 ) );
-    if not( isempty( idx ) )
-        pcp_fixed( idx ) = pcp_fixed( idx ) * 0.394;
+    idx = ismember( year, [ 2010:2013 ] );
+    if any( idx ) 
+        pcp_fixed( idx ) = pcp_in * 0.394;
     end
 end
 

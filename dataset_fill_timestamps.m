@@ -49,7 +49,7 @@ function ds_filled = dataset_fill_timestamps( ds, t_var, varargin )
 p = inputParser;
 p.addRequired( 'ds' ); %, @( x ) isa( x, 'dataset' ) );
 p.addRequired( 't_var', @ischar );
-p.addOptional( 'delta_t', ( 1 / 48 ), @isnumeric );
+p.addOptional( 'delta_t', ( 1 / 48), @isnumeric );
 p.addOptional( 'tstamps_as_strings', false, @islogical );
 p.addParamValue( 't_min', ...
                  NaN, ...

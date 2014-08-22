@@ -232,6 +232,12 @@ switch sitecode
       case 2012
         idx = DOYidx( 204 ) : DOYidx( 233 );
         data( idx, : ) = shift_data( data( idx, : ), -2.0 );
+
+%      case 2013   %RJL added this section on 11/11/13
+%         idx = DOYidx( 129 ) : DOYidx( 151 );
+%         data( idx, : ) = shift_data( data( idx, : ), 1.5 );
+%         idx = DOYidx( 221 ) : DOYidx( 309 );
+%         data( idx, : ) = shift_data( data( idx, : ), 1.5 );
     end
     
   case UNM_sites.MCon
@@ -299,10 +305,14 @@ switch sitecode
         'cols_to_shift', col_idx );
         
       case 2013
-        idx = 1 : DOYidx( 142 );
-        data( idx , : ) = shift_data( data( idx, : ), 1.0 );
-        idx = DOYidx( 142 ) : DOYidx( 182 );
-        data( idx , : ) = shift_data( data( idx, : ), 0.5 );
+         idx = 1 : DOYidx( 72 );
+         data( idx , : ) = shift_data( data( idx, : ), 1.0 );
+         idx = DOYidx( 72.01 ) : DOYidx( 337 );
+         data( idx , : ) = shift_data( data( idx, : ), 1.5 );
+         idx = DOYidx( 337.01 ) : DOYidx( 342 );
+         data( idx , : ) = shift_data( data( idx, : ), 1.0 );
+         idx = DOYidx( 342.01 ) : DOYidx( 365.98 );
+         data( idx , : ) = shift_data( data( idx, : ), 2.0 );
     end
 
   case UNM_sites.TX

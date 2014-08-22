@@ -37,4 +37,5 @@ function ds_out = dataset_vertcat_fill_vars( varargin )
     
     % now all datasets have the same variables
     ds_out = vertcat( varargin{ : } );
+    save('data.mat')
                                                     
