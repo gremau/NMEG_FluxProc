@@ -31,12 +31,24 @@ function [ soil_data ] = preprocess_PJ_soil_data( sitecode, ...
 args = inputParser;
 args.addRequired( 'sitecode', @( x ) isa( x, 'UNM_sites' ) );
 args.addRequired( 'year', @isnumeric );
+% PJ CR23x loggers have year/1/1/0:30:00 as first yearly observation GM
 args.addParamValue( 't_min', ...
-                    datenum( year, 1, 1, 0, 0, 0 ), ...
+                    datenum( year, 1, 1, 0, 30, 0 ), ...
                     @isnumeric );
-args.addParamValue( 't_max', ...
+% Fluxall files are inconsistent in the observations they contain
+% Prior to 2012 observations end at 1/1 00:30 of the next year,
+% 2012 and after they end at year/12/31 23:30:00
+
+if year < 2012
+    args.addParamValue( 't_max', ...
+                    datenum( year+1, 1, 1, 0, 0, 0 ), ...
+                    @isnumeric );
+else
+    args.addParamValue( 't_max', ...
                     datenum( year, 12, 31, 23, 30, 0 ), ...
                     @isnumeric );
+end
+                
 args.parse( sitecode, year, varargin{ : } );
 
 sitecode = args.Results.sitecode;
@@ -56,10 +68,10 @@ end
     switch sitecode
       case 4
         if year < 2012
-            fname =  'PJC-23x-Wireless-Compiled-07-11-14.csv';
+            fname =  'PJC_23x_2009_2011 COMPILED by Laura.csv';
             n_col = 103;
         else
-            fname =  sprintf( 'CR23X_PJ_%dall.dat', year );
+            fname =  sprintf( 'PJC_23X_%d_COMPILED from wireless_Laura.csv', year );
             n_col = 103;
         end
       case 10
@@ -67,7 +79,7 @@ end
             fname =  'PJG_CR23X_2009_2011_wireles combination_Laura_08112014.csv';
             n_col = 104;
         else
-            fname = sprintf( 'CR23X_PJ_Girdle_%dall.dat', year );
+            fname = sprintf( 'PJG_CR23X_%d_wireles combination_Laura_08112014.csv', year );
             n_col = 152;
         end
     end
