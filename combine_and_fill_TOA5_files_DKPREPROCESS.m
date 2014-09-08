@@ -117,7 +117,7 @@ if  any(strcmp(str, aff))
     
     %Using the sitecode object, open the apropriate header resolution file
     %stored in \TOA5_Header_Resolutions\
-    resolutionFile = strcat(char(sitecode), '_Header_Resolutions.csv');
+    resolutionFile = strcat(char(sitecode), '_Header_Resolutions_GM2.csv');
     fopenmessage = strcat('---------- Opening', resolutionFile,' ---------- \n');
     fprintf( fopenmessage );
 
