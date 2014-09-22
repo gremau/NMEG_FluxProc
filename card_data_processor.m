@@ -141,10 +141,7 @@ methods
                                       obj.sitecode, ...
                                       'TOA5' );
     
-    %obj.data_30min = combine_and_fill_TOA5_files( toa5_files );
-    %Commented out to test the preprocessing step ---
-    
-    obj.data_30min = combine_and_fill_TOA5_files_DKPREPROCESS( toa5_files );
+    obj.data_30min = combine_and_fill_TOA5_files_GMPREPROCESS( toa5_files );
   
     % DJK 8-21-14
 %     % JSav soil water content data come in on separate flash cards -- merge
