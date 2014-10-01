@@ -60,8 +60,8 @@ function main_success = process_card_main( this_site, varargin )
 args = inputParser;
 args.addRequired( 'this_site', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addOptional( 'data_location', 'card', @ischar );
-args.addParamValue( 'data_path', '', @ischar );
-args.addParamValue( 'interactive', true, @islogical );
+args.addParameter( 'data_path', '', @ischar );
+args.addParameter( 'interactive', true, @islogical );
 
 % parse optional inputs
 args.parse( this_site, varargin{ : } );
