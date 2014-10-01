@@ -73,7 +73,6 @@ end
     end
     fname = fullfile( fpath, fname );
     
-    
     % parse data file to matlab dataset
     fmt = [ repmat( '%d', 1, 4 ), repmat( '%f', 1, 100 ) ];
     fmt = repmat( '%f', 1, n_col );

@@ -515,7 +515,7 @@ obs_per_day = 48;  % half-hourly observations
     end
     
     % Calculate VPD Greg Maurer 8/22/2014
-    vpd = 6.1078 * (1 - rH) .* exp(17.08085*air_temp_hmp./(234.175+air_temp_hmp))
+    vpd = 6.1078 * (1 - rH) .* exp(17.08085*air_temp_hmp./(234.175+air_temp_hmp));
     %es = 0.6108*exp(17.27*air_temp_hmp./(air_temp_hmp+237.3));
     %ea = rH .* es ;
     %vpd = ea - es;

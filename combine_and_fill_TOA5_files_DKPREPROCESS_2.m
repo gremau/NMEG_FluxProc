@@ -54,6 +54,9 @@ else
                                            'UniformOutput', false );
     filename = strcat( filename, ext );
 end
+
+% Make sure files are sorted in chronological order
+filename = sort(filename);
     
 nfiles = length( filename );
 ds_array = cell( nfiles, 1 );
@@ -99,7 +102,7 @@ end
 %permit the assignment of old variables to consistent, new formats.
 
 %Ask the user if they want to resolve the headers. If not, process
-%picks up at dataset_vertcat_fill_vars
+%picks up at dataset_vercat_fill_vars
 prompt = 'Do you want to resolve the headers for this fluxall file? Y/N [Y]: ';
 
 str = input(prompt, 's');
@@ -117,56 +120,49 @@ if  any(strcmp(str, aff))
     
     %Using the sitecode object, open the apropriate header resolution file
     %stored in \TOA5_Header_Resolutions\
-    resolutionFile = strcat(char(sitecode), '_Header_Resolutions_DK.csv');
+    resolutionFile = strcat(char(sitecode), '_Header_Resolutions.csv');
     fopenmessage = strcat('---------- Opening', resolutionFile,' ---------- \n');
     fprintf( fopenmessage );
-
-    %Scan the header line and determine the number of entries
-    %(dates) in the resolution file
-    fid = fopen(resolutionFile, 'r');
-    header = fgetl(fid);
-    toks = regexp( header, ',', 'split' );
-    numChanges = numel(toks);
-    header = toks;
-    fclose(fid);
     
-    %Read, parse, and reshape the resolutions file
-    resolutions_file = textread(resolutionFile, '%s', 'delimiter', ',');
-    
-    resolutions_length = numel(resolutions_file)/numChanges;
-    resolutions_reshaped = reshape(resolutions_file, numChanges, resolutions_length);
-    resolutions = resolutions_reshaped';
+    %Read and parse the resolution file
+    resolutions = readtable(resolutionFile);
+    [numHeaders, numDates] = size(resolutions);
+    resDates = resolutions.Properties.VariableNames;
     
     %Initialize the loop
-    count = 1;
     for i = 1:numel( ds_array )
-        toks = regexp( filename{ i }, '_', 'split' );
+        toResolve = zeros(numHeaders,1);
         TOA5_header = ds_array{i}.Properties.VarNames;
-        if isGlandOrGirdle
-            TOA5_date = [ toks{ 4 }, '_', toks{ 5 },'_', toks{ 6 } ];
-        else
-            TOA5_date = [ toks{ 3 }, '_', toks{ 4 },'_', toks{ 5 } ];
+        % Get the name of the TOA5 file
+        filename_toks = regexp( filename{ i }, '\.', 'split' );
+        TOA5_name = filename_toks{1};
+        % No changes until a resolveable TOA5 is found
+        % Subsequent TOA5s resolve the same way until a new column is
+        % found
+        if any(strcmp(TOA5_name, resDates))
+            resolveCol = TOA5_name;
+            fprintf('Resolving changes for %s \n', TOA5_name);
         end
-        if any(strcmp(TOA5_date, header))
-            count = count + 1;
-            fprintf('Resolving changes for %s \n', TOA5_date);
-        end
-        for j = 1:length(resolutions)-1
-            toResolve(j) = find(strcmp(TOA5_header, resolutions(j + 1, count)));
-        end
-        for k = 1:length(toResolve)
-            TOA5_header{toResolve(k)} = resolutions{k + 1};
+        % Read old headers locations into toResolve, replace with current
+        if exist('resolveCol')
+            for j = 1:numHeaders
+                oldheader = resolutions.(resolveCol)(j);
+                % Resolve header only if oldheader exists and is not current
+                if ~(strcmp(oldheader, 'dne') || strcmp(oldheader, 'current'))
+                    toResolve(j) = find(strcmp(TOA5_header, oldheader));
+                end
+            end
+            for k = 1:length(toResolve)
+                if toResolve(k) ~= 0
+                    TOA5_header{toResolve(k)} = resolutions.current{k};
+                end
+            end
         end
         
         %Write the changes to the dataset parameter for headers
         ds_array{i}.Properties.VarNames = TOA5_header;
     end
 end
-
-
-
-
-
 %%
 
 

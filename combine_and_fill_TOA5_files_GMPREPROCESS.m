@@ -180,15 +180,17 @@ if  any(strcmp(str, aff))
         % date of toa5 file
         toa5_date = toa5_date_array{i};
         %Get date string
-        toks = regexp( filename{ i }, '_', 'split' );
+        filename_toks = regexp( filename{ i }, '\.', 'split' );
+        TOA5_date = filename_toks{1};
         TOA5_header = ds_array{i}.Properties.VarNames;
-        if isGlandOrGirdle
-            TOA5_date = [ 'date_', toks{ 4 }, '_', toks{ 5 },'_', toks{ 6 },'_', toks{ 7 }(1:4) ];
-        else
-            TOA5_date = [ 'date_', toks{ 3 }, '_', toks{ 4 },'_', toks{ 5 },'_', toks{ 6 }(1:4) ];
-        end
+        %if isGlandOrGirdle
+        %    TOA5_date = [ 'date_', toks{ 4 }, '_', toks{ 5 },'_', toks{ 6 },'_', toks{ 7 }(1:4) ];
+        %else
+        %    TOA5_date = [ 'date_', toks{ 3 }, '_', toks{ 4 },'_', toks{ 5 },'_', toks{ 6 }(1:4) ];
+        %end
         
         new = repmat({''}, length(current), 1);
+        % Should probably just make this the filename
         toa5_changes = table(new, 'VariableNames', {TOA5_date});
         
         
@@ -254,7 +256,13 @@ if  any(strcmp(str, aff))
             
         old_resolved_TOA5_header = resolved_TOA5_header;
         
-        t = [t, toa5_changes];
+        [t_rows, t_cols] = size(t);
+        % Compare elements of most recent table column and new table for
+        % changes. If they are NOT identical, append the new table.
+        compare = cellfun(@strcmp, t.(t_cols), toa5_changes.(1));
+        if sum(compare) < t_rows
+            t = [t, toa5_changes];
+        end
         clear toa5_changes
     end
     
