@@ -138,7 +138,7 @@ end
 % make sure the colormap and colorbars for this plot don't change if
 % if a subsequent subplot changes the colormap
 freezeColors_exists = not( isempty( which( 'freezeColors' ) ) );
-if freezeColors_exists
-    freezeColors;
-    cbfreeze(colorbar);
-end
+% if freezeColors_exists
+%     freezeColors;
+%     cbfreeze(colorbar);
+% end

@@ -13,7 +13,7 @@ function result = UNM_Ameriflux_File_Maker( sitecode, year, varargin )
 % Ameriflux files are written to the output of get_out_directory( sitecode ).
 %
 % USAGE
-%    result = UNM_Ameriflux_file_maker_TWH( sitecode, year, ... )
+%    result = UNM_Ameriflux_File_Maker( sitecode, year, ... )
 %
 % INPUTS
 %    sitecode: UNM_sites object; specifies the site to show

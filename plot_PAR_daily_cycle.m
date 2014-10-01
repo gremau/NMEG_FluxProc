@@ -1,6 +1,6 @@
 function fh = plot_PAR_daily_cycle( sitecode )
 % PLOT_PAR_DAILY_CYCLE - plots PAR vs hour of day within each year from 2007 to
-% 2011 for a single UNM site.  
+% 2013 for a single UNM site.  
 %
 % Each site-year is plotted in its own panel.  This helps indicate whether
 % site-years are all using the same time convention (e.g. daylight savings time
@@ -26,7 +26,8 @@ years = [];
 
 sd = parse_UNM_site_table();
 
-for this_year = 2007:2011
+%RJL extended to 2013 per conversation with Marcy, 12/03/2013.
+for this_year = 2007:2013
     fname = get_ameriflux_filename( sitecode, this_year, 'gapfilled' );
     if exist( fname )
         fprintf( 'parsing %s\n', fname );
