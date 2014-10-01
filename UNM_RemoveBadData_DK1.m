@@ -1403,9 +1403,9 @@ obs_per_day = 48;  % half-hourly observations
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     dd_idx = isnan(decimal_day_nan);
-    qcNEE = ones(filelength_n,1);
+    qc = ones(filelength_n,1);
     %qc(dd_idx) = 2;
-    qcNEE( not( idx_NEE_good ) ) = 2;
+    qc( not( idx_NEE_good ) ) = 2;
     NEE = fc_raw_massman_wpl;
     NEE( not( idx_NEE_good ) ) = -9999;
     LE = HL_wpl_massman;
@@ -1475,7 +1475,7 @@ obs_per_day = 48;  % half-hourly observations
     
     filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );
     if write_gap_filling_out_file
-        Tsoil=ones(size(qcNEE)) .* -9999;
+        Tsoil=ones(size(qc)) .* -9999;
         disp('writing gap-filling file...')
         
         filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );
@@ -1485,7 +1485,7 @@ obs_per_day = 48;  % half-hourly observations
         timestamp = datenum( year, month, day, hour, minute, 0 );
         [ fgf, outfilename_forgapfill ] = ...
             UNM_write_for_gapfiller_file( 'timestamp', timestamp, ...
-                                          'qcNEE', qcNEE, ...
+                                          'qcNEE', qc, ...
                                           'NEE', NEE, ...
                                           'LE', LE, ...
                                           'H', H_dry, ...
@@ -1599,7 +1599,7 @@ obs_per_day = 48;  % half-hourly observations
             
         % General output
         else
-            Tsoil=ones(size(qcNEE)) .* -9999;
+            Tsoil=ones(size(qc)) .* -9999;
             header2 = {'timestamp', 'year', 'month', 'day', 'hour', ...
                        'minute', 'second', 'jday', 'iok', 'agc_Avg', ...
                        'u_star', 'wnd_dir_compass', 'wnd_spd', 'CO2_mean', ...
