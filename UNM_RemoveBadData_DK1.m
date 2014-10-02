@@ -533,18 +533,6 @@ obs_per_day = 48;  % half-hourly observations
 %        rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) ./ 100.0;
 %    end
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % correction for incorrectly-calculated latent heat flux pointed out by Jim
-    % Heilman 8 Mar 2012.  E_heat_term_massman should have been added to the
-    % latent heat flux.  To do the job right, this fix should happen in
-    % UNM_flux_DATE.m.  Doing the correction here is a temporary fix in order to
-    % get Ameriflux files created soon.
-    % -TWH 9 Mar 2012
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    Lv = ( repmat( 2.501, size( E_raw_massman ) ) - ...
-           0.00237 .* ( Tdry - 273.15 ) )  .* 10^3;
-    HL_wpl_massman = ( 18.016 / 1000.0 .* Lv ) .* ...
-        ( E_raw_massman + E_heat_term_massman );
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Site-specific steps for soil temperature
@@ -1251,6 +1239,8 @@ obs_per_day = 48;  % half-hourly observations
     HSdry(HS_flag) = NaN;
     % remove HS data when raining, use existing precipflag variable
     HSdry(precipflag) = NaN;
+    % remove HS data when wind is wrong, use existing windflag variable
+    % HSdry(windflag) = NaN;
     % remove HS data with low ustar, use existing ustarflag variable
     if iteration > 1
         HSdry(ustarflag) = NaN;
@@ -1262,6 +1252,8 @@ obs_per_day = 48;  % half-hourly observations
     HSdry_massman(HSmass_flag) = NaN;
     % remove HS data when raining, use existing precipflag variable
     HSdry_massman(precipflag) = NaN;
+    % remove HS data when wind is wrong, use existing windflag variable
+    HSdry_massman(windflag) = NaN;
     % remove HS data with low ustar, use existing ustarflag variable
     HSdry_massman(ustarflag) = NaN;
     removed_HSmass = length(find(isnan(HSdry_massman)));
@@ -1283,6 +1275,19 @@ obs_per_day = 48;  % half-hourly observations
     E_wpl_massman( not( idx_E_good ) ) = NaN;
     % cap water flux at 200 (divide by 18 to get correct units)
     E_wpl_massman( E_wpl_massman > ( 200 / 18 ) ) = NaN;
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % correction for incorrectly-calculated latent heat flux pointed out by Jim
+    % Heilman 8 Mar 2012.  E_heat_term_massman should have been added to the
+    % latent heat flux.  To do the job right, this fix should happen in
+    % UNM_flux_DATE.m.  Doing the correction here is a temporary fix in order to
+    % get Ameriflux files created soon.
+    % -TWH 9 Mar 2012
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    Lv = ( repmat( 2.501, size( E_raw_massman ) ) - ...
+           0.00237 .* ( Tdry - 273.15 ) )  .* 10^3;
+    HL_wpl_massman = ( 18.016 / 1000.0 .* Lv ) .* ...
+        ( E_raw_massman + E_heat_term_massman );
 
     % clean the co2 concentration
     CO2_mean( isnan( conc_record ) ) = NaN;
