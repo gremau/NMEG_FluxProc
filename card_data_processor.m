@@ -235,8 +235,8 @@ methods
     % parse and typecheck inputs
     p = inputParser;
     p.addRequired( 'obj', @( x ) isa( x, 'card_data_processor' ) );
-    p.addParamValue( 'parse_30min', false, @islogical );
-    p.addParamValue( 'parse_10hz', false, @islogical );
+    p.addParameter( 'parse_30min', false, @islogical );
+    p.addParameter( 'parse_10hz', false, @islogical );
     parse_result = p.parse( obj, varargin{ : } );
     
     obj = p.Results.obj;
@@ -266,7 +266,7 @@ methods
             % complete the 'reading fluxall...' message from UNM_parse_fluxall
             fprintf( 'not found.\nBuilding fluxall from scratch\n' );
             flux_all = [];
-            obj.date_start = datenum( year, 1, 1 );
+            obj.date_start = datenum( year, 1, 1, 0, 30, 0);
         else
             % display all other errors as usual
             rethrow( err );

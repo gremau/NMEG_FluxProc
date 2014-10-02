@@ -77,13 +77,11 @@ for i = 1:nfiles
     toks = regexp( filename{ i }, '_', 'split' );
     % deal with the two sites that have an '_' in the sitename
     if any( strcmp( toks{ 3 }, { 'girdle', 'GLand' }  ) )
-        isGlandOrGirdle = true;
         sitecode = UNM_sites.( [ toks{ 2 }, '_', toks{ 3 } ] );
         year = str2num( toks{ 4 } );
     else
         sitecode = UNM_sites.( toks{ 2 } );
         year = str2num( toks{ 3 } );
-        isGlandOrGirdle = false;
     end
     
     if ( sitecode == UNM_sites.JSav ) & ( year == 2009 )
