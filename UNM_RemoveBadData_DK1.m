@@ -304,7 +304,7 @@ obs_per_day = 48;  % half-hourly observations
                                            timestamp, ...
                                            'debug', ...
                                            args.Results.draw_plots > 1 ) );
-    data.timestamp = [];
+%    data.timestamp = [];
     if ( sitecode == UNM_sites.MCon )
 %        if ( year == 2007 | year == 2008)
 %            data = replacedata( data, ...
@@ -529,9 +529,9 @@ obs_per_day = 48;  % half-hourly observations
 
 % PJ girdle, calculate relative humidity from hmp obs using helper
 % function. Not sure it is needed.
-%    if sitecode == 10
-%        rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) ./ 100.0;
-%    end
+   if sitecode == 10
+       rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) ./ 100.0;
+   end
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
