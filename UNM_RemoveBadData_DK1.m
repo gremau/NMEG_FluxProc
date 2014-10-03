@@ -513,12 +513,6 @@ obs_per_day = 48;  % half-hourly observations
             
         end
     end
-    
-    % Calculate VPD Greg Maurer 8/22/2014
-    vpd = 6.1078 * (1 - rH) .* exp(17.08085*air_temp_hmp./(234.175+air_temp_hmp));
-    %es = 0.6108*exp(17.27*air_temp_hmp./(air_temp_hmp+237.3));
-    %ea = rH .* es ;
-    %vpd = ea - es;
 
     % remove absurd precipitation measurements
     precip( precip > 1000 ) = NaN;
@@ -529,10 +523,16 @@ obs_per_day = 48;  % half-hourly observations
 
 % PJ girdle, calculate relative humidity from hmp obs using helper
 % function. Not sure it is needed.
-   if sitecode == 10
-       rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) ./ 100.0;
-   end
-
+    if sitecode == 10
+        rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) ./ 100.0;
+    end
+   
+    % Calculate VPD Greg Maurer 8/22/2014
+    tair_temp = Tdry - 273.15;
+    vpd = 6.1078 * (1 - rH) .* exp(17.08085*tair_temp./(234.175+tair_temp));
+    %es = 0.6108*exp(17.27*air_temp_hmp./(air_temp_hmp+237.3));
+    %ea = rH .* es ;
+    %vpd = ea - es;
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Site-specific steps for soil temperature

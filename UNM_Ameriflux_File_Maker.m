@@ -193,7 +193,7 @@ switch sitecode
           % 316, recycled to the appropriate length.
           fill_idx = DOYidx( 306.25 ) : DOYidx( 316 );
           replace_idx = DOYidx( 335 ) : DOYidx( 360 );
-          filler = ds_pt.Reco_HBLR( fill_idx );
+          filler = ds_gf_pt.Reco_HBLR( fill_idx );
           filler = repmat( filler, 3, 1 );
           filler = filler( 1 : numel( replace_idx ) );
           ds_pt.Reco_HBLR( replace_idx ) = filler;
