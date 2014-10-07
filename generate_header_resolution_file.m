@@ -1,7 +1,9 @@
 function ds = generate_header_resolution_file( varargin )
-% generate_header_resolution_file() -- combines multiple TOA5 files into one matlab
-% dataset, fills in any missing 30-minute time stamps and discards duplicated or
-% erroneous timestamp.
+% generate_header_resolution_file() -- takes a list of TOA5 files and
+% generates a header resolution file for the site
+% ({sitecode}_Header_Resolutions.csv)
+%
+% FIXME - documentation needs fixing, doesn't really need to be a function
 %
 % This script is called from card_data_processor after asking for user
 % input. Following the creation of a 30 minute TOA5 dataset (by
@@ -9,16 +11,6 @@ function ds = generate_header_resolution_file( varargin )
 % passed to this script. A header change log is read, and changed header
 % columns are merged into one. Prior to merging, the script verifies that
 % no data from either column will be overwritten.
-%
-% Variables not present in all datasets are filled with NaN for timestamps in
-% the datasets missing them.  The combined dataset is vetted to make sure each
-% thirty-minute timestamp within the period occurs exactly once.  Missing
-% timestamps are added and all observed variables filled with NaN.  Where a
-% timestamp is duplicated the first is kept and subsequent values for the same
-% timestamp are discarded.  Timestamps within two minutes of a "round" thirty
-% minute value (i.e. 0 or 30 minutes past the hour) are rounded to the nearest
-% hour or half hour.  Timestamps more than two minutes from a round thirty
-% minute value are deemed erroneous and discarded.
 %
 % USAGE
 %    ds = combine_and_fill_TOA5_files();
@@ -43,7 +35,6 @@ function ds = generate_header_resolution_file( varargin )
 
 if nargin == 0
     % no files specified; prompt user to select files
-    
     [filename, pathname, filterindex] = uigetfile( ...
         { 'TOA5*.dat','TOA5 files (TOA5*.dat)' }, ...
         'select files to merge', ...
@@ -62,10 +53,13 @@ else
     filename = strcat( filename, ext );
 end
 
+% Make sure files are sorted in chronological order and get dates
+filename = sort(filename);
+toa5_date_array = tstamps_from_TOB1_filenames(filename);
+
 % Count number of files and initialize some arrays
 nfiles = length( filename );
 ds_array = cell( nfiles, 1 );
-toa5_date_array = cell( nfiles, 1 );
 
 % Read each TOA5 file, convert to dataset, load datasets into an array
 for i = 1:nfiles
@@ -85,21 +79,10 @@ for i = 1:nfiles
     if any( strcmp( toks{ 3 }, { 'girdle', 'GLand' }  ) )
         sitecode = UNM_sites.( [ toks{ 2 }, '_', toks{ 3 } ] );
         year = str2num( toks{ 4 } );
-        month = str2num( toks{ 5 } );
-        day = str2num( toks{ 6 } );
-        hh = str2num( toks{ 7 }(1:2) );
-        mm = str2num( toks{ 7 }(3:4) );
     else
         sitecode = UNM_sites.( toks{ 2 } );
         year = str2num( toks{ 3 } );
-        month = str2num( toks{ 4 } );
-        day = str2num( toks{ 5 } );
-        hh = str2num( toks{ 6 }(1:2) );
-        mm = str2num( toks{ 6 }(3:4) );
     end
-    
-    % fill in array of TOA5 dates
-    toa5_date_array{ i } = datenum(year, month, day, hh, mm, 0);
     
     % JSav has different soil data labels
     if ( sitecode == UNM_sites.JSav ) && ( year == 2009 )
@@ -112,27 +95,8 @@ for i = 1:nfiles
         
 end
 
-%% -- PREPROCESSING HEADER RESOLUTION -- %%
-%Read in a resolution file. These files are lookup tables of all possible
-%variable names (that have existed in older program versions), which
-%permit the assignment of old variables to consistent, new formats.
-
-%Ask the user if they want to resolve the headers. If not, process
-%picks up at dataset_vertcat_fill_vars
-
-
 % TOA5 Header resolution config file path
 res_path = fullfile(pwd, 'TOA5_Header_Resolutions');
-
-%if user input is nothing, or any form of yes, proceed
-
-% Open a header resolution logfile.
-resolutionLog = strcat('TOA5_Header_Resolutions\', char(sitecode),...
-    '_Header_Resolution_log.txt');
-logfid = fopen(resolutionLog, 'w+');
-disp(['Logging header resolution output to: ' resolutionLog]);
-fprintf(logfid, '\n\n---------- resolving %s TOA5 headers on %s ----------\n',...
-    char(sitecode), datestr(now) );
 
 % Using the sitecode object, open the apropriate header resolution
 % and sensor swap files stored in \TOA5_Header_Resolutions\
@@ -142,10 +106,8 @@ swap_fname = strcat(char(sitecode), '_Sensor_Swaps.csv');
 sensorSwapsFile = fullfile(res_path, swap_fname);
 
 fopenmessage = strcat('---------- Opening ', change_fname,' ---------- \n');
-fprintf(logfid, fopenmessage );
 fprintf(1, fopenmessage );
 fopenmessage = strcat('---------- Opening ', swap_fname,' ---------- \n');
-fprintf(logfid, fopenmessage );
 fprintf(1, fopenmessage );
 
 % Read in the header changes file
@@ -163,13 +125,10 @@ T = table(current);
 for i = 1:numel( ds_array )
     % get the current TOA5 file header
     unresolved_TOA5_header = ds_array{i}.Properties.VarNames;
-    % initialize the resolved headers array
-    resolved_TOA5_header = unresolved_TOA5_header;
     % Get date, name, and header of toa5 file
     TOA5_date = toa5_date_array{i};
     filename_toks = regexp( filename{ i }, '\.', 'split' );
     TOA5_name = filename_toks{1};
-    TOA5_header = ds_array{i}.Properties.VarNames;
     % Store header resolution in a new table
     new = repmat({''}, length(current), 1);
     toa5_changes = table(new, 'VariableNames', {TOA5_name});
@@ -177,7 +136,6 @@ for i = 1:numel( ds_array )
     % for each line in the header change file, parse out the current
     % header name, then look for earlier header names in the TOA5
     % header and make them current
-    fprintf(logfid, 'Resolving header changes for %s \n', filename{i});
     fprintf(1, 'Resolving header changes for %s \n', filename{i});
     for j = 1:length(current)
         curr = current(j); % current header name
@@ -199,7 +157,6 @@ for i = 1:numel( ds_array )
             disp('Invalid!!!!');
         end
     end
-    fprintf(logfid, '...Done... \n');
     
     % Incorporate sensor swaps
     for k = 1:height(swaps)
@@ -235,9 +192,6 @@ for i = 1:numel( ds_array )
     end
     clear toa5_changes
 end
-
-
-%fclose(logfid);
 
 res_fname = strcat('TOA5_Header_Resolutions\', ...
     char(sitecode), '_Header_Resolutions.csv');
