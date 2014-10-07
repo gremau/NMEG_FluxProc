@@ -10,7 +10,6 @@ cov_co2_Ux,cov_Ux_co2
 cov_h2o_Ux,cov_Ux_h2o
 cov_Ts_Ux,cov_Ux_Ts
 stdev_Ux,cov_Ux_Ux
-cov_Ux_Uy,cov_Uy_Ux
 cov_co2_Uy,cov_Uy_co2
 cov_h2o_Uy,cov_Uy_h2o
 cov_Ts_Uy,cov_Uy_Ts

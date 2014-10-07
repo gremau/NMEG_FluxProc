@@ -55,9 +55,11 @@ else
     filename = strcat( filename, ext );
 end
 
-% Make sure files are sorted in chronological order
+% Make sure files are sorted in chronological order and get dates
 filename = sort(filename);
-    
+toa5_date_array = tstamps_from_TOB1_filenames(filename);
+
+% Count number of files and initialize some arrays
 nfiles = length( filename );
 ds_array = cell( nfiles, 1 );
 
@@ -91,7 +93,6 @@ for i = 1:nfiles
                                                      year, ...
                                                      ds_array{ i } );
     end
-        
 end
 
 %% -- PREPROCESSING HEADER RESOLUTION -- %%
@@ -125,7 +126,19 @@ if  any(strcmp(str, aff))
     %Read and parse the resolution file
     resolutions = readtable(resolutionFile);
     [numHeaders, numDates] = size(resolutions);
-    resDates = resolutions.Properties.VariableNames;
+    resTOA5 = resolutions.Properties.VariableNames;
+    resDates = tstamps_from_TOB1_filenames(resTOA5(2:end));
+    
+    % Choose initial column to resolve headers - if the first TOA5 to
+    % resolve is not in the file, this will be the resolution column
+    % immediately prior to the TOA5
+    col = find(resDates <= toa5_date_array(1));
+    if isempty(col)
+        error('The headers have not been resolved this far back!');
+    else
+        resolveCol = resTOA5{col + 1};
+        fprintf('Resolving changes for %s \n', resolveCol);
+    end
     
     %Initialize the loop
     for i = 1:numel( ds_array )
@@ -134,26 +147,23 @@ if  any(strcmp(str, aff))
         % Get the name of the TOA5 file
         filename_toks = regexp( filename{ i }, '\.', 'split' );
         TOA5_name = filename_toks{1};
-        % No changes until a resolveable TOA5 is found
-        % Subsequent TOA5s resolve the same way until a new column is
-        % found
-        if any(strcmp(TOA5_name, resDates))
+        % Subsequent TOA5s resolve the same until a new column is found
+        if any(strcmp(TOA5_name, resTOA5))
             resolveCol = TOA5_name;
-            fprintf('Resolving changes for %s \n', TOA5_name);
+            fprintf('Resolving changes for %s \n', resolveCol);
         end
         % Read old headers locations into toResolve, replace with current
-        if exist('resolveCol')
-            for j = 1:numHeaders
-                oldheader = resolutions.(resolveCol)(j);
-                % Resolve header only if oldheader exists and is not current
-                if ~(strcmp(oldheader, 'dne') || strcmp(oldheader, 'current'))
-                    toResolve(j) = find(strcmp(TOA5_header, oldheader));
-                end
+        for j = 1:numHeaders
+            oldheader = resolutions.(resolveCol)(j);
+            % Resolve header only if oldheader exists and is not current
+            if ~(strcmp(oldheader, 'dne') || strcmp(oldheader, 'current'))
+                toResolve(j) = find(strcmp(TOA5_header, oldheader));
             end
-            for k = 1:length(toResolve)
-                if toResolve(k) ~= 0
-                    TOA5_header{toResolve(k)} = resolutions.current{k};
-                end
+        end
+        % Fill in toResolve locations with current header name
+        for k = 1:length(toResolve)
+            if toResolve(k) ~= 0
+                TOA5_header{toResolve(k)} = resolutions.current{k};
             end
         end
         

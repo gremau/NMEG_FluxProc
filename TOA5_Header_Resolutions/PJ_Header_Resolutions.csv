@@ -10,7 +10,6 @@ cov_co2_Ux,cov_Ux_co2,cov_Ux_co2,current,current,current
 cov_h2o_Ux,cov_Ux_h2o,cov_Ux_h2o,current,current,current
 cov_Ts_Ux,cov_Ux_Ts,cov_Ux_Ts,current,current,current
 stdev_Ux,cov_Ux_Ux,cov_Ux_Ux,current,current,current
-cov_Ux_Uy,current,current,current,current,current
 cov_co2_Uy,cov_Uy_co2,cov_Uy_co2,current,current,current
 cov_h2o_Uy,cov_Uy_h2o,cov_Uy_h2o,current,current,current
 cov_Ts_Uy,cov_Uy_Ts,cov_Uy_Ts,current,current,current
