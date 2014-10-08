@@ -385,7 +385,8 @@ obs_per_day = 48;  % half-hourly observations
         if strcmp('agc_Avg',headertext{i}) == 1
             agc_Avg = data(:,i);
         elseif strcmp('h2o_hmp_Avg', headertext{i}) == 1 | ...
-               strcmp('h2o_hmp_mean', headertext{i}) == 1
+               strcmp('h2o_hmp_mean', headertext{i}) == 1| ...
+               strcmp('h2o_hmp_mean_Avg', headertext{i})
             h2o_hmp = data( :, i );
 % Input all the different relative humidity variables and change to 0-1.
         elseif strcmp('rH', headertext{i}) == 1 | ...
