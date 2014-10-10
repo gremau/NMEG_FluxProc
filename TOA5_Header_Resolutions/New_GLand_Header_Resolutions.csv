@@ -1,4 +1,4 @@
-current,TOA5_New_GLand_2013_12_19_1330,TOA5_New_GLand_2014_01_17_1600,TOA5_New_GLand_2014_05_08_1300,TOA5_New_GLand_2014_06_13_0830,TOA5_New_GLand_2014_06_13_1030
+current,TOA5_New_GLand_2012_12_13_1230,TOA5_New_GLand_2014_01_17_1600,TOA5_New_GLand_2014_05_08_1300,TOA5_New_GLand_2014_06_13_0830,TOA5_New_GLand_2014_06_13_1030
 RH_Avg,RH,current,current,current,current
 co2_mean_Avg,co2_Avg,current,current,current,current
 co2_um_m_Avg,co2_u_mol_Avg,current,current,current,current
@@ -31,9 +31,8 @@ Rad_long_Dn__Avg,current,current,current,current,current
 Rad_long_Up__Avg,current,current,current,current,current
 rho_a_mean_Avg,rho_a_Avg,current,current,current,current
 sig_lck_f_Tot,track_f_Tot,current,current,current,current
-low12V_3000_Tot,dne,dne,dne,current,dne
-panelT_3000_Avg,dne,dne,dne,current,dne
-panelT_5000_in_Avg,panelT_5000_Avg,current,current,dne,current
+low12V_5000_Tot,low12V_5000,current,current,low12V_3000_Tot,current
+panelT_5000_in_Avg,panelT_5000_Avg,current,current,panelT_3000_Avg,current
 SWC_G1_12p5_Avg,cs616SWC_grass_1_12p5,current,current,current,current
 SWC_G1_22p5_Avg,cs616SWC_grass_1_22p5,current,current,current,current
 SWC_G1_2p5_Avg,cs616SWC_grass_1_2p5,current,current,current,current
@@ -66,9 +65,9 @@ Soil_CO2_G3_10_Avg,soil_co2_g3_10cm_Avg,current,current,current,current
 Soil_CO2_G3_20_Avg,soil_co2_g3_20cm_Avg,current,dne,dne,dne
 Soil_CO2_G3_5_Avg,soil_co2_g3_5cm_Avg,current,current,current,current
 Soil_CO2_G3_60_Avg,soil_co2_g3_50cm_Avg,current,dne,dne,dne
-shf_SHF_grass_1,SHF_grass_1,SHF_grass_1,SHF_grass_1,current,SHF_grass_1
-shf_SHF_grass_2,SHF_grass_2,SHF_grass_2,SHF_grass_2,current,SHF_grass_2
-shf_SHF_open_1,SHF_open_1,SHF_open_1,SHF_open_1,current,SHF_open_1
-shf_SHF_open_2,SHF_open_2,SHF_open_2,SHF_open_2,current,SHF_open_2
-TCAV_grass_2_1,TCAV_grass_1,TCAV_grass_1,TCAV_grass_1,current,TCAV_grass_1
-TCAV_open_1_1,TCAV_open_1,TCAV_open_1,TCAV_open_1,current,TCAV_open_1
+SHF_grass_1,current,current,current,shf_SHF_grass_1,current
+SHF_grass_2,current,current,current,shf_SHF_grass_2,current
+SHF_open_1,current,current,current,shf_SHF_open_1,current
+SHF_open_2,current,current,current,shf_SHF_open_2,current
+TCAV_grass_1,current,current,current,TCAV_grass_2_1,current
+TCAV_open_1,current,current,current,TCAV_open_1_1,current

@@ -126,7 +126,7 @@ for i = 1:numel( ds_array )
     % get the current TOA5 file header
     unresolved_TOA5_header = ds_array{i}.Properties.VarNames;
     % Get date, name, and header of toa5 file
-    TOA5_date = toa5_date_array{i};
+    TOA5_date = toa5_date_array(i);
     filename_toks = regexp( filename{ i }, '\.', 'split' );
     TOA5_name = filename_toks{1};
     % Store header resolution in a new table
@@ -147,12 +147,17 @@ for i = 1:numel( ds_array )
         if sum(prevloc) == 1 && sum(currloc) == 0
             %resolved_TOA5_header(prevloc) = curr;
             toa5_changes.(TOA5_name)(j) = unresolved_TOA5_header(prevloc);
-            % Previous header absent, current header found
+        % Previous header absent, current header found
         elseif sum(prevloc) == 0 && sum(currloc) == 1
             toa5_changes.(TOA5_name)(j) = curr;
-            % Neither header found
+        % Neither header found
         elseif sum(prevloc) == 0 && sum(currloc) == 0
             toa5_changes.(TOA5_name)(j) = {'dne'};
+        % Both headers found - mark as current, neither column removed
+        elseif sum(prevloc) == 1 && sum(currloc) == 1
+            toa5_changes.(TOA5_name)(j) = curr;
+            fprintf(1, 'Both %s and %s exist in this file!\n',...
+                char(curr), char(prev));
         else
             disp('Invalid!!!!');
         end
@@ -176,18 +181,14 @@ for i = 1:numel( ds_array )
     end
     
     % Change current headers in resolution table to "current"
-    for l = 1:length(current)
-        curr = current(l); % current header name
-        if strcmp(toa5_changes.(TOA5_name)(l), curr)
-            toa5_changes.(TOA5_name)(l) = {'current'};
-        end
-    end
+    test = cellfun(@strcmp, toa5_changes.(TOA5_name), current);
+    toa5_changes.(TOA5_name)(test) = {'current'};
     
     % Compare elements of most recent table column and new table for
     % changes. If they are NOT identical, append the new table.
     [T_rows, T_cols] = size(T);
-    compare = cellfun(@strcmp, T.(T_cols), toa5_changes.(1));
-    if sum(compare) < T_rows
+    test = cellfun(@strcmp, T.(T_cols), toa5_changes.(1));
+    if sum(test) < T_rows
         T = [T, toa5_changes];
     end
     clear toa5_changes
