@@ -1,4 +1,8 @@
 current,TOA5_MCon_2012_12_12_1200,TOA5_MCon_2013_11_12_1830,TOA5_MCon_2014_01_09_1600,TOA5_MCon_2014_01_14_1600,TOA5_MCon_2014_02_18_1800,TOA5_MCon_2014_03_20_1230,TOA5_MCon_2014_06_20_1130
+AirTC_24_Avg,AirTC_2_Avg,current,current,current,current,current,current
+AirTC_4p5_Avg,AirTC_Avg,current,current,current,current,current,current
+RH_24_Avg,RH_2,current,current,current,current,current,current
+RH_4p5_Avg,RH,current,current,current,current,current,current
 co2_mean_Avg,co2_Avg,co2_Avg,current,current,current,current,current
 co2_um_m_Avg,co2_u_mol_Avg,co2_u_mol_Avg,current,current,current,current,current
 stdev_Ts,cov_Ts_Ts,cov_Ts_Ts,current,current,current,current,current
@@ -25,9 +29,14 @@ h2o_mm_m_Avg,h2o_m_mol_Avg,h2o_m_mol_Avg,current,current,current,current,current
 Hc,Hs,Hs,current,current,current,current,current
 Rad_long_Dn_Avg,Rad_long_Dn__Avg,Rad_long_Dn__Avg,Rad_long_Dn__Avg,Rad_long_Dn__Avg,Rad_long_Dn__Avg,current,Rad_long_Dn
 Rad_long_Up_Avg,Rad_long_Up__Avg,Rad_long_Up__Avg,Rad_long_Up__Avg,Rad_long_Up__Avg,Rad_long_Up__Avg,current,current
+par_facedown_Avg,par_down_Avg,current,current,current,current,current,current
+par_faceup_Avg,par_up_Avg,current,current,current,current,current,current
 rho_a_mean_Avg,rho_a_Avg,rho_a_Avg,current,current,current,current,current
 sig_lck_f_Tot,track_f_Tot,track_f_Tot,current,current,current,current,current
 low12V_5000_Tot,current,current,current,current,current,current,current
 panelT_5000_Avg,current,current,current,panelT_5000_in_Avg,current,current,current
 pit2_soilT_shf_2_Avg,dne,pit2_soilT_shf_2cm_Avg,pit2_soilT_shf_2cm_Avg,pit2_soilT_shf_2cm_Avg,current,current,current
 pit2_soilT_shf_6_Avg,dne,pit2_soilT_shf_6cm_Avg,pit2_soilT_shf_6cm_Avg,pit2_soilT_shf_6cm_Avg,current,current,current
+shf_p1_Avg,SHF_mcon_1,current,current,current,current,current,current
+shf_p2_Avg,SHF_mcon_2,current,current,current,current,current,current
+shf_p3_Avg,SHF_mcon_3,current,current,current,current,current,current
