@@ -1,4 +1,4 @@
-current,previous1,
+current,previous1,previous2
 AirTC_24_Avg,AirTC_2_Avg,
 AirTC_4p5_Avg,AirTC_Avg,
 RH_24_Avg,RH_2,
@@ -40,3 +40,4 @@ pit2_soilT_shf_6_Avg,pit2_soilT_shf_6cm_Avg,
 shf_p1_Avg,SHF_mcon_1,
 shf_p2_Avg,SHF_mcon_2,
 shf_p3_Avg,SHF_mcon_3,
+tcav_p1_Avg,tcav_p3_Avg,TCAV_mcon_1

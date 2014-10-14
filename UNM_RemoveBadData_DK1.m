@@ -1969,6 +1969,11 @@ switch sitecode
         sw_outgoing( idx:end ) = NaN;
         lw_incoming( idx:end ) = NaN;
         lw_outgoing( idx:end ) = NaN;
+      case 2013
+        idx = DOYidx( 122.5 );
+        % Radiation was still down in early 2013
+        sw_incoming( 1:idx ) = NaN;
+        sw_outgoing( 1:idx ) = NaN;
     end
     
   case UNM_sites.MCon

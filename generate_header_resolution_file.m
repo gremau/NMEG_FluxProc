@@ -157,7 +157,7 @@ for i = 1:numel( ds_array )
         elseif sum(prevloc) == 1 && sum(currloc) == 1
             toa5_changes.(TOA5_name)(j) = curr;
             fprintf(1, 'Both %s and %s exist in this file!\n',...
-                char(curr), char(prev));
+                char(curr), char(unresolved_TOA5_header(prevloc)));
         else
             disp('Invalid!!!!');
         end

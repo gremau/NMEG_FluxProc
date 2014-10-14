@@ -40,3 +40,4 @@ pit2_soilT_shf_6_Avg,dne,pit2_soilT_shf_6cm_Avg,pit2_soilT_shf_6cm_Avg,pit2_soil
 shf_p1_Avg,SHF_mcon_1,current,current,current,current,current,current
 shf_p2_Avg,SHF_mcon_2,current,current,current,current,current,current
 shf_p3_Avg,SHF_mcon_3,current,current,current,current,current,current
+tcav_p1_Avg,TCAV_mcon_1,current,current,current,current,current,current
