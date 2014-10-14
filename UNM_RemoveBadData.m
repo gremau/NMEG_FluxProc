@@ -385,11 +385,12 @@ obs_per_day = 48;  % half-hourly observations
         if strcmp('agc_Avg',headertext{i}) == 1
             agc_Avg = data(:,i);
         elseif strcmp('h2o_hmp_Avg', headertext{i}) == 1 | ...
-               strcmp('h2o_hmp_mean', headertext{i}) == 1
+               strcmp('h2o_hmp_mean', headertext{i}) == 1| ...
+               strcmp('h2o_hmp_mean_Avg', headertext{i})
             h2o_hmp = data( :, i );
 % Input all the different relative humidity variables and change to 0-1.
         elseif strcmp('rH', headertext{i}) == 1 | ...
-                strcmp('RH_Avg', headertext{i}) == 1 ...
+                strcmp('RH_Avg', headertext{i}) == 1 | ...
                 strcmp('RH_4p5_Avg',headertext{i}) == 1 | ...
                 strcmp('RH_4p5',headertext{i}) == 1 | ...
                 strcmp('rh_hmp', headertext{i}) == 1 | ...
@@ -397,13 +398,17 @@ obs_per_day = 48;  % half-hourly observations
                 strcmp('RH',headertext{i}) == 1 | ...
                 strcmp('RH_2',headertext{i}) == 1 | ...
                 strcmp('RH_2_Avg',headertext{i}) == 1 | ...
-                strcmp('RH_10_Avg',headertext{i}) == 1
+                strcmp('RH_10_Avg',headertext{i}) == 1 | ...
+                strcmp('RH_6p85_Avg', headertext{i})==1
                 %strcmp('RH_3p7_Avg',headertext{i}) == 1 | ...
             
+            %Fixed scaling the rH now on a per rH value to account for
+            %the scale changes associated with program changes in the
+            %fluxall.
             rH = data(:,i);
-            if (rH > 1.) %Scale the relative humidity to appropriate values
-                rH = rH ./ 100.0;
-            end
+            scale = find(rH > 1);
+            rH(scale) = rH(scale) ./ 100;
+                
         elseif strcmp('Ts_mean', headertext{i}) == 1 | ...
                strcmp('Ts_Avg', headertext{i}) == 1
             Tair_TOA5 = data(:,i);
@@ -437,7 +442,8 @@ obs_per_day = 48;  % half-hourly observations
                 strcmp('pnl_tmp_a', headertext{i})==1 | ...
                 strcmp('t_hmp_Avg', headertext{i})==1 | ...
                 strcmp('t_hmp_4_Avg', headertext{i})==1 | ...
-                strcmp('t_hmp_top_Avg', headertext{i})==1
+                strcmp('t_hmp_top_Avg', headertext{i})==1| ...
+                strcmp('AirTC_6p85_Avg', headertext{i})==1
             air_temp_hmp = data(:,i);
         elseif strcmp('Tsoil',headertext{i}) == 1 | ...
                 strcmp('Tsoil_avg',headertext{i}) == 1 | ...
@@ -517,22 +523,16 @@ obs_per_day = 48;  % half-hourly observations
 
 % PJ girdle, calculate relative humidity from hmp obs using helper
 % function. Not sure it is needed.
-%    if sitecode == 10
-%        rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) ./ 100.0;
-%    end
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % correction for incorrectly-calculated latent heat flux pointed out by Jim
-    % Heilman 8 Mar 2012.  E_heat_term_massman should have been added to the
-    % latent heat flux.  To do the job right, this fix should happen in
-    % UNM_flux_DATE.m.  Doing the correction here is a temporary fix in order to
-    % get Ameriflux files created soon.
-    % -TWH 9 Mar 2012
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    Lv = ( repmat( 2.501, size( E_raw_massman ) ) - ...
-           0.00237 .* ( Tdry - 273.15 ) )  .* 10^3;
-    HL_wpl_massman = ( 18.016 / 1000.0 .* Lv ) .* ...
-        ( E_raw_massman + E_heat_term_massman );
+    if sitecode == 10
+        rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) ./ 100.0;
+    end
+   
+    % Calculate VPD Greg Maurer 8/22/2014
+    tair_temp = Tdry - 273.15;
+    vpd = 6.1078 * (1 - rH) .* exp(17.08085*tair_temp./(234.175+tair_temp));
+    %es = 0.6108*exp(17.27*air_temp_hmp./(air_temp_hmp+237.3));
+    %ea = rH .* es ;
+    %vpd = ea - es;
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Site-specific steps for soil temperature
@@ -1239,6 +1239,8 @@ obs_per_day = 48;  % half-hourly observations
     HSdry(HS_flag) = NaN;
     % remove HS data when raining, use existing precipflag variable
     HSdry(precipflag) = NaN;
+    % remove HS data when wind is wrong, use existing windflag variable
+    % HSdry(windflag) = NaN;
     % remove HS data with low ustar, use existing ustarflag variable
     if iteration > 1
         HSdry(ustarflag) = NaN;
@@ -1250,6 +1252,8 @@ obs_per_day = 48;  % half-hourly observations
     HSdry_massman(HSmass_flag) = NaN;
     % remove HS data when raining, use existing precipflag variable
     HSdry_massman(precipflag) = NaN;
+    % remove HS data when wind is wrong, use existing windflag variable
+    HSdry_massman(windflag) = NaN;
     % remove HS data with low ustar, use existing ustarflag variable
     HSdry_massman(ustarflag) = NaN;
     removed_HSmass = length(find(isnan(HSdry_massman)));
@@ -1271,6 +1275,19 @@ obs_per_day = 48;  % half-hourly observations
     E_wpl_massman( not( idx_E_good ) ) = NaN;
     % cap water flux at 200 (divide by 18 to get correct units)
     E_wpl_massman( E_wpl_massman > ( 200 / 18 ) ) = NaN;
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % correction for incorrectly-calculated latent heat flux pointed out by Jim
+    % Heilman 8 Mar 2012.  E_heat_term_massman should have been added to the
+    % latent heat flux.  To do the job right, this fix should happen in
+    % UNM_flux_DATE.m.  Doing the correction here is a temporary fix in order to
+    % get Ameriflux files created soon.
+    % -TWH 9 Mar 2012
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    Lv = ( repmat( 2.501, size( E_raw_massman ) ) - ...
+           0.00237 .* ( Tdry - 273.15 ) )  .* 10^3;
+    HL_wpl_massman = ( 18.016 / 1000.0 .* Lv ) .* ...
+        ( E_raw_massman + E_heat_term_massman );
 
     % clean the co2 concentration
     CO2_mean( isnan( conc_record ) ) = NaN;
@@ -1471,6 +1488,7 @@ obs_per_day = 48;  % half-hourly observations
         timestamp = datenum( year, month, day, hour, minute, 0 );
         [ fgf, outfilename_forgapfill ] = ...
             UNM_write_for_gapfiller_file( 'timestamp', timestamp, ...
+                                          'qcNEE', qc, ...
                                           'NEE', NEE, ...
                                           'LE', LE, ...
                                           'H', H_dry, ...
@@ -1478,6 +1496,7 @@ obs_per_day = 48;  % half-hourly observations
                                           'Tair', Tair, ...
                                           'Tsoil', Tsoil, ...
                                           'RH', rH, ...
+                                          'VPD', vpd, ...
                                           'Ustar', u_star, ...
                                           'fname', outfilename_forgapfill );
         fprintf( 'wrote %s\n', outfilename_forgapfill );
@@ -1947,6 +1966,11 @@ switch sitecode
         sw_outgoing( idx:end ) = NaN;
         lw_incoming( idx:end ) = NaN;
         lw_outgoing( idx:end ) = NaN;
+      case 2013
+        idx = DOYidx( 122.5 );
+        % Radiation was still down in early 2013
+        sw_incoming( 1:idx ) = NaN;
+        sw_outgoing( 1:idx ) = NaN;
     end
     
   case UNM_sites.MCon

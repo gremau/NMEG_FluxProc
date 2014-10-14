@@ -240,7 +240,7 @@ end
 fprintf(1, '\n----------\n');
 fprintf(1, 'starting UNM_RemoveBadData...\n');
 [ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
-UNM_RemoveBadData_DK1( UNM_sites( this_site ), year, ...
+UNM_RemoveBadData( UNM_sites( this_site ), year, ...
                    'draw_plots', double( args.Results.interactive ) );
 
 % compare sunrise as measured by observed solar radiation to runrise as
@@ -260,7 +260,7 @@ UNM_fill_met_gaps_from_nearby_site( UNM_sites( this_site ), year );
 fprintf(1, '\n----------\n');
 fprintf(1, 'starting UNM_RemoveBadData...\n');
 [ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
-UNM_RemoveBadData_DK1( UNM_sites( this_site ), year, 'draw_plots', 3 );
+UNM_RemoveBadData( UNM_sites( this_site ), year, 'draw_plots', 3 );
 
 % close the log file
 diary off
