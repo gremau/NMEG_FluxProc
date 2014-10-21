@@ -304,7 +304,7 @@ obs_per_day = 48;  % half-hourly observations
                                            timestamp, ...
                                            'debug', ...
                                            args.Results.draw_plots > 1 ) );
-    data.timestamp = [];
+%    data.timestamp = [];
     if ( sitecode == UNM_sites.MCon )
 %        if ( year == 2007 | year == 2008)
 %            data = replacedata( data, ...
@@ -473,6 +473,7 @@ obs_per_day = 48;  % half-hourly observations
                 strcmp('SWC_P1_5_Avg', headertext{i})==1
             VWC = data(:,i);
         elseif strcmp('shf_Avg(1)', headertext{i})==1 | ...
+               strcmp('shf_Avg_1', headertext{i})==1 | ...
                strcmp('shf_pinon_1_Avg', headertext{i})==1
             soil_heat_flux_1 = data(:,i);
             disp('FOUND shf_pinon_1_Avg');       
@@ -485,6 +486,7 @@ obs_per_day = 48;  % half-hourly observations
             soil_heat_flux_2 = data(:,i);
             disp('FOUND hfp_grass_2_Avg');       
         elseif strcmp('shf_Avg(2)', headertext{i})==1 | ...
+                strcmp('shf_Avg_2', headertext{i})==1 | ...
                 strcmp('shf_jun_1_Avg', headertext{i})==1
             soil_heat_flux_2 = data(:,i);
         elseif strcmp('hfpopen_1_Avg', headertext{i})==1 % only for TX
@@ -506,9 +508,11 @@ obs_per_day = 48;  % half-hourly observations
             soil_heat_flux_5 = data(:,i);
         elseif strcmp('hfp01_6_Avg', headertext{i})==1 
             soil_heat_flux_6 = data(:,i);
-        elseif strcmp('shf_Avg(3)', headertext{i})==1 
-            soil_heat_flux_3 = data(:,i);
-        elseif strcmp('shf_Avg(4)', headertext{i})==1 
+        elseif strcmp('shf_Avg(3)', headertext{i})==1 |...
+            strcmp('shf_Avg_3', headertext{i})==1
+        soil_heat_flux_3 = data(:,i);
+        elseif strcmp('shf_Avg(4)', headertext{i})==1 |...
+                strcmp('shf_Avg_4', headertext{i})==1
             soil_heat_flux_4 = data(:,i);
             
         end

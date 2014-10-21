@@ -137,8 +137,8 @@ if  any(strcmp(str, aff))
     if isempty(col)
         error('The headers have not been resolved this far back!');
     else
-        resolveCol = resTOA5{col + 1};
-        fprintf('Resolving changes for %s \n', resolveCol);
+        resolveCol = resTOA5{max(col) + 1};
+        fprintf('Beginning with headers from %s \n', resolveCol);
     end
     
     %Initialize the loop
