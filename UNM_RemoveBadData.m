@@ -59,8 +59,6 @@ function [] = UNM_RemoveBadData( sitecode, year, varargin )
 %
 % author: Timothy W. Hilton, UNM, 2012-2013
 
-
-
 %clear all
 %close all
 
@@ -650,7 +648,6 @@ obs_per_day = 48;  % half-hourly observations
         soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];
     end
 
-
     % Juniper S heat flux plates need multiplying by calibration factors
     if sitecode == 3
         soil_heat_flux_1 = soil_heat_flux_1 .* 32.27;
@@ -665,9 +662,6 @@ obs_per_day = 48;  % half-hourly observations
         soil_heat_flux_1 = soil_heat_flux_1 .* 35.2;
         soil_heat_flux_2 = soil_heat_flux_2 .* 32.1;
     end
-
-
-
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Radiation corrections
@@ -707,7 +701,6 @@ obs_per_day = 48;  % half-hourly observations
                                     char( sitecode ), year(1) ) );
     save( save_fname );
     fprintf( 'saved %s\n', save_fname );
-    
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Apply Burba 2008 correction for sensible heat conducted from 7500
@@ -829,10 +822,10 @@ obs_per_day = 48;  % half-hourly observations
     disp(sprintf('    night-time negs = %d',removed_nightneg));
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % PPINE EXTRA WIND DIRECTION REMOVAL
-    % ppine has super high night respiration when winds come from ~ 50 degrees, so these must be excluded also:
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % ppine has super high night respiration when winds come from ~ 50 
+    % degrees, so these must be excluded also:
     if sitecode == 5
         ppine_night_wind = find( ( wnd_dir_compass > 30 & ...
                                    wnd_dir_compass < 65 ) & ...
@@ -846,7 +839,6 @@ obs_per_day = 48;  % half-hourly observations
         conc_record(ppine_night_wind) = NaN;
         disp(sprintf('    ppine night winds = %d',removed_ppine_night_wind));
     end
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -871,7 +863,6 @@ obs_per_day = 48;  % half-hourly observations
         conc_record(11595:11829) = NaN;
     end
 
-    
     % Plot out to see and determine ustar cutoff
     if iteration == 1    
         u_star_2 = u_star(find(~isnan(decimal_day_nan)));
@@ -961,8 +952,7 @@ obs_per_day = 48;  % half-hourly observations
                                                          co2_min_by_month, ...
                                                          co2_max_by_month, ...
                                                          winter_co2_min );
-
-        
+                                                     
         removed_maxs_mins=0;
         maxminflag = [];
                 
@@ -1754,7 +1744,6 @@ obs_per_day = 48;  % half-hourly observations
     %close( h_burba_fig, h_co2_fig, h_fig_flux );
     %close( h_burba_fig, h_co2_fig );
     %close all;
-    
 %------------------------------------------------------------
     
 function NEE = normalize_PPine_NEE( NEE, idx_NEE_good )
@@ -1765,7 +1754,6 @@ function NEE = normalize_PPine_NEE( NEE, idx_NEE_good )
 idx = ( NEE > 0 ) & idx_NEE_good;
 NEE_bak = NEE;
 NEE( idx ) = normalize_vector( NEE( idx ), 0, 10 );
-
 
 %------------------------------------------------------------
 
@@ -2502,5 +2490,3 @@ SHF_labels = regexprep( SHF_labels, '[Aa]vg', ''); %remove "Avg" (case
                                                    %insensitive)
 SHF_labels = regexprep( SHF_labels, '[()]', ''); % remove parens
 SHF_labels = regexprep( SHF_labels, '_$', '');  %remove trailing _
-
- 
