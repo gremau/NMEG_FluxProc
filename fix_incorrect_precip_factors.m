@@ -26,21 +26,44 @@ function pcp_fixed = fix_incorrect_precip_factors(site_code, year, doy, pcp_in)
 pcp_fixed = pcp_in;  
 % if year is one element, expand to size of pcp_in
 if numel( year ) == 1
+    year_in = year;
     year = repmat( year, size( pcp_in ) );
+else
+    year_in = unique(year);
 end
 
-%%-------------------------
-%% fix GLand
-% datalogger used multiplier of 0.254 for 2009 to 2011.  Correct multiplier is
-% 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) = 0.394.
+%-------------------------
+% fix GLand
+% datalogger used multiplier of 0.254 from install to 17 Jan 2014.  Correct
+% multiplier is 0.1.  Therefore apply a correction factor of 
+% ( 0.1 / 0.254 ) = 0.394.
 if site_code == 1     % Gland
-    idx = ismember( year, [ 2009:2011 ] );
-    if any( idx ) 
-        pcp_fixed( idx ) = pcp_in * 0.394;
+    Jan17 = datenum( 2014, 1, 17 ) - datenum( 2014, 1, 1 ) + 1;
+    idx = find( year < 2014 );
+    if year_in == 2014;
+        idx = find( ( year == 2014 ) & ( doy <= Jan17 ) );
+    end
+    if not( isempty( idx ) )
+        pcp_fixed( idx ) = pcp_in( idx ) * 0.394;
     end
 
-%%-------------------------
-%% fix SLand
+%-------------------------
+% fix New_GLand
+% On 17 Jan 2014 until April 2 2014 the precip gauge was miswired and
+% logged all zeros. This period is changed to NaNs in RBD.m and should be
+% filled with other site data. Between April 2 and Sept 24 2014 the precip
+% multiplier was 0.1 when it should have been .254. Therefore apply a
+% correction factor of ( 0.254 / 0.1 ) = 2.54.
+elseif site_code == 11     % New_Gland
+    Apr2 = datenum( 2014, 4, 2 ) - datenum( 2014, 1, 1 ) + 1;
+    Sep24 = datenum( 2014, 9, 24 ) - datenum( 2014, 1, 1 ) + 1;
+    idx = find( ( year == 2014 ) & ( doy >= Apr2 ) & ( doy <= Sep24 ) );
+    if not( isempty( idx ) )
+        pcp_fixed( idx ) = pcp_in( idx ) * 2.54;
+    end
+
+%-------------------------
+% fix SLand
 % elseif site_code == 2      %SLand
 %     idx = ( year == 2011 );
 %     if any( idx )
@@ -49,26 +72,34 @@ if site_code == 1     % Gland
 %     end
     
 
-%%-------------------------
+%-------------------------
 % fix JSav
-% datalogger used multiplier of 0.254 for 2010 and 2011.  Correct multiplier is
-% 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) = 0.394.
+% datalogger used multiplier of 0.254 from install to 10 Jan 2014.  Correct
+% multiplier is 0.1.  Therefore apply a correction factor of 
+% ( 0.1 / 0.254 ) = 0.394.
 elseif site_code == 3   %JSav
-    idx = ismember( year, [ 2010, 2011,2012,2013 ] );
-    if any( idx ) 
-        pcp_fixed( idx ) = pcp_in * 0.394;
+    Jan10 = datenum( 2014, 1, 10 ) - datenum( 2014, 1, 1 ) + 1;
+    idx = find( year < 2014 );
+    if year_in == 2014;
+        idx = find( ( year == 2014 ) & ( doy <= Jan10 ) );
+    end
+    if not( isempty( idx ) )
+        pcp_fixed( idx ) = pcp_in( idx ) * 0.394;
     end
 
-%%-------------------------
-%% fix PJ
-% datalogger used multiplier of 0.254 for 1 Jan to 12 May 2010.  Correct
-% multiplier is 0.1.  Therefore apply a correction factor of ( 0.1 / 0.254 ) =
-% 0.394.
+%-------------------------
+% fix PJ
+% datalogger used multiplier of 0.254 from install to 31 May 2010.  Correct
+% multiplier is 0.1.  Therefore apply a correction factor of 
+% ( 0.1 / 0.254 ) = 0.394.
 elseif site_code == 4     % PJ
-    May12 = datenum( 2010, 5, 12 ) - datenum( 2010, 1, 1 ) + 1;
-    idx = find( ( year == 2010 ) & ( doy <= May12 ) );
+    May31 = datenum( 2010, 5, 31 ) - datenum( 2010, 1, 1 ) + 1;
+    idx = find( year < 2010 );
+    if year_in == 2010;
+        idx = find( ( year == 2010 ) & ( doy <= May31 ) );
+    end
     if not( isempty( idx ) )
-        pcp_fixed( idx ) = pcp_fixed( idx ) * 0.394;
+        pcp_fixed( idx ) = pcp_in( idx ) * 0.394;
     end
 end
 

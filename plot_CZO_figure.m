@@ -64,7 +64,8 @@ args.parse( sitecode, years, varargin{ : } );
 
 % if ylims specified, issue error if it is not a 6 by 2 numeric array.
 if not( all( isnan( args.Results.ylims ) ) )
-    validateattributes( args.Results.ylims, {'numeric'}, {'size',[4,6,2]} );
+%RJL    validateattributes( args.Results.ylims, {'numeric'}, {'size',[4,6,2]} );
+    validateattributes( args.Results.ylims, {'numeric'}, {'size',[6,2]} );
 end
 
 % -----

@@ -470,8 +470,8 @@ switch sitecode
         end
         
         fluxall.Properties.VarNames = genvarname( vars );
-            
-      case { 2010, 2011, 2012 }
+      
+      case { 2010, 2011, 2012, 2013 } %RJL added 2013 02/04/2014
         % echo SWC probes
         vars = fluxall.Properties.VarNames;
         [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'SWC.*' );
@@ -538,27 +538,37 @@ switch sitecode
 
     % PPine soil water content is in another file, parsed separately from
     % UNM_Ameriflux_prepare_soil_met.m
-    
-    [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
-    if isempty( idx_soilT )
-        [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'soilT.*' );
-        if isempty( idx_soilT )
-            error( ['no soil temperature found (expecting ' ...
-                    'soilT_ponderosa_X_Y'] );
-        end
-    else
-        fluxall.Properties.VarNames( idx_soilT ) = ...
-            { 'soilT_ponderosa_1_5', ...
-              'soilT_ponderosa_2_5', ...
-              'soilT_ponderosa_3_5', ... 
-              'soilT_ponderosa_4_5' };
+    switch year
+        case { 2009, 2010, 2011 }
+            [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
+            if isempty( idx_soilT )
+                [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'soilT.*' );
+                if isempty( idx_soilT )
+                    error( ['no soil temperature found (expecting ' ...
+                        'soilT_ponderosa_X_Y'] );
+                end
+            else
+                fluxall.Properties.VarNames( idx_soilT ) = ...
+                    { 'soilT_ponderosa_1_5', ...
+                    'soilT_ponderosa_2_5', ...
+                    'soilT_ponderosa_3_5', ...
+                    'soilT_ponderosa_4_5', ...
+                    'soilT_ponderosa_5_5', ...
+                    'soilT_ponderosa_6_5', ...
+                    'soilT_ponderosa_7_5', ...
+                    'soilT_ponderosa_8_5', ...
+                    'soilT_ponderosa_9_5', ...
+                    'soilT_ponderosa_10_5', ...
+                    'soilT_ponderosa_11_5', ...
+                    'soilT_ponderosa_12_5' };
+            end
+            
+            [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
+            if ~isempty( idx_TCAV )
+                fluxall.Properties.VarNames{ idx_TCAV } = 'TCAV_ponderosa_1';
+            end
+            
     end
-    
-    [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
-    if ~isempty( idx_TCAV )
-        fluxall.Properties.VarNames{ idx_TCAV } = 'TCAV_ponderosa_1';
-    end
-
     
   case UNM_sites.MCon
     

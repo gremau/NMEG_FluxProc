@@ -19,12 +19,13 @@ function SWC = preprocess_PPine_soil_data( year )
 
 fname = fullfile( get_site_directory( UNM_sites.PPine ), ...
                   'soil_data', ...
-                  'PPine_soil_data_20080101_20120522.dat' );
+                  'PPine_soil_data_20080101_20140218.dat' );
 
 fmt = repmat( '%f', 1, 89 );
 ds = dataset( 'File', fname, ...
-              'format', fmt, 'Delimiter', '\t' );
-
+              'format', fmt, 'Delimiter', '\t' );          
+   
+          
 [ SWCvars, SWCidx ] = regexp_ds_vars( ds, 'VWC' );
 SWC = ds( :, { 'timestamp', SWCvars{ : } } );
 
@@ -38,4 +39,6 @@ SWC = replacedata( SWC, arr );
 % return data for requested year
 [ datayear, ~, ~, ~, ~, ~ ] = datevec( SWC.timestamp );
 SWC = SWC( datayear == year, : );
+
+
 

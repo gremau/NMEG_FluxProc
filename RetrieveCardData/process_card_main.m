@@ -60,8 +60,8 @@ function main_success = process_card_main( this_site, varargin )
 args = inputParser;
 args.addRequired( 'this_site', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addOptional( 'data_location', 'card', @ischar );
-args.addParamValue( 'data_path', '', @ischar );
-args.addParamValue( 'interactive', true, @islogical );
+args.addParameter( 'data_path', '', @ischar );
+args.addParameter( 'interactive', true, @islogical );
 
 % parse optional inputs
 args.parse( this_site, varargin{ : } );
@@ -254,13 +254,13 @@ UNM_site_plot_fullyear_time_offsets( UNM_sites( this_site ), year );
 fprintf(1, '\n----------\n');
 fprintf(1, ['attempting to fill missing temperature, PAR, relative humidity ' ...
             'from nearby sites...\n'] );
-UNM_fill_met_gaps_from_nearby_site( UNM_sites( this_site ), 2012 );
+UNM_fill_met_gaps_from_nearby_site( UNM_sites( this_site ), year );
 
 % run RemoveBadData again to check visually that the filters did OK
 fprintf(1, '\n----------\n');
 fprintf(1, 'starting UNM_RemoveBadData...\n');
 [ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
-UNM_RemoveBadData( UNM_sites( this_site ), year, 'draw_plots', true );
+UNM_RemoveBadData( UNM_sites( this_site ), year, 'draw_plots', 3 );
 
 % close the log file
 diary off

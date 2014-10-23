@@ -62,25 +62,25 @@ methods
 
     p = inputParser;
     p.addRequired( 'sitecode', @( x ) isa( x, 'UNM_sites' ) );
-    p.addParamValue( 'date_start', ...
+    p.addParameter( 'date_start', ...
                      [], ...
                      @isnumeric );
-    p.addParamValue( 'date_end', ...
+    p.addParameter( 'date_end', ...
                      [], ...
                      @isnumeric );
-    p.addParamValue( 'rotation', ...
+    p.addParameter( 'rotation', ...
                      sonic_rotation.threeD, ...
                      @( x ) isa( x, 'sonic_rotation' ) );
-    p.addParamValue( 'lag', ...
+    p.addParameter( 'lag', ...
                      0, ...
                      @( x ) ismember( x, [ 0, 1 ] ) );
-    p.addParamValue( 'data_10hz_avg', ...
+    p.addParameter( 'data_10hz_avg', ...
                      dataset([]), ...
                      @( x ) isa( x, 'dataset' ) );
-    p.addParamValue( 'data_30min', ...
+    p.addParameter( 'data_30min', ...
                      dataset([]), ...
                      @( x ) isa( x, 'dataset' ) );
-    p.addParamValue( 'data_10hz_already_processed', ...
+    p.addParameter( 'data_10hz_already_processed', ...
                      false, ...
                      @islogical );
     args = p.parse( sitecode, varargin{ : } );
@@ -142,17 +142,18 @@ methods
                                       'TOA5' );
     
     obj.data_30min = combine_and_fill_TOA5_files( toa5_files );
-    
-    % JSav soil water content data come in on separate flash cards -- merge
-    % these data in
-    if obj.sitecode == UNM_sites.JSav
-        [ year, ~ ] = datevec( obj.date_start );
-        JSav_SWC = JSav_CR1000_to_dataset( year );
-        idx = ( JSav_SWC.timestamp >= obj.date_start ) & ...
-              ( JSav_SWC.timestamp <= obj.date_end );
-        JSav_SWC = JSav_SWC( idx, : );
-        obj.data_30min = dataset_foldin_data( obj.data_30min, JSav_SWC );
-    end
+  
+    % DJK 8-21-14
+%     % JSav soil water content data come in on separate flash cards -- merge
+%     % these data in
+%     if obj.sitecode == UNM_sites.JSav
+%         [ year, ~ ] = datevec( obj.date_start );
+%         JSav_SWC = JSav_CR1000_to_dataset( year );
+%         idx = ( JSav_SWC.timestamp >= obj.date_start ) & ...
+%               ( JSav_SWC.timestamp <= obj.date_end );
+%         JSav_SWC = JSav_SWC( idx, : );
+%         obj.data_30min = dataset_foldin_data( obj.data_30min, JSav_SWC );
+%     end
     
     end  % get_30min_data
 
@@ -234,8 +235,8 @@ methods
     % parse and typecheck inputs
     p = inputParser;
     p.addRequired( 'obj', @( x ) isa( x, 'card_data_processor' ) );
-    p.addParamValue( 'parse_30min', false, @islogical );
-    p.addParamValue( 'parse_10hz', false, @islogical );
+    p.addParameter( 'parse_30min', false, @islogical );
+    p.addParameter( 'parse_10hz', false, @islogical );
     parse_result = p.parse( obj, varargin{ : } );
     
     obj = p.Results.obj;
@@ -265,7 +266,7 @@ methods
             % complete the 'reading fluxall...' message from UNM_parse_fluxall
             fprintf( 'not found.\nBuilding fluxall from scratch\n' );
             flux_all = [];
-            obj.date_start = datenum( year, 1, 1 );
+            obj.date_start = datenum( year, 1, 1, 0, 30, 0);
         else
             % display all other errors as usual
             rethrow( err );

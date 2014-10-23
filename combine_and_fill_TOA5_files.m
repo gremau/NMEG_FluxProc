@@ -32,6 +32,7 @@ function ds = combine_and_fill_TOA5_files( varargin )
 %    dataset_fill_timestamps, toa5_2_dataset
 %
 % Timothy W. Hilton, UNM, Dec 2011
+% Modified by Gregory E. Maurer, UNM, Oct, 2014
 
 if nargin == 0
     % no files specified; prompt user to select files
@@ -54,7 +55,12 @@ else
                                            'UniformOutput', false );
     filename = strcat( filename, ext );
 end
-    
+
+% Make sure files are sorted in chronological order and get dates
+filename = sort(filename);
+toa5_date_array = tstamps_from_TOB1_filenames(filename);
+
+% Count number of files and initialize some arrays
 nfiles = length( filename );
 ds_array = cell( nfiles, 1 );
 
@@ -88,12 +94,85 @@ for i = 1:nfiles
                                                      year, ...
                                                      ds_array{ i } );
     end
-        
 end
 
+%% == PREPROCESSING HEADER RESOLUTION ==========================================
+%Read in a resolution file. These files are lookup tables of all possible
+%variable names (that have existed in older program versions), which 
+%permit the assignment of old variables to consistent, new formats.
 
+%Ask the user if they want to resolve the headers. If not, process
+%picks up at dataset_vertcat_fill_vars
+prompt = 'Do you want to resolve the headers for this fluxall file? Y/N [Y]: ';
 
+str = input(prompt, 's');
 
+if isempty(str)
+    str = 'Y';
+end
+
+aff = {'Y','y','YES','yes','Yes'};
+
+%if user input is nothing, or any form of yes, proceed
+if  any(strcmp(str, aff))
+    
+    fprintf( '---------- resolving TOA5 headers ----------\n' );
+    
+    %Using the sitecode object, open the apropriate header resolution file
+    %stored in \TOA5_Header_Resolutions\
+    resolutionFile = strcat(char(sitecode), '_Header_Resolutions.csv');
+    fopenmessage = strcat('---------- Opening', resolutionFile,' ---------- \n');
+    fprintf( fopenmessage );
+    
+    %Read and parse the resolution file
+    resolutions = readtable(resolutionFile);
+    [numHeaders, numDates] = size(resolutions);
+    resTOA5 = resolutions.Properties.VariableNames;
+    resDates = tstamps_from_TOB1_filenames(resTOA5(2:end));
+    
+    % Choose initial column to resolve headers - if the first TOA5 to
+    % resolve is not in the file, this will be the resolution column
+    % immediately prior to the TOA5
+    col = find(resDates <= toa5_date_array(1));
+    if isempty(col)
+        error('The headers have not been resolved this far back!');
+    else
+        resolveCol = resTOA5{max(col) + 1};
+        fprintf('Beginning with headers from %s \n', resolveCol);
+    end
+    
+    %Initialize the loop
+    for i = 1:numel( ds_array )
+        toResolve = zeros(numHeaders,1);
+        TOA5_header = ds_array{i}.Properties.VarNames;
+        % Get the name of the TOA5 file
+        filename_toks = regexp( filename{ i }, '\.', 'split' );
+        TOA5_name = filename_toks{1};
+        % Subsequent TOA5s resolve the same until a new column is found
+        if any(strcmp(TOA5_name, resTOA5))
+            resolveCol = TOA5_name;
+            fprintf('Resolving changes for %s \n', resolveCol);
+        end
+        % Read old headers locations into toResolve, replace with current
+        for j = 1:numHeaders
+            oldheader = resolutions.(resolveCol)(j);
+            % Resolve header only if oldheader exists and is not current
+            if ~(strcmp(oldheader, 'dne') || strcmp(oldheader, 'current'))
+                toResolve(j) = find(strcmp(TOA5_header, oldheader));
+            end
+        end
+        % Fill in toResolve locations with current header name
+        for k = 1:length(toResolve)
+            if toResolve(k) ~= 0
+                TOA5_header{toResolve(k)} = resolutions.current{k};
+            end
+        end
+        
+        %Write the changes to the dataset parameter for headers
+        ds_array{i}.Properties.VarNames = TOA5_header;
+    end
+end
+%===============================================================================
 % combine ds_array to single dataset
 %ds = dataset_append_common_vars( ds_array{ : } );
 ds = dataset_vertcat_fill_vars( ds_array{ : } );

@@ -1,4 +1,5 @@
-function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data, precip )
+function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data,...
+    ds_qc )
 % UNM_AMERIFLUX_PREPARE_SOIL_MET - prepare soil variables for writing to
 % Ameriflux-like output file.
 %   
@@ -22,6 +23,8 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data, precip 
 %    year: four-digit year: specifies the year
 %    data: dataset array; parsed fluxall data.  Generally will be the output
 %        of UNM_parse_fluxall_txt_file or UNM_parse_fluxall_xls_file
+%    ds_qc: dataset array; parsed qc file data. Generally will be the output
+%        of UNM_parse_QC_txt_file
 %
 % OUTPUTS
 %    ds_out: dataset array: soil variables extracted from data
@@ -32,9 +35,9 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data, precip 
 % author: Timothy W. Hilton, UNM, January 2012
 
 [ last_obs_row_data, ~, ~ ] = find( not( isnan( double( data( :, 2:end ) ) ) ) );
-[ last_obs_row_precip, ~, ~ ] = find( not( isnan( precip ) ) );
+[ last_obs_row_qc, ~, ~ ] = find( not( isnan( double( ds_qc( :, 2:end ) ) ) ) );
 last_obs_row = max( [ reshape( last_obs_row_data, 1, [] ), ...
-                    reshape( last_obs_row_precip, 1, [] ) ] );
+                    reshape( last_obs_row_qc, 1, [] ) ] );
 
 sitecode = UNM_sites( sitecode );
 SWC_smoothed = false; % will set to true after SWC data have been smoothed
@@ -72,7 +75,7 @@ switch sitecode
     % get the soil water content and soil T columns and labels
 
     re_Tsoil = '[Ss]oilT_[A-Za-z]+_[0-9]+_[0-9]+.*'; %regexp to identify
-                                                     %"soilT_COVER_NUMBER_DEPTH"
+                                                  %"soilT_COVER_NUMBER_DEPTH"
     Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
     if isempty( Tsoil )
         re_Tsoil_form2 = 'Tsoil_avg'; 
@@ -209,10 +212,10 @@ if not( SWC_smoothed )
 end
 draw_plots = false;
 Tsoil_smoothed = fill_soil_temperature_gaps( Tsoil_smoothed, ...
-                                             precip, ...
+                                             ds_qc.precip, ...
                                              draw_plots );
 cs616_Tc_smoothed = fill_soil_water_gaps( cs616_Tc_smoothed, ...
-                                          precip, ...
+                                          ds_qc.precip, ...
                                           draw_plots );
 
 % remove data from specific periods at specific probes that are obviously bogus

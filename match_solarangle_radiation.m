@@ -3,24 +3,24 @@ function optimal_offset = ...
 % MATCH_SOLARANGLE_RADIATION - find the time offset that results in the best
 % match of sunrise in observed radiation to calculated sunrise.
 %
-% This is a quite low-level function.  Plots of calculated sunrise vs observed
-% radiation by site-year are available from UNM_site_plot_doy_time_offsets and
-% UNM_site_plot_fullyear_time_offsets.
+% This is a quite low-level function.  Plots of THEORETICAL sunrise vs
+% OBSERVED radiation by site-year as available from UNM_site_plot_doy_time_offsets
+% and UNM_site_plot_fullyear_time_offsets.
 %
 % USAGE
 %   optimal_offset = ...
 %        match_solarangle_radiation( rad, sol, t, this_doy, year, debug );
 %
 % INPUTS
-%   rad: 1xN numeric; solar radiation observations
-%   sol: 1xN numeric: calculated solar angle (as from SolarAzEl)
+%   rad: 1xN numeric; OBSERVED solar radiation
+%   sol: 1xN numeric: THEORETICAL solar angle (as from SolarAzEl)
 %   t: 1xN matlab serial datenumbers: timestamps for rad and sol
 %   this_doy: 0 < this_doy <= 366; the day of year to calculate offset
 %   year: four digit year
 %   debug: true|false; if true, draws diagnostic plots
 %
 % OUTPUTS
-%   optimal_offset: the offset, in hours, to add to t to make the daily cycle
+%   optimal_offset: the offset, in hours, to ADD to t to make the daily cycle
 %       in rad for this_doy most closely match the daily cycle in sol for
 %       this_doy
 %
@@ -28,39 +28,42 @@ function optimal_offset = ...
 %   SolarAzEl, UNM_site_plot_doy_time_offsets,
 %   UNM_site_plot_fullyear_time_offsets 
 %
-% author: Timothy W. Hilton, UNM, Jan 2012
+% Author: Timothy W. Hilton, UNM, Jan 2012
+% RJL modified sunrise angle from 0 to -0.8333 to account for refraction
+% and the size of solar disk.
 
 doy = t - datenum( year, 1, 0 );
 idx_doy_start = min( find( floor( doy ) == this_doy ) );
 hours_12 = 24;  % observation interval is 30 mins; therefore 24 obs = 12 hours
 
-% if there aren't any data for this day, return NaN
-if ( ( this_doy < floor( min( doy ) ) ) | ...
+% If there aren't any data for this day, return NaN.
+if ( ( this_doy < floor( min( doy ) ) ) || ...
      ( this_doy > floor( max( doy ) ) ) )
     optimal_offset = NaN;
     return
 end
 
-% ----
-% search a +/- five hour range of potential time offsets
+% Search a +/- five hour range of potential time offsets.
 n_obs = 10; % observation interval is 30 mins; therefore 10 obs = 5 hours
 
-this_rad = rad( idx_doy_start : min( idx_doy_start + hours_12, numel( rad ) ) );  
-this_sol = sol( idx_doy_start : min( idx_doy_start + hours_12, numel( sol ) ) );
+this_rad = rad( idx_doy_start : ...
+                min( idx_doy_start + hours_12, numel( rad ) ) );  
+this_sol = sol( idx_doy_start : ...
+                min( idx_doy_start + hours_12, numel( sol ) ) );
 
 % if any( diff( this_sol ) < 0 )
 %     warning( sprintf( 'solar angle is not monotonically increasing: doy %d', ...
 %                       this_doy ) );
 % end
 
-% sunrise according to calculated solar angle
-idx_sol_sunrise = min( find( this_sol > 0 ) );
-% sunrise according to observed radiation
+% Sunrise according to THEORETICAL solar angle.
+idx_sol_sunrise = min( find( this_sol > -0.8333 ) );
+% Sunrise according to OBSERVED radiation.
 rad_diff = [ NaN; reshape( diff( this_rad ), [], 1 ) ];
 idx_rad_sunrise = min( find( rad_diff > 5.0 ) );
 
-% the optimal time offset matches solar angle sunrise to observed radiation
-% sunrise
+% Optimal time offset matches THEORETICAL solar angle sunrise to OBSERVED
+% radiation sunrise.
 hours_per_observation = 0.5; % observation interval is 30 minutes
 optimal_offset = ( idx_rad_sunrise - idx_sol_sunrise ) * hours_per_observation;
 
@@ -72,7 +75,7 @@ if numel( find( ~isnan( this_rad ) ) ) < 5
     optimal_offset = NaN;
 end
 
-if debug
+if debug %Plot
     figure()
     plot_idx = idx_doy_start : idx_doy_start + hours_12;
 
@@ -96,11 +99,11 @@ if debug
                 'xk' );
     set( h_x, 'MarkerSize', 12 );
     
-    % draw reference line at solar angle = 0
+    % Draw reference line at solar angle = 0.
     % axes( ax ( 1 ) );
     h_ref = refline( 0, 0 );
     set( h_ref, 'LineStyle', ':' );
-    % label stuff
+    % Label stuff.
     datetick( ax( 1 ), 'x', 'HH:MM' );
     datetick( ax( 2 ), 'x', 'HH:MM' );
     set( ax( 2 ), 'XTick', [ ] );

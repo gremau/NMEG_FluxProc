@@ -1672,9 +1672,9 @@ FA.HSdry_massman = ...
 
 fprintf(' ');
 fprintf('number of co2 flux values pulled in post-process = %d', ...
-             (filelength_n-sum(~isnan(record)))));
+             (filelength_n-sum(~isnan(record))));
 fprintf('number of co2 flux values used = %d',...
-             sum(~isnan(record))));
+             sum(~isnan(record)));
 fprintf(' ');
 fprintf('Values removed for other qcd variables');
 fprintf('    number of latent heat values removed = %d',removed_LH);

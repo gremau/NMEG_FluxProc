@@ -60,8 +60,8 @@ Rg_flag=f_flag;
 VPD_flag = f_flag;
 rH_flag = f_flag;
 
-if ismember( 'VPD_f', ds_pt.Properties.VarNames )
-    VPD_f = ds_pt.VPD_f ./ 10; % convert to kPa
+if ismember( 'VPD_1', ds_pt.Properties.VarNames )
+    VPD_f = ds_pt.VPD_1 ./ 10; % convert to kPa
                                % what is "_g"?  "good" values?  --TWH
 else
     VPD_f = dummy;

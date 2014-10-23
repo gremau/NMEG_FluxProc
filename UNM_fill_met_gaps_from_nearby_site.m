@@ -68,68 +68,81 @@ switch sitecode
         fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
                  get_site_name( 2 ), year );  %
         nearby_data = parse_forgapfilling_file( 2, year, ...
-                                                'use_filled', filled_file_false );
+            'use_filled', filled_file_false );
     catch err
         if strcmp( err.identifier, 'MATLAB:FileIO:InvalidFid' )
             error( ['unable to open SLand for gapfill file -- cannot fill ' ...
                     'GLand'] );
             rethrow( err )
         end
-    end
-        
+    end        
     if ( year < 2011 )  
         % no sev met data available for 2011 yet - TWH 21 May 2012
         nearby_2 = UNM_parse_sev_met_data( year );
         nearby_2 = prepare_sev_met_data( nearby_2, year, 40 );
     end
+    
   case UNM_sites.SLand    % fill SLabnd from GLand, then Sev Five Points station (# 49 )
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
     nearby_data = parse_forgapfilling_file( 1, year, ...
-                                            'use_filled', filled_file_false );
+        'use_filled', filled_file_false );
     if ( year < 2011 )  
         % no sev met data available for 2011 yet - TWH 21 May 2012
         nearby_2 = UNM_parse_sev_met_data( year );
         nearby_2 = prepare_sev_met_data( nearby_2, year, 49 );
     end
+    
   case UNM_sites.JSav    % fill JSav from PJ, with regressions
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
-             get_site_name( 4 ), year );
+        get_site_name( 4 ), year );
     nearby_data = parse_forgapfilling_file( 4, year, ...
-                                            'use_filled', filled_file_false );
+        'use_filled', filled_file_false );
+    
   case UNM_sites.PJ     % fill PJ from PJ girdle    
     if year > 2009  % use PJ_girdle after 2009
         fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
-                 get_site_name( 10 ), year );
+            get_site_name( 10 ), year );
         nearby_data = parse_forgapfilling_file( 10, year, ...
-                                                'use_filled', filled_file_false );
+            'use_filled', filled_file_false );
     else  % use JSav before 2009
         fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
-                 get_site_name( 3 ), year );
+            get_site_name( 3 ), year );
         nearby_data = parse_forgapfilling_file( 3, year, ...
-                                                'use_filled', filled_file_false );
+            'use_filled', filled_file_false );
     end
-  case UNM_sites.PPine     % fill PPine from Valles Caldera HQ met station (
-                           % station 11 ) 
-    fprintf( 'parsing Valles Caldera headquarters met station ("source")\n' );
-    nearby_data = UNM_parse_valles_met_data( year );
-    nearby_data = prepare_valles_met_data( nearby_data, year, 11 );
+    
+  case UNM_sites.PPine  % For 2013 onward fill PPine from the DRI Jemez
+                        % station. Was filled from Valles Caldera HQ met
+                        % station (11)
+    if year > 2012
+        fprintf( 'parsing DRI Jemez met station ("source")\n' );
+        nearby_data = UNM_parse_valles_met_data( 'DRI', year );
+        nearby_data = prepare_DRI_met_data( nearby_data, year );
+    else
+        fprintf( 'parsing Valles Caldera HQ met station ("source")\n');
+        nearby_data = UNM_parse_valles_met_data( 'VCP', year );
+        nearby_data = prepare_valles_met_data( nearby_data, year, 11 );
+    end
+    
   case UNM_sites.MCon     % fill MCon from Valles Caldera Redondo met station
                           % ( station 14 )
-    
     fprintf( 'parsing Valles Caldera Redondo met station ("source")\n' );
-    nearby_data =UNM_parse_valles_met_data( year );
+    nearby_data =UNM_parse_valles_met_data( 'VCP', year );
     nearby_data = prepare_valles_met_data( nearby_data, year, 14 );
+    
   case UNM_sites.PJ_girdle    % fill PJ_girdle from PJ
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 4 ), year );
     nearby_data = parse_forgapfilling_file( 4, year, ...
-                                            'use_filled', filled_file_false );
+        'use_filled', filled_file_false );
+    
   case UNM_sites.New_GLand    % fill New_GLand from GLand
     fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
              get_site_name( 1 ), year );
     nearby_data = parse_forgapfilling_file( 1, year, ...
-                                            'use_filled', filled_file_false );
+        'use_filled', filled_file_false );
+    
   otherwise
     fprintf( 'filling not yet implemented for %s\n', ...
              get_site_name( sitecode ) );
@@ -186,6 +199,7 @@ this_data.rH( this_data.rH < 0.0 ) = 0.0;
     fill_variable( this_data, nearby_data, nearby_2, ...
                    'Rg', 'Rg', 'Rg', linfit( 3 ) );
 this_data.Rg( this_data.Rg < -50 ) = NaN;
+
 
 %--------------------------------------------------
 % plot filled variables if requested
@@ -298,7 +312,7 @@ function ds = prepare_valles_met_data( ds, year, station )
          ( time_ds.day - 1 ) + ...
          ( time_ds.time / 24.0 );
     ds = ds( ds.sta == station, { 'airt', 'rh', 'sol' } );
-    ds.rh = ds.rh / 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
+    ds.rh = ds.rh ./ 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
     ds.timestamp = ts;
     
     % these readings are hourly -- interpolate to 30 mins
@@ -326,9 +340,50 @@ function ds = prepare_valles_met_data( ds, year, station )
     ds.Properties.VarNames{ strcmp( ds.Properties.VarNames, 'sol' ) } = 'Rg';
     
     % sort by timestamp
+    [ ~, idx ] = sort( ds.timestamp );
+    ds = ds( idx, : );
+%===========================================================================
+
+function ds = prepare_DRI_met_data( ds, year )
+% helper function to trim and sychronize timestamps for Valles data
+    ds.new = num2str(ds.YYMMDDhhmm, '%010u');
+    ds.timestamp = datenum(ds.new, 'YYmmDDHHMM');
+    temp = datevec(ds.timestamp);
+    ds.year = temp(:,1);
+
+    ds = ds( ds.year == year, { 'timestamp', 'tair_F', 'rh_pct',...
+        'solarrad_wm2' } );
+    ds.rh_pct = ds.rh_pct ./ 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
+    ds.tair_F = (ds.tair_F - 32) .* (5/9); % convert to Celsius
+    
+%     % these readings are hourly -- interpolate to 30 mins
+%     thirty_mins = 30 / ( 60 * 24 );  % thirty minutes in units of days
+%     ts_30 = ts + thirty_mins;
+%     valid = find( ~isnan( ds.rh ) );
+%     rh_interp = interp1( ts( valid ), ds.rh( valid ), ts_30 );
+%     valid = find( ~isnan( ds.airt ) );
+%     T_interp = interp1( ts( valid ), ds.airt( valid ), ts_30 );
+%     valid = find( ~isnan( ds.sol ) );
+%     Rg_interp = interp1( ts( valid ), ds.sol( valid ), ts_30 );
+%     
+%     ds = vertcat( ds, dataset( { [ ts_30, rh_interp, T_interp, Rg_interp ], ...
+%                                'timestamp', 'rh', 'airt', 'sol' } ) );
+% 
+    % filter out nonsensical values
+    ds.tair_F( abs( ds.tair_F ) > 100 ) = NaN;
+    ds.rh_pct( ds.rh_pct > 1.0 ) = NaN;
+    ds.rh_pct( ds.rh_pct < 0.0 ) = NaN;
+    ds.solarrad_wm2( ds.solarrad_wm2 < -20 ) = NaN;
+
+    % make the field names match the "for gapfilling" data
+    ds.Properties.VarNames{ strcmp( ds.Properties.VarNames, 'rh_pct' ) } = 'rH';
+    ds.Properties.VarNames{ strcmp( ds.Properties.VarNames, 'tair_F' ) } = 'Tair';
+    ds.Properties.VarNames{ strcmp( ds.Properties.VarNames, 'solarrad_wm2' ) } = 'Rg';
+    
+    % sort by timestamp
     [ discard, idx ] = sort( ds.timestamp );
     ds = ds( idx, : );
-        
+    
 %===========================================================================
 
 function ds = prepare_sev_met_data( ds, year, station )
@@ -340,7 +395,7 @@ function ds = prepare_sev_met_data( ds, year, station )
          ( time_ds.Hour / 24.0 );
     ds = ds( :, { 'Temp_C', 'RH', 'Solar_Rad' } );
     ds.Properties.VarNames = { 'Tair', 'rH', 'Rg' };
-    ds.rH = ds.rH / 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
+    ds.rH = ds.rH ./ 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
     ds.timestamp = ts;
     % remove duplicated timestamps
     dup_timestamps = find( abs( diff( ts ) ) < 1e-10 );
@@ -369,6 +424,8 @@ function ds = prepare_sev_met_data( ds, year, station )
     % sort by timestamp
     [ discard, idx ] = sort( ds.timestamp );
     ds = ds( idx, : );
+    
+
 
 %===========================================================================
 
