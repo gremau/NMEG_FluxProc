@@ -1,5 +1,4 @@
-function   [CO2,H2O,PW,TOUT,RHO,IRGADIAG,IRGAP,P,removedco2]= ...
-            UNM_dry_air_conversions(co2,h2o,P,T,num,sitecode)
+function   [CO2,H2O,PW,TOUT,RHO,IRGADIAG,IRGAP,P,removedco2]=UNM_dry_air_conversions(co2,h2o,P,T,num,sitecode)
 %
 % 10-15-2001 - Fix the pressure signal here if it is spiking - this
 %             could be the cause of some of the spikes we are
@@ -47,43 +46,33 @@ function   [CO2,H2O,PW,TOUT,RHO,IRGADIAG,IRGAP,P,removedco2]= ...
 % - Convert temperature if sent in Celcius
 
 if median(T)<100
-    T = T + 273.15;
+    T=T+273.15;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 % DESPIKE
 %%%%%%%%%%%%%%%%%%%%%%%%%
-%this puts median values in for P in cases where pressure instrument drops out
-P(find(P==0)) = median(P)*ones(size(find(P==0)));
 
-[ico2,removedco2] = UNM_despike(co2,6,10,20,'CO2',1);
-co2(find(~ico2)) = NaN*ones(size(find(~ico2))); %NaN's in co2 vector when ic02=0      
-[ih2o,removedh2o] = UNM_despike(h2o,6,5,2000,'H2O',2);
-h2o(find(~ih2o)) = NaN*ones(size(find(~ih2o)));           
-[it,removedt]   = UNM_despike(T,6,253,323,'T',3);
-T(find(~it))     = NaN*ones(size(find(~it)));
+P(find(P==0)) = median(P)*ones(size(find(P==0))); %this puts median values in for P in cases where pressure instrument drops out
+
+[ico2,removedco2] = UNM_despike(co2,6,10,20,'CO2',1);     co2(find(~ico2)) = NaN*ones(size(find(~ico2)));      %puts NaN's into co2 vector where ever ic02 is 0      
+[ih2o,removedh2o] = UNM_despike(h2o,6,5,2000,'H2O',2);    h2o(find(~ih2o)) = NaN*ones(size(find(~ih2o)));           
+[it,removedt]   = UNM_despike(T,6,253,323,'T',3);         T(find(~it))     = NaN*ones(size(find(~it)));
 
 if sitecode == 1 || sitecode == 2 || sitecode == 11
-    [ip,removedp]   = UNM_despike(P,6,75,86,'P',4);
-    P(find(~ip))    = NaN*ones(size(find(~ip)));
+    [ip,removedp]   = UNM_despike(P,6,75,86,'P',4);          P(find(~ip))     = NaN*ones(size(find(~ip)));
 elseif sitecode == 3
-    [ip,removedp]   = UNM_despike(P,6,75,85,'P',4);
-    P(find(~ip))    = NaN*ones(size(find(~ip)));
+    [ip,removedp]   = UNM_despike(P,6,75,85,'P',4);          P(find(~ip))     = NaN*ones(size(find(~ip)));
 elseif sitecode == 4
-    [ip,removedp]   = UNM_despike(P,6,75,80,'P',4);
-    P(find(~ip))    = NaN*ones(size(find(~ip)));
+    [ip,removedp]   = UNM_despike(P,6,75,80,'P',4);          P(find(~ip))     = NaN*ones(size(find(~ip)));
 elseif sitecode == 5
-    [ip,removedp]   = UNM_despike(P,6,72,78,'P',4);
-    P(find(~ip))    = NaN*ones(size(find(~ip)));
+    [ip,removedp]   = UNM_despike(P,6,72,78,'P',4);          P(find(~ip))     = NaN*ones(size(find(~ip)));
 elseif sitecode == 6
-    [ip,removedp]   = UNM_despike(P,6,65,75,'P',4);
-    P(find(~ip))    = NaN*ones(size(find(~ip)));
+    [ip,removedp]   = UNM_despike(P,6,65,75,'P',4);          P(find(~ip))     = NaN*ones(size(find(~ip)));
 elseif sitecode == 7 || sitecode == 8 || sitecode == 9
-    [ip,removedp]   = UNM_despike(P,6,65,101,'P',4);
-    P(find(~ip))    = NaN*ones(size(find(~ip)));
+    [ip,removedp]   = UNM_despike(P,6,65,101,'P',4);         P(find(~ip))     = NaN*ones(size(find(~ip)));
 elseif sitecode == 10
-    [ip,removedp]   = UNM_despike(P,6,70,85,'P',4);
-    P(find(~ip))    = NaN*ones(size(find(~ip)));    
+    [ip,removedp]   = UNM_despike(P,6,70,85,'P',4);         P(find(~ip))     = NaN*ones(size(find(~ip)));    
 end
 
 IRGADIAG = [ico2&it ih2o&it ip&it];
@@ -101,28 +90,28 @@ IRGADIAG = [ico2&it ih2o&it ip&it];
 % shown below to give a maximum error (for this day) in the
 % partial pressure of 0.95 percent 
 %
-% Pw (KPa) = (n/V) * R_u * T * 1.0e-6
+% Pw (KPa) = (n/V) * R_u * T * 10e-6
 %
 %   - n/V   = LI7500 output in mmol/m^3 wet air
 %   - R_u   = 8.314 J/mol K
 %   - T     = dry air temp in K
-%   - 1.0e-6 = converts mmol to mol and Pa to KPa
+%   - 10e-6 = converts mmol to mol and Pa to KPa
 IRGAP = mean(P);
-PW = (1.0e-6*8.314) .* h2o .* T;
+PW = 1e-6*8.314.*h2o.*T;
 
 % calculate dry air temperature from sonic temperature 
 % using Gaynor eq:
 
-Td    = T ./ (ones(size(T)) + 0.321 .* PW ./ P);
+Td    = T./(ones(size(T))+0.32*PW./P);
 
 % Make an iteration on the calculation of Pw, using the
 % dry air temperature
 
-PW    = (1.0e-6*8.314) .* h2o .* Td;
+PW    = 1e-6.*8.314.*h2o.*Td;
 
 % recalculate dry temperature w/new pressure
 
-TD    = T ./ (ones(size(T)) + 0.321 .* PW ./ P);
+TD    = T./(ones(size(T))+0.321*PW./P);
 
 % calculate wet air molar density (mol wet air / m^3 wet air)
 %
@@ -130,17 +119,17 @@ TD    = T ./ (ones(size(T)) + 0.321 .* PW ./ P);
 %  
 %          = 1e3 / 8.314 * P /T
 
-rhomtotal    = (1.0e3 / 8.314) .* P ./ TD;
+rhomtotal    = (1e3/8.314) * P./(TD);
 
 % calculate mol fraction of water vapor (mmol h2o/mol moist air)
 % in wet air
 
-h2owet = h2o ./ rhomtotal;
+h2owet = h2o./rhomtotal;
 
 % calculate mol fraction of co2 (umol co2/mol moist air)
 % in moist air
 
-co2wet = 1.0e3 .* co2 ./ rhomtotal;
+co2wet = 1e3*co2./rhomtotal;
 
 % calculate partial pressure of dry air - This is where
 % the fortran code differs from mine.  That code assumes 
@@ -150,7 +139,7 @@ co2wet = 1.0e3 .* co2 ./ rhomtotal;
 % the partial pressure of dry air is the output of the
 % irga minus the vapor pressure
 
-Pa = P - PW;
+Pa = P-PW;
 
 % calculate dry air molar density (mol dry air / m^3 wet air)
 %
@@ -158,21 +147,21 @@ Pa = P - PW;
 %  
 %          = 1e3 / 8.314 * Pa /T
 
-rhomdry = (1.0e3 / 8.314) .* Pa ./ TD;
+rhomdry = (1e3/8.314) * Pa./(TD);
 
-rhomwater = rhomtotal - rhomdry;
+rhomwater = rhomtotal-rhomdry;
 
-rhotot = rhomdry .* (29/1000) + rhomwater .* (18/1000);
+rhotot = rhomdry*29/1000+rhomwater*18/1000;
 
 % calculate mol fraction of water vapor (mmol h2o/mol dry air)
 % in dry air
 
-h2odry = h2o ./ rhomdry;
+h2odry = h2o./rhomdry;
 
 % calculate mol fraction of co2 (umol co2/mol dry air)
 % in dry air
 
-co2dry = 1.0e3 .* co2 ./ rhomdry;
+co2dry = 1e3*co2./rhomdry;
 
 % calculate dry air density Kg dry air/m^3 moist air
 

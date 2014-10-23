@@ -110,7 +110,7 @@ obs_per_day = 48;  % half-hourly observations
 
     if sitecode == UNM_sites.GLand; % grassland
         ustar_lim = 0.06;
-        co2_min_by_month = -15; co2_max_by_month = 6;
+        co2_min_by_month = -0.8; co2_max_by_month = 6;
         n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
         wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
@@ -123,7 +123,7 @@ obs_per_day = 48;  % half-hourly observations
 
     elseif sitecode == UNM_sites.SLand; % shrubland
         ustar_lim = 0.08;
-        co2_min_by_month = -15; co2_max_by_month = 6;
+        co2_min_by_month = -10; co2_max_by_month = 6;
         n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
         wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
@@ -136,7 +136,7 @@ obs_per_day = 48;  % half-hourly observations
         
     elseif sitecode == UNM_sites.JSav; % Juniper savanna
         ustar_lim = 0.08;
-        co2_min_by_month = -15;
+        co2_min_by_month = -10;
         co2_max_by_month = [ repmat( 2, 1, 6 ), repmat( 10, 1, 6 ) ];
         n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -150,7 +150,6 @@ obs_per_day = 48;  % half-hourly observations
         press_min = 70; press_max = 130;
         
     elseif sitecode == UNM_sites.PJ; % Pinyon Juniper
-        ustar_lim = 0.16;
         n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
         n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
         wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
@@ -164,34 +163,7 @@ obs_per_day = 48;  % half-hourly observations
         h2o_max = 30; h2o_min = 0;
         press_min = 70; press_max = 130;
         co2_max_by_month = [ 2, 2, 2, 2.5, 3, 3, 3, repmat( 6, 1, 5 ) ];
-        
-    elseif sitecode == UNM_sites.PJ_girdle; % Pinyon Juniper girdle
         ustar_lim = 0.16;
-        n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
-        n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-        wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
-        Tdry_min = 240; Tdry_max = 310;
-        HS_min = -100; HS_max = 640;
-        HSmass_min = -100; HSmass_max = 640;
-        LH_min = -150; LH_max = 450;
-        rH_min = 0; rH_max = 1;
-        h2o_max = 30; h2o_min = 0;
-        press_min = 70; press_max = 130;
-        co2_min_by_month = -10;
-        co2_max_by_month = [ 1, 1.5, 2, 2, 2, 2, 2, repmat( 6, 1, 5 ) ];
-
-    elseif sitecode == UNM_sites.New_GLand; % new Grassland
-        ustar_lim = 0.06;
-        n_SDs_filter_hi = 4.5; % how many std devs above the mean NEE to allow
-        n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-        co2_min_by_month = -15; co2_max_by_month = 6;
-        wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
-        Tdry_min = 240; Tdry_max = 320;
-        HS_min = -100; HS_max = 450;
-        HSmass_min = -100; HSmass_max = 450;
-        LH_min = -150; LH_max = 450;
-        rH_min = 0; rH_max = 1;
-        h2o_max = 30; h2o_min = 0;
         
     elseif sitecode == UNM_sites.PPine; % Ponderosa Pine
         % site default values
@@ -273,6 +245,34 @@ obs_per_day = 48;  % half-hourly observations
         h2o_max = 35; h2o_min = 0;
         press_min = 70; press_max = 130;
 
+    elseif sitecode == UNM_sites.PJ_girdle; % Pinyon Juniper girdle
+        ustar_lim = 0.16;
+        n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
+        n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+        wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
+        Tdry_min = 240; Tdry_max = 310;
+        HS_min = -100; HS_max = 640;
+        HSmass_min = -100; HSmass_max = 640;
+        LH_min = -150; LH_max = 450;
+        rH_min = 0; rH_max = 1;
+        h2o_max = 30; h2o_min = 0;
+        press_min = 70; press_max = 130;
+        co2_min_by_month = -10;
+        co2_max_by_month = [ 1, 1.5, 2, 2, 2, 2, 2, repmat( 6, 1, 5 ) ];
+
+    elseif sitecode == UNM_sites.New_GLand; % new Grassland
+        ustar_lim = 0.06;
+        n_SDs_filter_hi = 4.5; % how many std devs above the mean NEE to allow
+        n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+        co2_min_by_month = -7; co2_max_by_month = 6;
+        wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
+        Tdry_min = 240; Tdry_max = 320;
+        HS_min = -100; HS_max = 450;
+        HSmass_min = -100; HSmass_max = 450;
+        LH_min = -150; LH_max = 450;
+        rH_min = 0; rH_max = 1;
+        h2o_max = 30; h2o_min = 0;
+        
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -285,7 +285,7 @@ obs_per_day = 48;  % half-hourly observations
 
     headertext = data.Properties.VarNames;
     timestamp = data.timestamp;
-    [year,month,day,hour,minute,second] = datevec( data.timestamp );
+    [year month day hour minute second] = datevec( data.timestamp );
     ncol = size( data, 2 );
     filelength_n = size( data, 1 );
         
@@ -306,13 +306,11 @@ obs_per_day = 48;  % half-hourly observations
                                            args.Results.draw_plots > 1 ) );
     data.timestamp = [];
     if ( sitecode == UNM_sites.MCon )
-%        if ( year == 2007 | year == 2008)
-%            data = replacedata( data, ...
-%                   revise_MCon_duplicated_Rg( double( data ), ...
-%                                              headertext, ...
-%                                              timestamp ) );
-%        end
-    end
+        data = replacedata( data, ...
+                            revise_MCon_duplicated_Rg( double( data ), ...
+                                                       headertext, ...
+                                                       timestamp ) );
+    end 
     shift_t_str = 'shifted';
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -331,7 +329,7 @@ obs_per_day = 48;  % half-hourly observations
     H2O_std = data.H2O_std ;
     u_mean = data.u_mean_unrot ;
     t_mean = data.temp_mean;
-    t_meanK = t_mean + 273.15;
+    t_meanK = t_mean+ 273.15;
 
     fc_raw = data.Fc_raw ;
     fc_raw_massman = data.Fc_raw_massman ;
@@ -376,7 +374,7 @@ obs_per_day = 48;  % half-hourly observations
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % convert CNR1 temperature from centrigrade to Kelvins
-    CNR1_var = regexp_ds_vars( data, 'CNR1*|Temp_C_Avg' );
+    CNR1_var = regexp_ds_vars( data, 'CNR1.*|Temp_C_Avg' );
     CNR1TK = data.( CNR1_var{ 1 } ) + 273.15;
 
     data = double( data );
@@ -384,90 +382,74 @@ obs_per_day = 48;  % half-hourly observations
     for i=1:numel( headertext );
         if strcmp('agc_Avg',headertext{i}) == 1
             agc_Avg = data(:,i);
-        elseif strcmp('h2o_hmp_Avg', headertext{i}) == 1 | ...
-               strcmp('h2o_hmp_mean', headertext{i}) == 1
+        elseif strcmp( 'h2o_hmp_Avg', headertext( i ) )
             h2o_hmp = data( :, i );
-% Input all the different relative humidity variables and change to 0-1.
-        elseif strcmp('rH', headertext{i}) == 1 | ...
-                strcmp('RH_Avg', headertext{i}) == 1 ...
-                strcmp('RH_4p5_Avg',headertext{i}) == 1 | ...
-                strcmp('RH_4p5',headertext{i}) == 1 | ...
-                strcmp('rh_hmp', headertext{i}) == 1 | ...
-                strcmp('rh_hmp_4_Avg', headertext{i}) == 1 | ...
-                strcmp('RH',headertext{i}) == 1 | ...
-                strcmp('RH_2',headertext{i}) == 1 | ...
-                strcmp('RH_2_Avg',headertext{i}) == 1 | ...
-                strcmp('RH_10_Avg',headertext{i}) == 1
-                %strcmp('RH_3p7_Avg',headertext{i}) == 1 | ...
-            
-            rH = data(:,i);
-            if (rH > 1.) %Scale the relative humidity to appropriate values
-                rH = rH ./ 100.0;
-            end
-        elseif strcmp('Ts_mean', headertext{i}) == 1 | ...
-               strcmp('Ts_Avg', headertext{i}) == 1
+        elseif strcmp('RH',headertext{i}) == 1 || ...
+                strcmp('rh_hmp', headertext{i}) == 1 || ...
+                strcmp('rh_hmp_4_Avg', headertext{i}) == 1 || ...
+                strcmp('RH_Avg', headertext{i}) == 1
+            rH = data(:,i) / 100.0;
+        elseif strcmp( 'Ts_mean', headertext( i ) )
             Tair_TOA5 = data(:,i);
-        elseif  strcmp('5point_precip', headertext{i}) == 1 | ...
-                strcmp('rain_Tot', headertext{i}) == 1 | ...
-                strcmp('precip', headertext{i}) == 1 | ...
-                strcmp('precip(in)', headertext{i}) == 1 | ...
-                strcmp('ppt', headertext{i}) == 1 | ...
+        elseif  strcmp('5point_precip', headertext{i}) == 1 || ...
+                strcmp('rain_Tot', headertext{i}) == 1 || ...
+                strcmp('precip', headertext{i}) == 1 || ...
+                strcmp('precip(in)', headertext{i}) == 1 || ...
+                strcmp('ppt', headertext{i}) == 1 || ...
                 strcmp('Precipitation', headertext{i}) == 1
             precip = data(:,i);
-        elseif strcmp( 'press_mean', headertext{i}) == 1 | ...
-                strcmp('press_Avg', headertext{i}) == 1 | ...
-                strcmp('press_a', headertext{i}) == 1
+        elseif strcmp('press_mean', headertext{i}) == 1 || ...
+                strcmp('press_Avg', headertext{i}) == 1 || ...
+                strcmp('press_a', headertext{i}) == 1 || ...
+                strcmp('press_mean', headertext{i}) == 1
             atm_press = data(:,i);
-        elseif strcmp('par_correct_Avg', headertext{i}) == 1  | ...
-                strcmp('par_Avg(1)', headertext{i}) == 1 | ...
-                strcmp('par_Avg_1', headertext{i}) == 1 | ...
-                strcmp('par_Avg', headertext{i}) == 1 | ...
-                strcmp('par_up_Avg', headertext{i}) == 1 | ...        
-                strcmp('par_face_up_Avg', headertext{i}) == 1 | ...
-                strcmp('par_faceup_Avg', headertext{i}) == 1 | ...
-                strcmp('par_incoming_Avg', headertext{i}) == 1 | ...
+        elseif strcmp('par_correct_Avg', headertext{i}) == 1  || ...
+                strcmp('par_Avg(1)', headertext{i}) == 1 || ...
+                strcmp('par_Avg_1', headertext{i}) == 1 || ...
+                strcmp('par_Avg', headertext{i}) == 1 || ...
+                strcmp('par_up_Avg', headertext{i}) == 1 || ...        
+                strcmp('par_face_up_Avg', headertext{i}) == 1 || ...
+                strcmp('par_incoming_Avg', headertext{i}) == 1 || ...
                 strcmp('par_lite_Avg', headertext{i}) == 1
             Par_Avg = data(:,i);
-        elseif strcmp('t_hmp_mean', headertext{i})==1 | ...
-                strcmp('AirTC_Avg', headertext{i})==1 | ...
-                strcmp('AirTC_2_Avg', headertext{i})==1 | ...
-                strcmp('AirTC_10_Avg', headertext{i})==1 | ...
-                strcmp('AirTC_4p5_Avg', headertext{i})==1 | ...
-                strcmp('t_hmp_3_Avg', headertext{i})==1 | ...
-                strcmp('pnl_tmp_a', headertext{i})==1 | ...
-                strcmp('t_hmp_Avg', headertext{i})==1 | ...
-                strcmp('t_hmp_4_Avg', headertext{i})==1 | ...
+        elseif strcmp('t_hmp_mean', headertext{i})==1 || ...
+                strcmp('AirTC_Avg', headertext{i})==1 || ...
+                strcmp('t_hmp_3_Avg', headertext{i})==1 || ...
+                strcmp('pnl_tmp_a', headertext{i})==1 || ...
+                strcmp('t_hmp_Avg', headertext{i})==1 || ...
+                strcmp('t_hmp_4_Avg', headertext{i})==1 || ...
                 strcmp('t_hmp_top_Avg', headertext{i})==1
             air_temp_hmp = data(:,i);
-        elseif strcmp('Tsoil',headertext{i}) == 1 | ...
-                strcmp('Tsoil_avg',headertext{i}) == 1 | ...
+        elseif strcmp('AirTC_2_Avg', headertext{i})==1 && ...
+                (year_arg == 2009 || year_arg ==2010) && sitecode == 6
+            air_temp_hmp = data(:,i);
+        elseif strcmp('Tsoil',headertext{i}) == 1 || ...
+                strcmp('Tsoil_avg',headertext{i}) == 1 || ...
                 strcmp('soilT_Avg(1)',headertext{i}) == 1
             Tsoil = data(:,i);
-        elseif strcmp('Rn_correct_Avg',headertext{i})==1 | ...
-                strcmp('NR_surf_AVG', headertext{i})==1 | ...
-                strcmp('NetTot_Avg_corrected', headertext{i})==1 | ...
-                strcmp('NetTot_Avg', headertext{i})==1 | ...
-                strcmp('Rn_Avg',headertext{i})==1 | ...
+        elseif strcmp('Rn_correct_Avg',headertext{i})==1 || ...
+                strcmp('NR_surf_AVG', headertext{i})==1 || ...
+                strcmp('NetTot_Avg_corrected', headertext{i})==1 || ...
+                strcmp('NetTot_Avg', headertext{i})==1 || ...
+                strcmp('Rn_Avg',headertext{i})==1 || ...
                 strcmp('Rn_total_Avg',headertext{i})==1
             NR_tot = data(:,i);
-        elseif strcmp('Rad_short_Up_Avg', headertext{i}) | ...
+        elseif strcmp('Rad_short_Up_Avg', headertext{i}) || ...
                 strcmp('pyrr_incoming_Avg', headertext{i})
             sw_incoming = data(:,i);
-        elseif strcmp('Rad_short_Dn_Avg', headertext{i})==1 | ...
+        elseif strcmp('Rad_short_Dn_Avg', headertext{i})==1 || ...
                 strcmp('pyrr_outgoing_Avg', headertext{i})==1
             sw_outgoing = data(:,i);
-        elseif strcmp('Rad_long_Up_Avg', headertext{i}) == 1 | ...
+        elseif strcmp('Rad_long_Up_Avg', headertext{i}) == 1 || ...
                 strcmp('Rad_long_Up__Avg', headertext{i}) == 1
             lw_incoming = data(:,i);
-        elseif strcmp('Rad_long_Dn_Avg', headertext{i})==1 | ...
+        elseif strcmp('Rad_long_Dn_Avg', headertext{i})==1 || ...
                 strcmp('Rad_long_Dn__Avg', headertext{i})==1
             lw_outgoing = data(:,i);
-        elseif strcmp('VW_Avg', headertext{i})==1 | ...
-                strcmp('SWC_Avg_1', headertext{i})==1 | ...
-                strcmp('SWC_P1_5_Avg', headertext{i})==1
+        elseif strcmp('VW_Avg', headertext{i})==1
             VWC = data(:,i);
-        elseif strcmp('shf_Avg(1)', headertext{i})==1 | ...
-               strcmp('shf_pinon_1_Avg', headertext{i})==1
+        elseif strcmp('shf_Avg(1)', headertext{i})==1 || ...
+                strcmp('shf_pinon_1_Avg', headertext{i})==1
             soil_heat_flux_1 = data(:,i);
             disp('FOUND shf_pinon_1_Avg');       
         elseif any( strcmp( headertext{i}, ...
@@ -478,7 +460,7 @@ obs_per_day = 48;  % half-hourly observations
                             { 'hfp_grass_2_Avg', 'hft3_grass_Avg' } ) )
             soil_heat_flux_2 = data(:,i);
             disp('FOUND hfp_grass_2_Avg');       
-        elseif strcmp('shf_Avg(2)', headertext{i})==1 | ...
+        elseif strcmp('shf_Avg(2)', headertext{i})==1 || ...
                 strcmp('shf_jun_1_Avg', headertext{i})==1
             soil_heat_flux_2 = data(:,i);
         elseif strcmp('hfpopen_1_Avg', headertext{i})==1 % only for TX
@@ -487,7 +469,7 @@ obs_per_day = 48;  % half-hourly observations
             soil_heat_flux_mescan = data(:,i);
         elseif strcmp('hfpjuncan_1_Avg', headertext{i})==1 % only for TX
             soil_heat_flux_juncan = data(:,i);
-            %Shrubland flux plates 2009 onwards
+            %Shurbland flux plates 2009 onwards
         elseif strcmp('hfp01_1_Avg', headertext{i})==1 
             soil_heat_flux_1 = data(:,i);
         elseif strcmp('hfp01_2_Avg', headertext{i})==1 
@@ -514,12 +496,27 @@ obs_per_day = 48;  % half-hourly observations
     if ismember( sitecode, [ 1, 2 ] ) & year(2) == 2009
         Par_Avg = combine_PARavg_PARlite( headertext, data );
     end
-
-% PJ girdle, calculate relative humidity from hmp obs using helper
-% function. Not sure it is needed.
-%    if sitecode == 10
-%        rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) ./ 100.0;
-%    end
+    
+    if ismember( sitecode, [ 3, 4 ] )
+        % use "RH" at JSav, PJ
+        rh_col = find( strcmp( 'RH', headertext ) );
+        fprintf( 'found RH\n' );
+        rH = data( :, rh_col ) / 100.0;
+    elseif ismember( sitecode, [ 5, 6 ] )
+        % use "RH_2" at PPine, MCon
+        rh_col = find( strcmp( 'RH_2', headertext ) | ...
+                       strcmp( 'RH_2_Avg', headertext ) );
+        if ~isempty( rh_col )
+            fprintf( 'found RH_2\n' );
+        else
+            error( 'could not locate RH_2' );
+        end
+        rH = data( :, rh_col ) / 100.0;
+    elseif sitecode == 10
+        % at PJ girdle, calculate relative humidity from hmp obs using helper
+        % function
+        rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) / 100.0;
+    end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % correction for incorrectly-calculated latent heat flux pointed out by Jim
@@ -530,8 +527,8 @@ obs_per_day = 48;  % half-hourly observations
     % -TWH 9 Mar 2012
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     Lv = ( repmat( 2.501, size( E_raw_massman ) ) - ...
-           0.00237 .* ( Tdry - 273.15 ) )  .* 10^3;
-    HL_wpl_massman = ( 18.016 / 1000.0 .* Lv ) .* ...
+           0.00237 * ( Tdry - 273.15 ) )  * 10^3;
+    HL_wpl_massman = ( 18.016 / 1000 * Lv ) .* ...
         ( E_raw_massman + E_heat_term_massman );
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -583,7 +580,7 @@ obs_per_day = 48;  % half-hourly observations
             end
         end
         if exist( 'Tsoil1' ) == 1 & exist( 'Tsoil2' ) == 1
-            Tsoil = (Tsoil1 + Tsoil2) ./ 2;
+            Tsoil = (Tsoil1 + Tsoil2)/2;
         else
             Tsoil = repmat( NaN, size( data, 1 ), 1 );
         end
@@ -593,7 +590,7 @@ obs_per_day = 48;  % half-hourly observations
         soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];
 
         % related lines 678-682: corrections for site 4 (PJ) soil_heat_flux_1 and soil_heat_flux_2
-        Tsoil=sw_incoming .* NaN;  %MF: note, this converts all values in Tsoil to NaN. Not sure if this was intended.
+        Tsoil=sw_incoming.*NaN;  %MF: note, this converts all values in Tsoil to NaN. Not sure if this was intended.
         
     elseif ismember( sitecode, [ UNM_sites.PPine, UNM_sites.MCon ] )
 
@@ -622,26 +619,22 @@ obs_per_day = 48;  % half-hourly observations
             canopy_5cm = Mesquite_5cm(find(decimal_day < 139.61));
             canopy_10cm = Mesquite_10cm(find(decimal_day < 139.61));
             % after 5/19
-            canopy_5cm(find(decimal_day >= 139.61)) = ... 
-             (Mesquite_5cm(find(decimal_day >= 139.61)) + ...
-             Juniper_5cm(find(decimal_day >= 139.61))) ./ 2;
-            canopy_10cm(find(decimal_day >= 139.61)) = ...
-             (Mesquite_10cm(find(decimal_day >= 139.61)) + ...
-             Juniper_10cm(find(decimal_day >= 139.61))) ./ 2;
+            canopy_5cm(find(decimal_day >= 139.61)) = (Mesquite_5cm(find(decimal_day >= 139.61)) + Juniper_5cm(find(decimal_day >= 139.61)))/2;
+            canopy_10cm(find(decimal_day >= 139.61)) = (Mesquite_10cm(find(decimal_day >= 139.61)) + Juniper_10cm(find(decimal_day >= 139.61)))/2;
             % clean strange 0 values
             canopy_5cm(find(canopy_5cm == 0)) = NaN;
             canopy_10cm(find(canopy_10cm == 0)) = NaN;
-            Tsoil = (open_5cm + canopy_5cm) ./ 2;
+            Tsoil = (open_5cm + canopy_5cm)./2;
         else
-            canopy_5cm = (Mesquite_5cm + Juniper_5cm) ./ 2;
-            canopy_10cm = (Mesquite_10cm + Juniper_10cm) ./ 2;
-            Tsoil = (open_5cm + canopy_5cm) ./ 2;
+            canopy_5cm = (Mesquite_5cm + Juniper_5cm)/2;
+            canopy_10cm = (Mesquite_10cm + Juniper_10cm)/2;
+            Tsoil = (open_5cm + canopy_5cm)/2;
         end
         
-    elseif sitecode == 10 | sitecode == 11
-        Tsoil=sw_incoming .* NaN;
-        soil_heat_flux_1 =sw_incoming .* NaN;
-        soil_heat_flux_2 =sw_incoming .* NaN;
+    elseif sitecode == 10 || sitecode == 11
+        Tsoil=sw_incoming.*NaN;
+        soil_heat_flux_1 =sw_incoming.*NaN;
+        soil_heat_flux_2 =sw_incoming.*NaN;
         SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2' };
         soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];
     end
@@ -649,17 +642,17 @@ obs_per_day = 48;  % half-hourly observations
 
     % Juniper S heat flux plates need multiplying by calibration factors
     if sitecode == 3
-        soil_heat_flux_1 = soil_heat_flux_1 .* 32.27;
-        soil_heat_flux_2 = soil_heat_flux_2 .* 33.00;
-        soil_heat_flux_3 = soil_heat_flux_3 .* 31.60;
-        soil_heat_flux_4 = soil_heat_flux_4 .* 32.20;
+        soil_heat_flux_1 = soil_heat_flux_1.*32.27;
+        soil_heat_flux_2 = soil_heat_flux_2.*33.00;
+        soil_heat_flux_3 = soil_heat_flux_3.*31.60;
+        soil_heat_flux_4 = soil_heat_flux_4.*32.20;
     end
 
     % Pinon Juniper heat flux plates need multiplying by calibration factors
     if sitecode == 4 
         
-        soil_heat_flux_1 = soil_heat_flux_1 .* 35.2;
-        soil_heat_flux_2 = soil_heat_flux_2 .* 32.1;
+        soil_heat_flux_1 = soil_heat_flux_1.*35.2;
+        soil_heat_flux_2 = soil_heat_flux_2.*32.1;
     end
 
 
@@ -667,14 +660,9 @@ obs_per_day = 48;  % half-hourly observations
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Radiation corrections
-    % RJL added the lw_incoming and lw_outgoing variables to output on 01172014
-    % Variables lw_incoming, lw_outgoing, NR_sw, NR_lw, and NR_tot are now
-    % corrected for temperature. New data logger programs starting 2014
-    % will have lw_incomingCo and lw_outgoingCo corrected variables.
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    [ sw_incoming, sw_outgoing, ...
-      lw_incoming, lw_outgoing, Par_Avg ] = ...
+    [ sw_incoming, sw_outgoing, Par_Avg ] = ...
         UNM_RBD_apply_radiation_calibration_factors( sitecode, ...
                                                      year_arg, ...
                                                      decimal_day, ...
@@ -725,7 +713,8 @@ obs_per_day = 48;  % half-hourly observations
 
     % This is the conversion from mmol mol to g m3 for H2O
     gg = ( ( 1 ./ ...
-             ( R .* ( t_meanK ./ atm_press ) ) ) .* 18 ) ./ 1000;
+             ( R .* ( t_meanK ./ atm_press ) ) ) .* 18 ) ...
+         ./ 1000;
     % convert mmol H2O / mol dry air to g H2O / m3 dry air -- TWH
     % cf_co2 abbreviates "conversion factor CO2"
     %cf_h2o = ( MW_h2o * R_h2o * t_meanK ) / ( 1000 * atm_press )
@@ -733,31 +722,30 @@ obs_per_day = 48;  % half-hourly observations
 
     rhoa_dry_kg = ( rhoa_dry .* MWd ) ./ 1000; % from mol/m3 to kg/m3
 
-    Cp = 1004.67 + ( Tdry .^ 2 ./ 3364. );
+    Cp = 1004.67 + ( Tdry .^ 2 ./ 3364 );
     RhoCp = rhoa_dry_kg .* Cp;
     NR_pos = find( NR_tot > 0 );
 
     Kair = ( 0.000067 .* t_mean ) + 0.024343;
 
-    Ti_bot = (0.883 .* t_mean + 2.17) + 273.16;
-    Ti_bot(NR_pos) = (0.944 .* t_mean(NR_pos) + 2.57) + 273.16;
-    Ti_top = (1.008 .* t_mean - 0.41) + 273.16;
-    Ti_top(NR_pos) = (1.005 .* t_mean(NR_pos) + 0.24) + 273.16;
-    Ti_spar = (1.01 .* t_mean - 0.17) + 273.16;
-    Ti_spar(NR_pos) = (1.01 .* t_mean(NR_pos) + 0.36) + 273.16;
-    Si_bot = Kair .* (Ti_bot-t_meanK) ./ ...
-               (0.004 .* sqrt(0.065 ./ abs(u_mean)) + 0.004);
-    Si_top = ( Kair .* (Ti_top-t_meanK) .* ...
-               (0.0225 + (0.0028 .* sqrt(0.045 ./ abs(u_mean)) + ...
-                        0.00025 ./ abs(u_mean) + 0.0045)) ./ ...
-               (0.0225 .* (0.0028 .* sqrt(0.045 ./ abs(u_mean)) + ...
-                        0.00025 ./ abs(u_mean) + 0.0045)) );
+    Ti_bot = (0.883.*t_mean+2.17)+273.16;
+    Ti_bot(NR_pos) = (0.944.*t_mean(NR_pos)+2.57)+273.16;
+    Ti_top = (1.008.*t_mean-0.41)+273.16;
+    Ti_top(NR_pos) = (1.005.*t_mean(NR_pos)+0.24)+273.16;
+    Ti_spar = (1.01.*t_mean-0.17)+273.16;
+    Ti_spar(NR_pos) = (1.01.*t_mean(NR_pos)+0.36)+273.16;
+    Si_bot = Kair.*(Ti_bot-t_meanK)./(0.004.*sqrt(0.065./abs(u_mean))+0.004);
+    Si_top = ( Kair.*(Ti_top-t_meanK) .* ...
+               (0.0225+(0.0028.*sqrt(0.045./abs(u_mean)) + ...
+                        0.00025./abs(u_mean)+0.0045)) ./ ...
+               (0.0225*(0.0028*sqrt(0.045./abs(u_mean)) + ...
+                        0.00025./abs(u_mean)+0.0045)) );
     Sip_spar = ( Kair .* (Ti_spar - t_meanK) ./ ...
-               (0.0025 .* log((0.0025 + 0.0058 .* ...
-               sqrt(0.005 ./ abs(u_mean))) ./ 0.0025)) .* 0.15 );
-    pd = 44.6 .* 28.97 .* atm_press ./ 101.3 .* 273.16 ./ t_meanK;
-    dFc = (Si_top + Si_bot + Sip_spar) ./ RhoCp .* CO2_mg ./ t_meanK .* ...
-          (1 + 1.6077 .* H2O_g ./ pd);
+                 (0.0025 .* log((0.0025 + 0.0058.*sqrt(0.005./abs(u_mean))) ./ ...
+                                0.0025)).*0.15 );
+    pd = 44.6.*28.97.*atm_press./101.3.*273.16./t_meanK;
+    dFc = (Si_top+Si_bot+Sip_spar) ./ RhoCp.*CO2_mg ./ t_meanK .* ...
+          (1+1.6077.*H2O_g./pd);
 
     if draw_plots > 2
         h_burba_fig = figure( 'Name', 'Burba' );
@@ -766,9 +754,11 @@ obs_per_day = 48;  % half-hourly observations
         ylabel('Burba cold temp correction');
         xlabel('time');
     end
-    % Convert correct flux from mumol/m2/s to mg/m2/s
-    fc_mg = fc_raw_massman_wpl .* 0.044; 
-    fc_mg_corr = (fc_raw_massman_wpl .* 0.044) + dFc;
+
+    fc_mg = fc_raw_massman_wpl.*0.044; % Convert correct flux from mumol/m2/s to
+                                       % mg/m2/s
+    fc_mg_corr = (fc_raw_massman_wpl.*0.044)+dFc;
+
 
     found = find(t_mean<0);
     fc_out=fc_mg;
@@ -847,8 +837,8 @@ obs_per_day = 48;  % half-hourly observations
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % gland 2007 had large fluxes for very cold temperatures early in the year.
-    if sitecode == 1 & year_arg == 2007
-        gland_cold = find(Tdry < 271.);
+    if sitecode == 1 && year_arg == 2007
+        gland_cold = find(Tdry < 271);
         removed_gland_cold = length(gland_cold);
         decimal_day_nan(gland_cold) = NaN;
         record(gland_cold) = NaN;
@@ -856,14 +846,14 @@ obs_per_day = 48;  % half-hourly observations
     end
 
     % Take out dodgy calibration period at Shrubland in 2007
-    if sitecode == 2 & year_arg == 2007 
+    if sitecode == 2 && year_arg == 2007 
         decimal_day_nan(12150:12250) = NaN;
         record(12150:12250) = NaN;
         conc_record(12600:12750) = NaN;
     end
     
     % Take out dodgy calibration period at Shrubland in 2009
-    if sitecode == 2 & year_arg == 2009 
+    if sitecode == 2 && year_arg == 2009 
         conc_record(11595:11829) = NaN;
     end
 
@@ -880,12 +870,10 @@ obs_per_day = 48;  % half-hourly observations
             if i == 1
                 startbin(i) = 0;
             elseif i >= 2
-                startbin(i) = (i - 1) * 0.01;
+                startbin(i) = (i - 1)*0.01;
             end
             endbin(i) = 0.01 + startbin(i);    
-            elementstouse = find((u_star_2 > startbin(i) & ...
-                                  u_star_2 < endbin(i))  & ...
-                                  (hour_2 > 22 | hour_2 < 5));
+            elementstouse = find((u_star_2 > startbin(i) & u_star_2 < endbin(i)) & (hour_2 > 22 | hour_2 < 5));
             co2mean(i) = mean(fc_raw_massman_wpl_2(elementstouse));
             ustar_mean( i ) = mean( u_star_2( elementstouse ) );
         end
@@ -1001,9 +989,9 @@ obs_per_day = 48;  % half-hourly observations
         % Remove low CO2 concentration points
         if sitecode == 9
             lowco2flag = find(CO2_mean <250);
-        elseif sitecode == 8 & year(1) ==2008
+        elseif sitecode == 8 && year(1) ==2008
             lowco2flag = find(CO2_mean <250);
-        elseif sitecode == 1 & year(1) ==2007
+        elseif sitecode == 1 && year(1) ==2007
             lowco2flag = find(CO2_mean <344);
         else
             lowco2flag = find(CO2_mean <350);
@@ -1030,7 +1018,7 @@ obs_per_day = 48;  % half-hourly observations
         % Remove values outside of a running standard deviation
         n_bins = 48;
         std_bin = zeros( 1, n_bins );
-        bin_length = round(length(fc_raw_massman_wpl) / n_bins);
+        bin_length = round(length(fc_raw_massman_wpl)/ n_bins);
 
         % count up what's been filtered out already
         good_co2 = repmat( true, size( decimal_day ) );
@@ -1094,24 +1082,19 @@ obs_per_day = 48;  % half-hourly observations
             % end
             % title( sprintf( 'SD filter, window %d/%d', i, n_bins ) );
 
-            elementstouse_c = find(conc_record > startbin( i ) & ...
-                              conc_record <= endbin( i ) & ...
-                              isnan(conc_record) == 0);
+            elementstouse_c = find(conc_record > startbin( i ) & conc_record <= endbin( i ) & isnan(conc_record) == 0);
             conc_std_bin(i) = std(CO2_mean(elementstouse_c));
             mean_conc(i) = mean(CO2_mean(elementstouse_c));
             if sitecode == 7
                 conc_bin_index = find(CO2_mean(elementstouse_c) < ...
-                                      (mean_conc(i)-(2 * conc_std_bin(i))) | ...
-                                      CO2_mean(elementstouse_c) > ...
-                                      (mean_conc(i)+(2 * conc_std_bin(i))) & ...
+                                      (mean_conc(i)-(2.*conc_std_bin(i)))...
+                                      | CO2_mean(elementstouse_c) > ...
+                                      (mean_conc(i)+(2.*conc_std_bin(i))) & ...
                                       wnd_spd(elementstouse_c) > 0.3);  ...
                 %u_star(elementstouse_c) > ustar_lim);
             else
-                conc_bin_index = find(CO2_mean(elementstouse_c) < ...
-                                 (mean_conc(i) - (2 * conc_std_bin(i))) | ...
-                                 CO2_mean(elementstouse_c) > (mean_conc(i) + ...
-                                 (2 * conc_std_bin(i))) & ...
-                                 wnd_spd(elementstouse_c) > 3);  %u_star(elementstouse_c) > ustar_lim);           
+                conc_bin_index = find(CO2_mean(elementstouse_c) < (mean_conc(i)-(2.*conc_std_bin(i)))...
+                                      | CO2_mean(elementstouse_c) > (mean_conc(i)+(2.*conc_std_bin(i))) & wnd_spd(elementstouse_c) > 3);  %u_star(elementstouse_c) > ustar_lim);           
             end
             conc_outofstdnan = elementstouse_c(conc_bin_index);
             conc_record(conc_outofstdnan) = NaN;
@@ -1135,10 +1118,10 @@ obs_per_day = 48;  % half-hourly observations
             xx(i*2)=endbin( i );
             yy((i*2)-1)=mean_conc(i);
             yy(i*2)=mean_conc(i);
-            yyl((i*2)-1)=(mean_conc(i)-(2*conc_std_bin(i)));
-            yyl(i*2)=(mean_conc(i)-(2*conc_std_bin(i)));
-            yyu((i*2)-1)=(mean_conc(i)+(2*conc_std_bin(i)));
-            yyu(i*2)=(mean_conc(i)+(2*conc_std_bin(i)));
+            yyl((i*2)-1)=(mean_conc(i)-(2.*conc_std_bin(i)));
+            yyl(i*2)=(mean_conc(i)-(2.*conc_std_bin(i)));
+            yyu((i*2)-1)=(mean_conc(i)+(2.*conc_std_bin(i)));
+            yyu(i*2)=(mean_conc(i)+(2.*conc_std_bin(i)));
             
         end   
         idx_NEE_good( stdflag ) = false;
@@ -1270,7 +1253,7 @@ obs_per_day = 48;  % half-hourly observations
     E_heat_term_massman( not( idx_E_good ) ) = NaN;
     E_wpl_massman( not( idx_E_good ) ) = NaN;
     % cap water flux at 200 (divide by 18 to get correct units)
-    E_wpl_massman( E_wpl_massman > ( 200 / 18 ) ) = NaN;
+    E_wpl_massman( E_wpl_massman > ( 200 ./ 18 ) ) = NaN;
 
     % clean the co2 concentration
     CO2_mean( isnan( conc_record ) ) = NaN;
@@ -1461,7 +1444,7 @@ obs_per_day = 48;  % half-hourly observations
     
     filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );
     if write_gap_filling_out_file
-        Tsoil=ones(size(qc)) .* -9999;
+        Tsoil=ones(size(qc)).*-9999;
         disp('writing gap-filling file...')
         
         filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );
@@ -1503,8 +1486,7 @@ obs_per_day = 48;  % half-hourly observations
     if write_complete_out_file
         disp('writing qc file...')
         
-        % PPine or MCon
-        if sitecode == 5 | sitecode == 6 
+        if sitecode == 5 || sitecode == 6 
             header2 = {'timestamp', 'year', 'month', 'day', 'hour', 'minute', ...
                        'second', 'jday', 'iok', 'agc_Avg', 'u_star', ...
                        'wnd_dir_compass', 'wnd_spd', 'CO2_mean', 'CO2_std', ...
@@ -1514,7 +1496,7 @@ obs_per_day = 48;  % half-hourly observations
                        'E_water_term', 'E_heat_term_massman', 'E_wpl_massman', ...
                        'HSdry', 'HSdry_massman', 'HL_raw', 'HL_wpl_massman', ...
                        'Tdry', 'air_temp_hmp', ...
-                       'VWC_2cm', 'precip', 'atm_press', 'rH', 'Par_Avg', ...
+                       'VWC_2cm', 'precip', 'atm_press', 'rH' 'Par_Avg', ...
                        'sw_incoming', 'sw_outgoing', 'lw_incoming', ...
                        'lw_outgoing', 'NR_sw', 'NR_lw', 'NR_tot'};
             datamatrix2 = [year, month, day, hour, minute, second, jday, iok, ...
@@ -1525,7 +1507,7 @@ obs_per_day = 48;  % half-hourly observations
                            E_water_term, E_heat_term_massman, E_wpl_massman, ...
                            HSdry, HSdry_massman, HL_raw, HL_wpl_massman, Tdry, ...
                            air_temp_hmp, VWC, precip ...
-                           atm_press, rH, Par_Avg, sw_incoming, sw_outgoing, ...
+                           atm_press, rH Par_Avg, sw_incoming, sw_outgoing, ...
                            lw_incoming, lw_outgoing, NR_sw, NR_lw, NR_tot];
             
         elseif sitecode == 7
@@ -1540,7 +1522,7 @@ obs_per_day = 48;  % half-hourly observations
                        'Tdry', 'air_temp_hmp', 'Tsoil', 'canopy_5cm', ...
                        'canopy_10cm', 'open_5cm', 'open_10cm', ...
                        'soil_heat_flux_open', 'soil_heat_flux_mescan', ...
-                       'soil_heat_flux_juncan', 'precip', 'atm_press', 'rH', ...
+                       'soil_heat_flux_juncan', 'precip', 'atm_press', 'rH' ...
                        'Par_Avg', 'sw_incoming', 'sw_outgoing', 'lw_incoming', ...
                        'lw_outgoing', 'NR_sw', 'NR_lw', 'NR_tot'};
             datamatrix2 = [year, month, day, hour, minute, second, jday, iok, ...
@@ -1553,10 +1535,10 @@ obs_per_day = 48;  % half-hourly observations
                            air_temp_hmp, Tsoil, canopy_5cm, canopy_10cm, ...
                            open_5cm, open_10cm, soil_heat_flux_open, ...
                            soil_heat_flux_mescan, soil_heat_flux_juncan, precip, ...
-                           atm_press, rH, Par_Avg, sw_incoming, sw_outgoing, ...
+                           atm_press, rH Par_Avg, sw_incoming, sw_outgoing, ...
                            lw_incoming, lw_outgoing, NR_sw, NR_lw, NR_tot];
-        
-        elseif sitecode == 8 | sitecode == 9
+            
+        elseif sitecode == 8 || sitecode == 9
             header2 = {'timestamp', 'year', 'month', 'day', 'hour', 'minute', ...
                        'second', 'jday', 'iok', 'u_star', 'wnd_dir_compass', ...
                        'wnd_spd', 'CO2_mean', 'CO2_std', 'H2O_mean', 'H2O_std', ...
@@ -1568,8 +1550,8 @@ obs_per_day = 48;  % half-hourly observations
                        'atm_press', 'rH', 'Par_Avg', 'sw_incoming', ...
                        'sw_outgoing', 'lw_incoming', 'lw_outgoing', 'NR_sw', ...
                        'NR_lw', 'NR_tot'};
-            %atm_press=ones(size(precip)) .* -999;
-            %air_temp_hmp=ones(size(precip)) .* -999;
+            %atm_press=ones(size(precip)).*-999;
+            %air_temp_hmp=ones(size(precip)).*-999;
             datamatrix2 = [year, month, day, hour, minute, second, jday, iok, ...
                            u_star, wnd_dir_compass, wnd_spd, CO2_mean, CO2_std, ...
                            H2O_mean, H2O_std, fc_raw, fc_raw_massman, ...
@@ -1581,9 +1563,8 @@ obs_per_day = 48;  % half-hourly observations
                            sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, ...
                            NR_sw,NR_lw,NR_tot];
             
-        % General output
         else
-            Tsoil=ones(size(qc)) .* -9999;
+            Tsoil=ones(size(qc)).*-9999;
             header2 = {'timestamp', 'year', 'month', 'day', 'hour', ...
                        'minute', 'second', 'jday', 'iok', 'agc_Avg', ...
                        'u_star', 'wnd_dir_compass', 'wnd_spd', 'CO2_mean', ...
@@ -1594,7 +1575,7 @@ obs_per_day = 48;  % half-hourly observations
                        'E_heat_term_massman', 'E_wpl_massman', 'HSdry', ...
                        'HSdry_massman', 'HL_raw', 'HL_wpl_massman', 'Tdry', ...
                        'air_temp_hmp', 'Tsoil', SHF_labels{ : }, 'precip', ...
-                       'atm_press', 'rH', 'Par_Avg', 'sw_incoming', ...
+                       'atm_press', 'rH' 'Par_Avg', 'sw_incoming', ...
                        'sw_outgoing', 'lw_incoming', 'lw_outgoing', 'NR_sw', ...
                        'NR_lw', 'NR_tot'};
             datamatrix2 = [year, month, day, hour, minute, second, jday, iok, ...
@@ -1617,7 +1598,7 @@ obs_per_day = 48;  % half-hourly observations
 
         if iteration > 4
             
-            if sitecode == 8 | sitecode == 9
+            if sitecode == 8 || sitecode == 9
                 numbers_removed = [removednans removed_precip ...
                                    removed_wind removed_nightneg ...
                                    removed_ustar removed_maxs_mins ...
@@ -1710,20 +1691,19 @@ obs_per_day = 48;  % half-hourly observations
             %             Tdry,air_temp_hmp,Tsoil_2cm,Tsoil_6cm,precip,atm_press,rH...
             %             Par_Avg,sw_incoming,sw_outgoing,lw_incoming,lw_outgoing,NR_sw,NR_lw,NR_tot];
             
-            % RJL removed these 01/22/2014
-            % time_out=fix(clock);
-            % time_out=datestr(time_out);
+            time_out=fix(clock);
+            time_out=datestr(time_out);
 
-            % sname={'Site name: Test'};
-            % email={'Email: andyfox@unm.edu'};
-            % timeo={'Created: ',time_out};
-            % outfilename = strcat(outfolder,filename,'_AF.xls');
-            % xlswrite(outfilename,sname,'data','A1');
-            % xlswrite(outfilename,email,'data','A2');
-            % xlswrite(outfilename,timeo,'data','A3');
-            % xlswrite(outfilename,header2,'data','A4');
-            % xlswrite(outfilename,header2,'data','A5');
-            % xlswrite(outfilename,header2,'data','A6');
+            sname={'Site name: Test'};
+            email={'Email: andyfox@unm.edu'};
+            timeo={'Created: ',time_out};
+            outfilename = strcat(outfolder,filename,'_AF.xls');
+            xlswrite(outfilename,sname,'data','A1');
+            xlswrite(outfilename,email,'data','A2');
+            xlswrite(outfilename,timeo,'data','A3');
+            xlswrite(outfilename,header2,'data','A4');
+            xlswrite(outfilename,header2,'data','A5');
+            xlswrite(outfilename,header2,'data','A6');
         end
     end
 
@@ -1940,7 +1920,7 @@ switch sitecode
         HL_wpl_massman( idx ) = NaN;
         E_wpl_massman( idx ) = NaN;
       case 2012
-        idx = DOYidx( 319.5 );
+        idx = DOYidx( 319.5 )
         % beginning here sw sensor reported all zeros and lw sensor
         % reported NaNs 
         sw_incoming( idx:end ) = NaN;
@@ -2042,7 +2022,7 @@ end
 
 function [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
         specify_siteyear_filter_exceptions( sitecode, year, ...
-                                            DOY_co2_min, DOY_co2_max )
+                                            DOY_co2_min, DOY_co2_max );
     
 % SPECIFY_SITEYEAR_MAXMIN_EXCEPTIONS - % Helper function for UNM_RemoveBadData
 % (RBD for short).  Adds site-year-specific DOY-based CO2 NEE max/min values to
@@ -2140,12 +2120,12 @@ switch sitecode
       case 2013
         DOY_co2_max(  DOYidx( 21 ) : DOYidx( 27 ) ) = 0.5;
         DOY_co2_max(  DOYidx( 28 ) : DOYidx( 30 ) ) = 2.0;
-        DOY_co2_max(  DOYidx( 208 ) : DOYidx( 216 ) ) = 2.0;
+        DOY_co2_max(  DOYidx( 208 ) : DOYidx( 216 ) ) = 2;
         DOY_co2_max(  DOYidx( 216 ) : DOYidx( 225 ) ) = 2.7;
-        DOY_co2_min(  DOYidx( 125 ) : DOYidx( 134 ) ) = -1.0;
-        DOY_co2_min(  DOYidx( 155 ) : DOYidx( 170 ) ) = -1.0;
-        DOY_co2_min(  DOYidx( 208 ) : DOYidx( 216 ) ) = -5.0;
-        DOY_co2_min(  DOYidx( 224 ) : DOYidx( 225 ) ) = -5.0;
+        DOY_co2_min(  DOYidx( 125 ) : DOYidx( 134 ) ) = -1;
+        DOY_co2_min(  DOYidx( 155 ) : DOYidx( 170 ) ) = -1;
+        DOY_co2_min(  DOYidx( 208 ) : DOYidx( 216 ) ) = -5;
+        DOY_co2_min(  DOYidx( 224 ) : DOYidx( 225 ) ) = -5;
     end %SLand
   
   case UNM_sites.JSav
@@ -2218,7 +2198,6 @@ switch sitecode
         
       case 2012
         DOY_co2_max( DOYidx( 307 ) : end ) = 1.0;
-        
       case 2013
         DOY_co2_max( DOYidx( 195 ) : DOYidx( 195 ) ) = 2.0;
         DOY_co2_max( DOYidx( 210 ) : DOYidx( 227 ) ) = 4.0;
@@ -2232,23 +2211,17 @@ switch sitecode
         DOY_co2_max( DOYidx( 276 ) : DOYidx( 277 ) ) = 5.0;
         DOY_co2_max( DOYidx( 277 ) : DOYidx( 279 ) ) = 10.0;
         DOY_co2_max( DOYidx( 280 ) : end ) = 5.0;
-        
       case 2009
         DOY_co2_max( : ) = 10;
         DOY_co2_max( DOYidx( 64 ) : DOYidx( 67 ) ) = 15.0;
         DOY_co2_max( DOYidx( 67 ) : DOYidx( 150 ) ) = 8.0;
         DOY_co2_max( DOYidx( 300 ) : end ) = 10.0;
-        
       case 2011
         std_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
-        DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20.0;
-        
+        DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20;
       case 2012
-        DOY_co2_min( DOYidx( 90 ) : DOYidx( 140 ) ) = -20.0;
-        DOY_co2_max( DOYidx( 353 ) : DOYidx( 355 ) ) = 4.0;
-        
-      case 2013 %Added by RJL based on Marcy request 11/22/2013
-        DOY_co2_min( DOYidx( 220 ) : end ) = -18.0;
+        DOY_co2_min( DOYidx( 90 ) : DOYidx( 140 ) ) = -20;
+        DOY_co2_max( DOYidx( 353 ) : DOYidx( 355 ) ) = 4;
     end
     
   case UNM_sites.MCon
@@ -2291,7 +2264,6 @@ switch sitecode
 
       case 2012
         DOY_co2_max( DOYidx( 344 ) : end ) = 2.0;
-        
       case 2013
         DOY_co2_max( 1 : DOYidx( 18 ) ) = 1.0;
         DOY_co2_max( DOYidx( 27 ) : DOYidx( 31 ) ) = 0.8;
@@ -2307,18 +2279,16 @@ switch sitecode
       case 2009
         DOY_co2_max( DOYidx( 163 ) : DOYidx( 163.5 ) ) = 9.0;
         DOY_co2_max( DOYidx( 265 ) : DOYidx( 305 ) ) = 12.0;
-        
       case 2011
         DOY_co2_max( 1 : DOYidx( 31 ) ) = 3.0;
         DOY_co2_max( DOYidx( 33 ) : DOYidx( 45 ) ) = 3.0;
         DOY_co2_max( DOYidx( 33 ) : DOYidx( 45 ) ) = 3.0;
-        
       case 2012
         DOY_co2_max( 1 : DOYidx( 30 ) ) = 3.0;
         DOY_co2_max( DOYidx( 152 ) : DOYidx( 160 ) ) = 5.0;
         DOY_co2_max( DOYidx( 318 ) : DOYidx( 326 ) ) = 4.0;
         DOY_co2_max( DOYidx( 345 ) : end ) = 2.1;
-    end % TX
+    end
         
   case UNM_sites.PJ_girdle
     switch year
@@ -2330,17 +2300,16 @@ switch sitecode
         DOY_co2_max( DOYidx( 244 ) : DOYidx( 267 ) ) = 3.2;
         DOY_co2_max( DOYidx( 275 ) : DOYidx( 299 ) ) = 3.0;
         DOY_co2_max( DOYidx( 300 ) : end ) = 2.0;
-        
       case 2011
         idx = DOYidx( 192.2 ) : DOYidx( 192.6 );
         std_exc_flag( idx ) = true;
         DOY_co2_max( idx ) = 6.5;
+    
         DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
         
       case 2012
         DOY_co2_max( DOYidx( 260 ) : DOYidx( 280 ) ) = 2.0;
         DOY_co2_max( DOYidx( 285 ) : DOYidx( 290 ) ) = 1.5;
-        
       case 2013
         DOY_co2_max( DOYidx( 213 ) : DOYidx( 214  ) ) = 3.0;
         DOY_co2_max( DOYidx( 222 ) : DOYidx( 226  ) ) = 4.0;
@@ -2379,24 +2348,11 @@ switch sitecode
         std_exc_flag( DOYidx( 335.45 ) : DOYidx( 335.6 ) ) = true;
         DOY_co2_max( DOYidx( 344.5 ) : DOYidx( 344.7 ) ) = 9.0;
         DOY_co2_max( DOYidx( 345.48 ) : DOYidx( 345.56 ) ) = 9.0;
-        
       case 2012
         DOY_co2_max( DOYidx( 215 ) : DOYidx( 285 ) ) = 2.0;
         DOY_co2_max( DOYidx( 306 ) : DOYidx( 312 ) ) = 1.5;
         DOY_co2_max( DOYidx( 312 ) : DOYidx( 347 ) ) = 1.5;
         DOY_co2_max( DOYidx( 348 ) : end ) = 0.75;
-        
-      case 2013 %Added by RJL based on Marcy request 11/22/2013
-        DOY_co2_min( DOYidx( 160 ) : DOYidx( 190 ) ) = -1.5;
-        DOY_co2_min( DOYidx( 190 ) : DOYidx( 200 ) ) = -2.0;
-        DOY_co2_min( DOYidx( 200 ) : DOYidx( 208 ) ) = -5.0;
-        DOY_co2_min( DOYidx( 208 ) : DOYidx( 210 ) ) = -6.0;
-        DOY_co2_min( DOYidx( 210 ) : DOYidx( 233 ) ) = -11.0;
-        DOY_co2_min( DOYidx( 233 ) : DOYidx( 238 ) ) = -8.0;
-        DOY_co2_min( DOYidx( 238 ) : DOYidx( 255 ) ) = -4.0;
-        DOY_co2_min( DOYidx( 255 ) : DOYidx( 264 ) ) = -6.0;
-        DOY_co2_min( DOYidx( 264 ) : DOYidx( 272 ) ) = -7.0;
-        DOY_co2_min( DOYidx( 272 ) : end ) = -6.0;
     end  % New_GLand
 end
 
@@ -2404,7 +2360,7 @@ end
 
 function co2_conc_filter_exceptions = ...
     specify_siteyear_co2_conc_filter_exceptions( ...
-        sitecode, year, co2_conc_filter_exceptions )
+        sitecode, year, co2_conc_filter_exceptions );
 % Helper function for UNM_RemoveBadData (RBD for short).  Disables the high and
 % low CO2 concentration filters for specified time periods (noted in the code
 % below).  There are periods of incorrect [CO2] observations from the IRGA which

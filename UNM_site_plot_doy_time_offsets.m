@@ -1,5 +1,5 @@
 function UNM_site_plot_doy_time_offsets( sitecode, year, doy, varargin )
-% UNM_SITE_PLOT_DOY_TIME_OFFSETS - plot calculated solar angle and observed
+% UNM_SITE_PLOT_DOY_TIME_OFFSETS - plot calculated solar angle and oberved
 % incoming shortwave side by side for a given site and day.
 %
 % Examining the two daily cycles side by side helps to identify periods where

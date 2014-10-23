@@ -45,14 +45,11 @@ plot_fingerprint( decimal_day, sw_incoming, ...
                   'clim', [ -10, 1400 ] );
 
 ax2 = subplot( 2, 3, 2 );
-% Hopefully rH is standardized now
-% if max( rH ) > 1
-%     rH_max = 100;
-% else
-% DAN K
-
+if max( rH ) > 1
+    rH_max = 100;
+else
     rH_max = 1.0;
-
+end
 plot_fingerprint( decimal_day, rH, ...
                   sprintf( '%s %d RH fingerprint', ...
                            char( sitecode ), year ), ...

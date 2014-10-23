@@ -187,7 +187,6 @@ this_data.rH( this_data.rH < 0.0 ) = 0.0;
                    'Rg', 'Rg', 'Rg', linfit( 3 ) );
 this_data.Rg( this_data.Rg < -50 ) = NaN;
 
-
 %--------------------------------------------------
 % plot filled variables if requested
 
@@ -299,7 +298,7 @@ function ds = prepare_valles_met_data( ds, year, station )
          ( time_ds.day - 1 ) + ...
          ( time_ds.time / 24.0 );
     ds = ds( ds.sta == station, { 'airt', 'rh', 'sol' } );
-    ds.rh = ds.rh ./ 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
+    ds.rh = ds.rh / 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
     ds.timestamp = ts;
     
     % these readings are hourly -- interpolate to 30 mins
@@ -341,7 +340,7 @@ function ds = prepare_sev_met_data( ds, year, station )
          ( time_ds.Hour / 24.0 );
     ds = ds( :, { 'Temp_C', 'RH', 'Solar_Rad' } );
     ds.Properties.VarNames = { 'Tair', 'rH', 'Rg' };
-    ds.rH = ds.rH ./ 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
+    ds.rH = ds.rH / 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
     ds.timestamp = ts;
     % remove duplicated timestamps
     dup_timestamps = find( abs( diff( ts ) ) < 1e-10 );
