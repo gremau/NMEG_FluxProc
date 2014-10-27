@@ -135,7 +135,7 @@ elseif sitecode == UNM_sites.SLand; % shrubland
 elseif sitecode == UNM_sites.JSav; % Juniper savanna
     ustar_lim = 0.08;
     co2_min_by_month = -15;
-    co2_max_by_month = [ repmat( 2, 1, 6 ), repmat( 10, 1, 6 ) ];
+    co2_max_by_month = [ repmat( 4, 1, 6 ), repmat( 10, 1, 6 ) ];
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
