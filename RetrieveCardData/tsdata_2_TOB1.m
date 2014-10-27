@@ -1,4 +1,4 @@
-function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir)
+function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir, varargin)
 % TSDATA_2_TOB1 - convert a datalogger 10-hz raw data file to a series of daily
 % TOB1 files in the appropriate directory.
 %
@@ -13,6 +13,10 @@ function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir)
 %    raw_data_dir: string; full path to the directory containing the raw
 %        datalogger data files.
 %
+% PARAMETER-VALUE PAIRS
+%    wireless: boolean; To patch flux data with wireless data, put the new
+%        TOB1 files into a separate directory.
+% 
 % OUTPUTS
 %    success: logical; true if conversion successful, false otherwise.
 %    all_ts_fnames: cell array of strings; full paths to all new TOB1 files.
@@ -21,12 +25,30 @@ function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir)
 
 site = UNM_sites( site );
 
+args = inputParser;
+args.addRequired( 'site', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'raw_data_dir', @ischar );
+args.addOptional( 'wireless', 'false', @islogical );
+
+% parse optional inputs
+args.parse( site, raw_data_dir, varargin{ : } );
+
+site = args.Results.site;
+raw_data_dir = args.Results.raw_data_dir;
+
 success = true;
 all_ts_fnames = '';
 
 thirty_min_file = dir(fullfile(raw_data_dir, '*.flux.dat'));
 ts_data_file_struct = dir(fullfile(raw_data_dir, '*.ts_data.dat'));
-tsdata_dir = fullfile(get_site_directory( site ), 'ts_data');
+% Select a safe output directory for wireless
+if args.Results.wireless
+   tsdata_dir = fullfile(raw_data_dir, 'ts_data_patch');
+else
+    tsdata_dir = fullfile(get_site_directory( site ), 'ts_data');
+end
+
+
 if isempty(ts_data_file_struct)
     
     % prompt user to select a 10-hz data file
