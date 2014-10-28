@@ -16,6 +16,11 @@ function [success, toa5_fname] = thirty_min_2_TOA5(site, raw_data_dir)
 %    raw_data_dir: string; full path to the directory containing the raw
 %        datalogger data files.
 %
+% PARAMETER-VALUE PAIRS
+%    wireless: boolean; To patch 30-min data with a wireless data download,
+%        create new TOA5 files and put them into a sub-directory of the
+%        wireless_data directory.
+%
 % OUTPUTS
 %    success: logical; true if conversion successful, false otherwise.
 %    toa5_fname: string; full path of the new TOA5 file.
@@ -29,7 +34,14 @@ success = true;
 
 thirty_min_file = dir(fullfile(raw_data_dir, '*.flux.dat'));
 ts_data_file = dir(fullfile(raw_data_dir, '*.ts_data.dat'));
-toa5_data_dir = fullfile(get_site_directory( site ), 'toa5');
+
+% Select a safe output directory for wireless patches
+% if args.Results.wireless
+%     toa5_data_dir = fullfile(raw_data_dir, 'toa5_patch');
+% else
+%     toa5_data_dir = fullfile(get_site_directory( site ), 'toa5');
+% end
+
 if isempty(thirty_min_file)
     error('There is no thirty-minute data file in the given directory');
 elseif length(thirty_min_file) > 1

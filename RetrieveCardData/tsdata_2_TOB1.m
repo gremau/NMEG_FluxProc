@@ -1,4 +1,5 @@
-function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir, varargin)
+function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir,...
+    varargin)
 % TSDATA_2_TOB1 - convert a datalogger 10-hz raw data file to a series of daily
 % TOB1 files in the appropriate directory.
 %
@@ -14,8 +15,9 @@ function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir, varargin)
 %        datalogger data files.
 %
 % PARAMETER-VALUE PAIRS
-%    wireless: boolean; To patch flux data with wireless data, put the new
-%        TOB1 files into a separate directory.
+%    wireless: boolean; To patch 10hz data with a wireless data download,
+%        create new TOB1 files and put them into a sub-directory of the
+%        wireless_data directory.
 % 
 % OUTPUTS
 %    success: logical; true if conversion successful, false otherwise.
@@ -41,7 +43,7 @@ all_ts_fnames = '';
 
 thirty_min_file = dir(fullfile(raw_data_dir, '*.flux.dat'));
 ts_data_file_struct = dir(fullfile(raw_data_dir, '*.ts_data.dat'));
-% Select a safe output directory for wireless
+% Select a safe output directory for wireless patches
 if args.Results.wireless
    tsdata_dir = fullfile(raw_data_dir, 'ts_data_patch');
 else
@@ -93,20 +95,23 @@ card_convert_cmd = sprintf('"%s" "runfile=%s"', ...
 
 % card convert will try to apply the ccf file to every .dat file in
 % the directory.  We want to use a different ccf file for the TS
-% data, so temporarily change the .dat extension so CardConvert will
+% data, so if there is a 30-minute file in the directory,
+% temporarily change the .dat extension so CardConvert will
 % ignore it for now.
-flux_ignore = fullfile(raw_data_dir, ...
-                       strrep(thirty_min_file.name, '.dat', '.donotconvert'));
-sprintf('%s --> %s\n', fullfile(raw_data_dir, thirty_min_file.name), ...
+if ~isempty(thirty_min_file)
+    flux_ignore = fullfile(raw_data_dir, ...
+        strrep(thirty_min_file.name, '.dat', '.donotconvert'));
+    fprintf(1,'%s --> %s\n', fullfile(raw_data_dir, thirty_min_file.name), ...
         flux_ignore);
-flux_file_fullpath = fullfile(raw_data_dir, thirty_min_file.name);        
-% matlab's movefile takes minutes to rename a 2 GB ts data file.  The
-% java method does it instantly though
-move_success = ...
-    java.io.File(flux_file_fullpath).renameTo(java.io.File(flux_ignore));
-success = success & move_success;
-if not(move_success)
-    error('tsdata_2_TOA5:rename_fail', 'renaming flux data file failed');
+    flux_file_fullpath = fullfile(raw_data_dir, thirty_min_file.name);
+    % matlab's movefile takes minutes to rename a 2 GB ts data file.  The
+    % java method does it instantly though
+    move_success = ...
+        java.io.File(flux_file_fullpath).renameTo(java.io.File(flux_ignore));
+    success = success & move_success;
+    if not(move_success)
+        error('tsdata_2_TOA5:rename_fail', 'renaming flux data file failed');
+    end
 end
 
 % run CardConvert
@@ -116,13 +121,15 @@ if convert_status ~= 0
     error('tsdata_2_TOA5:CardConvert', 'CardConvert failed');
 end
 
-%restore the .dat extension on the flux data file
-move_success = ...
-    java.io.File(flux_ignore).renameTo(java.io.File(flux_file_fullpath));
-success = success & move_success;
-if not(move_success)
-    error('tsdata_2_TOA5:rename_fail',...
-          'restoring flux data .dat extension failed');
+if ~isempty(thirty_min_file)
+    %restore the .dat extension on the flux data file
+    move_success = ...
+        java.io.File(flux_ignore).renameTo(java.io.File(flux_file_fullpath));
+    success = success & move_success;
+    if not(move_success)
+        error('tsdata_2_TOA5:rename_fail',...
+            'restoring flux data .dat extension failed');
+    end
 end
 
 %rename the tob1 files according to the site and place it in the
