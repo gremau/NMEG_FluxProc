@@ -329,16 +329,17 @@ for i=1:ncol
     if strcmp('cov_Uz_Ts',headertext(i)) || strcmp('cov_Ts_Uz',headertext(i)) || strcmp('Uz_Ts',headertext(i))
         cov_Ts_Uz = data(:,i); % this is cov b/w t and w
     end
-    if strcmp('cov_Uz_Uz',headertext(i))
+    if strcmp('cov_Uz_Uz',headertext(i)) || strcmp('stdev_Uz',headertext(i))
         cov_Uz_Uz = data(:,i); % this is vertical wind varianc
     end
-    if strcmp('cov_Ux_Ux',headertext(i))
+    if strcmp('cov_Ux_Ux',headertext(i)) || strcmp('stdev_Ux',headertext(i))
         cov_Ux_Ux = data(:,i); % this is along wind variance
     end
-    if strcmp('cov_Uy_Uy',headertext(i))
+    if strcmp('cov_Uy_Uy',headertext(i)) || strcmp('stdev_Uy',headertext(i))
         cov_Uy_Uy = data(:,i); % this is across wind variance
     end
-    if strcmp('co2_Avg',headertext(i)) || strcmp('co2_mean',headertext(i)) || strcmp('co2_a',headertext(i))
+    if strcmp('co2_Avg',headertext(i)) || strcmp('co2_mean',headertext(i))...
+            || strcmp('co2_a',headertext(i)) || strcmp('co2_mean_Avg',headertext(i))
         co2_mean = (data(:,i))./44; % read in in mg per m^3 but converted to mmol per m^3
     end
     if strcmp('cov_Ux_co2',headertext(i)) || strcmp('cov_co2_Ux',headertext(i)) || strcmp('Ux_co2',headertext(i))
@@ -350,7 +351,8 @@ for i=1:ncol
     if strcmp('cov_Uz_co2',headertext(i)) || strcmp('cov_co2_Uz',headertext(i)) || strcmp('Uz_co2',headertext(i))
         cov_co2_Uz = data(:,i); % read in in mg per m^2 per s
     end
-    if strcmp('h2o_Avg',headertext(i)) || strcmp('h2o_mean',headertext(i)) || strcmp('h2o_a',headertext(i))
+    if strcmp('h2o_Avg',headertext(i)) || strcmp('h2o_mean',headertext(i))...
+            || strcmp('h2o_a',headertext(i)) || strcmp('h2o_mean_Avg',headertext(i))
         h2o_Avg = data(:,i)./0.018; % read in in g per m^3 and converted to mmol per m^3
     end
     if strcmp('cov_Ux_h2o',headertext(i)) || strcmp('cov_h2o_Ux',headertext(i)) || strcmp('Ux_h2o',headertext(i))
