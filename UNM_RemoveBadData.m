@@ -176,7 +176,7 @@ elseif sitecode == UNM_sites.PJ_girdle; % Pinyon Juniper girdle
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
     co2_min_by_month = -10;
-    co2_max_by_month = [ 1, 1.5, 2, 2, 2, 2, 2, repmat( 6, 1, 5 ) ];
+    co2_max_by_month = [ 1.5, 1.5, 2, 2, 3, 4, 4, repmat( 6, 1, 5 ) ];
     
 elseif sitecode == UNM_sites.New_GLand; % new Grassland
     ustar_lim = 0.06;
