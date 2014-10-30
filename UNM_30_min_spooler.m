@@ -57,6 +57,8 @@ if sitecode == 1 % GLand
     elseif year == 2012
         UNM_30min_flux_processor_Tim(1,2012, DOYidx( 196 ), DOYidx( 216 ) );
         UNM_30min_flux_processor_Tim(1,2012, DOYidx( 226 ), DOYidx( 241 ) );
+    elseif year == 2013
+        UNM_30min_flux_processor_Tim(1,2013, DOYidx( 148.9 ), DOYidx( 149.6 ) );
     end
     
 elseif sitecode == 2 % SLand
@@ -91,7 +93,24 @@ elseif sitecode == 2 % SLand
         UNM_30min_flux_processor_071610(2,2011,8669,8759); 
     
     elseif year == 2012
-        UNM_30min_flux_processor_071610(2,2012,16704,17568);    
+        UNM_30min_flux_processor_071610(2,2012,16704,17568);
+    elseif year == 2013
+        % For some reason 1 day/month of 10hz data is missing at this site
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(1), DOYidx(2.36));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(10.68), DOYidx(11.07));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(14.81), DOYidx(15.28));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(31), DOYidx(32));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(61), DOYidx(62));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(91), DOYidx(92));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(121), DOYidx(122));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(151), DOYidx(152));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(181), DOYidx(182));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(211), DOYidx(212));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(240.48), DOYidx(241.46));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(271), DOYidx(272));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(301), DOYidx(302));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(331), DOYidx(332));
+        UNM_30min_flux_processor_Tim(2, 2013, DOYidx(361), DOYidx(362));
     end
 
 elseif sitecode == 3 % JSav
@@ -128,6 +147,10 @@ elseif sitecode == 3 % JSav
         UNM_30min_flux_processor_Tim(3,2012,4211,5119);
         UNM_30min_flux_processor_Tim(3,2012,10540,12691);
         UNM_30min_flux_processor_Tim(3,2012,16512,17567);
+    elseif year == 2013
+        UNM_30min_flux_processor_Tim(3, 2013, 4118, 4350);
+        UNM_30min_flux_processor_Tim(3, 2013, 9633, 9827);
+        UNM_30min_flux_processor_Tim(3, 2013, 15842, 15889);
     end    
 elseif sitecode == 4 % PJ_control
     if year == 2009
@@ -309,6 +332,22 @@ elseif sitecode == 10 % PJ_girdle
       UNM_30min_flux_processor_Tim(10,2011,10660,11026);
     elseif year == 2012
         UNM_30min_flux_processor_Tim(10,2012,DOYidx(220.4), DOYidx( 242.5));
+    elseif year == 2013
+        % For some reason 1 day/month of 10hz data is missing at this site
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(1), DOYidx(2));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(31), DOYidx(32));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(61), DOYidx(62));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(91), DOYidx(92));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(114.7), DOYidx(119.4));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(121), DOYidx(122));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(151), DOYidx(152));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(181), DOYidx(182));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(211), DOYidx(212));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(241), DOYidx(242));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(271), DOYidx(272));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(301), DOYidx(302));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(331), DOYidx(332));
+        UNM_30min_flux_processor_Tim(10, 2013, DOYidx(361), DOYidx(362));
     end   
     
 elseif sitecode == 11 % New GLand
