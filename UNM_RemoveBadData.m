@@ -528,17 +528,10 @@ if ismember( sitecode, [ 1, 2 ] ) & year(2) == 2009
 end
 
 % PJ girdle, calculate relative humidity from hmp obs using helper
-% function. Not sure it is needed.
+% function. Not needed starting 1/10/2014
 if sitecode == 10
     rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) ./ 100.0;
 end
-
-% Calculate VPD Greg Maurer 8/22/2014
-tair_temp = Tdry - 273.15;
-vpd = 6.1078 * (1 - rH) .* exp(17.08085*tair_temp./(234.175+tair_temp));
-%es = 0.6108*exp(17.27*air_temp_hmp./(air_temp_hmp+237.3));
-%ea = rH .* es ;
-%vpd = ea - es;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Site-specific steps for soil temperature
@@ -1417,6 +1410,13 @@ LE = HL_wpl_massman;
 H_dry = HSdry_massman;
 %H_dry(dd_idx) = -9999;
 Tair = Tdry - 273.15;
+
+% Calculate VPD Greg Maurer 8/22/2014
+tair_temp = Tdry - 273.15;
+vpd = 6.1078 * (1 - rH) .* exp(17.08085*tair_temp./(234.175+tair_temp));
+%es = 0.6108*exp(17.27*air_temp_hmp./(air_temp_hmp+237.3));
+%ea = rH .* es ;
+%vpd2 = ea - es;
 
 if draw_plots > 2
     figure('Name', 'NEE vs wind direction' );
@@ -2410,16 +2410,16 @@ switch sitecode
                 DOY_co2_max( DOYidx( 348 ) : end ) = 0.75;
                 
             case 2013 %Added by RJL based on Marcy request 11/22/2013
-                DOY_co2_min( DOYidx( 160 ) : DOYidx( 190 ) ) = -1.5;
-                DOY_co2_min( DOYidx( 190 ) : DOYidx( 200 ) ) = -2.0;
-                DOY_co2_min( DOYidx( 200 ) : DOYidx( 208 ) ) = -5.0;
-                DOY_co2_min( DOYidx( 208 ) : DOYidx( 210 ) ) = -6.0;
-                DOY_co2_min( DOYidx( 210 ) : DOYidx( 233 ) ) = -11.0;
-                DOY_co2_min( DOYidx( 233 ) : DOYidx( 238 ) ) = -8.0;
-                DOY_co2_min( DOYidx( 238 ) : DOYidx( 255 ) ) = -4.0;
-                DOY_co2_min( DOYidx( 255 ) : DOYidx( 264 ) ) = -6.0;
-                DOY_co2_min( DOYidx( 264 ) : DOYidx( 272 ) ) = -7.0;
-                DOY_co2_min( DOYidx( 272 ) : end ) = -6.0;
+                DOY_co2_min( DOYidx( 160 ) : DOYidx( 190 ) ) = -3.0;
+%                 DOY_co2_min( DOYidx( 190 ) : DOYidx( 200 ) ) = -4.0;
+%                 DOY_co2_min( DOYidx( 200 ) : DOYidx( 208 ) ) = -9.0;
+%                 DOY_co2_min( DOYidx( 208 ) : DOYidx( 210 ) ) = -10.0;
+%                 DOY_co2_min( DOYidx( 210 ) : DOYidx( 233 ) ) = -15.0;
+%                 DOY_co2_min( DOYidx( 233 ) : DOYidx( 238 ) ) = -8.0;
+%                 DOY_co2_min( DOYidx( 238 ) : DOYidx( 255 ) ) = -4.0;
+%                 DOY_co2_min( DOYidx( 255 ) : DOYidx( 264 ) ) = -6.0;
+%                 DOY_co2_min( DOYidx( 264 ) : DOYidx( 272 ) ) = -7.0;
+                DOY_co2_min( DOYidx( 292 ) : end ) = -6.0;
         end  % New_GLand
 end
 

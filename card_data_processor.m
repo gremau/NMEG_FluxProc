@@ -266,7 +266,7 @@ methods
             % complete the 'reading fluxall...' message from UNM_parse_fluxall
             fprintf( 'not found.\nBuilding fluxall from scratch\n' );
             flux_all = [];
-            obj.date_start = datenum( year, 1, 1, 0, 30, 0);
+            obj.date_start = datenum( year, 1, 1);
         else
             % display all other errors as usual
             rethrow( err );

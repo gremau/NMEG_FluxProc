@@ -114,7 +114,7 @@ t0 = now();
 
 %process each 30-minute chunk into averages
 avg_30min_cell = cell( size( chunks_30_min ) );
-for i = 1:numel( edges ) - 1
+for i = 1:numel( edges ) % why is '-1' here? Could be introducing gaps?
     if not( isempty( chunks_30_min{ i } ) )
         avg_30min_cell{ i } = UNM_30min_TS_averager( sitecode, ...
                                                      edges( i ), ...
