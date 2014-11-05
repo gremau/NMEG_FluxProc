@@ -30,7 +30,7 @@ site = UNM_sites( site );
 args = inputParser;
 args.addRequired( 'site', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'raw_data_dir', @ischar );
-args.addOptional( 'wireless', 'false', @islogical );
+args.addOptional( 'wireless', false, @islogical );
 
 % parse optional inputs
 args.parse( site, raw_data_dir, varargin{ : } );
@@ -43,6 +43,7 @@ all_ts_fnames = '';
 
 thirty_min_file = dir(fullfile(raw_data_dir, '*.flux.dat'));
 ts_data_file_struct = dir(fullfile(raw_data_dir, '*.ts_data.dat'));
+
 % Select a safe output directory for wireless patches
 if args.Results.wireless
    tsdata_dir = fullfile(raw_data_dir, 'ts_data_patch');
