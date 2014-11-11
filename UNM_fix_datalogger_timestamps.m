@@ -305,14 +305,15 @@ switch sitecode
         'cols_to_shift', col_idx );
         
       case 2013
-         idx = 1 : DOYidx( 72 );
-         data( idx , : ) = shift_data( data( idx, : ), 1.0 );
-         idx = DOYidx( 72.01 ) : DOYidx( 337 );
-         data( idx , : ) = shift_data( data( idx, : ), 1.5 );
-         idx = DOYidx( 337.01 ) : DOYidx( 342 );
-         data( idx , : ) = shift_data( data( idx, : ), 1.0 );
-         idx = DOYidx( 342.01 ) : DOYidx( 365.98 );
-         data( idx , : ) = shift_data( data( idx, : ), 2.0 );
+         col_idx = 1:size(data, 2);
+         idx = 1 : DOYidx( 30 );
+         data( idx , : ) = shift_data( data( idx, : ), -0.5);%, 'cols_to_shift', col_idx );
+%          idx = DOYidx( 72.01 ) : DOYidx( 337 );
+%          data( idx , : ) = shift_data( data( idx, : ), 1.5, 'cols_to_shift', col_idx);
+%          idx = DOYidx( 337.01 ) : DOYidx( 342 );
+%          data( idx , : ) = shift_data( data( idx, : ), 1.0 );
+%          idx = DOYidx( 342.01 ) : DOYidx( 365.98 );
+%          data( idx , : ) = shift_data( data( idx, : ), 2.0 ,'cols_to_shift', col_idx);
     end
 
   case UNM_sites.TX

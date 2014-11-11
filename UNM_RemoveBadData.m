@@ -320,14 +320,14 @@ shift_t_str = 'shifted';
 jday = data.jday;
 iok = data.iok ;
 Tdry = data.tdry ;
-wnd_dir_compass = data.wind_direction ;
+%wnd_dir_compass = data.wind_direction ;
 wnd_spd = data.speed ;
-u_star = data.ustar ;
-CO2_mean = data.CO2_mean ;
-CO2_std = data.CO2_std ;
-H2O_mean = data.H2O_mean ;
-H2O_std = data.H2O_std ;
-u_mean = data.u_mean_unrot ;
+%u_star = data.ustar ;
+%CO2_mean = data.CO2_mean ;
+%CO2_std = data.CO2_std ;
+%H2O_mean = data.H2O_mean ;
+%H2O_std = data.H2O_std ;
+%u_mean = data.u_mean_unrot ;
 t_mean = data.temp_mean;
 t_meanK = t_mean + 273.15;
 
@@ -335,7 +335,7 @@ fc_raw = data.Fc_raw ;
 fc_raw_massman = data.Fc_raw_massman ;
 fc_water_term = data.Fc_water_term ;
 fc_heat_term_massman = data.Fc_heat_term_massman ;
-fc_raw_massman_wpl = data.Fc_raw_massman_ourwpl;
+%fc_raw_massman_wpl = data.Fc_raw_massman_ourwpl;
 
 E_raw = data.E_raw ;
 E_raw_massman = data.E_raw_massman ;
@@ -343,20 +343,14 @@ E_water_term = data.E_water_term;
 E_heat_term_massman = data.E_heat_term_massman;
 E_wpl_massman = data.E_wpl_massman;
 
-HSdry = data.SensibleHeat_dry ;
-HSdry_massman = data.HSdry_massman;
+%HSdry = data.SensibleHeat_dry ;
+%HSdry_massman = data.HSdry_massman;
 
-HL_raw = data.LatentHeat_raw;
-HL_wpl_massman = data.LatentHeat_raw_massman ;
-HL_wpl_massman_un = repmat( NaN, size( data, 1 ), 1 );
-% Half hourly data filler only produces uncorrected HL_wpl_massman, but use
-% these where available as very similar values
-HL_wpl_massman( isnan( HL_wpl_massman ) & ...
-    ~isnan( HL_wpl_massman_un ) ) = ...
-    HL_wpl_massman_un( isnan( HL_wpl_massman ) & ...
-    ~isnan( HL_wpl_massman_un ) );
+%HL_raw = data.LatentHeat_raw;
+%HL_wpl_massman = data.LatentHeat_raw_massman ; % Is this correct?
+%HL_wpl_massman_un = repmat( NaN, size( data, 1 ), 1 );
 
-rhoa_dry = data.rhoa_dry_air_molar_density;
+%rhoa_dry = data.rhoa_dry_air_molar_density;
 
 decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
     datenum( year, 1, 1 ) + 1 );
@@ -365,8 +359,6 @@ year_arg = year(2);
 %initialize RH to NaN
 rH = repmat( NaN, size( data, 1), 1 );
 
-% filter out absurd u_star values
-u_star( u_star > 50 ) = NaN;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Read in 30-min data, variable order and names in flux_all files are not
@@ -383,9 +375,60 @@ for i=1:numel( headertext );
     if strcmp('agc_Avg',headertext{i}) == 1
         agc_Avg = data(:,i);
     elseif strcmp('h2o_hmp_Avg', headertext{i}) == 1 | ...
-            strcmp('h2o_hmp_mean', headertext{i}) == 1| ...
-            strcmp('h2o_hmp_mean_Avg', headertext{i})
+            strcmp('h2o_hmp_mean', headertext{i}) == 1 | ...
+            strcmp('h2o_hmp_mean_Avg', headertext{i}) == 1
         h2o_hmp = data( :, i );
+    elseif strcmp('wind_direction', headertext{i}) == 1 | ...
+            strcmp('windDirection_theta', headertext{i}) == 1
+        wnd_dir_compass = data( :, i );
+    elseif strcmp('ustar', headertext{i}) == 1 | ...
+            strcmp('ustar_frictionVelocity_M_s', headertext{i}) == 1
+        u_star = data( :, i );
+        % filter out absurd u_star values
+        u_star( u_star > 50 ) = NaN;
+    elseif strcmp('u_mean_unrot', headertext{i}) == 1 | ...
+            strcmp('u_mean', headertext{i}) == 1
+        u_mean = data( :, i );
+    elseif strcmp('CO2_mean', headertext{i}) == 1 | ...
+            strcmp('CO2_mean_umol_molDryAir', headertext{i}) == 1
+        CO2_mean = data( :, i );
+    elseif strcmp('CO2_std', headertext{i}) == 1 | ...
+            strcmp('CO2_std_umol_molDryAir', headertext{i}) == 1
+        CO2_std = data( :, i );
+    elseif strcmp('H2O_mean', headertext{i}) == 1 | ...
+            strcmp('H2O_mean_mmol_molDryAir', headertext{i}) == 1
+        H2O_mean = data( :, i );
+    elseif strcmp('H2O_std', headertext{i}) == 1 | ...
+            strcmp('H2O_std_mmol_molDryAir', headertext{i}) == 1
+        H2O_std = data( :, i );
+    elseif strcmp('Fc_raw_massman_ourwpl', headertext{i}) == 1 | ...
+            strcmp('Fc_raw_massman_wpl', headertext{i}) == 1
+        fc_raw_massman_wpl = data( :, i );
+    elseif strcmp('SensibleHeat_dry', headertext{i}) == 1 | ...
+            strcmp('HSdry_WM2', headertext{i}) == 1
+        HSdry = data( :, i );
+    elseif strcmp('HSdry_massman', headertext{i}) == 1 | ...
+            strcmp('HSdry_massman_WM2', headertext{i}) == 1
+        HSdry_massman = data( :, i );
+    elseif strcmp('LatentHeat_raw', headertext{i}) == 1 | ...
+            strcmp('HL_raw_WM2', headertext{i}) == 1
+        HL_raw = data( :, i );
+    elseif strcmp('LatentHeat_raw_massman', headertext{i}) == 1 | ...
+            strcmp('HL_raw_massman_WM2', headertext{i}) == 1
+        HL_wpl_massman = data( :, i );% Is this correct? Its raw, not wpl
+        
+        HL_wpl_massman_un = repmat( NaN, size( data, 1 ), 1 );
+        % Half hourly data filler only produces uncorrected HL_wpl_massman,
+        % but use these where available as very similar values
+        HL_wpl_massman( isnan( HL_wpl_massman ) & ...
+            ~isnan( HL_wpl_massman_un ) ) = ...
+            HL_wpl_massman_un( isnan( HL_wpl_massman ) & ...
+            ~isnan( HL_wpl_massman_un ) );
+    elseif strcmp('rhoa_dry_air_molar_density', headertext{i}) == 1 | ...
+            strcmp('rhoa_dryAirMolarDensity_mols_m3MoistAir', headertext{i}) == 1 | ...
+            strcmp('rhoa_dryAirMolarDensity_g_m3MoistAir', headertext{i}) == 1% Is this correct? Convert?
+        rhoa_dry = data( :, i );
+        
         % Input all the different relative humidity variables and change to 0-1.
     elseif strcmp('rH', headertext{i}) == 1 | ...
             strcmp('RH_Avg', headertext{i}) == 1 | ...
@@ -714,7 +757,7 @@ MW_h2o = 16; % water vapor molecular weight [g / mol]
 hh = (1 ./ ( R .* ( t_meanK ./ atm_press ) .* 1000 ) ) .* 44;
 % convert umol CO2 / mol dry air to mg CO2 / m3 dry air -- TWH
 % cf_co2 abbreviates "conversion factor CO2"
-%cf_co2 = ( ( MWd * Rd * t_meanK ) / ( 1000 * atm_press ) ) * ( 44 / 1000 );
+cf_co2 = ( ( MWd * Rd * t_meanK ) ./ ( 1000 * atm_press ) ) .* ( 44 / 1000 );
 CO2_mg = CO2_mean .* hh;
 
 % This is the conversion from mmol mol to g m3 for H2O
@@ -753,13 +796,7 @@ pd = 44.6 .* 28.97 .* atm_press ./ 101.3 .* 273.16 ./ t_meanK;
 dFc = (Si_top + Si_bot + Sip_spar) ./ RhoCp .* CO2_mg ./ t_meanK .* ...
     (1 + 1.6077 .* H2O_g ./ pd);
 
-if draw_plots > 2
-    h_burba_fig = figure( 'Name', 'Burba' );
-    plot(dFc,'.'); ylim([-1 1]);
-    title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
-    ylabel('Burba cold temp correction');
-    xlabel('time');
-end
+
 % Convert correct flux from mumol/m2/s to mg/m2/s
 fc_mg = fc_raw_massman_wpl .* 0.044;
 fc_mg_corr = (fc_raw_massman_wpl .* 0.044) + dFc;
@@ -767,6 +804,32 @@ fc_mg_corr = (fc_raw_massman_wpl .* 0.044) + dFc;
 found = find(t_mean<0);
 fc_out=fc_mg;
 fc_out(found)=fc_mg_corr(found);
+
+% Convert back to mumol/m2/s
+fc_out = fc_out .* (1/0.044);
+
+if draw_plots > 2
+    h_burba_fig = figure( 'Name', 'Burba correction' );
+    ax(1) = subplot(311);
+    plot(timestamp, dFc,'.'); ylim([-0.5 0.5]);
+    legend('delta Fc in mg/m2/s'); datetick('x', 'mmm-yyyy');
+    ylabel('Calculated correction (mg m^2 s^{-1}');
+    title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
+    ax(2) = subplot(312);
+    plot(timestamp, fc_raw_massman_wpl, '.g');
+    hold on;
+    plot(timestamp, fc_out, '.k');
+    ylabel('Fc (umol m^2 s^{-1})'); ylim([-25 15]);
+    legend('uncorrected', 'corrected'); datetick('x', 'mmm-yyyy');
+    ax(3) = subplot(313);
+    plot(timestamp, t_mean, '.r');
+    hold on;
+    plot(get(gca,'xlim'), [0 0], ':k');
+    ylabel('T_{mean} (C)'); xlabel('Date'); datetick('x', 'mm-yyyy');
+    linkaxes(ax, 'x');
+end
+
+fc_raw_massman_wpl = fc_out;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set up filters for co2 and make a master flag variable (decimal_day_nan)
@@ -883,14 +946,17 @@ if iteration == 1
     end
     
     startbin;
-    if draw_plots > 2
-        figure( 'Name', 'determine Ustar cutoff', 'NumberTitle', 'Off' );
+    if draw_plots == 1
+        ufig = figure( 'Name', 'determine Ustar cutoff', 'NumberTitle', 'Off' );
         clf;
         plot( ustar_mean, co2mean, '.k' );
         xlabel( 'UStar' );
         ylabel( 'co2mean' );
-        title( 'UStar' );
+        title( sprintf('UStar, %s %d', get_site_name(sitecode), year(1)));
         shg;
+        figname = fullfile(getenv('FLUXROOT'), 'ustar_analysis',...
+            sprintf('ustar_cutoff_%s_%d.png', get_site_name(sitecode), year(1)));
+        print(ufig, '-dpng', figname ); 
     end
     return;
 end
