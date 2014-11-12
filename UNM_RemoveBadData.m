@@ -752,55 +752,78 @@ Rd = 287.04; % dry air gas constant [J / kg / K]
 MWd = 28.97; % dry air molecular weight [g / mol]
 R_h2o = 461.5; % water vapor gas constant [J / kg / K]
 MW_h2o = 16; % water vapor molecular weight [g / mol]
+Cp = 1004.67; % specific heat capacity of dry air @ constant pres [J / kg / K]
 
 % This is the conversion from mumol mol to mg m3 for CO2
 hh = (1 ./ ( R .* ( t_meanK ./ atm_press ) .* 1000 ) ) .* 44;
 % convert umol CO2 / mol dry air to mg CO2 / m3 dry air -- TWH
 % cf_co2 abbreviates "conversion factor CO2"
-cf_co2 = ( ( MWd * Rd * t_meanK ) ./ ( 1000 * atm_press ) ) .* ( 44 / 1000 );
+%cf_co2 = ( ( MWd * Rd * t_meanK ) ./ ( 1000 * atm_press ) ) .* ( 44 / 1000 );
+%cf_co2 = ( ( MWd * Rd ) ./ 1000 ) .* (t_meanK ./ ( atm_press * 1000 ))...
+%    .* ( 44 / 1000 );
+%CO2_mg = CO2_mean .* cf_co2;
 CO2_mg = CO2_mean .* hh;
 
 % This is the conversion from mmol mol to g m3 for H2O
 gg = ( ( 1 ./ ...
     ( R .* ( t_meanK ./ atm_press ) ) ) .* 18 ) ./ 1000;
 % convert mmol H2O / mol dry air to g H2O / m3 dry air -- TWH
-% cf_co2 abbreviates "conversion factor CO2"
-%cf_h2o = ( MW_h2o * R_h2o * t_meanK ) / ( 1000 * atm_press )
+% cf_h2o abbreviates "conversion factor H2O"
+%cf_h2o = ( MW_h2o * R_h2o * t_meanK ) ./ ( 1000 * atm_press );
+%cf_h2o = ( Rd * MWd ) ./ 1000 .* (t_meanK ./ ( 1000 * atm_press ))...
+%    .* MW_h2o;
+%H2O_g = H2O_mean .* cf_h2o;
 H2O_g = H2O_mean .* gg;
 
+% I don't use this - but maybe I need to use rhoa in g or kg
 rhoa_dry_kg = ( rhoa_dry .* MWd ) ./ 1000; % from mol/m3 to kg/m3
 
 Cp = 1004.67 + ( Tdry .^ 2 ./ 3364. );
 RhoCp = rhoa_dry_kg .* Cp;
+% Following burba spreadsheet directly instead of using what is above
+%RhoCp = (rhoa_dry./1000) .* Cp;
+
+% Positive net radiation
 NR_pos = find( NR_tot > 0 );
 
 Kair = ( 0.000067 .* t_mean ) + 0.024343;
 
+% Calculate temperature and heating differetials on LI 7500 bodies
+% with and without radiation
 Ti_bot = (0.883 .* t_mean + 2.17) + 273.16;
 Ti_bot(NR_pos) = (0.944 .* t_mean(NR_pos) + 2.57) + 273.16;
+
 Ti_top = (1.008 .* t_mean - 0.41) + 273.16;
 Ti_top(NR_pos) = (1.005 .* t_mean(NR_pos) + 0.24) + 273.16;
+
 Ti_spar = (1.01 .* t_mean - 0.17) + 273.16;
 Ti_spar(NR_pos) = (1.01 .* t_mean(NR_pos) + 0.36) + 273.16;
+
 Si_bot = Kair .* (Ti_bot-t_meanK) ./ ...
     (0.004 .* sqrt(0.065 ./ abs(u_mean)) + 0.004);
+
 Si_top = ( Kair .* (Ti_top-t_meanK) .* ...
     (0.0225 + (0.0028 .* sqrt(0.045 ./ abs(u_mean)) + ...
     0.00025 ./ abs(u_mean) + 0.0045)) ./ ...
     (0.0225 .* (0.0028 .* sqrt(0.045 ./ abs(u_mean)) + ...
     0.00025 ./ abs(u_mean) + 0.0045)) );
+
 Sip_spar = ( Kair .* (Ti_spar - t_meanK) ./ ...
     (0.0025 .* log((0.0025 + 0.0058 .* ...
     sqrt(0.005 ./ abs(u_mean))) ./ 0.0025)) .* 0.15 );
+
+% Dry air density
 pd = 44.6 .* 28.97 .* atm_press ./ 101.3 .* 273.16 ./ t_meanK;
+% Now calculate the correction to the flux
 dFc = (Si_top + Si_bot + Sip_spar) ./ RhoCp .* CO2_mg ./ t_meanK .* ...
     (1 + 1.6077 .* H2O_g ./ pd);
 
 
 % Convert correct flux from mumol/m2/s to mg/m2/s
 fc_mg = fc_raw_massman_wpl .* 0.044;
+% Add the burba correction to it
 fc_mg_corr = (fc_raw_massman_wpl .* 0.044) + dFc;
-
+% Apply this only if the temperature is below 0C
 found = find(t_mean<0);
 fc_out=fc_mg;
 fc_out(found)=fc_mg_corr(found);
@@ -808,6 +831,7 @@ fc_out(found)=fc_mg_corr(found);
 % Convert back to mumol/m2/s
 fc_out = fc_out .* (1/0.044);
 
+% Make a diagnostic plot
 if draw_plots > 2
     h_burba_fig = figure( 'Name', 'Burba correction' );
     ax(1) = subplot(311);
@@ -829,6 +853,7 @@ if draw_plots > 2
     linkaxes(ax, 'x');
 end
 
+% Make the burba corrected flux what we use from here out.
 fc_raw_massman_wpl = fc_out;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -946,7 +971,7 @@ if iteration == 1
     end
     
     startbin;
-    if draw_plots == 1
+    if draw_plots > 2
         ufig = figure( 'Name', 'determine Ustar cutoff', 'NumberTitle', 'Off' );
         clf;
         plot( ustar_mean, co2mean, '.k' );
