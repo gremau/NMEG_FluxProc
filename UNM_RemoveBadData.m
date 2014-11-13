@@ -395,9 +395,14 @@ for i=1:numel( headertext );
     elseif strcmp('CO2_std', headertext{i}) == 1 | ...
             strcmp('CO2_std_umol_molDryAir', headertext{i}) == 1
         CO2_std = data( :, i );
-    elseif strcmp('H2O_mean', headertext{i}) == 1 | ...
-            strcmp('H2O_mean_mmol_molDryAir', headertext{i}) == 1
+    % This should come in from 10hz data in g/m3, but some fluxall
+    % have it in mmol/mol, so convert it
+    elseif strcmp('H2O_mean', headertext{i}) == 1
         H2O_mean = data( :, i );
+    elseif strcmp('H2O_mean_mmol_molDryAir', headertext{i}) == 1
+        H2O_mean = data( :, i ) .* ( ( ( 1 ./ ...
+    ( 8.3143e-3 .* ( t_meanK ./ atm_press ) ) ) .* 18 ) ./ 1000);
+        
     elseif strcmp('H2O_std', headertext{i}) == 1 | ...
             strcmp('H2O_std_mmol_molDryAir', headertext{i}) == 1
         H2O_std = data( :, i );
@@ -773,22 +778,23 @@ gg = ( ( 1 ./ ...
 %cf_h2o = ( Rd * MWd ) ./ 1000 .* (t_meanK ./ ( 1000 * atm_press ))...
 %    .* MW_h2o;
 %H2O_g = H2O_mean .* cf_h2o;
-H2O_g = H2O_mean .* gg;
 
-% I don't use this - but maybe I need to use rhoa in g or kg
-rhoa_dry_kg = ( rhoa_dry .* MWd ) ./ 1000; % from mol/m3 to kg/m3
+% I don't think it is necessary to convert this
+H2O_g = H2O_mean;% .* gg;
 
-Cp = 1004.67 + ( Tdry .^ 2 ./ 3364. );
+% Convert dry air density from mol/m3 to kg/m3
+rhoa_dry_kg = ( rhoa_dry .* MWd ) ./ 1000; % 
+
+% Calculate heat capacity of air [J / kg / K] based on temperature
+Cp = 1004.67 + ( Tdry .^ 2 ./ 3364. ); % Not yet sure why this is done.
 RhoCp = rhoa_dry_kg .* Cp;
-% Following burba spreadsheet directly instead of using what is above
-%RhoCp = (rhoa_dry./1000) .* Cp;
 
 % Positive net radiation
 NR_pos = find( NR_tot > 0 );
 
 Kair = ( 0.000067 .* t_mean ) + 0.024343;
 
-% Calculate temperature and heating differetials on LI 7500 bodies
+% Calculate temperature and heating differentials on LI7500 bodies
 % with and without radiation
 Ti_bot = (0.883 .* t_mean + 2.17) + 273.16;
 Ti_bot(NR_pos) = (0.944 .* t_mean(NR_pos) + 2.57) + 273.16;
@@ -818,7 +824,6 @@ pd = 44.6 .* 28.97 .* atm_press ./ 101.3 .* 273.16 ./ t_meanK;
 dFc = (Si_top + Si_bot + Sip_spar) ./ RhoCp .* CO2_mg ./ t_meanK .* ...
     (1 + 1.6077 .* H2O_g ./ pd);
 
-
 % Convert correct flux from mumol/m2/s to mg/m2/s
 fc_mg = fc_raw_massman_wpl .* 0.044;
 % Add the burba correction to it
@@ -833,19 +838,29 @@ fc_out = fc_out .* (1/0.044);
 
 % Make a diagnostic plot
 if draw_plots > 2
-    h_burba_fig = figure( 'Name', 'Burba correction' );
-    ax(1) = subplot(311);
-    plot(timestamp, dFc,'.'); ylim([-0.5 0.5]);
+    h_burba_fig = figure( 'Name', 'Burba correction',...
+        'Units', 'centimeters', 'Position', [5, 6, 16, 22] );
+    ax(1) = subplot(411);
+    plot(timestamp, dFc,'.'); ylim([-0.05 0.15]);
     legend('delta Fc in mg/m2/s'); datetick('x', 'mmm-yyyy');
     ylabel('Calculated correction (mg m^2 s^{-1}');
     title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
-    ax(2) = subplot(312);
+    ax(2) = subplot(412);
     plot(timestamp, fc_raw_massman_wpl, '.g');
     hold on;
     plot(timestamp, fc_out, '.k');
     ylabel('Fc (umol m^2 s^{-1})'); ylim([-25 15]);
     legend('uncorrected', 'corrected'); datetick('x', 'mmm-yyyy');
-    ax(3) = subplot(313);
+    ax(3) = subplot(413);
+    fc_nonan1 = fc_raw_massman_wpl
+    fc_nonan1(find(isnan(fc_nonan1))) = 0;
+    plot(timestamp, cumsum(fc_nonan1), '.g');
+    hold on;
+    fc_nonan2 = fc_out;
+    fc_nonan2(find(isnan(fc_nonan2))) = 0;
+    plot(timestamp, cumsum(fc_nonan2), '.k');
+    legend('uncorrected', 'corrected'); datetick('x', 'mmm-yyyy');
+    ax(4) = subplot(414);
     plot(timestamp, t_mean, '.r');
     hold on;
     plot(get(gca,'xlim'), [0 0], ':k');
