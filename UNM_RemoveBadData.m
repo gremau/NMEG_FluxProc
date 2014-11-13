@@ -107,7 +107,7 @@ obs_per_day = 48;  % half-hourly observations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if sitecode == UNM_sites.GLand; % grassland
-    ustar_lim = 0.06; % 2013 MPI value: 0.04 to 0.12 (0.12 selected)
+    ustar_lim = 0.06;
     co2_min_by_month = -15; co2_max_by_month = 6;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -120,7 +120,7 @@ if sitecode == UNM_sites.GLand; % grassland
     h2o_max = 30; h2o_min = 0;
     
 elseif sitecode == UNM_sites.SLand; % shrubland
-    ustar_lim = 0.08; % 2013 MPI value: 0.03 to 0.18 (0.18 selected)
+    ustar_lim = 0.08;
     co2_min_by_month = -15; co2_max_by_month = 6;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -133,7 +133,7 @@ elseif sitecode == UNM_sites.SLand; % shrubland
     h2o_max = 30; h2o_min = 0;
     
 elseif sitecode == UNM_sites.JSav; % Juniper savanna
-    ustar_lim = 0.09; % 2013 MPI value: 0.07 to 0.22 (0.22 selected)
+    ustar_lim = 0.11;
     co2_min_by_month = -15;
     co2_max_by_month = [ repmat( 4, 1, 6 ), repmat( 10, 1, 6 ) ];
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
@@ -148,7 +148,7 @@ elseif sitecode == UNM_sites.JSav; % Juniper savanna
     press_min = 70; press_max = 130;
     
 elseif sitecode == UNM_sites.PJ; % Pinyon Juniper
-    ustar_lim = 0.16; % 2013 MPI value: 0.33 to 0.48 (0.4 selected)
+    ustar_lim = 0.22;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
@@ -164,7 +164,7 @@ elseif sitecode == UNM_sites.PJ; % Pinyon Juniper
     co2_max_by_month = [ 2, 2, 2, 2.5, 3, 3, 3, repmat( 6, 1, 5 ) ];
     
 elseif sitecode == UNM_sites.PJ_girdle; % Pinyon Juniper girdle
-    ustar_lim = 0.16; % 2013 MPI value: 0.27 to 0.48 (0.4 selected)
+    ustar_lim = 0.16;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
@@ -179,7 +179,7 @@ elseif sitecode == UNM_sites.PJ_girdle; % Pinyon Juniper girdle
     co2_max_by_month = [ 1.5, 1.5, 2, 2, 3, 4, 4, repmat( 6, 1, 5 ) ];
     
 elseif sitecode == UNM_sites.New_GLand; % new Grassland
-    ustar_lim = 0.06; % 2013 MPI value: 0.05 to 0.11 (0.11 selected)
+    ustar_lim = 0.06;
     n_SDs_filter_hi = 4.5; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     co2_min_by_month = -15; co2_max_by_month = 6;
@@ -196,7 +196,7 @@ elseif sitecode == UNM_sites.PPine; % Ponderosa Pine
     co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -5];
     co2_max_by_month = [4 4 4 5 30 30 30 30 30 30 5 4];
     co2_max_by_month = 30;
-    ustar_lim = 0.08;
+    ustar_lim = 0.2;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 119; wind_max = 179; % these are given a sonic_orient = 329;
@@ -219,7 +219,7 @@ elseif sitecode == UNM_sites.MCon; % Mixed conifer
     LH_min = -50; LH_max = 550;
     rH_min = 0; rH_max = 1;
     h2o_max = 30; h2o_min = 0;
-    ustar_lim = 0.11;
+    ustar_lim = 0.2;
     
 elseif sitecode == UNM_sites.TX;
     ustar_lim = 0.11;
