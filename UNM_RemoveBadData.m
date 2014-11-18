@@ -369,6 +369,8 @@ rH = repmat( NaN, size( data, 1), 1 );
 CNR1_var = regexp_ds_vars( data, 'CNR1*|Temp_C_Avg' );
 CNR1TK = data.( CNR1_var{ 1 } ) + 273.15;
 
+h2oflag_1 = 0;
+
 data = double( data );
 
 for i=1:numel( headertext );
@@ -396,13 +398,12 @@ for i=1:numel( headertext );
             strcmp('CO2_std_umol_molDryAir', headertext{i}) == 1
         CO2_std = data( :, i );
     % This should come in from 10hz data in g/m3, but some fluxall
-    % have it in mmol/mol, so convert it
+    % have it in mmol/mol, so convert it below
     elseif strcmp('H2O_mean', headertext{i}) == 1
         H2O_mean = data( :, i );
     elseif strcmp('H2O_mean_mmol_molDryAir', headertext{i}) == 1
-        H2O_mean = data( :, i ) .* ( ( ( 1 ./ ...
-    ( 8.3143e-3 .* ( t_meanK ./ atm_press ) ) ) .* 18 ) ./ 1000);
-        
+        H2O_mean = data( :, i );
+        h2oflag_1 = 1;
     elseif strcmp('H2O_std', headertext{i}) == 1 | ...
             strcmp('H2O_std_mmol_molDryAir', headertext{i}) == 1
         H2O_std = data( :, i );
@@ -566,6 +567,12 @@ for i=1:numel( headertext );
         soil_heat_flux_4 = data(:,i);
         
     end
+end
+
+% Fix selected atmospheric water content measuremnts
+if h2oflag_1
+    H2O_mean = H2O_mean .* ( ( ( 1 ./ ...
+        ( 8.3143e-3 .* ( t_meanK ./ atm_press ) ) ) .* 18 ) ./ 1000);
 end
 
 % remove absurd precipitation measurements
@@ -796,19 +803,31 @@ Kair = ( 0.000067 .* t_mean ) + 0.024343;
 
 % Calculate temperature and heating differentials on LI7500 bodies
 % with and without radiation
+Ti_top = (1.008 .* t_mean - 0.4) + 273.16;
+Ti_top(NR_pos) = (1.005 .* t_mean(NR_pos) + 0.24) + 273.16;
+
 Ti_bot = (0.883 .* t_mean + 2.17) + 273.16;
 Ti_bot(NR_pos) = (0.944 .* t_mean(NR_pos) + 2.57) + 273.16;
 
-Ti_top = (1.008 .* t_mean - 0.41) + 273.16;
-Ti_top(NR_pos) = (1.005 .* t_mean(NR_pos) + 0.24) + 273.16;
+% There is a further correction for irga angle (Oechel 2014 in JGR)
+% Correct the heating of the bottom cylinder based on angle
+tbot_weight = 63; % Currently calculated with a spreadsheet sensivity analysis
+ttop_weight = 100 - tbot_weight;
+cbot_weight = 100;
+ctop_weight = 100 - cbot_weight;
+Ti_bot_angled = (1/100) .* (tbot_weight .* Ti_bot + ttop_weight .* Ti_top);
 
 Ti_spar = (1.01 .* t_mean - 0.17) + 273.16;
 Ti_spar(NR_pos) = (1.01 .* t_mean(NR_pos) + 0.36) + 273.16;
 
-Si_bot = Kair .* (Ti_bot-t_meanK) ./ ...
+Si_bot = Kair .* (Ti_bot - t_meanK) ./ ...
     (0.004 .* sqrt(0.065 ./ abs(u_mean)) + 0.004);
 
-Si_top = ( Kair .* (Ti_top-t_meanK) .* ...
+% New coreection - Note that it uses angled Ti_bot (as per burba spreadsheet)
+Si_bot_new = Kair .* (Ti_bot_angled - t_meanK) ./ ...
+    (0.004 .* sqrt(0.065 ./ abs(u_mean)) + 0.004);
+
+Si_top = ( Kair .* (Ti_top - t_meanK) .* ...
     (0.0225 + (0.0028 .* sqrt(0.045 ./ abs(u_mean)) + ...
     0.00025 ./ abs(u_mean) + 0.0045)) ./ ...
     (0.0225 .* (0.0028 .* sqrt(0.045 ./ abs(u_mean)) + ...
@@ -818,31 +837,39 @@ Sip_spar = ( Kair .* (Ti_spar - t_meanK) ./ ...
     (0.0025 .* log((0.0025 + 0.0058 .* ...
     sqrt(0.005 ./ abs(u_mean))) ./ 0.0025)) .* 0.15 );
 
+% And this corrects the Si_bot_new value (as per burba spreadsheet)
+Si_bot_angled = (1/100) .* (cbot_weight .* Si_bot_new + ctop_weight .* Si_top);
+
 % Dry air density
 pd = 44.6 .* 28.97 .* atm_press ./ 101.3 .* 273.16 ./ t_meanK;
 % Now calculate the correction to the flux
-dFc = (Si_top + Si_bot + Sip_spar) ./ RhoCp .* CO2_mg ./ t_meanK .* ...
-    (1 + 1.6077 .* H2O_g ./ pd);
+dFc = (Si_top + Si_bot + Sip_spar) ./ RhoCp .* CO2_mg ./...
+    t_meanK .* (1 + 1.6077 .* H2O_g ./ pd);
+% And the new, angled correction
+dFc_angled = (Si_top + Si_bot_angled + Sip_spar) ./ RhoCp .* CO2_mg ./...
+    t_meanK .* (1 + 1.6077 .* H2O_g ./ pd); 
 
 % Convert correct flux from mumol/m2/s to mg/m2/s
 fc_mg = fc_raw_massman_wpl .* 0.044;
 % Add the burba correction to it
 fc_mg_corr = (fc_raw_massman_wpl .* 0.044) + dFc;
 % Apply this only if the temperature is below 0C
-found = find(t_mean<0);
-fc_out=fc_mg;
-fc_out(found)=fc_mg_corr(found);
+found = find(t_mean < 0);
+fc_out = fc_mg;
+fc_out(found) = fc_mg_corr(found);
 
 % Convert back to mumol/m2/s
-fc_out = fc_out .* (1/0.044);
+fc_out = fc_out .* (1 / 0.044);
 
 % Make a diagnostic plot
 if draw_plots > 2
     h_burba_fig = figure( 'Name', 'Burba correction',...
         'Units', 'centimeters', 'Position', [5, 6, 16, 22] );
     ax(1) = subplot(411);
-    plot(timestamp, dFc,'.'); ylim([-0.05 0.15]);
-    legend('delta Fc in mg/m2/s'); datetick('x', 'mmm-yyyy');
+    plot(timestamp, dFc,'.');
+    hold on;
+    plot(timestamp, dFc_angled,'om'); ylim([-0.05 0.15]);
+    legend('delta Fc in mg/m2/s', 'delta Fc - angled' ); datetick('x', 'mmm-yyyy');
     ylabel('Calculated correction (mg m^2 s^{-1}');
     title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
     ax(2) = subplot(412);
@@ -852,7 +879,7 @@ if draw_plots > 2
     ylabel('Fc (umol m^2 s^{-1})'); ylim([-25 15]);
     legend('uncorrected', 'corrected'); datetick('x', 'mmm-yyyy');
     ax(3) = subplot(413);
-    fc_nonan1 = fc_raw_massman_wpl
+    fc_nonan1 = fc_raw_massman_wpl;
     fc_nonan1(find(isnan(fc_nonan1))) = 0;
     plot(timestamp, cumsum(fc_nonan1), '.g');
     hold on;

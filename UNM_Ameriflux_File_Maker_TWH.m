@@ -252,28 +252,33 @@ function nonan = nan_cumsum(arr)
     nonan(find(isnan(nonan))) = 0;
     nonan = cumsum(nonan);
 end
-partition_comp_fig = figure( 'Name', 'Reichstein vs Lasslop',...
-    'Units', 'centimeters', 'Position', [5, 6, 22, 25] );
+partition_comp_fig = figure( 'Name',...
+    sprintf('Reichstein vs. Lasslop, %s %d', site, year),...
+    'Units', 'centimeters', 'Position', [5, 5, 29, 23] );
 title(sprintf('%s %d', get_site_name(sitecode), year));
 ax(1) = subplot(2,3,1:2);
-plot(ds_pt.timestamp, ds_pt.Reco, '.k');
+plot(ds_pt.timestamp, ds_pt.NEE_f, ':', 'color', [0.7,0.7,0.7]);
 hold on;
+plot(ds_pt.timestamp, ds_pt.Reco, '.k');
 plot(ds_pt.timestamp, ds_pt.Reco_HBLR, 'xb');
-legend('R_{eco} Reichstein', 'R_{eco} Lasslop');
+legend('filled NEE', 'R_{eco} Reichstein', 'R_{eco} Lasslop');
+datetick(); %ylim([-15, 10]);
 ax(2) = subplot(2,3,3);
 plot(ds_pt.timestamp, nan_cumsum(ds_pt.Reco), '.k');
 hold on;
 plot(ds_pt.timestamp, nan_cumsum(ds_pt.Reco_HBLR), 'xb');
 ax(3) = subplot(2,3,4:5);
-plot(ds_pt.timestamp, ds_pt.GPP_f, '.k');
+plot(ds_pt.timestamp, ds_pt.NEE_f, ':', 'color', [0.7,0.7,0.7]);
 hold on;
-plot(ds_pt.timestamp, ds_pt.GPP_HBLR, 'xr');
-legend('GPP Reichstein', 'GPP Lasslop');
+plot(ds_pt.timestamp, -ds_pt.GPP_f, '.k');
+plot(ds_pt.timestamp, -ds_pt.GPP_HBLR, 'xr');
+legend('filled NEE', 'GPP Reichstein', 'GPP Lasslop');
+datetick(); %ylim([-15, 10]);
 ax(4) = subplot(2,3,6);
 plot(ds_pt.timestamp, nan_cumsum(ds_pt.GPP_f), '.k');
 hold on;
 plot(ds_pt.timestamp, nan_cumsum(ds_pt.GPP_HBLR), 'xr');
-
+linkaxes(ax, 'x');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create Ameriflux output dataset and write to ASCII files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

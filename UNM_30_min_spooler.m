@@ -205,6 +205,9 @@ elseif sitecode == 5 % PPine
         UNM_30min_flux_processor_071610(5,2010,17063,17524);
     elseif year == 2011
         UNM_30min_flux_processor_071610(5,2011,1236,2246);
+    elseif year == 2013
+        UNM_30min_flux_processor_Tim(5,2013,DOYidx(319.45), DOYidx(323.65));
+        UNM_30min_flux_processor_Tim(5,2013,DOYidx(330.6), DOYidx(331.42));
     end
 
 elseif sitecode == 6 % MCon
@@ -249,6 +252,10 @@ elseif sitecode == 6 % MCon
         UNM_30min_flux_processor_071610(6, 2011, 1530,1609);
         UNM_30min_flux_processor_071610(6, 2011, 1781,2236);
         UNM_30min_flux_processor_071610(6, 2011, 10778, 11369);
+    elseif year == 2013 % added by Mike Fuller
+        UNM_30min_flux_processor_Tim(6, 2013, DOYidx(1),DOYidx(1.53));
+        UNM_30min_flux_processor_Tim(6, 2013, DOYidx(29.75),DOYidx(30.33));
+        UNM_30min_flux_processor_Tim(6, 2013, DOYidx(52.9),DOYidx(53.46));
     end
 
 elseif sitecode == 7 % TX_savanna

@@ -103,10 +103,10 @@ end
 
 %Ask the user if they want to resolve the headers. If not, process
 %picks up at dataset_vertcat_fill_vars
+
 prompt = 'Do you want to resolve the headers for this fluxall file? Y/N [Y]: ';
-
 str = input(prompt, 's');
-
+%str = 'Y';
 if isempty(str)
     str = 'Y';
 end
