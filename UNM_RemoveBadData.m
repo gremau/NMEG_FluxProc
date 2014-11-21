@@ -511,14 +511,16 @@ for i=1:numel( headertext );
         sw_outgoing = data(:,i);
     elseif strcmp('Rad_long_Up_Avg', headertext{i}) == 1 | ...
             strcmp('Rad_long_Up__Avg', headertext{i}) == 1 | ...
-            strcmp('Rad_long_Up_TCor_Avg', headertext{i})==1 |...
-            strcmp('CG3UpCo_Avg', headertext{i})==1
+            strcmp('Rad_long_Up_TCor_Avg', headertext{i})==1
         lw_incoming = data(:,i);
+    elseif strcmp('CG3UpCo_Avg', headertext{i})==1
+        lw_incoming_Co = data(:, i);
     elseif strcmp('Rad_long_Dn_Avg', headertext{i})==1 | ...
             strcmp('Rad_long_Dn__Avg', headertext{i})==1 | ...
-            strcmp('Rad_long_Dn_TCor_Avg', headertext{i})==1 |...
-            strcmp('CG3DnCo_Avg', headertext{i})==1
+            strcmp('Rad_long_Dn_TCor_Avg', headertext{i})==1
         lw_outgoing = data(:,i);
+    elseif strcmp('CG3DnCo_Avg', headertext{i})==1
+        lw_outgoing_Co = data(:, i);
     elseif strcmp('VW_Avg', headertext{i})==1 | ...
             strcmp('SWC_Avg_1', headertext{i})==1 | ...
             strcmp('SWC_P1_5_Avg', headertext{i})==1
@@ -868,7 +870,8 @@ if draw_plots > 2
     ax(1) = subplot(411);
     plot(timestamp, dFc,'.');
     hold on;
-    plot(timestamp, dFc_angled,'om'); ylim([-0.05 0.15]);
+    plot(timestamp, dFc_angled,'.', 'color', [0.7 0.7 0.7]);
+    ylim([-0.05 0.15]);
     legend('delta Fc in mg/m2/s', 'delta Fc - angled' ); datetick('x', 'mmm-yyyy');
     ylabel('Calculated correction (mg m^2 s^{-1}');
     title( sprintf('%s %d', get_site_name( sitecode ), year( 1 ) ) );
