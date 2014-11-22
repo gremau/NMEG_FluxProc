@@ -208,7 +208,7 @@ elseif sitecode == UNM_sites.PPine; % Ponderosa Pine
     h2o_max = 30; h2o_min = 0;
     
 elseif sitecode == UNM_sites.MCon; % Mixed conifer
-    co2_min_by_month = [ -5, -5, repmat( -12, 1, 9 ), -5 ];%[ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ];
+    co2_min_by_month = [ -2.5, -2.5, repmat( -12, 1, 9 ), -2.5 ];%[ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ];
     co2_max_by_month = 6;
     n_SDs_filter_hi = 2.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -2449,16 +2449,16 @@ switch sitecode
                 DOY_co2_max( DOYidx( 180 ) : end ) = 4.0;
                 
             case 2012
-                %DOY_co2_max( DOYidx( 344 ) : end ) = 2.0;
+                DOY_co2_max( DOYidx( 344 ) : end ) = 2.0;
                 
             case 2013
-%                 DOY_co2_max( 1 : DOYidx( 18 ) ) = 1.0;
-%                 DOY_co2_max( DOYidx( 27 ) : DOYidx( 31 ) ) = 0.8;
-%                 DOY_co2_min( DOYidx( 27 ) : DOYidx( 31 ) ) = -1.5;
-%                 DOY_co2_max( DOYidx( 67.5 ) : DOYidx( 69.55 ) ) = 1.0;
-%                 DOY_co2_min( DOYidx( 67.5 ) : DOYidx( 69.55 ) ) = -2.0;
-%                 DOY_co2_max( DOYidx( 76 ) : DOYidx( 76.6 ) ) = 1.0;
-%                 DOY_co2_min( DOYidx( 76 ) : DOYidx( 76.6 ) ) = -2.0;
+                DOY_co2_max( 1 : DOYidx( 18 ) ) = 1.0;
+                DOY_co2_max( DOYidx( 27 ) : DOYidx( 31 ) ) = 0.8;
+                DOY_co2_min( DOYidx( 27 ) : DOYidx( 31 ) ) = -1.5;
+                DOY_co2_max( DOYidx( 67.5 ) : DOYidx( 69.55 ) ) = 1.0;
+                DOY_co2_min( DOYidx( 67.5 ) : DOYidx( 69.55 ) ) = -2.0;
+                DOY_co2_max( DOYidx( 76 ) : DOYidx( 76.6 ) ) = 1.0;
+                DOY_co2_min( DOYidx( 76 ) : DOYidx( 76.6 ) ) = -2.0;
         end  % MCon
         
     case UNM_sites.TX

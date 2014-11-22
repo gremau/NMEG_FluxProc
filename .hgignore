@@ -12,7 +12,6 @@ syntax: glob
 \#*\#
 scratch.m
 test_batch.m
-script*
 doc*
 
 syntax: regexp
