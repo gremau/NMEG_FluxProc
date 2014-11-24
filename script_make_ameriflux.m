@@ -2,13 +2,14 @@
 %clear all;
 %
 %sitelist = {UNM_sites.SLand, UNM_sites.JSav, UNM_sites.PJ_girdle,...
-%    UNM_sites.GLand,UNM_sites.New_GLand, UNM_sites.MCon, UNM_sites.PJ,...
+%    UNM_sites.GLand, UNM_sites.MCon, UNM_sites.PJ,...
 %    UNM_sites.PPine};
-sitelist = {UNM_sites.MCon}
-yearlist = [2012];% 2009:2013;
+sitelist = {UNM_sites.New_GLand}
+yearlist = 2010:2013;
 partmethod = 'eddyproc';%'Reddyproc'
 
 for i = 1:length(sitelist);
+    close all;
     for j = 1:length(yearlist);
         % Set site and year
         sitecode = sitelist{i};
@@ -27,9 +28,9 @@ for i = 1:length(sitelist);
         end
         
         % New files go into FLUXROOT - look at the file you made
-        UNM_Ameriflux_Data_Viewer( sitecode, year, 'AFlux_dir',...
-            fullfile(getenv('FLUXROOT'), 'FluxOut' ));
-        clear year;
+        %UNM_Ameriflux_Data_Viewer( sitecode, year, 'AFlux_dir',...
+        %    fullfile(getenv('FLUXROOT'), 'FluxOut' ));
+        %clear year;
     end
     clear sitecode;
 end

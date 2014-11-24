@@ -54,8 +54,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% parse the annual Flux_All file
-if year < 2012
-    % before 2012, fluxall data are in excel files
+if year < 2009
+    % before 2009, fluxall data are in excel files
     data = UNM_parse_fluxall_xls_file( sitecode, year );
 else
     % after 2012, fluxall data are kept in delimited ASCII files
@@ -255,13 +255,12 @@ end
 partition_comp_fig = figure( 'Name',...
     sprintf('Reichstein vs. Lasslop, %s %d', site, year),...
     'Units', 'centimeters', 'Position', [5, 5, 29, 23] );
-title(sprintf('%s %d', get_site_name(sitecode), year));
 ax(1) = subplot(2,3,1:2);
 plot(ds_pt.timestamp, ds_pt.NEE_f, ':', 'color', [0.7,0.7,0.7]);
 hold on;
 plot(ds_pt.timestamp, ds_pt.Reco, '.k');
 plot(ds_pt.timestamp, ds_pt.Reco_HBLR, 'xb');
-legend('filled NEE', 'R_{eco} Reichstein', 'R_{eco} Lasslop');
+legend('filled NEE', 'R_{eco} Reichstein', 'R_{eco} Lasslop', 'Location','southwest');
 datetick(); %ylim([-15, 10]);
 ax(2) = subplot(2,3,3);
 plot(ds_pt.timestamp, nan_cumsum(ds_pt.Reco), '.k');
@@ -272,13 +271,18 @@ plot(ds_pt.timestamp, ds_pt.NEE_f, ':', 'color', [0.7,0.7,0.7]);
 hold on;
 plot(ds_pt.timestamp, -ds_pt.GPP_f, '.k');
 plot(ds_pt.timestamp, -ds_pt.GPP_HBLR, 'xr');
-legend('filled NEE', 'GPP Reichstein', 'GPP Lasslop');
+legend('filled NEE', 'GPP Reichstein', 'GPP Lasslop', 'Location','southwest');
 datetick(); %ylim([-15, 10]);
 ax(4) = subplot(2,3,6);
 plot(ds_pt.timestamp, nan_cumsum(ds_pt.GPP_f), '.k');
 hold on;
 plot(ds_pt.timestamp, nan_cumsum(ds_pt.GPP_HBLR), 'xr');
+title(ax(1), sprintf('Partitioning Comparison: %s %d', get_site_name(sitecode), year));
 linkaxes(ax, 'x');
+
+figname = fullfile(getenv('FLUXROOT'), 'partitioning_comparison',...
+    sprintf('part_compare_%s_%d.pdf', get_site_name(sitecode), year(1)));
+print(partition_comp_fig, '-dpdf', figname ); 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create Ameriflux output dataset and write to ASCII files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -287,7 +291,8 @@ linkaxes(ax, 'x');
 [ amflux_gaps, amflux_gf ] = ...
     UNM_Ameriflux_prepare_output_data_TWH( sitecode, year, ...
                                        data, ds_qc, ...
-                                       ds_pt, ds_soil );
+                                       ds_pt, ds_soil, 'part_method',...
+                                       'Lasslop');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot the data before writing out to files
