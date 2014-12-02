@@ -309,7 +309,19 @@ switch sitecode
          lw_outgoing(find(decimal_day < 10.5)) + ...
          ( 0.0000000567 .* ( CNR1TK(find(decimal_day < 10.5)) .^ 4 ) );
     end
-
+    
+    %%%%%%%%%%%%%%%%% pj girdle
+  case UNM_sites.PJ_girdle
+      if year_arg == 2013 % Not sure why not corrected only this year
+          % temperature correction just for long-wave
+          lw_incoming(find(decimal_day < 10.5)) = ...
+              lw_incoming(find(decimal_day < 10.5)) + ...
+              ( 0.0000000567 .* ( CNR1TK(find(decimal_day < 10.5)) .^ 4 ) );
+          lw_outgoing(find(decimal_day < 10.5)) = ...
+              lw_outgoing(find(decimal_day < 10.5)) + ...
+              ( 0.0000000567 .* ( CNR1TK(find(decimal_day < 10.5)) .^ 4 ) );
+      end
+      
     %%%%%%%%%%%%%%%%% ponderosa pine
   case UNM_sites.PPine
     if year_arg == 2007

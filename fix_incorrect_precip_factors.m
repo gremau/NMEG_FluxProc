@@ -82,6 +82,8 @@ elseif site_code == 3   %JSav
     idx = find( year < 2014 );
     if year_in == 2014;
         idx = find( ( year == 2014 ) & ( doy <= Jan10 ) );
+    elseif year_in == 2009; %This is already fixed in the 2009 fluxall files
+        idx = ~idx;
     end
     if not( isempty( idx ) )
         pcp_fixed( idx ) = pcp_in( idx ) * 0.394;
@@ -97,6 +99,8 @@ elseif site_code == 4     % PJ
     idx = find( year < 2010 );
     if year_in == 2010;
         idx = find( ( year == 2010 ) & ( doy <= May31 ) );
+    elseif year_in == 2009; %This is already fixed in the 2009 fluxall files
+        idx = ~idx;
     end
     if not( isempty( idx ) )
         pcp_fixed( idx ) = pcp_in( idx ) * 0.394;

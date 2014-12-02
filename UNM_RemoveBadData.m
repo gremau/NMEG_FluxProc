@@ -510,16 +510,16 @@ for i=1:numel( headertext );
             strcmp('pyrr_outgoing_Avg', headertext{i})==1
         sw_outgoing = data(:,i);
     elseif strcmp('Rad_long_Up_Avg', headertext{i}) == 1 | ...
-            strcmp('Rad_long_Up__Avg', headertext{i}) == 1 | ...
-            strcmp('Rad_long_Up_TCor_Avg', headertext{i})==1
+            strcmp('Rad_long_Up__Avg', headertext{i}) == 1
         lw_incoming = data(:,i);
-    elseif strcmp('CG3UpCo_Avg', headertext{i})==1
+    elseif strcmp('CG3UpCo_Avg', headertext{i})==1 | ...
+            strcmp('Rad_long_Up_TCor_Avg', headertext{i})==1
         lw_incoming_Co = data(:, i);
     elseif strcmp('Rad_long_Dn_Avg', headertext{i})==1 | ...
-            strcmp('Rad_long_Dn__Avg', headertext{i})==1 | ...
-            strcmp('Rad_long_Dn_TCor_Avg', headertext{i})==1
+            strcmp('Rad_long_Dn__Avg', headertext{i})==1
         lw_outgoing = data(:,i);
-    elseif strcmp('CG3DnCo_Avg', headertext{i})==1
+    elseif strcmp('CG3DnCo_Avg', headertext{i})==1 | ...
+            strcmp('Rad_long_Dn_TCor_Avg', headertext{i})==1
         lw_outgoing_Co = data(:, i);
     elseif strcmp('VW_Avg', headertext{i})==1 | ...
             strcmp('SWC_Avg_1', headertext{i})==1 | ...
@@ -969,6 +969,23 @@ if sitecode == 5
     conc_record(ppine_night_wind) = NaN;
     disp(sprintf('    ppine night winds = %d',removed_ppine_night_wind));
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Winter Sensible heat correction for C uptake - doesn't really do anything
+% valuable and can be removed (HS) was not the problem
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MCon has negative sensible
+% if sitecode == 6 & year_arg == 2013
+%     mcon_cold_hs = find( ( HSdry_massman < -50 & ...
+%         air_temp_hmp < 0 ));
+%     %windflag = unique( [ windflag; ppine_night_wind ] );
+%     removed_mcon_cold_hs = length(mcon_cold_hs);
+%     decimal_day_nan(mcon_cold_hs) = NaN;
+%     record(mcon_cold_hs) = NaN;
+%     conc_record(mcon_cold_hs) = NaN;
+%     disp(sprintf('    mcon cold weather uptake = %d',removed_mcon_cold_hs));
+% end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

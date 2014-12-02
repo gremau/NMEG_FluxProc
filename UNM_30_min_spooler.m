@@ -64,7 +64,7 @@ if sitecode == 1 % GLand
 elseif sitecode == 2 % SLand
     if year == 2006
     elseif year == 2007
-        UNM_30min_flux_processor(2,2008,5,6820);%% – fix this
+        UNM_30min_flux_processor(2,2007,5,6820);%% – fix this
         UNM_30min_flux_processor(2,2007,7181,7228);
         UNM_30min_flux_processor(2,2007,7517,7564);
         UNM_30min_flux_processor(2,2007, 7853,7900);

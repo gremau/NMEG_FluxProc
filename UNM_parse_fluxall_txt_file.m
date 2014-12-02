@@ -58,7 +58,7 @@ end
 % Open file and parse out dates and times
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-fprintf( 'reading %s...', fname );
+fprintf( 'reading %s...\n', fname );
 
 fid = fopen( full_fname, 'r' );
 headers = fgetl( fid );
@@ -82,7 +82,7 @@ data = textscan( fid, ...
 fclose( fid );
 data = cell2mat( data );
 
-%% replace -9999s with NaN using floating point test with tolerance of 0.0001
+% replace -9999s with NaN using floating point test with tolerance of 0.0001
 data = replace_badvals( data, [ -9999 ], 0.0001 );
 
 % create matlab dataset from data
@@ -94,5 +94,17 @@ ds = dataset( { data, headers{ : } } );
 ds.timestamp = datenum( ds.year, ds.month, ds.day, ...
                         ds.hour, ds.min, ds.second );
 
+% Warn user if this is an irregular fluxall file
+[numobs, ~] = size(ds);
+fullobs = 365 * 48;
+% Chech for leapyear first
+if datenum(year, 2, 29) ~= datenum(year, 3, 1);
+    fullobs = fullobs + 48;
+end 
+if numobs < fullobs
+    warning( sprintf( 'file %s is missing observations!', fname ) );
+elseif numobs > fullobs
+    warning( sprintf( 'file %s has too many observations!', fname ) );
+end
 fprintf( ' file read\n' );
 

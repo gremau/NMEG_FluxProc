@@ -142,7 +142,19 @@ methods
                                       'TOA5' );
     
     obj.data_30min = combine_and_fill_TOA5_files( toa5_files );
-  
+    
+    % When making a new fluxall file here may be data missing at
+    % the start or end of the year. Ensure that these missing
+    % early timestamps are filled in.
+    shortfile = (min(obj.data_30min.timestamp) > obj.date_start)
+    if shortfile
+        fprintf( 1, 'filling early/late year missing timestamps\n' );
+        obj.data_30min = dataset_fill_timestamps(obj.data_30min,...
+                                'timestamp', ... 
+                                't_min', obj.date_start, ...
+                                't_max', obj.date_end );
+    end
+        
     % DJK 8-21-14
 %     % JSav soil water content data come in on separate flash cards -- merge
 %     % these data in
@@ -184,7 +196,8 @@ methods
                                           obj.sitecode, ...
                                           'TOB1' );
         tstamps = cellfun( @get_TOA5_TOB1_file_date, tob1_files );
-        obj.date_end = min( max( tstamps ), obj.date_end );
+        % Not sure why this is needed so commenting it --GEM
+        %obj.date_end = min( max( tstamps ), obj.date_end );
         
         [ this_year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
         fname = fullfile( 'C:\Research_Flux_Towers\FluxOut\TOB1_data\', ...

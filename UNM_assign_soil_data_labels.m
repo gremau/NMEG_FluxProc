@@ -399,12 +399,25 @@ switch sitecode
     
     switch year
       case 2007
+        % It doesn't appear from the TOA5 files that there were any
+        % soil measurements at the site prior to 8/31/2007. Between this 
+        % date and 2/25/2008 there were 28 Tsoil sensors, which was then
+        % reduced to 20 Tsoil sensors. 16 VWC sensors were installed on
+        % 8/31/2007, and these were renamed (but not changed)
+        % on 2/25/2008. -- GEM
         vars = fluxall.Properties.VarNames;
         [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'VWC.*' );
-        vars( idx_cs616 ) = cs616_descriptive_labels_preJul09;
+        if ~isempty(idx_cs616)
+            vars( idx_cs616 ) = cs616_descriptive_labels_preJul09;
+        end
         
         %soil T
         [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '[sS]oilT_' );
+        % Ensure that the mid-2007 change is ok, but these may be
+        % the wrong labels for pre-2/25/2007 sensors entirely. --GEM
+        if length(idx_Tsoil) > length(soilT_descriptive_labels_2008)
+            idx_Tsoil = idx_Tsoil(1:length(soilT_descriptive_labels_2008));
+        end
         if ~isempty( idx_Tsoil )
             vars( idx_Tsoil ) = soilT_descriptive_labels_2008;
         end

@@ -4,6 +4,10 @@
 %sitelist = {UNM_sites.SLand, UNM_sites.JSav, UNM_sites.PJ_girdle,...
 %    UNM_sites.GLand, UNM_sites.MCon, UNM_sites.PJ,...
 %    UNM_sites.PPine};
+% sitelist = {UNM_sites.MCon, UNM_sites.PPine, UNM_sites.PJ, UNM_sites.JSav}
+% yearlist = 2007:2013;
+% sitelist = {UNM_sites.PJ_girdle, UNM_sites.GLand, UNM_sites.SLand}
+% yearlist = 2009:2013;
 sitelist = {UNM_sites.New_GLand}
 yearlist = 2010:2013;
 partmethod = 'eddyproc';%'Reddyproc'

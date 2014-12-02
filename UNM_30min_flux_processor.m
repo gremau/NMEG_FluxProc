@@ -45,7 +45,7 @@ end
 % Set up files and read in data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if year < 2012
+if year < 2007
     filename = strcat(site,'_flux_all_',num2str(year))
     filein = strcat('C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
     datarange = strcat('BW',num2str(first_row),':','IL',num2str(last_row)); % specify what portion of spreadsheet to read in
@@ -64,8 +64,11 @@ if year < 2012
 else
     ds = UNM_parse_fluxall_txt_file( sitecode, year );
     headertext = ds.Properties.VarNames;
+    timestamp = ds.timestamp;
     data = double( ds );
-    
+    ncol = size(data,2); % find number of columns for use in locating headers below
+    nrows = size(data,1);
+end
     
 [year month day hour minute second] = datevec(timestamp); %break timestamp into usable data and time variables
 
