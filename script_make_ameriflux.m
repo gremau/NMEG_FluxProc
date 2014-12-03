@@ -8,8 +8,8 @@
 % yearlist = 2007:2013;
 % sitelist = {UNM_sites.PJ_girdle, UNM_sites.GLand, UNM_sites.SLand}
 % yearlist = 2009:2013;
-sitelist = {UNM_sites.New_GLand}
-yearlist = 2010:2013;
+sitelist = {UNM_sites.PJ_girdle}
+yearlist = 2009:2013;
 partmethod = 'eddyproc';%'Reddyproc'
 
 for i = 1:length(sitelist);

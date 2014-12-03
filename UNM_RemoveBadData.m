@@ -366,6 +366,8 @@ rH = repmat( NaN, size( data, 1), 1 );
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % convert CNR1 temperature from centrigrade to Kelvins
+
+% FIXME - this needs to handle different header names from early years
 CNR1_var = regexp_ds_vars( data, 'CNR1*|Temp_C_Avg' );
 CNR1TK = data.( CNR1_var{ 1 } ) + 273.15;
 

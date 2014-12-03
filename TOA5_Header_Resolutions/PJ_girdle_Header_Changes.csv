@@ -31,7 +31,7 @@ NetRl_Avg,Rn_long_Avg,
 NetTot_Avg,Rn_total_Avg,
 Rad_long_Dn_Avg,Rad_long_Dn__Avg,
 Rad_long_Up_Avg,Rad_long_Up__Avg,
-CNR1TC_Avg,Temp_C_Avg,
+CNR1TC_Avg,Temp_C_Avg,Temp_C_Avg_1
 canopyE_IRT_Avg,canopy_IRT_Avg,
 h2o_hmp_mean_Avg,h2o_hmp_Avg,
 RH_6p85_Avg,rh_hmp_Avg,RH_10_Avg
