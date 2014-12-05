@@ -98,6 +98,12 @@ switch sitecode
         get_site_name( 4 ), year );
     nearby_data = parse_forgapfilling_file( 4, year, ...
         'use_filled', filled_file_false );
+    nearby_data2 = UNM_parse_GHCND_met_data('ESTANCIA', year);
+    nearby_data2 = prepare_GHCND_data(nearby_data2, year);
+    if ( year < 2012 )
+        nearby_data3 = UNM_parse_GHCND_data('PROGRESSO', year);
+        nearby_data3 = prepare_GHCND_data(nearby_data3, year);
+    end
     
   case UNM_sites.PJ     % fill PJ from PJ girdle    
     if year > 2009  % use PJ_girdle after 2009
@@ -228,7 +234,7 @@ outfile = fullfile( get_site_directory( sitecode ), ...
                              get_site_name( sitecode ), year ) );
 fprintf( 'writing %s\n', outfile );
 this_data.timestamp = [];
-export_dataset_tim( outfile, this_data, 'write_units', true );
+%export_dataset_tim( outfile, this_data, 'write_units', true );
 %export( this_data( :, 2:end ), 'file', outfile );
 
 result = 0;
@@ -345,7 +351,7 @@ function ds = prepare_valles_met_data( ds, year, station )
 %===========================================================================
 
 function ds = prepare_DRI_met_data( ds, year )
-% helper function to trim and sychronize timestamps for Valles data
+% helper function to trim and sychronize timestamps for Valles DRI data
     ds.new = num2str(ds.YYMMDDhhmm, '%010u');
     ds.timestamp = datenum(ds.new, 'YYmmDDHHMM');
     temp = datevec(ds.timestamp);
@@ -387,7 +393,7 @@ function ds = prepare_DRI_met_data( ds, year )
 %===========================================================================
 
 function ds = prepare_sev_met_data( ds, year, station )
-% helper function to trim and sychronize timestamps for Valles data
+% helper function to trim and sychronize timestamps for Sev data
     ds = ds( ds.Station_ID == station, : );
     time_ds = ds( :, { 'Year', 'Jul_Day', 'Hour' } );
     ts = datenum( time_ds.Year, 1, 1 ) + ...
@@ -425,7 +431,43 @@ function ds = prepare_sev_met_data( ds, year, station )
     [ discard, idx ] = sort( ds.timestamp );
     ds = ds( idx, : );
     
+%===========================================================================
 
+function T_resamp = prepare_GHCND_data( T, year )
+% helper function to trim and sychronize timestamps for Sev data
+    tvec = datevec( num2str( T.DATE ), 'yyyymmdd' );
+    tvec(:,4) = tvec(:,4) + 12; % Shift to noon
+    % Trim the date vector and table to desired year and columns
+    tvec_idx = tvec(:,1) == year;
+    ts = datenum( tvec( tvec_idx, : ));
+    T = T( tvec_idx, { 'DATE', 'TOBS', 'PRCP' } );
+    T.Properties.VariableNames = { 'date', 'tair', 'precip' };
+
+    T.timestamp = ts;
+    % remove duplicated timestamps
+    dup_timestamps = find( abs( diff( ts ) ) < 1e-10 );
+    T( dup_timestamps, : ) = [];
+    ts( dup_timestamps ) = [];
+    
+    % Resample the timeseries to 30mins
+    nsamples = repmat(48, 1, length(ts) - 1);
+    x = cumsum([1 nsamples]);
+    ts_resamp = interp1(x, ts, x(1):x(end))';
+    
+    % Create a new 30 min table and move values over
+    precip = zeros(length(ts_resamp), 1);
+    T_resamp = table(ts_resamp, precip);
+    match_rs = find(ismember(ts_resamp, ts)); %Match by timestamp
+    T_resamp.precip(match_rs) = T.precip;
+    
+    % filter out nonsensical values
+%     ds.Tair( abs( ds.Tair ) > 100 ) = NaN;
+%     ds.rH( ds.rH > 1.0 ) = NaN;
+%     ds.rH( ds.rH < 0 ) = NaN;
+    
+    % sort by timestamp
+    [ discard, idx ] = sort( T.ts_resamp );
+    T_resamp = T_resamp( idx, : );
 
 %===========================================================================
 
