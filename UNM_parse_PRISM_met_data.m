@@ -1,4 +1,4 @@
-function met_data_T = UNM_parse_PRISM_met_data( sitecode, year )
+function precipDataT = UNM_parse_PRISM_met_data( sitecode, year )
 % Parse ancillary PRISM data files to matlab table.  
 %
 % We currently have daily PRISM precip data for all sites. 
@@ -30,11 +30,20 @@ function met_data_T = UNM_parse_PRISM_met_data( sitecode, year )
 % author: Timothy W. Hilton, UNM, March 2012
 sitename = sitecode;
 
-fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
-    'MetData', sprintf( 'PRISM_precip_daily_%d.csv', year ));
+precipFname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
+    'MetData', sprintf( 'PRISM_DailyPrecip_%d.csv', year ));
 
 % Get data
-met_data_T = readtable(fname, 'Delimiter', ',');
+precipDataT = readtable(precipFname, 'Delimiter', ',');
+
+% Parse out year
+precipDataT = precipDataT( : , {'date', get_site_name(sitecode)});
+
+% Change variable name
+precipDataT.Properties.VariableNames{get_site_name(sitecode)} = 'Precip';
+
+% Add a timestamp
+precipDataT.timestamp = datenum(precipDataT.date, 'yyyy-mm-dd');
 
 
 

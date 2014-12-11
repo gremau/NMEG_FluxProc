@@ -1,4 +1,4 @@
-function met_data_ds = UNM_parse_valles_met_data( metstn, year )
+function metData_T = UNM_parse_valles_met_data( metstn, year )
 % Parse ancillay Valles Caldera met data files to matlab dataset.  
 %
 % For MCon the met data for year YYYY must be located in
@@ -15,14 +15,14 @@ function met_data_ds = UNM_parse_valles_met_data( metstn, year )
 % the target folder for instructions on downloading/formatting this data
 %
 % USAGE
-%     met_data = UNM_parse_valles_met_data( sitecode, year );
+%     metData = UNM_parse_valles_met_data( sitecode, year );
 %
 % INPUTS
 %     metstn: string; 'DRI' or 'VCP' - met station to retrieve data from
 %     year: numeric; the year to parse
 %
 % OUTPUTS:
-%     met_data_ds: dataset array; the met data
+%     metData_ds: dataset array; the met data
 %
 % SEE ALSO
 %     dataset
@@ -34,9 +34,13 @@ switch metstn
             'MetData', sprintf( 'Jemez_DRI_06-current.dat' ) );
         % Get data from the DRI Jemez met station. This station is very
         % near PPine
-        T = readtable(fname, 'Delimiter', ',');
-
-        met_data_ds = table2dataset(T);
+        metData_T = readtable(fname, 'Delimiter', ',');
+        
+        % Trim to year and add a timestamp
+        metData_T.dstring = num2str(metData_T.YYMMDDhhmm, '%010u');
+        tvec = datevec(metData_T.dstring, 'YYmmDDHHMM');
+        metData_T = metData_T(tvec(:, 1) == year, : );
+        metData_T.timestamp = datenum(metData_T.dstring, 'YYmmDDHHMM');
         
         
     case 'VCP'
@@ -79,12 +83,19 @@ switch metstn
         fmt = [ repmat( '%f\t', 1, n_cols -1 ), '%f' ];
         % File is acutally delimited with spaces, but treating it as tabs
         % still works ok 
-        met_data = textscan( data, ...
+        metData = textscan( data, ...
             fmt, ...
             'TreatAsEmpty', '~', ...
             'delimiter', '\t', ...
             'MultipleDelimsAsOne', true ); % Read multiple delimiters as 1
-        met_data_ds = dataset( { cell2mat( met_data ), headers{ : } } );
+        metData_T = array2table( cell2mat( metData ),...
+            'VariableNames', headers );
+        
+        % Trim to year and add a timestamp
+        % T = T(T.year == year, :); - Files are yearly already
+        ts = datenum( metData_T.year, 1, 1 ) + ( metData_T.day - 1 ) + ...
+            ( metData_T.time / 24.0 );
+        metData_T.timestamp = ts;
 end
 
 

@@ -1,4 +1,4 @@
-function met_data_T = UNM_parse_GHCND_met_data( metstn, year )
+function metData_T = UNM_parse_GHCND_met_data( metstn, year )
 % Parse ancillary Global Historical Climatology Network data files
 % to matlab dataset.  
 %
@@ -13,14 +13,14 @@ function met_data_T = UNM_parse_GHCND_met_data( metstn, year )
 % the target folder for instructions on downloading/formatting this data
 %
 % USAGE
-%     met_data = UNM_parse_GHCND_met_data( sitecode, year );
+%     metData_T = UNM_parse_GHCND_met_data( sitecode, year );
 %
 % INPUTS
 %     metstn: string; 'ESTANCIA' or 'PROGRESSO' (station name)
 %     year: numeric; the year to parse
 %
 % OUTPUTS:
-%     met_data_ds: dataset array; the met data
+%     metData_T: table; the met data
 %
 % SEE ALSO
 %     dataset
@@ -32,16 +32,24 @@ switch metstn
             'MetData',...
             sprintf( 'GHCND_ESTANCIA_DailySumm_20070101-20131231.csv' ));
         % Get data from the ESTANCIA - station is north of Hwy 60
-        met_data_T = readtable(fname, 'Delimiter', ',');
+        metData_T = readtable(fname, 'Delimiter', ',');
         
         
     case 'PROGRESSO'
         fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
             'MetData',...
-            sprintf( 'GHCND_PROGRESSO_DailySumm_20070101-20131231.csv' ));
+            sprintf( 'GHCND_PROGRESSO_DailySumm_20070101-20120731.csv' ));
         % Get data from the PROGRESSO - station is a few miles W of tower
-        met_data_T = readtable(fname, 'Delimiter', ',');
+        metData_T = readtable(fname, 'Delimiter', ',');
 end
+
+% Trim data to year
+dvec = datevec(num2str(metData_T.DATE), 'yyyymmdd');
+yearIdx = dvec(:, 1) == year;
+metData_T = metData_T(yearIdx, :);
+
+% Create a matlab timestamp
+metData_T.timestamp = datenum(num2str(metData_T.DATE), 'yyyymmdd');
 
 
 
