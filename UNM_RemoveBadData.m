@@ -719,6 +719,16 @@ if sitecode == 4
     soil_heat_flux_2 = soil_heat_flux_2 .* 32.1;
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% data processing and fixing datalogger & instrument errors 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% fix incorrect precipitation values
+precip_uncorr= precip;
+precip = fix_incorrect_precip_factors( sitecode, year, ...
+                                             jday, precip );
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Radiation corrections
 % RJL added the lw_incoming and lw_outgoing variables to output on 01172014

@@ -515,8 +515,8 @@ end
         end
         lw_in_co = lw_in;
         lw_out_co = lw_out;
-        lw_in_co(cor_idx) = lw_in(cor_idx) + 0.0000000567.*(CNR1TK).^4;
-        lw_out_co(cor_idx) = lw_out(cor_idx) + 0.0000000567.*(CNR1TK).^4;
+        lw_in_co(cor_idx) = lw_in(cor_idx) + 0.0000000567.*(CNR1TK(cor_idx)).^4;
+        lw_out_co(cor_idx) = lw_out(cor_idx) + 0.0000000567.*(CNR1TK(cor_idx)).^4;
     end
 
     % A function for applying a linear correction to data

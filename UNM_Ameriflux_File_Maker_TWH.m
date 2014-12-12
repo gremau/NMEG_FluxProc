@@ -128,18 +128,21 @@ fprintf( 'done (%d seconds)\n', t_run ); %done sychronizing timestamps
 % record a particular variable
 dummy = repmat( -9999, size( data, 1 ), 1 );
 
+
+% I am commenting the next 2 lines out because this is now done in RBD
+% and corrected precip should be in the qc file already. -- GEM 12/2014
 %% calculate fractional day of year (i.e. 3 Jan at 12:00 would be 3.5)
-ds_qc.fjday = ( ds_qc.jday + ...
-                ( ds_qc.hour ./ 24.0 ) + ...
-                ( ds_qc.minute ./ ( 24.0 * 60.0) ) );
+% ds_qc.fjday = ( ds_qc.jday + ...
+%                 ( ds_qc.hour ./ 24.0 ) + ...
+%                 ( ds_qc.minute ./ ( 24.0 * 60.0) ) );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % data processing and fixing datalogger & instrument errors 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% fix incorrect precipitation values
-ds_qc.precip = fix_incorrect_precip_factors( sitecode, year, ...
-                                             ds_qc.fjday, ds_qc.precip );
+%ds_qc.precip = fix_incorrect_precip_factors( sitecode, year, ...
+%                                             ds_qc.fjday, ds_qc.precip );
 
 switch sitecode
   case int8( UNM_sites.JSav ) 
