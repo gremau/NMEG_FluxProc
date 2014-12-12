@@ -286,22 +286,25 @@ switch sitecode
         % Apply a linear correction to lw_incoming because the sensor is
         % off a little from the PJ control site
         if year_arg == 2009
-            sl = 0.91; % Slope from analysis of 2009-2013 data
-            i = 39.714; % Intercept from analysis of 2009-2013 data
+            slp = 0.91; % Slope from analysis of 2009-2013 data
+            icpt = 39.714; % Intercept from analysis of 2009-2013 data
         elseif year_arg == 2010
-            sl = 0.92;
-            i = 36.688;
+            slp = 0.92;
+            icpt = 36.688;
         elseif year_arg == 2011
-            sl = 0.918;
-            i = 37.696;
+            slp = 0.918;
+            icpt = 37.696;
         elseif year_arg == 2012
-            sl = 0.925;
-            i = 35.944;
+            slp = 0.925;
+            icpt = 35.944;
         elseif year_arg == 2013
-            sl = 0.899;
-            i = 34.387;
+            slp = 0.899;
+            icpt = 34.387;
+        else % Otherwise use an average of the other years
+            slp = 0.914;
+            icpt = 36.8858;
         end
-        lw_incoming = linfit_var(lw_incoming, sl, i);
+        lw_incoming = linfit_var(lw_incoming, slp, icpt);
         
         %%%%%%%%%%%%%%%%% ponderosa pine
     case UNM_sites.PPine
