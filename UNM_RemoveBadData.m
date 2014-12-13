@@ -356,9 +356,15 @@ decimal_day = ( datenum( year, month, day, hour, minute, second ) - ...
     datenum( year, 1, 1 ) + 1 );
 year_arg = year(2);
 
-%initialize RH to NaN
-rH = repmat( NaN, size( data, 1), 1 );
-
+%initialize some variables to a NaN array
+dummy = repmat( NaN, size( data, 1), 1 );
+rH = dummy;
+precip = dummy;
+% Some sites are missing radiation measurements
+sw_incoming = dummy;
+lw_incoming = dummy;
+sw_outgoing = dummy;
+lw_outgoing = dummy;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Read in 30-min data, variable order and names in flux_all files are not
@@ -366,10 +372,12 @@ rH = repmat( NaN, size( data, 1), 1 );
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % convert CNR1 temperature from centrigrade to Kelvins
-
 % FIXME - this needs to handle different header names from early years
+CNR1TK = [];
 CNR1_var = regexp_ds_vars( data, 'CNR1*|Temp_C_Avg' );
-CNR1TK = data.( CNR1_var{ 1 } ) + 273.15;
+if ~isempty(CNR1_var)
+    CNR1TK = data.( CNR1_var{ 1 } ) + 273.15;
+end
 
 h2oflag_1 = 0;
 
@@ -445,11 +453,11 @@ for i=1:numel( headertext );
             strcmp('rh_hmp', headertext{i}) == 1 | ...
             strcmp('rh_hmp_4_Avg', headertext{i}) == 1 | ...
             strcmp('RH',headertext{i}) == 1 | ...
-            strcmp('RH_2',headertext{i}) == 1 | ...
             strcmp('RH_2_Avg',headertext{i}) == 1 | ...
             strcmp('RH_10_Avg',headertext{i}) == 1 | ...
             strcmp('RH_6p85_Avg', headertext{i})==1
         %strcmp('RH_3p7_Avg',headertext{i}) == 1 | ...
+        % strcmp('RH_2',headertext{i}) == 1 | ...
         
         %Fixed scaling the rH now on a per rH value to account for
         %the scale changes associated with program changes in the
@@ -651,7 +659,7 @@ elseif sitecode == 4 %PJ
     soil_heat_flux = [ soil_heat_flux_1, soil_heat_flux_2 ];
     
     % related lines 678-682: corrections for site 4 (PJ) soil_heat_flux_1 and soil_heat_flux_2
-    Tsoil=sw_incoming .* NaN;  %MF: note, this converts all values in Tsoil to NaN. Not sure if this was intended.
+    %Tsoil=sw_incoming .* NaN;  %MF: note, this converts all values in Tsoil to NaN. Not sure if this was intended.
     
 elseif ismember( sitecode, [ UNM_sites.PPine, UNM_sites.MCon ] )
     
@@ -1661,6 +1669,7 @@ if write_gap_filling_out_file
         'RH', rH, ...
         'VPD', vpd, ...
         'Ustar', u_star, ...
+        'Precip', precip, ...
         'fname', outfilename_forgapfill );
     fprintf( 'wrote %s\n', outfilename_forgapfill );
 end

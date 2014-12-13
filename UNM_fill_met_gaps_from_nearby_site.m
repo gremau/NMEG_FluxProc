@@ -65,6 +65,8 @@ NMEG_site = [];
 SevMet_site = [];
 VCMet = [];
 GHCND_site = [];
+SNOTEL_site = [];
+SNOTEL_site2 = [];
 
 switch sitecode    
     case UNM_sites.GLand    % fill GLand from SLand, then
@@ -93,8 +95,9 @@ switch sitecode
         
     case UNM_sites.JSav    % Fill JSav from PJ, with regressions
         NMEG_site = 4; % PJ
-        GHCND_site = 'ESTANCIA';
-        if (year < 2012 )
+        if year < 2014
+            GHCND_site = 'ESTANCIA';
+        elseif (year < 2012 )
             GHCND_site = 'PROGRESSO';
         end
         
@@ -106,6 +109,7 @@ switch sitecode
         end
         
     case UNM_sites.PPine  % For 2013 onward fill PPine from the DRI Jemez
+        SNOTEL_site = 744; % Senorita Divide
         % station. Earlier, fill from Valles Caldera HQ
         if year > 2012
             VCMet = 'DRI'; % DRI Jemez station
@@ -118,6 +122,8 @@ switch sitecode
     case UNM_sites.MCon     % Fill MCon from Valles Caldera Redondo met station
         VCMet = 'VCP';
         VCMet_site = 14; % Valles Caldera Redondo met station (14)
+        SNOTEL_site = 1017; % Vacas Locas
+        SNOTEL_site2 = 708; % Quemazon
         
     case UNM_sites.PJ_girdle    % Fill PJ_girdle from PJ
         NMEG_site = 4; % PJ
@@ -159,6 +165,14 @@ if VCMet % Parse the nearest VC met site (DRI or VCP)
             VCMet_data, year, 'VCP', VCMet_site );
     else % But DRI files only contain 1
         VCMet_data = prepare_met_data( VCMet_data, year, 'DRI' );
+    end
+end
+if SNOTEL_site % Parse the nearest SNOTEL site
+    SNOTEL_data = UNM_parse_SNOTEL_data( SNOTEL_site, year );
+    SNOTEL_data = prepare_daily_precip(SNOTEL_data, 'Precip');
+    if SNOTEL_site2 % Parse a second SNOTEL site
+        SNOTEL_data2 = UNM_parse_SNOTEL_data( SNOTEL_site2, year );
+        SNOTEL_data2 = prepare_daily_precip(SNOTEL_data2, 'Precip');
     end
 end
 if GHCND_site % Parse the nearest GHCND site
@@ -223,80 +237,113 @@ if GHCND_site
                             't_min', min( ts ), 't_max', max( ts ) );
     GHCND_P.timestamp = datenum( GHCND_P.timestamp );
 end
-if GHCND_site
-    prism_P = prism_P( ( prism_P.timestamp >= min( ts ) & ...
-                           prism_P.timestamp <= max( ts ) ), : );
+if SNOTEL_site
+    SNOTEL_data = SNOTEL_data( ( SNOTEL_data.timestamp >= min( ts ) & ...
+                           SNOTEL_data.timestamp <= max( ts ) ), : );
     % Fill in timestamps
-    prism_P = table_fill_timestamps( prism_P, 'timestamp', ...
+    SNOTEL_data = table_fill_timestamps( SNOTEL_data, 'timestamp', ...
                             't_min', min( ts ), 't_max', max( ts ) );
-    prism_P.timestamp = datenum( prism_P.timestamp );
+    SNOTEL_data.timestamp = datenum( SNOTEL_data.timestamp );
 end
-if GHCND_site
-    daymet_P = daymet_P( ( daymet_P.timestamp >= min( ts ) & ...
-                           daymet_P.timestamp <= max( ts ) ), : );
+if SNOTEL_site2
+    SNOTEL_data2 = SNOTEL_data2( ( SNOTEL_data2.timestamp >= min( ts ) & ...
+                           SNOTEL_data2.timestamp <= max( ts ) ), : );
     % Fill in timestamps
-    daymet_P = table_fill_timestamps( daymet_P, 'timestamp', ...
+    SNOTEL_data2 = table_fill_timestamps( SNOTEL_data2, 'timestamp', ...
                             't_min', min( ts ), 't_max', max( ts ) );
-    daymet_P.timestamp = datenum( daymet_P.timestamp );
+    SNOTEL_data2.timestamp = datenum( SNOTEL_data2.timestamp );
+end
+
+% Sync prism and daymet
+
+prism_P = prism_P( ( prism_P.timestamp >= min( ts ) & ...
+    prism_P.timestamp <= max( ts ) ), : );
+% Fill in timestamps
+prism_P = table_fill_timestamps( prism_P, 'timestamp', ...
+    't_min', min( ts ), 't_max', max( ts ) );
+prism_P.timestamp = datenum( prism_P.timestamp );
+
+daymet_P = daymet_P( ( daymet_P.timestamp >= min( ts ) & ...
+    daymet_P.timestamp <= max( ts ) ), : );
+% Fill in timestamps
+daymet_P = table_fill_timestamps( daymet_P, 'timestamp', ...
+    't_min', min( ts ), 't_max', max( ts ) );
+daymet_P.timestamp = datenum( daymet_P.timestamp );
+
+
+%--------------------------------------------------
+% Assign variables to use in filling
+nearby_met2 = [];
+if NMEG_site
+    nearby_met = NMEG_data;
+elseif VCMet
+    nearby_met = VCMet_data;
+end
+if SevMet_site
+    nearby_met2 = SevMet_data;
+    nearby_precip = SevMet_data;
+    nearby_precip2 = prism_P;
+else
+    nearby_precip = prism_P;
+    nearby_precip2 = daymet_P;
 end
 
 %--------------------------------------------------
 % fill T, RH, Rg, and precip
 if numel( linfit ) == 1
     % T      RH    Rg
-    linfit = [ false, false, linfit ];
-elseif numel( linfit ) ~= 3
-    error( ['linfit argument must be single logical value or 3-element '...
+    linfit = [ false, false, linfit, false ];
+elseif numel( linfit ) ~= 4
+    error( ['linfit argument must be single logical value or 4-element '...
             ' logical array'] );
 end
 
 % replace missing Tair with nearby site
 [ thisData, T_filled_1, T_filled_2 ] = ...
-    fill_variable( thisData, nearby_data, nearby_2, ...
+    fill_variable( thisData, nearby_met, nearby_met2, ...
                    'Tair', 'Tair', 'Tair', linfit( 1 ) );
 
 % replace missing rH with nearby site
 [ thisData, RH_filled_1, RH_filled_2 ] = ...
-    fill_variable( thisData, nearby_data, nearby_2, ...
+    fill_variable( thisData, nearby_met, nearby_met2, ...
                    'rH', 'rH', 'rH', linfit( 2 ) );
 thisData.rH( thisData.rH > 1.0 ) = 1.0;
 thisData.rH( thisData.rH < 0.0 ) = 0.0;
 
 % replace missing Rg with nearby site
 [ thisData, Rg_filled_1, Rg_filled_2 ] = ...
-    fill_variable( thisData, nearby_data, nearby_2, ...
+    fill_variable( thisData, nearby_met, nearby_met2, ...
                    'Rg', 'Rg', 'Rg', linfit( 3 ) );
 thisData.Rg( thisData.Rg < -50 ) = NaN;
 
 % replace missing Precip with nearby site
 [ thisData, precip_filled_1, precip_filled_2 ] = ...
-    fill_variable( thisData, nearby_data, nearby_2, ...
-                   'Precip', 'Precip', 'Precip', linfit( 3 ) );
-thisData.Precip( thisData.Precip < -50 ) = NaN;
+    fill_variable( thisData, nearby_precip, nearby_precip2, ...
+                   'Precip', 'Precip', 'Precip', linfit( 4 ) );
+thisData.Precip( thisData.Precip < 0 ) = NaN;
 
 %--------------------------------------------------
 % plot filled variables if requested
 
 if draw_plots
-    h_fig_T = plot_filled_variable( thisData, nearby_data, nearby_2, ...
+    h_fig_T = plot_filled_variable( thisData, nearby_met, nearby_met2, ...
         'Tair', T_filled_1, T_filled_2, ...
         sitecode, year );
-    h_fig_RH = plot_filled_variable( thisData, nearby_data, nearby_2, ...
+    h_fig_RH = plot_filled_variable( thisData, nearby_met, nearby_met2, ...
         'rH', RH_filled_1, RH_filled_2, ...
         sitecode, year );
-    h_fig_Rg = plot_filled_variable( thisData, nearby_data, nearby_2, ...
+    h_fig_Rg = plot_filled_variable( thisData, nearby_met, nearby_met2, ...
         'Rg', Rg_filled_1, Rg_filled_2, ...
         sitecode, year );
-    
-    h_fig_Rg = plot_filled_variable( thisData, nearby_data, nearby_2, ...
-        'Rg', Rg_filled_1, Rg_filled_2, ...
+    h_fig_prec = plot_filled_variable( thisData, nearby_precip, nearby_precip2, ...
+        'Precip', precip_filled_1, precip_filled_2, ...
         sitecode, year );
 end
 
 % replace NaNs with -9999
-foo = double( thisData );
+foo = table2array( thisData );
 foo( isnan( foo ) ) = -9999;
-thisData = replacedata( thisData, foo );
+thisData{:,:} = foo;
 
 % write filled data to file except for matlab datenum timestamp column
 outfile = fullfile( get_site_directory( sitecode ), ...
@@ -305,7 +352,8 @@ outfile = fullfile( get_site_directory( sitecode ), ...
                              get_site_name( sitecode ), year ) );
 fprintf( 'writing %s\n', outfile );
 thisData.timestamp = [];
-%export_dataset_tim( outfile, thisData, 'write_units', true );
+thisData2 = table2dataset(thisData);
+export_dataset_tim( outfile, thisData2, 'write_units', true );
 %export( thisData( :, 2:end ), 'file', outfile );
 
 result = 0;
@@ -596,11 +644,11 @@ function linfit = specify_site_linfits( sitecode )
 switch sitecode
   case { UNM_sites.GLand, UNM_sites.SLand, ...
          UNM_sites.PJ, UNM_sites.PJ_girdle }
-    linfit = [ false false false ];
+    linfit = [ false false false false];
   case { UNM_sites.JSav, UNM_sites.New_GLand }
-    linfit = [ true true true ];
+    linfit = [ true true true false];
   case { UNM_sites.PPine, UNM_sites.MCon }
-    linfit = [ false false true ];
+    linfit = [ false false true false];
   otherwise
     error( sprintf( 'Not implemented for %s\n', char( sitecode ) ) );
 end

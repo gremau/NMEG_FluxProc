@@ -54,6 +54,15 @@ met_data = dataset( { data_dbl, var_names{ : } } );
 % Assign to table and add a matlab timestamp
 metT = dataset2table(met_data);
 
+% There are some discrepancies in the header names between the 2 files
+if year > 2012
+    metT.Properties.VariableNames{'StationID'} = 'Station_ID';
+    metT.Properties.VariableNames{'Julian_Day'} = 'Jul_Day';
+    metT.Properties.VariableNames{'Relative_Humidity'} = 'RH';
+    metT.Properties.VariableNames{'Solar_Radiation'} = 'Solar_Rad';
+    metT.Properties.VariableNames{'Precipitation'} = 'Precip';
+end
+
 ts = datenum( metT.Year, 1, 1 ) + ...
     ( metT.Jul_Day - 1 ) + ...
     ( metT.Hour / 24.0 );
