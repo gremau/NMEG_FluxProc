@@ -37,6 +37,11 @@ ds_pt = args.Results.ds_pt;
 ds_soil = args.Results.ds_soil;
 part_method = args.Results.part_method;
 
+% Including fille precip in AF files for now!
+ds_met_gf = parse_forgapfilling_file(sitecode, year, 'use_filled', true);
+
+Pidx = isnan(ds_met_gf.Precip);
+ds_met_gf.Precip(Pidx) = 0;
 
 soil_moisture = false; % turn off soil moisture processing for now
 
@@ -317,7 +322,7 @@ amflux_gf.LE_flag = LE_flag;
 amflux_gf.SLE = dummy;
 amflux_gf.G1 = dummy; %SHF_mean;
 %amflux_gf.TS_2p5cm = dummy; %ds_soil.Tsoil_1;
-amflux_gf.PRECIP = ds_qc.precip;
+amflux_gf.PRECIP = ds_met_gf.Precip;
 amflux_gf.RH = RH_pt_scaled .* 100; %RJL 02/21/2014 added
 %original    amflux_gf.RH = ds_pt.rH .* 100;
 amflux_gf.RH_flag = rH_flag;
