@@ -1,4 +1,4 @@
-current,previous1,previous2
+current,previous1,previous2,previous3,previous4
 AirTC_6p85_Avg,t_hmp_Avg,AirTC_10_Avg
 co2_mean_Avg,co2_Avg,
 stdev_co2,cov_co2_co2,
@@ -29,8 +29,8 @@ CG3DnCo_Avg,Rad_long_Dn_TCor_Avg,
 NetRs_Avg,Rn_short_Avg,
 NetRl_Avg,Rn_long_Avg,
 NetTot_Avg,Rn_total_Avg,
-Rad_long_Dn_Avg,Rad_long_Dn__Avg,
-Rad_long_Up_Avg,Rad_long_Up__Avg,
+Rad_long_Dn_Avg,Rad_long_Dn__Avg,Rad_long_Dn_Avg_1,Rad_long_Dn__Avg_1
+Rad_long_Up_Avg,Rad_long_Up__Avg,Rad_long_Up_Avg_1,Rad_long_Up__Avg_1
 CNR1TC_Avg,Temp_C_Avg,Temp_C_Avg_1
 canopyE_IRT_Avg,canopy_IRT_Avg,
 h2o_hmp_mean_Avg,h2o_hmp_Avg,
