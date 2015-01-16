@@ -35,3 +35,4 @@ rho_a_mean_Avg,rho_a_Avg,rho_a_Avg,current,current,current
 sig_lck_f_Tot,track_f_Tot,track_f_Tot,current,current,current
 low12V_5000_Tot,low12V_5000,low12V_5000,current,current,current
 canopyE_IRT_Avg,dne,canopy_IRT_Avg,canopy_IRT_Avg,canopy_IRT_Avg,current
+CNR1TC_Avg,current,current,current,current,current

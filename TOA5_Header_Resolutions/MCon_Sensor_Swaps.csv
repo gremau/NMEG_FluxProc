@@ -1,3 +1,5 @@
-sensor1,sensor2,first,last
-AirTC_10_Avg,AirTC_3p7_Avg,2014_01_10,2014_03_14
-RH_10_Avg,RH_3p7_Avg,2014_01_10,2014_03_14
+changeFrom,changeTo,first,last
+AirTC_10_Avg,AirTC_3p7_Avg,2014-01-10,2014-03-14
+AirTC_3p7_Avg,AirTC_10_Avg,2014-01-10,2014-03-14
+RH_10_Avg,RH_3p7_Avg,2014-01-10,2014-03-14
+RH_3p7_Avg,RH_10_Avg,2014-01-10,2014-03-14

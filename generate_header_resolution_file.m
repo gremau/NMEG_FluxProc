@@ -3,14 +3,24 @@ function ds = generate_header_resolution_file( varargin )
 % generates a header resolution file for the site
 % ({sitecode}_Header_Resolutions.csv)
 %
-% FIXME - documentation needs fixing, doesn't really need to be a function
+% There are several problems with keeping track of what sensors are 
+% outputting data to the TOA5 files and what header name each data 
+% stream is under.
 %
-% This script is called from card_data_processor after asking for user
-% input. Following the creation of a 30 minute TOA5 dataset (by
-% combine_and_fill_TOA5_files.m), the combined and filled dataset is
-% passed to this script. A header change log is read, and changed header
-% columns are merged into one. Prior to merging, the script verifies that
-% no data from either column will be overwritten.
+% 1. Header names for a sensor output change over the years as
+%    datalogger programs are rewritten.
+%
+% 2. Sensors are added or moved, so TOA5 columns are not consistent
+%    from year to year and may contain a sensor's output for only
+%    limited periods. Sometimes the same headers are reused when these
+%    changes occur, meaning they should be relabeled.
+%
+% 3. Columns may be mislabeled, ie. the program labels the sensors
+%    incorrectly), or sensors may be wired in a different order than 
+%    the program thinks.
+%
+% This script generates a header resolution file for a site using the
+% headers from each TOA5 file and three configuration files. 
 %
 % USAGE
 %    ds = combine_and_fill_TOA5_files();
@@ -30,8 +40,7 @@ function ds = generate_header_resolution_file( varargin )
 %    dataset, uigetfile, UNM_assign_soil_data_labels,
 %    dataset_fill_timestamps, toa5_2_dataset
 %
-% Timothy W. Hilton, UNM, Dec 2011
-% Modified by Gregory E. Maurer and Dan Krofcheck, UNM, Sept 2014
+% Gregory E. Maurer, UNM,  Sept 2014
 
 if nargin == 0
     % no files specified; prompt user to select files
@@ -59,7 +68,7 @@ toa5_date_array = tstamps_from_TOB1_filenames(filename);
 
 % Count number of files and initialize some arrays
 nfiles = length( filename );
-ds_array = cell( nfiles, 1 );
+T_array = cell( nfiles, 1 );
 
 % Read each TOA5 file, convert to dataset, load datasets into an array
 for i = 1:nfiles
@@ -73,7 +82,7 @@ for i = 1:nfiles
         this_path = pathname;
     end
     
-    ds_array{ i } = toa5_2_dataset( fullfile( this_path, filename{ i } ) );
+    T_array{ i } = toa5_2_table( fullfile( this_path, filename{ i } ) );
     toks = regexp( filename{ i }, '_', 'split' );
     % deal with the two sites that have an '_' in the sitename
     if any( strcmp( toks{ 3 }, { 'girdle', 'GLand' }  ) )
@@ -85,14 +94,13 @@ for i = 1:nfiles
     end
     
     % JSav has different soil data labels
-    if ( sitecode == UNM_sites.JSav ) && ( year == 2009 )
-        ds_array{ i } = UNM_assign_soil_data_labels_JSav09( ds_array{ i } );
-    else
-        ds_array{ i } = UNM_assign_soil_data_labels( sitecode, ...
-                                                     year, ...
-                                                     ds_array{ i } );
-    end
-        
+%     if ( sitecode == UNM_sites.JSav ) && ( year == 2009 )
+%         T_array{ i } = UNM_assign_soil_data_labels_JSav09( T_array{ i } );
+%     else
+%         T_array{ i } = UNM_assign_soil_data_labels( sitecode, ...
+%                                                      year, ...
+%                                                      T_array{ i } );
+%     end
 end
 
 % TOA5 Header resolution config file path
@@ -104,10 +112,10 @@ change_fname = strcat(char(sitecode), '_Header_Changes.csv');
 headerChangeFile = fullfile(res_path, change_fname);
 swap_fname = strcat(char(sitecode), '_Sensor_Swaps.csv');
 sensorSwapsFile = fullfile(res_path, swap_fname);
+rename_fname = strcat(char(sitecode), '_Sensor_Rename.csv');
+sensorRenameFile = fullfile(res_path, rename_fname);
 
 fopenmessage = strcat('---------- Opening ', change_fname,' ---------- \n');
-fprintf(1, fopenmessage );
-fopenmessage = strcat('---------- Opening ', swap_fname,' ---------- \n');
 fprintf(1, fopenmessage );
 
 % Read in the header changes file
@@ -116,19 +124,61 @@ changes = readtable(headerChangeFile);
 % Assign current and previous header columns
 current = changes{:, 1};
 previous = changes{:, 2:end};
-% Read in the sensor swaps file
-swaps = readtable(sensorSwapsFile);
+
+%Check for sensor swaps file and open if found
+swapflag = 0;
+if exist(sensorSwapsFile, 'file')
+    fopenmessage = strcat('---------- Opening ', swap_fname,' ---------- \n');
+    fprintf(1, fopenmessage );
+    swapflag = 1;
+    % Read in the sensor swaps file
+    swaps = readtable(sensorSwapsFile);
+end
+
+%Check for sensor rename file and open if found
+renameflag = 0;
+if exist(sensorRenameFile, 'file')
+    fopenmessage = strcat('---------- Opening ', rename_fname,' ---------- \n');
+    fprintf(1, fopenmessage );
+    renameflag = 1;
+    % Read in the sensor swaps file
+    renames = readtable(sensorRenameFile);
+end
 
 % Initialize new resolution file
 T = table(current);
 
-for i = 1:numel( ds_array )
+for i = 1:numel( T_array )
     % get the current TOA5 file header
-    unresolved_TOA5_header = ds_array{i}.Properties.VarNames;
+    unresolved_TOA5_header = T_array{i}.Properties.VariableNames;
     % Get date, name, and header of toa5 file
     TOA5_date = toa5_date_array(i);
     filename_toks = regexp( filename{ i }, '\.', 'split' );
     TOA5_name = filename_toks{1};
+    
+    % ----------- Rename sensors if needed -----------------
+    if exist(sensorRenameFile, 'file')
+        first_toa5_date = datenum(renames.first, 'YYYY-mm-DD');
+        last_toa5_date = datenum(renames.last, 'YYYY-mm-DD');
+        % Which header changes are in this TOA5's date range
+        inDateRange = floor( TOA5_date ) >= first_toa5_date &...
+            floor( TOA5_date ) <= last_toa5_date;
+        % Get the original and changed header names
+        changeFrom = renames.changeFrom( inDateRange );
+        changeTo = renames.changeTo( inDateRange );
+        
+        % Get the locations of headers to rename in toa5_changes
+        [ ~, loc ] = ismember( changeFrom, unresolved_TOA5_header );
+        
+        found = loc~=0;
+        loc = loc(found);
+        changeTo = changeTo(found);
+        
+        % Make the changes
+        unresolved_TOA5_header(loc) = changeTo;
+    end
+    % ------------------------------------------------------
+
     % Store header resolution in a new table
     new = repmat({''}, length(current), 1);
     toa5_changes = table(new, 'VariableNames', {TOA5_name});
@@ -137,24 +187,31 @@ for i = 1:numel( ds_array )
     % header name, then look for earlier header names in the TOA5
     % header and make them current
     fprintf(1, 'Resolving header changes for %s \n', filename{i});
+    
     for j = 1:length(current)
         curr = current(j); % current header name
         % previous names for this header, removing blanks
         prev = previous(j, ~strcmp(previous(j, :), ''));
-        prevloc = ismember(unresolved_TOA5_header, prev);
-        currloc = ismember(unresolved_TOA5_header, curr);
+        prevloc = find(ismember(unresolved_TOA5_header, prev));
+        multiple_previous_flag = false;
+        currloc = find(ismember(unresolved_TOA5_header, curr));
         % Previous header found, current header absent
-        if sum(prevloc) == 1 && sum(currloc) == 0
+        if length(prevloc) == 1 && length(currloc) == 0
             %resolved_TOA5_header(prevloc) = curr;
             toa5_changes.(TOA5_name)(j) = unresolved_TOA5_header(prevloc);
         % Previous header absent, current header found
-        elseif sum(prevloc) == 0 && sum(currloc) == 1
+        elseif length(prevloc) == 0 && length(currloc) == 1
             toa5_changes.(TOA5_name)(j) = curr;
         % Neither header found
-        elseif sum(prevloc) == 0 && sum(currloc) == 0
+        elseif length(prevloc) == 0 && length(currloc) == 0
             toa5_changes.(TOA5_name)(j) = {'dne'};
+        % Multiple possible previous headers found
+%         elseif length(prevloc) > 1 && length(currloc) == 0
+%             ploc = prevloc(length(prevloc) - prevloc_count)
+%             toa5_changes.(TOA5_name)(j) = unresolved_TOA5_header(ploc);
+%             multiple_previous_flag = true;
         % Both headers found - mark as current, neither column removed
-        elseif sum(prevloc) == 1 && sum(currloc) == 1
+        elseif length(prevloc) == 1 && length(currloc) == 1
             toa5_changes.(TOA5_name)(j) = curr;
             fprintf(1, 'Both %s and %s exist in this file!\n',...
                 char(curr), char(unresolved_TOA5_header(prevloc)));
@@ -163,22 +220,24 @@ for i = 1:numel( ds_array )
         end
     end
     
-    % Incorporate sensor swaps
-    for k = 1:height(swaps)
-        first_toa5_date = datenum(swaps.first(k), 'YYYY_mm_DD');
-        last_toa5_date = datenum(swaps.last(k), 'YYYY_mm_DD');
-        swap1 = swaps.sensor1(k);
-        swap2 = swaps.sensor2(k);
-        % Swap values in new table if TOA5 date is in range found
-        % in the sensor swap file
-        if (floor(TOA5_date) >= first_toa5_date &&...
-                floor(TOA5_date) <= last_toa5_date)
-            loc1 = find(strcmp(toa5_changes.(TOA5_name), swap1));
-            loc2 = find(strcmp(toa5_changes.(TOA5_name), swap2));
-            toa5_changes.(TOA5_name)(loc1) = swap2;
-            toa5_changes.(TOA5_name)(loc2) = swap1;
-        end
+    % ----------- Swap sensors if needed -----------------
+    if exist(sensorSwapsFile, 'file')
+        first_toa5_date = datenum(swaps.first, 'YYYY-mm-DD');
+        last_toa5_date = datenum(swaps.last, 'YYYY-mm-DD');
+        % Which header changes are in this TOA5's date range
+        inDateRange = floor( TOA5_date ) >= first_toa5_date &...
+            floor( TOA5_date ) <= last_toa5_date;
+        % Get the original and changed header names
+        changeFrom = swaps.changeFrom( inDateRange );
+        changeTo = swaps.changeTo( inDateRange );
+        
+        % Get the locations of headers to rename in toa5_changes
+        [ ~, loc ] = ismember( changeFrom, toa5_changes.(TOA5_name) );
+        
+        % Make the changes
+        toa5_changes.(TOA5_name)(loc) = changeTo;
     end
+    % ------------------------------------------------------
     
     % Change current headers in resolution table to "current"
     test = cellfun(@strcmp, toa5_changes.(TOA5_name), current);

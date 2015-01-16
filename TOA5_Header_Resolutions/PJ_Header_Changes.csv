@@ -24,7 +24,8 @@ e_hmp_mean_Avg,e_Avg
 h2o_mean_Avg,h2o_Avg
 h2o_hmp_mean_Avg,h2o_hmp_Avg
 h2o_mm_m_Avg,h2o_m_mol_Avg
-Hc,Hs
+Hc,
+Hs,
 par_facedown_Avg,par_down_Avg
 par_faceup_Avg,par_up_Avg
 Rad_long_Dn_Avg,Rad_long_Dn__Avg
@@ -35,3 +36,4 @@ rho_a_mean_Avg,rho_a_Avg
 sig_lck_f_Tot,track_f_Tot
 low12V_5000_Tot,low12V_5000
 canopyE_IRT_Avg,canopy_IRT_Avg
+CNR1TC_Avg,
