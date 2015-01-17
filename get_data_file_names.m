@@ -55,7 +55,7 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
     % start date -- it could contain data from the requested range
     if all( dns < date_start ) & strcmp( type, 'TOA5' )
         idx = numel( dns );
-    elseif ( type == 'TOA5' ) & ( idx( 1 ) ~= 1 )
+    elseif ( not(strcmp(type, 'ts_data' ))) & ( idx( 1 ) ~= 1 )
         idx = [ idx( 1 ) - 1, idx ];
     end
     fnames = fnames( idx );

@@ -93,15 +93,12 @@ for i = 1:nfiles
         year = str2num( toks{ 3 } );
     end
     
-    % JSav has different soil data labels
-%     if ( sitecode == UNM_sites.JSav ) && ( year == 2009 )
-%         T_array{ i } = UNM_assign_soil_data_labels_JSav09( T_array{ i } );
-%     else
-%         T_array{ i } = UNM_assign_soil_data_labels( sitecode, ...
-%                                                      year, ...
-%                                                      T_array{ i } );
-%     end
 end
+
+%%%%%%%%%% Choose the header resolution file name %%%%%%%%%%%%%
+% FIXME - this is clunky
+res_fname = strcat('TOA5_Header_Resolutions\', ...
+    char(sitecode), '_Header_Resolutions.csv');
 
 % TOA5 Header resolution config file path
 res_path = fullfile(pwd, 'TOA5_Header_Resolutions');
@@ -252,9 +249,6 @@ for i = 1:numel( T_array )
     end
     clear toa5_changes
 end
-
-res_fname = strcat('TOA5_Header_Resolutions\', ...
-    char(sitecode), '_Header_Resolutions.csv');
     
 prompt = 'Overwrite the current header resolution file? Y/N [Y]: ';
 

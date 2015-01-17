@@ -47,13 +47,24 @@ if nargin == 0
     if ischar( filename )
         filename = { filename };
     end
-else
+elseif nargin == 1
     % the arguments are file names (with full paths)
     args = [ varargin{ : } ];
     [ pathname, filename, ext ] = cellfun( @fileparts, ...
                                            args, ...
                                            'UniformOutput', false );
     filename = strcat( filename, ext );
+elseif nargin == 2
+    % the arguments are file names (with full paths)
+    args = [ varargin{ 1 } ];
+    [ pathname, filename, ext ] = cellfun( @fileparts, ...
+                                           args, ...
+                                           'UniformOutput', false );
+    filename = strcat( filename, ext );
+    % There is a header resolution file specified
+    resolutionFile = varargin{2};
+else
+
 end
 
 % Make sure files are sorted in chronological order and get dates
@@ -86,14 +97,15 @@ for i = 1:nfiles
         sitecode = UNM_sites.( toks{ 2 } );
         year = str2num( toks{ 3 } );
     end
-    
-    if ( sitecode == UNM_sites.JSav ) & ( year == 2009 )
-        ds_array{ i } = UNM_assign_soil_data_labels_JSav09( ds_array{ i } );
-    else
-        ds_array{ i } = UNM_assign_soil_data_labels( sitecode, ...
-                                                     year, ...
-                                                     ds_array{ i } );
-    end
+% This section is deprecated by new header resolution files
+% FIXME - remove later   
+%     if ( sitecode == UNM_sites.JSav ) & ( year == 2009 )
+%         ds_array{ i } = UNM_assign_soil_data_labels_JSav09( ds_array{ i } );
+%     else
+%         ds_array{ i } = UNM_assign_soil_data_labels( sitecode, ...
+%                                                      year, ...
+%                                                      ds_array{ i } );
+%     end
 end
 
 %% == PREPROCESSING HEADER RESOLUTION ==========================================
@@ -120,7 +132,9 @@ if  any(strcmp(str, aff))
     
     %Using the sitecode object, open the apropriate header resolution file
     %stored in \TOA5_Header_Resolutions\
-    resolutionFile = strcat(char(sitecode), '_Header_Resolutions.csv');
+    if ~exist('resolutionFile', 'var')
+        resolutionFile = strcat(char(sitecode), '_Header_Resolutions.csv');
+    end
     fopenmessage = strcat('---------- Opening', resolutionFile,' ---------- \n');
     fprintf( fopenmessage );
     
