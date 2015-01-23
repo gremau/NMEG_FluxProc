@@ -170,16 +170,33 @@ function [ obj, logger2_files ] = get_second_logger_data( obj )
     %    obj: CDP object with data_30min field updated.
     %    toa5_files: cell array; the TOA5 files whose data were added.
     
-    logger2_files = get_data_file_names( obj.date_start, obj.date_end,...
-        obj.sitecode, ...
-        'soil' );
+%     logger2_files = get_data_file_names( obj.date_start, obj.date_end,...
+%         obj.sitecode, ...
+%         'soil' );
+    % get year
     
+    % FIXME Temporary hack to make this work
+    logger2_files = {};
+    
+    [ year, ~ ] = datevec( obj.date_start );
+    % Get JSav data (Only pulls data from cr1000 in 2012-2014)
     if obj.sitecode == UNM_sites.JSav
-        [ year, ~ ] = datevec( obj.date_start );
         JSav_SWC = JSav_CR1000_to_dataset( year );
         idx = ( JSav_SWC.timestamp >= obj.date_start ) & ...
             ( JSav_SWC.timestamp <= obj.date_end );
         obj.data_30min_logger2 = JSav_SWC( idx, : );
+    % Get PJ data from cr23x
+    elseif obj.sitecode == UNM_sites.PJ
+        PJ_cr23x = get_PJ_cr23x_data( obj.sitecode, year );
+        idx = ( PJ_cr23x.timestamp >= obj.date_start ) & ...
+            ( PJ_cr23x.timestamp <= obj.date_end );
+        obj.data_30min_logger2 = PJ_cr23x( idx, : );
+    % Get PJ_girdle data from cr23x
+    elseif obj.sitecode == UNM_sites.PJ_girdle
+        PJG_cr23x = get_PJ_cr23x_data( obj.sitecode, year );
+        idx = ( PJG_cr23x.timestamp >= obj.date_start ) & ...
+            ( PJG_cr23x.timestamp <= obj.date_end );
+        obj.data_30min_logger2 = PJG_cr23x( idx, : );
     end
     
 end  % get_second_logger_data

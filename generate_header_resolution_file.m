@@ -42,10 +42,13 @@ function ds = generate_header_resolution_file( varargin )
 %
 % Gregory E. Maurer, UNM,  Sept 2014
 
+file_type = 'cr23x';
+resFile_name = '_cr23x_Header_Resolutions.csv';
+
 if nargin == 0
     % no files specified; prompt user to select files
     [filename, pathname, filterindex] = uigetfile( ...
-        { 'TOA5*.dat','TOA5 files (TOA5*.dat)' }, ...
+        { '*.dat','Datalogger files (*.dat)' }, ...
         'select files to merge', ...
         fullfile( getenv('FLUXROOT'), 'Flux_Tower_Data_by_Site') , ...
         'MultiSelect', 'on' );
@@ -64,7 +67,7 @@ end
 
 % Make sure files are sorted in chronological order and get dates
 filename = sort(filename);
-toa5_date_array = tstamps_from_TOB1_filenames(filename);
+datfile_date_array = tstamps_from_TOB1_filenames(filename);
 
 % Count number of files and initialize some arrays
 nfiles = length( filename );
@@ -82,7 +85,11 @@ for i = 1:nfiles
         this_path = pathname;
     end
     
-    T_array{ i } = toa5_2_table( fullfile( this_path, filename{ i } ) );
+    if strcmp(file_type, 'toa5');
+        T_array{ i } = toa5_2_table( fullfile( this_path, filename{ i } ) );
+    elseif strcmp(file_type, 'cr23x');
+        T_array{ i } = cr23x_2_table( fullfile( this_path, filename{ i } ) );
+    end
     toks = regexp( filename{ i }, '_', 'split' );
     % deal with the two sites that have an '_' in the sitename
     if any( strcmp( toks{ 3 }, { 'girdle', 'GLand' }  ) )
@@ -98,7 +105,7 @@ end
 %%%%%%%%%% Choose the header resolution file name %%%%%%%%%%%%%
 % FIXME - this is clunky
 res_fname = strcat('TOA5_Header_Resolutions\', ...
-    char(sitecode), '_Header_Resolutions.csv');
+    char(sitecode), resFile_name );
 
 % TOA5 Header resolution config file path
 res_path = fullfile(pwd, 'TOA5_Header_Resolutions');
@@ -149,7 +156,7 @@ for i = 1:numel( T_array )
     % get the current TOA5 file header
     unresolved_TOA5_header = T_array{i}.Properties.VariableNames;
     % Get date, name, and header of toa5 file
-    TOA5_date = toa5_date_array(i);
+    TOA5_date = datfile_date_array(i);
     filename_toks = regexp( filename{ i }, '\.', 'split' );
     TOA5_name = filename_toks{1};
     
