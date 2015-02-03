@@ -1,5 +1,5 @@
-function ds = combine_and_fill_TOA5_files( filename, file_type, varargin )
-% combine_and_fill_TOA5_files() -- combines multiple TOA5 files into one matlab
+function ds = combine_and_fill_datalogger_files( varargin )
+% combine_and_fill_datalogger_files() -- combines multiple datalogger files into one matlab
 % dataset, fills in any missing 30-minute time stamps and discards duplicated or
 % erroneous timestamp.
 %
@@ -14,48 +14,60 @@ function ds = combine_and_fill_TOA5_files( filename, file_type, varargin )
 % minute value are deemed erroneous and discarded.
 %
 % USAGE
-%    ds = combine_and_fill_TOA5_files();
-%    ds = combine_and_fill_TOA5_files( 'path\to\first\TOA5\file', ...
-%                                      'path\to\second\TOA5\file', ... );
+%    ds = combine_and_fill_datalogger_files();
+%    ds = combine_and_fill_datalogger_files( 'path\to\first\datalogger\file', ...
+%                                      'path\to\second\datalogger\file', ... );
 %
-% INPUTS
-%    either a series of strings containing full paths to the TOA5
-%    files to be combined.  If called with no inputs the user is presented a
-%    graphical file selection dialog (via uigetfile) which allows for multiple
-%    files to be selected interactively.
+% INPUTS:
+%    OPTIONAL PARAMETER-VALUE PAIRS:
+%       'filename': cell array; a cell array of strings
+%		containing full paths to the datalogger files.
+%       'filetype': string; indicates the datalogger file type.
+%		Current accepted values are 'toa5' and 'cr23x'
+%       'resolve_headers': boolean (True); specifies whether to resolve
+%		the column headers in the files.
 %
 % OUTPUTS
 %    ds: Matlab dataset array; the combined and filled data
 % 
 % SEE ALSO
 %    dataset, uigetfile, UNM_assign_soil_data_labels,
-%    dataset_fill_timestamps, toa5_2_dataset
+%    dataset_fill_timestamps, toa5_2_dataset, cr23x_2_table
 %
-% Timothy W. Hilton, UNM, Dec 2011
-% Modified by Gregory E. Maurer, UNM, Oct, 2014
+% Gregory E. Maurer, UNM, Oct, 2014
+    
+    % -----
+    % parse and typecheck inputs
+    p = inputParser;
+    p.addParameter( 'filename', {} , @( x ) isa( x, 'cell' ) );
+    p.addParameter( 'filetype', '', @ischar );
+    p.addParameter( 'resolve_headers', false, @islogical );
+    parse_result = p.parse( varargin{ : } );
+    
+    filename = p.Results.filename;
+    filetype = p.Results.filetype;
+    resolve = p.Results.resolve_headers;
+    % -----
 
-% if nargin == 0
-%     % no files specified; prompt user to select files
-%     
-%     [filename, pathname, filterindex] = uigetfile( ...
-%         { 'TOA5*.dat','TOA5 files (TOA5*.dat)' }, ...
-%         'select files to merge', ...
-%         fullfile( 'C:', 'Research_Flux_Towers', ...
-%                   'Flux_Tower_Data_by_Site' ), ...
-%         'MultiSelect', 'on' );
-%     
-%     if ischar( filename )
-%         filename = { filename };
-%     end
-% elseif nargin == 1
-%     % the arguments are file names (with full paths)
-%     args = [ varargin{ : } ];
-%     [ pathname, filename, ext ] = cellfun( @fileparts, ...
-%                                            args, ...
-%                                            'UniformOutput', false );
-%     filename = strcat( filename, ext );
-% else
-if nargin == 2
+% If no files are specified; prompt user to select files
+if isempty( filename )
+    [filename, pathname, filterindex] = uigetfile( ...
+        { '*.dat','Datalogger files (TYPE*DATE*.dat)' }, ...
+        'select files to merge', ...
+        fullfile( 'C:', 'Research_Flux_Towers', ...
+                  'Flux_Tower_Data_by_Site' ), ...
+        'MultiSelect', 'on' );
+    
+    if ischar( filename )
+        filename = { filename };
+    end
+end
+% If there is no filetype, prompt the user for one
+if isempty( filetype )
+	prompt = 'What type of datalogger file ("toa5" or "cr23x") ?: ';
+	str = input(prompt, 's');
+end
+
     % the arguments are file names (with full paths)
     args = [ filename ];
     [ pathname, filename, ext ] = cellfun( @fileparts, ...
@@ -115,15 +127,6 @@ for i = 1:nfiles
         sitecode = UNM_sites.( toks{ 2 } );
         year = str2num( toks{ 3 } );
     end
-% This section is deprecated by new header resolution files
-% FIXME - remove later   
-%     if ( sitecode == UNM_sites.JSav ) & ( year == 2009 )
-%         ds_array{ i } = UNM_assign_soil_data_labels_JSav09( ds_array{ i } );
-%     else
-%         ds_array{ i } = UNM_assign_soil_data_labels( sitecode, ...
-%                                                      year, ...
-%                                                      ds_array{ i } );
-%     end
 end
 
 %% == PREPROCESSING HEADER RESOLUTION ==========================================
