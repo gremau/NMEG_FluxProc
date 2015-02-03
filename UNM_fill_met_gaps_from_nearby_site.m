@@ -182,11 +182,15 @@ if GHCND_site % Parse the nearest GHCND site
     GHCND_P.Precip = GHCND_P.Precip ./ 10;
 end
 
-% Get PRISM and DayMet model precip data for the site
-prism_T = UNM_parse_PRISM_met_data(sitecode, year);
-prism_P = prepare_daily_precip(prism_T, 'Precip');
-daymet_T = UNM_parse_DayMet_data(sitecode, year);
-daymet_P = prepare_daily_precip(daymet_T, 'prcp_mm_day_');
+% Get PRISM and DayMet model precip data for the site (if data available)
+try
+    prism_T = UNM_parse_PRISM_met_data(sitecode, year);
+    prism_P = prepare_daily_precip(prism_T, 'Precip');
+    daymet_T = UNM_parse_DayMet_data(sitecode, year);
+    daymet_P = prepare_daily_precip(daymet_T, 'prcp_mm_day_');
+catch
+    warning('PRISM and DAYMET data not yet available')
+end
 
 %--------------------------------------------------
 % sychronize timestamps to thisData timestamps
@@ -255,21 +259,22 @@ if SNOTEL_site2
 end
 
 % Sync prism and daymet
-
-prism_P = prism_P( ( prism_P.timestamp >= min( ts ) & ...
-    prism_P.timestamp <= max( ts ) ), : );
-% Fill in timestamps
-prism_P = table_fill_timestamps( prism_P, 'timestamp', ...
-    't_min', min( ts ), 't_max', max( ts ) );
-prism_P.timestamp = datenum( prism_P.timestamp );
-
-daymet_P = daymet_P( ( daymet_P.timestamp >= min( ts ) & ...
-    daymet_P.timestamp <= max( ts ) ), : );
-% Fill in timestamps
-daymet_P = table_fill_timestamps( daymet_P, 'timestamp', ...
-    't_min', min( ts ), 't_max', max( ts ) );
-daymet_P.timestamp = datenum( daymet_P.timestamp );
-
+if exist(prism_P, 'var')
+    prism_P = prism_P( ( prism_P.timestamp >= min( ts ) & ...
+        prism_P.timestamp <= max( ts ) ), : );
+    % Fill in timestamps
+    prism_P = table_fill_timestamps( prism_P, 'timestamp', ...
+        't_min', min( ts ), 't_max', max( ts ) );
+    prism_P.timestamp = datenum( prism_P.timestamp );
+end
+if exist(daymet_P, 'var')
+    daymet_P = daymet_P( ( daymet_P.timestamp >= min( ts ) & ...
+        daymet_P.timestamp <= max( ts ) ), : );
+    % Fill in timestamps
+    daymet_P = table_fill_timestamps( daymet_P, 'timestamp', ...
+        't_min', min( ts ), 't_max', max( ts ) );
+    daymet_P.timestamp = datenum( daymet_P.timestamp );
+end
 
 %--------------------------------------------------
 % Assign variables to use in filling
