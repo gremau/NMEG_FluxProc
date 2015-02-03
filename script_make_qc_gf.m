@@ -1,10 +1,11 @@
 %close all;
 %clear all;
-% sitelist = {UNM_sites.SLand, UNM_sites.JSav,...
-%     UNM_sites.GLand, UNM_sites.PJ};%,...
-%    UNM_sites.PPine, UNM_sites.MCon};
+% sitelist = {UNM_sites.SLand, UNM_sites.JSav, ...
+%     UNM_sites.GLand, UNM_sites.PPine, UNM_sites.MCon,...
+%    UNM_sites.PJ};
 sitelist = {UNM_sites.PJ_girdle};
-yearlist = 2010:2013;
+%sitelist = {UNM_sites.MCon};
+yearlist = 2009;
 
 for i = 1:length(sitelist);
     for j = 1:length(yearlist)
@@ -18,7 +19,7 @@ for i = 1:length(sitelist);
         
         UNM_fill_met_gaps_from_nearby_site( site, year );
         
-        UNM_RemoveBadData( site, year, 'draw_plots', 1);
+        UNM_RemoveBadData( site, year, 'draw_plots', 0);
         
         % Fill in gaps using the REddyProc package
         % UNM_run_gapfiller(sitecode, year);

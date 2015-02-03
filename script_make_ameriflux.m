@@ -1,15 +1,13 @@
 %close all;
 %clear all;
 %
-%sitelist = {UNM_sites.SLand, UNM_sites.JSav, UNM_sites.PJ_girdle,...
-%    UNM_sites.GLand, UNM_sites.MCon, UNM_sites.PJ,...
-%    UNM_sites.PPine};
-% sitelist = {UNM_sites.MCon, UNM_sites.PPine, UNM_sites.PJ, UNM_sites.JSav}
-% yearlist = 2007:2013;
-% sitelist = {UNM_sites.PJ_girdle, UNM_sites.GLand, UNM_sites.SLand}
-% yearlist = 2009:2013;
-sitelist = {UNM_sites.PJ_girdle}
-yearlist = 2009:2013;
+%sitelist = { UNM_sites.PPine, UNM_sites.MCon, UNM_sites.SLand, UNM_sites.JSav,...
+%    UNM_sites.PJ };
+%sitelist = {UNM_sites.GLand};
+sitelist = {UNM_sites.PJ_girdle};
+%sitelist = {UNM_sites.New_GLand};
+
+yearlist = 2009;
 partmethod = 'eddyproc';%'Reddyproc'
 
 for i = 1:length(sitelist);
@@ -22,7 +20,7 @@ for i = 1:length(sitelist);
         if strcmp(partmethod, 'eddyproc');
         
             UNM_Ameriflux_File_Maker_TWH(sitecode, year,...
-                'write_daily_file', false);
+                'write_daily_file', false, 'process_soil_data', false);
             
         elseif strcmp(partmethod, 'Reddyproc');
             
