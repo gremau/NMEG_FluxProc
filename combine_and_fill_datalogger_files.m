@@ -36,18 +36,18 @@ function ds = combine_and_fill_datalogger_files( varargin )
 %
 % Gregory E. Maurer, UNM, Oct, 2014
     
-    % -----
-    % parse and typecheck inputs
-    p = inputParser;
-    p.addParameter( 'filename', {} , @( x ) isa( x, 'cell' ) );
-    p.addParameter( 'filetype', '', @ischar );
-    p.addParameter( 'resolve_headers', false, @islogical );
-    parse_result = p.parse( varargin{ : } );
-    
-    filename = p.Results.filename;
-    filetype = p.Results.filetype;
-    resolve = p.Results.resolve_headers;
-    % -----
+% -----
+% parse and typecheck inputs
+p = inputParser;
+p.addParameter( 'filename', {} , @( x ) isa( x, 'cell' ) );
+p.addParameter( 'filetype', '', @ischar );
+p.addParameter( 'resolve_headers', false, @islogical );
+parse_result = p.parse( varargin{ : } );
+
+filename = p.Results.filename;
+filetype = p.Results.filetype;
+resolve = p.Results.resolve_headers;
+% -----
 
 % If no files are specified; prompt user to select files
 if isempty( filename )
@@ -68,28 +68,14 @@ if isempty( filetype )
 	str = input(prompt, 's');
 end
 
-    % the arguments are file names (with full paths)
-    args = [ filename ];
-    [ pathname, filename, ext ] = cellfun( @fileparts, ...
-                                           args, ...
-                                           'UniformOutput', false );
-    filename = strcat( filename, ext );
-    resolve = false;
-    
-elseif nargin == 3
-    % the arguments are file names (with full paths)
-    args = [ filename ];
-    [ pathname, filename, ext ] = cellfun( @fileparts, ...
-                                           args, ...
-                                           'UniformOutput', false );
-    filename = strcat( filename, ext );
-    % There is a header resolution file specified
-    resolutionFile = varargin{1};
-    resolve = true;
-else
-    warning('Incorrect number of arguments');
+% the arguments are file names (with full paths)
+args = [ filename ];
+[ pathname, filename, ext ] = cellfun( @fileparts, ...
+                                       args, ...
+                                       'UniformOutput', false );
+filename = strcat( filename, ext );
+resolve = false;
 
-end
 
 % Make sure files are sorted in chronological order and get dates
 filename = sort(filename);
@@ -129,7 +115,9 @@ for i = 1:nfiles
     end
 end
 
-%% == PREPROCESSING HEADER RESOLUTION ==========================================
+% Resolve the headers if asked
+if resolve
+%% == PREPROCESSING HEADER RESOLUTION ===
 %Read in a resolution file. These files are lookup tables of all possible
 %variable names (that have existed in older program versions), which 
 %permit the assignment of old variables to consistent, new formats.
