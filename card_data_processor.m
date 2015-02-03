@@ -148,7 +148,10 @@ function [ obj, toa5_files ] = get_30min_data( obj )
         obj.sitecode, ...
         'TOA5' );
     
-    obj.data_30min = combine_and_fill_TOA5_files( toa5_files );
+    %obj.data_30min = combine_and_fill_TOA5_files( toa5_files );
+    obj.data_30min = combine_and_fill_datalogger_files( ...
+        'file_names', toa5_files, 'datalogger_type', 'main', ...
+        'resolve_headers', True );
     
 end  % get_30min_data
 % --------------------------------------------------
@@ -156,7 +159,7 @@ end  % get_30min_data
 function [ obj, logger2_files ] = get_second_logger_data( obj )
     % Obtain 30-minute separately logged soil data for a
     % card_data_processor (CDP) from TOA5 files.
-    %
+    % FIXME - documentation
     % Parses all TOA5 files containing data between obj.date_start and
     % obj.date_end, concatenates their data and makes sure timestamps include
     % all 30-minute intervals between obj.date_start and obj.date_end without
@@ -175,13 +178,14 @@ function [ obj, logger2_files ] = get_second_logger_data( obj )
 %         'soil' );
     % get year
     
-    % FIXME Temporary hack to make this work
+    % FIXME Temporary hack to make this work. Need to use
+    % get_data_file_names.m for this eventually
     logger2_files = {};
     
     [ year, ~ ] = datevec( obj.date_start );
     % Get JSav data (Only pulls data from cr1000 in 2012-2014)
     if obj.sitecode == UNM_sites.JSav
-        JSav_SWC = JSav_CR1000_to_dataset( year );
+        JSav_SWC = get_JSav_CR1000_data( year );
         idx = ( JSav_SWC.timestamp >= obj.date_start ) & ...
             ( JSav_SWC.timestamp <= obj.date_end );
         obj.data_30min_logger2 = JSav_SWC( idx, : );

@@ -23,9 +23,7 @@ function ds = generate_header_resolution_file( varargin )
 % headers from each TOA5 file and three configuration files. 
 %
 % USAGE
-%    ds = combine_and_fill_TOA5_files();
-%    ds = combine_and_fill_TOA5_files( 'path\to\first\TOA5\file', ...
-%                                      'path\to\second\TOA5\file', ... );
+%    ds = generate_header_resolution_file();
 %
 % INPUTS
 %    either a series of strings containing full paths to the TOA5
@@ -67,7 +65,7 @@ end
 
 % Make sure files are sorted in chronological order and get dates
 filename = sort(filename);
-datfile_date_array = tstamps_from_TOB1_filenames(filename);
+datfile_date_array = tstamps_from_filenames(filename);
 
 % Count number of files and initialize some arrays
 nfiles = length( filename );

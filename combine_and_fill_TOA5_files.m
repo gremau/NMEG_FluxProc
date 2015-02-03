@@ -69,7 +69,7 @@ end
 
 % Make sure files are sorted in chronological order and get dates
 filename = sort(filename);
-toa5_date_array = tstamps_from_TOB1_filenames(filename);
+toa5_date_array = tstamps_from_filenames(filename);
 
 % Count number of files and initialize some arrays
 nfiles = length( filename );
@@ -142,7 +142,7 @@ if  any(strcmp(str, aff))
     resolutions = readtable(resolutionFile);
     [numHeaders, numDates] = size(resolutions);
     resTOA5 = resolutions.Properties.VariableNames;
-    resDates = tstamps_from_TOB1_filenames(resTOA5(2:end));
+    resDates = tstamps_from_filenames(resTOA5(2:end));
     
     % Choose initial column to resolve headers - if the first TOA5 to
     % resolve is not in the file, this will be the resolution column

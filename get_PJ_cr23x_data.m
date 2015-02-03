@@ -1,11 +1,13 @@
 function cr23xData = get_PJ_cr23x_data( sitecode, year )
 % PREPROCESS_PJ_SOIL_DATA - parse CR23X soil data for PJ or PJ_girdle.
 %
+% FIXME - documentation and cleanup
+%
 % Creates datasets for soil temperature, soil water content, and soil heat flux
 % with complete 30-minute timestamp record and duplicate timestamps removed via
 % dataset_fill_timestamps.  When duplicate timestamps are detected, the first is
 % kept and subsequent duplicates are discarded.
-%
+% FIXME - documentation
 % USAGE
 %    [ soilT, SWC, SHF ] = preprocess_PJ_soil_data( sitecode, year )
 %
@@ -53,7 +55,7 @@ end
         fnames = list_files( data_dir, re );
     
         % make datenums for the dates
-        dns = tstamps_from_TOB1_filenames(fnames);
+        dns = tstamps_from_filenames(fnames);
         %dns = cellfun( @get_TOA5_TOB1_file_date, fnames );
         % sort by datenum
         [ dns, idx ] = sort( dns );
