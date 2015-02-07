@@ -1,4 +1,4 @@
-function ds = JSav_CR1000_to_dataset( year )
+function ds = get_JSav_cr1000_data( year )
 % JSAV_CR1000_TO_DATASET - return all CR1000 soil data from a specified year
 % in a dataset array.
 %
@@ -34,7 +34,7 @@ fileNames = get_data_file_names( datenum( year, 1, 1), ...
                               'soil' );
 
 ds = combine_and_fill_datalogger_files( 'file_names', fileNames, ...
-    'datalogger_type', 'cr1000', 'resolve_headers', True );
+    'datalogger_type', 'cr1000', 'resolve_headers', true );
 
 % FIXME - can remove all this probably
 %[ ~, discard_vars ] = regexp_ds_vars( ds, 'PA.*' );

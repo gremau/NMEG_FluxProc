@@ -35,41 +35,42 @@ end
 % determine file path
     sitename = get_site_name( sitecode );
 
-    fpath = fullfile( getenv( 'FLUXROOT' ), ...
+    filePath = fullfile( getenv( 'FLUXROOT' ), ...
                       'Flux_Tower_Data_by_Site', ...
                       sitename,  ...
                       'soil' );
     if year < 2014
-        dirname = 'yearly_cr23x_compilations';
-        fname = sprintf( 'cr23x_%s_%d_compilation.dat', sitename, year );
-        fname = fullfile( fpath, dirname, fname );
-        cr23xData = combine_and_fill_datalogger_files({fname}, 'cr23x');%,...
-%             sprintf('%s_cr23x_Header_Resolutions.csv',...
-%             get_site_name(sitecode) ) );
+        directoryName = 'yearly_cr23x_compilations';
+        fileName = sprintf( 'cr23x_%s_%d_compilation.dat', sitename, year );
+        fileName = fullfile( filePath, directoryName, fileName );
+        cr23xData = combine_and_fill_datalogger_files( ...
+            'file_names', fileName, 'datalogger_type', 'cr23x', ...
+            'resolve_headers', true);
     else
-        dirname = 'cr23x_files';
-        data_dir = fullfile(fpath, dirname);
+        directoryName = 'cr23x_files';
+        dataDirectory = fullfile(filePath, directoryName);
         % IMPORTANT: Make sure the files have the format:
         % 'cr23x_$sitename$_YYYY_MM_DD_HHMM.dat'
-        re = '^cr23x_.*_(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)(\d\d).(dat|DAT)$';
-        fnames = list_files( data_dir, re );
+        regularExpr = ...
+            '^cr23x_.*_(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)(\d\d).(dat|DAT)$';
+        fileNames = list_files( dataDirectory, regularExpr );
     
         % make datenums for the dates
-        dns = tstamps_from_filenames(fnames);
-        %dns = cellfun( @get_TOA5_TOB1_file_date, fnames );
+        dateNumbers = tstamps_from_filenames(fileNames);
+        %dateNumbers = cellfun( @get_TOA5_TOB1_file_date, fileNames );
         % sort by datenum
-        [ dns, idx ] = sort( dns );
-        fnames = fnames( idx );
+        [ dateNumbers, idx ] = sort( dateNumbers );
+        fileNames = fileNames( idx );
         
-        cr23xData = combine_and_fill_datalogger_files(fnames, 'cr23x',...
-            sprintf('%s_cr23x_Header_Resolutions.csv',...
-            get_site_name(sitecode) ) );
+        cr23xData = combine_and_fill_datalogger_files( ...
+            'file_names', fileNames, 'datalogger_type', 'cr23x', ...
+            'resolve_headers', true );
     end
     
     % replace -9999 and -99999 with NaN
-    badvals = [ -9999, 9999, -99999, 99999 ];
+    badValues = [ -9999, 9999, -99999, 99999 ];
     cr23xData = replacedata( cr23xData, ...
-                             @(x) replace_badvals( x, badvals, 1e-6 ) );
+                             @(x) replace_badvals( x, badValues, 1e-6 ) );
     
 
     

@@ -40,88 +40,88 @@ function ds = generate_header_resolution_file( varargin )
 %
 % Gregory E. Maurer, UNM,  Sept 2014
 
-file_type = 'cr23x';
-resFile_name = '_cr23x_Header_Resolutions.csv';
+dataloggerType = 'main';
+resolutionFileName = '_main_Header_Resolutions.csv';
 
 if nargin == 0
     % no files specified; prompt user to select files
-    [filename, pathname, filterindex] = uigetfile( ...
+    [fileNames, pathNames, filterindex] = uigetfile( ...
         { '*.dat','Datalogger files (*.dat)' }, ...
         'select files to merge', ...
         fullfile( getenv('FLUXROOT'), 'Flux_Tower_Data_by_Site') , ...
         'MultiSelect', 'on' );
     
-    if ischar( filename )
-        filename = { filename };
+    if ischar( fileNames )
+        fileNames = { fileNames };
     end
 else
     % the arguments are file names (with full paths)
     args = [ varargin{ : } ];
-    [ pathname, filename, ext ] = cellfun( @fileparts, ...
+    [ pathNames, fileNames, ext ] = cellfun( @fileparts, ...
                                            args, ...
                                            'UniformOutput', false );
-    filename = strcat( filename, ext );
+    fileNames = strcat( fileNames, ext );
 end
 
 % Make sure files are sorted in chronological order and get dates
-filename = sort(filename);
-datfile_date_array = tstamps_from_filenames(filename);
+fileNames = sort(fileNames);
+datfile_date_array = tstamps_from_filenames(fileNames);
 
 % Count number of files and initialize some arrays
-nfiles = length( filename );
+nfiles = length( fileNames );
 T_array = cell( nfiles, 1 );
 
 % Read each TOA5 file, convert to dataset, load datasets into an array
 for i = 1:nfiles
-    fprintf( 1, 'reading %s\n', filename{ i } );
+    fprintf( 1, 'reading %s\n', fileNames{ i } );
     % Input checks
-    if  iscell( pathname ) &&  ( numel( pathname ) == 1 )
-            this_path = pathname{ 1 };
-    elseif iscell( pathname )
-        this_path = pathname{ i };
+    if  iscell( pathNames ) &&  ( numel( pathNames ) == 1 )
+            this_path = pathNames{ 1 };
+    elseif iscell( pathNames )
+        this_path = pathNames{ i };
     else
-        this_path = pathname;
+        this_path = pathNames;
     end
     
-    if strcmp(file_type, 'toa5');
-        T_array{ i } = toa5_2_table( fullfile( this_path, filename{ i } ) );
-    elseif strcmp(file_type, 'cr23x');
-        T_array{ i } = cr23x_2_table( fullfile( this_path, filename{ i } ) );
+    if strcmpi(dataloggerType, 'main') || strcmpi(dataloggerType, 'cr1000');
+        T_array{ i } = toa5_2_table( fullfile( this_path, fileNames{ i } ) );
+    elseif strcmp(dataloggerType, 'cr23x');
+        T_array{ i } = cr23x_2_table( fullfile( this_path, fileNames{ i } ) );
     end
-    toks = regexp( filename{ i }, '_', 'split' );
+    tokens = regexp( fileNames{ i }, '_', 'split' );
     % deal with the two sites that have an '_' in the sitename
-    if any( strcmp( toks{ 3 }, { 'girdle', 'GLand' }  ) )
-        sitecode = UNM_sites.( [ toks{ 2 }, '_', toks{ 3 } ] );
-        year = str2num( toks{ 4 } );
+    if any( strcmp( tokens{ 3 }, { 'girdle', 'GLand' }  ) )
+        sitecode = UNM_sites.( [ tokens{ 2 }, '_', tokens{ 3 } ] );
+        year = str2num( tokens{ 4 } );
     else
-        sitecode = UNM_sites.( toks{ 2 } );
-        year = str2num( toks{ 3 } );
+        sitecode = UNM_sites.( tokens{ 2 } );
+        year = str2num( tokens{ 3 } );
     end
     
 end
 
 %%%%%%%%%% Choose the header resolution file name %%%%%%%%%%%%%
 % FIXME - this is clunky
-res_fname = strcat('TOA5_Header_Resolutions\', ...
-    char(sitecode), resFile_name );
+resolutionFileName = strcat('HeaderResolutions\', ...
+    char(sitecode), resolutionFileName );
 
 % TOA5 Header resolution config file path
-res_path = fullfile(pwd, 'TOA5_Header_Resolutions');
+resolutionPath = fullfile(pwd, 'HeaderResolutions');
 
 % Using the sitecode object, open the apropriate header resolution
 % and sensor swap files stored in \TOA5_Header_Resolutions\
-change_fname = strcat(char(sitecode), '_Header_Changes.csv');
-headerChangeFile = fullfile(res_path, change_fname);
-swap_fname = strcat(char(sitecode), '_Sensor_Swaps.csv');
-sensorSwapsFile = fullfile(res_path, swap_fname);
-rename_fname = strcat(char(sitecode), '_Sensor_Rename.csv');
-sensorRenameFile = fullfile(res_path, rename_fname);
+headerChangesFileName = strcat(char(sitecode), '_Header_Changes.csv');
+headerChangesFile = fullfile(resolutionPath, headerChangesFileName);
+sensorSwapsFileName = strcat(char(sitecode), '_Sensor_Swaps.csv');
+sensorSwapsFile = fullfile(resolutionPath, sensorSwapsFileName);
+sensorRenameFileName = strcat(char(sitecode), '_Sensor_Rename.csv');
+sensorRenameFile = fullfile(resolutionPath, sensorRenameFileName);
 
-fopenmessage = strcat('---------- Opening ', change_fname,' ---------- \n');
+fopenmessage = strcat('----- Opening ', headerChangesFileName,' ----- \n');
 fprintf(1, fopenmessage );
 
 % Read in the header changes file
-changes = readtable(headerChangeFile);
+changes = readtable(headerChangesFile);
 [numHeaders, numPrev] = size(changes);
 % Assign current and previous header columns
 current = changes{:, 1};
@@ -130,7 +130,8 @@ previous = changes{:, 2:end};
 %Check for sensor swaps file and open if found
 swapflag = 0;
 if exist(sensorSwapsFile, 'file')
-    fopenmessage = strcat('---------- Opening ', swap_fname,' ---------- \n');
+    fopenmessage = ...
+        strcat('----- Opening ', sensorSwapsFileName,' ----- \n');
     fprintf(1, fopenmessage );
     swapflag = 1;
     % Read in the sensor swaps file
@@ -140,7 +141,8 @@ end
 %Check for sensor rename file and open if found
 renameflag = 0;
 if exist(sensorRenameFile, 'file')
-    fopenmessage = strcat('---------- Opening ', rename_fname,' ---------- \n');
+    fopenmessage = ...
+        strcat('----- Opening ', sensorRenameFileName,' ----- \n');
     fprintf(1, fopenmessage );
     renameflag = 1;
     % Read in the sensor swaps file
@@ -155,8 +157,8 @@ for i = 1:numel( T_array )
     unresolved_TOA5_header = T_array{i}.Properties.VariableNames;
     % Get date, name, and header of toa5 file
     TOA5_date = datfile_date_array(i);
-    filename_toks = regexp( filename{ i }, '\.', 'split' );
-    TOA5_name = filename_toks{1};
+    fileNameTokens = regexp( fileNames{ i }, '\.', 'split' );
+    TOA5_name = fileNameTokens{1};
     
     % ----------- Rename sensors if needed -----------------
     if exist(sensorRenameFile, 'file')
@@ -188,7 +190,7 @@ for i = 1:numel( T_array )
     % for each line in the header change file, parse out the current
     % header name, then look for earlier header names in the TOA5
     % header and make them current
-    fprintf(1, 'Resolving header changes for %s \n', filename{i});
+    fprintf(1, 'Resolving header changes for %s \n', fileNames{i});
     
     for j = 1:length(current)
         curr = current(j); % current header name
@@ -264,7 +266,7 @@ if isempty(str)
 end
 aff = {'Y','y','YES','yes','Yes'};
 if  any(strcmp(str, aff))
-    writetable(T, res_fname);
+    writetable(T, resolutionFileName);
 end
 
 

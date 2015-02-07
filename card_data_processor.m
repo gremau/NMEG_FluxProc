@@ -151,7 +151,7 @@ function [ obj, toa5_files ] = get_30min_data( obj )
     %obj.data_30min = combine_and_fill_TOA5_files( toa5_files );
     obj.data_30min = combine_and_fill_datalogger_files( ...
         'file_names', toa5_files, 'datalogger_type', 'main', ...
-        'resolve_headers', True );
+        'resolve_headers', true );
     
 end  % get_30min_data
 % --------------------------------------------------
@@ -277,7 +277,6 @@ function obj = update_fluxall( obj, varargin )
     %
     % USAGE
     %    obj.update_fluxall()
-    
     
     % -----
     % parse and typecheck inputs
