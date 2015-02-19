@@ -1,11 +1,11 @@
-function metData_T = UNM_parse_valles_met_data( metstn, year )
-% Parse ancillay Valles Caldera met data files to matlab dataset.  
+function metTable = UNM_parse_valles_met_data( metNetwork, year, varargin )
+% Parse ancillay Valles Caldera met data files to matlab dataset.
 %
 % For MCon the met data for year YYYY must be located in
 % $FLUXROOT/AncillaryData/MetData/valles_met_data_YYYY.dat. The Valles
 % meteorological data may be downloaded from
 % http://sev.lternet.edu/research/climate/meteorology/VCNP/index.html.
-% 
+%
 % For PPine the met data for year YYYY must be located in
 % $FLUXROOT/AncillaryData/MetData/Jemez_DRI_06-current.dat. The DRI
 % Jemez meteorological data may be downloaded from
@@ -18,7 +18,7 @@ function metData_T = UNM_parse_valles_met_data( metstn, year )
 %     metData = UNM_parse_valles_met_data( sitecode, year );
 %
 % INPUTS
-%     metstn: string; 'DRI' or 'VCP' - met station to retrieve data from
+%     metNetwork: string; 'DRI' or 'VCP' - met station to retrieve data from
 %     year: numeric; the year to parse
 %
 % OUTPUTS:
@@ -28,22 +28,41 @@ function metData_T = UNM_parse_valles_met_data( metstn, year )
 %     dataset
 %
 % author: Timothy W. Hilton, UNM, March 2012
-switch metstn
-    case 'DRI'
-        fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
-            'MetData', sprintf( 'Jemez_DRI_06-current.dat' ) );
-        % Get data from the DRI Jemez met station. This station is very
-        % near PPine
-        metData_T = readtable(fname, 'Delimiter', ',');
+% modified by: Gregory E. Maurer, UNM, December 2014
+
+% Determine site id if requested
+if length( varargin ) > 0
+    siteid = varargin{ 1 };
+elseif length( varargin ) == 0
+    siteid = [];
+else
+    error('Invalid number of arguments')
+end
+
+% Choose network and get data
+switch lower( metNetwork )
+    case 'dri'
+        if ischar(siteid)
+            fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
+                'MetData', sprintf( 'DRI_%s_06-current.dat', siteid ) );
+        else
+            fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
+                'MetData', 'DRI_AllSites_06-current.dat' );
+        end
+        % Get data from the DRI met station
+        metTable = readtable(fname, 'Delimiter', ',');
         
         % Trim to year and add a timestamp
-        metData_T.dstring = num2str(metData_T.YYMMDDhhmm, '%010u');
-        tvec = datevec(metData_T.dstring, 'YYmmDDHHMM');
-        metData_T = metData_T(tvec(:, 1) == year, : );
-        metData_T.timestamp = datenum(metData_T.dstring, 'YYmmDDHHMM');
+        metTable.dstring = num2str(metTable.YYMMDDhhmm, '%010u');
+        tvec = datevec(metTable.dstring, 'YYmmDDHHMM');
+        metTable = metTable(tvec(:, 1) == year, : );
+        metTable.timestamp = datenum(metTable.dstring, 'YYmmDDHHMM');
         
+        % Precip is in inches and temp is in F - add converted columns
+        metTable.Tair_C = ( metTable.Tair_F  - 32 ) .* ( 5/9 );
+        metTable.Precip_mm = metTable.Precip_in * 25.4;
         
-    case 'VCP'
+    case 'vcp'
         fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
             'MetData', sprintf( 'valles_met_data_%d.dat', year ) );
         % these met files use "." to record missing values.  This confuses matlab
@@ -82,20 +101,29 @@ switch metstn
         
         fmt = [ repmat( '%f\t', 1, n_cols -1 ), '%f' ];
         % File is acutally delimited with spaces, but treating it as tabs
-        % still works ok 
+        % still works ok
         metData = textscan( data, ...
             fmt, ...
             'TreatAsEmpty', '~', ...
             'delimiter', '\t', ...
             'MultipleDelimsAsOne', true ); % Read multiple delimiters as 1
-        metData_T = array2table( cell2mat( metData ),...
+        metTable = array2table( cell2mat( metData ),...
             'VariableNames', headers );
         
-        % Trim to year and add a timestamp
-        % T = T(T.year == year, :); - Files are yearly already
-        ts = datenum( metData_T.year, 1, 1 ) + ( metData_T.day - 1 ) + ...
-            ( metData_T.time / 24.0 );
-        metData_T.timestamp = ts;
+        % Trim out extra sites from the table if requested
+        if ~isempty( siteid )
+            metTable = metTable(metTable.sta == siteid, :);
+        end
+        
+        % Trim to year and add a timestamp (Files should be yearly already)
+        metTable = metTable( metTable.year == year, : );
+        ts = datenum( metTable.year, 1, 1 ) + ( metTable.day - 1 ) + ...
+            ( metTable.time / 24.0 );
+        metTable.timestamp = ts;
+        
+        % Clear out duplicate timestamps (remove second one)
+        [idx, dup] = find_duplicates( ts );
+        metTable(idx,:) = [];
 end
 
 

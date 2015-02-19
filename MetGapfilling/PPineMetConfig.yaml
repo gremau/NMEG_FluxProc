@@ -1,0 +1,41 @@
+---
+configSite: PPine
+config: 
+    - year      : 2007
+      fillTair  :
+          - 
+            siteType    : dri
+            siteID      : Jemez  
+            linfit      : false
+          - 
+            siteType    : vcp
+            siteID      : 11    # Valles Caldera HQ met stn (11)
+            linfit      : false
+      fillrH    :
+          - 
+            siteType    : dri
+            siteID      : Jemez
+            linfit      : false
+          - 
+            siteType    : vcp
+            siteID      : 11    # Valles Caldera HQ met stn (11)
+            linfit      : false
+      fillRg    : 
+          - 
+            siteType    : dri
+            siteID      : Jemez
+            linfit      : false
+          - 
+            siteType    : vcp
+            siteID      : 11    # Valles Caldera HQ met stn (11)
+            linfit      : false
+      fillPrecip:
+          - 
+            siteType    : snotel
+            siteID      : 744  # Senorita Divide
+            linfit      : false
+          - 
+            siteType    : prism
+            siteID      : PPine  #
+            linfit      : false
+...

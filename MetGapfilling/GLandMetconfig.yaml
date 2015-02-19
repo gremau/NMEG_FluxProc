@@ -1,0 +1,41 @@
+---
+configSite: GLand
+config: 
+    - year      : 2007
+      fillTair  :
+          - 
+            siteType    : nmeg
+            siteID      : 2    # Shrubland
+            linfit      : false
+          - 
+            siteType    : sev
+            siteID      : 40    # Sev Deep Well station
+            linfit      : false
+      fillrH    :
+          - 
+            siteType    : nmeg
+            siteID      : 2    # Shrubland
+            linfit      : false
+          - 
+            siteType    : sev
+            siteID      : 40    # Sev Deep Well station
+            linfit      : false
+      fillRg    : 
+          - 
+            siteType    : nmeg
+            siteID      : 2    # Shrubland
+            linfit      : false
+          - 
+            siteType    : sev
+            siteID      : 40    # Sev Deep Well station
+            linfit      : false
+      fillPrecip:
+          - 
+            siteType    : nmeg
+            siteID      : 2    # Shrubland
+            linfit      : false
+          - 
+            siteType    : sev
+            siteID      : 40    # Sev Deep Well station
+            linfit      : false
+...

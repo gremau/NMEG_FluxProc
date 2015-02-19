@@ -19,7 +19,8 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, varargin )
 %     UNM_sites
 %
 % author: Timothy W. Hilton, UNM, March 2012
-  
+% modified by: Gregory E. Maurer, UNM, February 2015
+
 % -----
 % define optional inputs, with defaults and typechecking
 % -----
@@ -27,17 +28,15 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, varargin )
 args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'year', ...
-                  @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
+    @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
 args.addParamValue( 'draw_plots', true, ...
-                    @(x) ( islogical( x ) & numel( x ) == 1 ) );
+    @(x) ( islogical( x ) & numel( x ) == 1 ) );
 args.parse( sitecode, year, varargin{ : } );
 % -----
 
 sitecode = args.Results.sitecode;
 year = args.Results.year;
 draw_plots = args.Results.draw_plots;
-
-linfit = specify_site_linfits( sitecode );
 
 if isintval( sitecode )
     sitecode = UNM_sites( sitecode );
@@ -46,610 +45,416 @@ else
 end
 
 % initialize
-result = -1;
-nearby_2 = [];
 filled_file_false = false;
 
 %--------------------------------------------------
-% parse unfilled data from requested site
-    
+% Parse unfilled data from requested site
+
 fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("destination")\n', ...
-         get_site_name( sitecode ), year );
+    get_site_name( sitecode ), year );
 thisData = parse_forgapfilling_file( sitecode, year, ...
-                                      'use_filled', filled_file_false );
+    'use_filled', filled_file_false );
 thisData = dataset2table(thisData);
+
+% Fill in missing timestamps for this data
+thisData = fillTstamps( thisData, thisData.timestamp );
+
 %--------------------------------------------------
-% Select data with which to fill T, RH, Rg and precip
+% Get Met gapfilling configuration
+% We need to parse YAML config files to do this
 
-NMEG_site = [];
-SevMet_site = [];
-VCMet = [];
-GHCND_site = [];
-SNOTEL_site = [];
-SNOTEL_site2 = [];
+gfConfigFileName = sprintf('./MetGapfilling/%sMetConfig.yaml', ...
+    get_site_name(sitecode));
 
-switch sitecode    
-    case UNM_sites.GLand    % fill GLand from SLand, then
-        % (# 40)
-        NMEG_site = 2; % SLand
-        if year < 2014; % no sev met data available for 2014 yet
-            SevMet_site = 40; % Sev Deep Well station
-        end
-        %     try
-        %         fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
-        %                  get_site_name( 2 ), year );  %
-        %         nearby_data = parse_forgapfilling_file( 2, year, ...
-        %             'use_filled', filled_file_false );
-        %     catch err
-        %         if strcmp( err.identifier, 'MATLAB:FileIO:InvalidFid' )
-        %             error( ['unable to open SLand for gapfill file -- cannot fill ' ...
-        %                     'GLand'] );
-        %             rethrow( err )
-        %         end
-        %     end
-    case UNM_sites.SLand   % Fill SLand from GLand and Sev Five Points stn
-        NMEG_site = 1; % GLand
-        if year < 2014 % no sev met data available for 2014
-            SevMet_site = 49; % Sev Five Points station (# 49 )
-        end
-        
-    case UNM_sites.JSav    % Fill JSav from PJ, with regressions
-        NMEG_site = 4; % PJ
-        if year < 2014
-            GHCND_site = 'ESTANCIA';
-        elseif (year < 2012 )
-            GHCND_site = 'PROGRESSO';
-        end
-        
-    case UNM_sites.PJ     % Fill PJ from PJ girdle or JSav
-        if year > 2009  % use PJ_girdle after 2009
-            NMEG_site = 10; % PJ_girdle
-        else  % use JSav before 2009
-            NMEG_site = 3; % JSav
-        end
-        
-    case UNM_sites.PPine  % For 2013 onward fill PPine from the DRI Jemez
-        SNOTEL_site = 744; % Senorita Divide
-        % station. Earlier, fill from Valles Caldera HQ
-        if year > 2012
-            VCMet = 'DRI'; % DRI Jemez station
-            VCMet_site = [];
-        else
-            VCMet = 'VCP';
-            VCMet_site = 11; % Valles Caldera HQ met station (11)
-        end
-        
-    case UNM_sites.MCon     % Fill MCon from Valles Caldera Redondo met station
-        VCMet = 'VCP';
-        VCMet_site = 14; % Valles Caldera Redondo met station (14)
-        SNOTEL_site = 1017; % Vacas Locas
-        SNOTEL_site2 = 708; % Quemazon
-        
-    case UNM_sites.PJ_girdle    % Fill PJ_girdle from PJ
-        NMEG_site = 4; % PJ
-        
-    case UNM_sites.New_GLand    % Fill New_GLand from GLand
-        NMEG_site = 1; % GLand
-        if year < 2014; % no sev met data available for 2014 yet
-            SevMet_site = 40; % Sev Deep Well station
-        end
-        
-    otherwise
-        fprintf( 'filling not yet implemented for %s\n', ...
-            get_site_name( sitecode ) );
-        result = -1;
-        return
+addpath('C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\');
+gfConfig = ReadYaml(gfConfigFileName);
+rmpath('C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\');
+
+% Get the correct configuration for this year
+configNum = length( gfConfig.config ); % Number of available configurations
+confYears = zeros( 1,configNum );
+for i = 1:configNum % Get the most recent config preceding this year
+    confYears(i) = extractfield(gfConfig.config{i}, 'year');
 end
+thisConfig = gfConfig.config{ find( confYears==max( confYears ) ) };
 
-% Now parse that data
-fillTables = {};
+%--------------------------------------------------
+% Now we are going to fill selected met variables in thisData
 
-if NMEG_site  % Parse the nearest NMEG site
-    fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("source")\n', ...
-             get_site_name( NMEG_site), year );
-    NMEG_data = parse_forgapfilling_file( NMEG_site, year, ...
-        'use_filled', filled_file_false );
-    NMEG_qc = UNM_parse_QC_txt_file(NMEG_site, year);
-    NMEG_data.Precip = NMEG_qc.precip;
-    NMEG_data = dataset2table(NMEG_data);
-end
-if SevMet_site % Parse the nearest Sevilletta met site
-    SevMet_data = UNM_parse_sev_met_data( year );
-    SevMet_data = prepare_met_data(...
-        SevMet_data, year, 'Sev', SevMet_site );
-end
-if VCMet % Parse the nearest VC met site (DRI or VCP)
-    VCMet_data = UNM_parse_valles_met_data( VCMet, year );
-    if VCMet_site % Parse one of several VCP sites from the data file
-        VCMet_data = prepare_met_data(...
-            VCMet_data, year, 'VCP', VCMet_site );
-    else % But DRI files only contain 1
-        VCMet_data = prepare_met_data( VCMet_data, year, 'DRI' );
+% List of variables in thisData to fill
+fillVars = { 'Tair', 'rH', 'Rg', 'Precip' };
+% Struct to hold data from filling sites
+fillData = struct();
+
+for i = 1:length( fillVars )
+    % Get configurations for filling sites for this variable
+    varConfig = thisConfig.( [ 'fill' fillVars{ i } ] );
+    % If fillData doesn't already have the required data from each
+    % filling site listed in varConfig, load it
+    for j = 1:length( varConfig )
+        % Create a field name to look for in fillData
+        varConfig{j}.('fillDataField') = ...
+            [ varConfig{ j }.siteType '_' ...
+            num2str( varConfig{ j }.siteID ) ];
+        % If that field is not present run getFillData
+        if not( isfield( fillData, varConfig{ j }.fillDataField ) )
+            fillData = getFillData( fillData, ...
+                varConfig{ j }.siteType, varConfig{ j }.siteID );
+        end
+    end
+    % If there is no secondary site for the variable, enter some dummy
+    % values into config
+    if length( varConfig ) < 2
+        varConfig{ 2 } = struct( 'fillDataField', 'empty', 'linfit', 0);
+        fillData.('empty') = [];
+    end
+    
+    % Replace missing data in thisData with data from fillData
+    % NOTE this also returns indices of what was filled
+    [ thisData, filledIdx1, filledIdx2 ] = ...
+        fill_variable( thisData, ...
+        fillData.( varConfig{ 1 }.fillDataField ), ...
+        fillData.( varConfig{ 2 }.fillDataField ), ...
+        fillVars{ i }, fillVars{ i }, fillVars{ i }, ...
+        varConfig{ 1 }.linfit, ...
+        varConfig{ 2 }.linfit );
+    
+    % Remove bad values from the now filled variables
+    if strcmp( fillVars{ i }, 'rH' )
+        thisData.rH( thisData.rH > 1.0 ) = 1.0;
+        thisData.rH( thisData.rH < 0.0 ) = 0.0;
+    elseif strcmp( fillVars{ i }, 'Rg' )
+        thisData.Rg( thisData.Rg < -50 ) = NaN;
+    elseif strcmp( fillVars{ i }, 'Precip' )
+        thisData.Precip( thisData.Precip < 0 ) = NaN;
+    end
+    
+    % Draw a plot if requested
+    if draw_plots
+    h_fig = plot_filled_variable( thisData, ...
+        fillVars{ i }, filledIdx1, filledIdx2, ...
+        sitecode, year );
     end
 end
-if SNOTEL_site % Parse the nearest SNOTEL site
-    SNOTEL_data = UNM_parse_SNOTEL_data( SNOTEL_site, year );
-    SNOTEL_data = prepare_daily_precip(SNOTEL_data, 'Precip');
-    if SNOTEL_site2 % Parse a second SNOTEL site
-        SNOTEL_data2 = UNM_parse_SNOTEL_data( SNOTEL_site2, year );
-        SNOTEL_data2 = prepare_daily_precip(SNOTEL_data2, 'Precip');
-    end
-end
-if GHCND_site % Parse the nearest GHCND site
-    GHCND_data = UNM_parse_GHCND_met_data( GHCND_site, year );
-    GHCND_P = prepare_daily_precip(GHCND_data, 'PRCP');
-    % Convert from tenths to mm
-    GHCND_P.Precip = GHCND_P.Precip ./ 10;
-end
-
-% Get PRISM and DayMet model precip data for the site
-prism_T = UNM_parse_PRISM_met_data(sitecode, year);
-prism_P = prepare_daily_precip(prism_T, 'Precip');
-daymet_T = UNM_parse_DayMet_data(sitecode, year);
-daymet_P = prepare_daily_precip(daymet_T, 'prcp_mm_day_');
-
-%--------------------------------------------------
-% sychronize timestamps to thisData timestamps
-ts = thisData.timestamp;
-thisData = table_fill_timestamps( thisData, 'timestamp', ...
-                                     't_min', min( ts ), ...
-                                     't_max', max( ts ) );
-thisData.timestamp = datenum( thisData.timestamp );
-for i = 1:length(fillTables)
-    % Trim the fill data
-    fillTables{i} = fillTables{i}( ( fillTables{i}.timestamp >= min( ts ) & ...
-                           fillTables{i}.timestamp <= max( ts ) ), : );
-    % Fill in timestamps
-    fillTables{i} = table_fill_timestamps( fillTables{i}, 'timestamp', ...
-                                       't_min', min( ts ), ...
-                                       't_max', max( ts ) );
-    fillTables{i}.timestamp = datenum( fillTables{i}.timestamp );
-end
-if NMEG_site
-    NMEG_data = NMEG_data( ( NMEG_data.timestamp >= min( ts ) & ...
-                           NMEG_data.timestamp <= max( ts ) ), : );
-    % Fill in timestamps
-    NMEG_data = table_fill_timestamps( NMEG_data, 'timestamp', ...
-                            't_min', min( ts ), 't_max', max( ts ) );
-    NMEG_data.timestamp = datenum( NMEG_data.timestamp );
-end
-if SevMet_site
-    SevMet_data = SevMet_data( ( SevMet_data.timestamp >= min( ts ) & ...
-                           SevMet_data.timestamp <= max( ts ) ), : );
-    % Fill in timestamps
-    SevMet_data = table_fill_timestamps( SevMet_data, 'timestamp', ...
-                            't_min', min( ts ), 't_max', max( ts ) );
-    SevMet_data.timestamp = datenum( SevMet_data.timestamp );
-end
-if VCMet
-    VCMet_data = VCMet_data( ( VCMet_data.timestamp >= min( ts ) & ...
-                           VCMet_data.timestamp <= max( ts ) ), : );
-    % Fill in timestamps
-    VCMet_data = table_fill_timestamps( VCMet_data, 'timestamp', ...
-                            't_min', min( ts ), 't_max', max( ts ) );
-    VCMet_data.timestamp = datenum( VCMet_data.timestamp );
-end
-if GHCND_site
-    GHCND_P = GHCND_P( ( GHCND_P.timestamp >= min( ts ) & ...
-                           GHCND_P.timestamp <= max( ts ) ), : );
-    % Fill in timestamps
-    GHCND_P = table_fill_timestamps( GHCND_P, 'timestamp', ...
-                            't_min', min( ts ), 't_max', max( ts ) );
-    GHCND_P.timestamp = datenum( GHCND_P.timestamp );
-end
-if SNOTEL_site
-    SNOTEL_data = SNOTEL_data( ( SNOTEL_data.timestamp >= min( ts ) & ...
-                           SNOTEL_data.timestamp <= max( ts ) ), : );
-    % Fill in timestamps
-    SNOTEL_data = table_fill_timestamps( SNOTEL_data, 'timestamp', ...
-                            't_min', min( ts ), 't_max', max( ts ) );
-    SNOTEL_data.timestamp = datenum( SNOTEL_data.timestamp );
-end
-if SNOTEL_site2
-    SNOTEL_data2 = SNOTEL_data2( ( SNOTEL_data2.timestamp >= min( ts ) & ...
-                           SNOTEL_data2.timestamp <= max( ts ) ), : );
-    % Fill in timestamps
-    SNOTEL_data2 = table_fill_timestamps( SNOTEL_data2, 'timestamp', ...
-                            't_min', min( ts ), 't_max', max( ts ) );
-    SNOTEL_data2.timestamp = datenum( SNOTEL_data2.timestamp );
-end
-
-% Sync prism and daymet
-
-prism_P = prism_P( ( prism_P.timestamp >= min( ts ) & ...
-    prism_P.timestamp <= max( ts ) ), : );
-% Fill in timestamps
-prism_P = table_fill_timestamps( prism_P, 'timestamp', ...
-    't_min', min( ts ), 't_max', max( ts ) );
-prism_P.timestamp = datenum( prism_P.timestamp );
-
-daymet_P = daymet_P( ( daymet_P.timestamp >= min( ts ) & ...
-    daymet_P.timestamp <= max( ts ) ), : );
-% Fill in timestamps
-daymet_P = table_fill_timestamps( daymet_P, 'timestamp', ...
-    't_min', min( ts ), 't_max', max( ts ) );
-daymet_P.timestamp = datenum( daymet_P.timestamp );
-
-
-%--------------------------------------------------
-% Assign variables to use in filling
-nearby_met2 = [];
-if NMEG_site
-    nearby_met = NMEG_data;
-elseif VCMet
-    nearby_met = VCMet_data;
-end
-if SevMet_site
-    nearby_met2 = SevMet_data;
-    nearby_precip = SevMet_data;
-    nearby_precip2 = prism_P;
-else
-    nearby_precip = prism_P;
-    nearby_precip2 = daymet_P;
-end
-
-%--------------------------------------------------
-% fill T, RH, Rg, and precip
-if numel( linfit ) == 1
-    % T      RH    Rg
-    linfit = [ false, false, linfit, false ];
-elseif numel( linfit ) ~= 4
-    error( ['linfit argument must be single logical value or 4-element '...
-            ' logical array'] );
-end
-
-% replace missing Tair with nearby site
-[ thisData, T_filled_1, T_filled_2 ] = ...
-    fill_variable( thisData, nearby_met, nearby_met2, ...
-                   'Tair', 'Tair', 'Tair', linfit( 1 ) );
-
-% replace missing rH with nearby site
-[ thisData, RH_filled_1, RH_filled_2 ] = ...
-    fill_variable( thisData, nearby_met, nearby_met2, ...
-                   'rH', 'rH', 'rH', linfit( 2 ) );
-thisData.rH( thisData.rH > 1.0 ) = 1.0;
-thisData.rH( thisData.rH < 0.0 ) = 0.0;
-
-% replace missing Rg with nearby site
-[ thisData, Rg_filled_1, Rg_filled_2 ] = ...
-    fill_variable( thisData, nearby_met, nearby_met2, ...
-                   'Rg', 'Rg', 'Rg', linfit( 3 ) );
-thisData.Rg( thisData.Rg < -50 ) = NaN;
-
-% replace missing Precip with nearby site
-[ thisData, precip_filled_1, precip_filled_2 ] = ...
-    fill_variable( thisData, nearby_precip, nearby_precip2, ...
-                   'Precip', 'Precip', 'Precip', linfit( 4 ) );
-thisData.Precip( thisData.Precip < 0 ) = NaN;
-
-%--------------------------------------------------
-% plot filled variables if requested
-
-if draw_plots
-    h_fig_T = plot_filled_variable( thisData, nearby_met, nearby_met2, ...
-        'Tair', T_filled_1, T_filled_2, ...
-        sitecode, year );
-    h_fig_RH = plot_filled_variable( thisData, nearby_met, nearby_met2, ...
-        'rH', RH_filled_1, RH_filled_2, ...
-        sitecode, year );
-    h_fig_Rg = plot_filled_variable( thisData, nearby_met, nearby_met2, ...
-        'Rg', Rg_filled_1, Rg_filled_2, ...
-        sitecode, year );
-    h_fig_prec = plot_filled_variable( thisData, nearby_precip, nearby_precip2, ...
-        'Precip', precip_filled_1, precip_filled_2, ...
-        sitecode, year );
-end
-
-% replace NaNs with -9999
+    
+% Replace NaNs with -9999
 foo = table2array( thisData );
 foo( isnan( foo ) ) = -9999;
 thisData{:,:} = foo;
 
-% write filled data to file except for matlab datenum timestamp column
+% Write filled data to file except for matlab datenum timestamp column
 outfile = fullfile( get_site_directory( sitecode ), ...
-                    'processed_flux', ...
-                    sprintf( '%s_flux_all_%d_for_gap_filling_filled.txt', ...
-                             get_site_name( sitecode ), year ) );
+    'processed_flux', ...
+    sprintf( '%s_flux_all_%d_for_gap_filling_filled.txt', ...
+    get_site_name( sitecode ), year ) );
 fprintf( 'writing %s\n', outfile );
 thisData.timestamp = [];
 thisData2 = table2dataset(thisData);
-export_dataset_tim( outfile, thisData2, 'write_units', true );
+%export_dataset_tim( outfile, thisData2, 'write_units', true );
 %export( thisData( :, 2:end ), 'file', outfile );
 
 result = 0;
 
-%===========================================================================
-    
-function [ ds_dest, idx1, idx2 ] = fill_variable( ds_dest, ...
-                                                  ds_source1, ds_source2, ...
-                                                  var_dest, ...
-                                                  var_source1, ...
-                                                  var_source2, ... 
-                                                  linfit_source1 )
-    % replace missing values in on variable of dataset ds_dest with
-    % corresponding values from dataset ds_source1.  Where ds_source1 also
-    % has missing values, fall back to ds_source2 if provided.
-    
-    % replace missing values with nearby site
-    n_missing = numel( find( isnan( ds_dest.( var_dest ) ) ) );
-    idx1 = find( isnan( ds_dest.( var_dest ) ) & ...
-                 ~isnan( ds_source1.( var_source1 ) ) );
+%========================= SUBFUNCTIONS ==================================
 
-    if linfit_source1
-        replacement = linfit_var( ds_source1.( var_source1 ), ...
-                                  ds_dest.( var_dest ), ...
-                                  idx1 );
-    else
-        replacement = ds_source1.( var_source1 );        
+% Function to get the filling site data
+    function filledStruct = getFillData( dataStruct, siteType, siteID )
+        % Copy data to new struct
+        filledStruct = dataStruct;
+        % Get the new field name for the data
+        if ischar( siteID )
+            newFieldName = [siteType '_' siteID];
+        else
+            newFieldName = [siteType '_' num2str( siteID )];
+        end
+        
+        % Based on configuration, load filling site data, prepare the
+        % data, and put into fillSiteData structure
+        try
+        switch lower( siteType )
+            case 'nmeg'
+                fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt \n', ...
+                    get_site_name( siteID ), year );
+                addData = parse_forgapfilling_file( siteID, year, ...
+                    'use_filled', filled_file_false );
+                nmegSiteQC = UNM_parse_QC_txt_file(siteID, year);
+                addData.Precip = nmegSiteQC.precip;
+                %FIXME - transition to table
+                addData = dataset2table(addData);
+                
+            case 'sev' % Parse the nearest Sevilletta met site
+                addData = UNM_parse_sev_met_data( year, siteID );
+                addData = prepare_met_data( addData, year, 'Sev' );
+                
+            case 'vcp' % Parse the nearest VC met site
+                addData = UNM_parse_valles_met_data( 'VCP', year, siteID );
+                addData = prepare_met_data( addData, year, 'VCP' );
+                
+            case 'dri' % DRI files only contain 1 site
+                addData = UNM_parse_valles_met_data( 'DRI', year, 'Jemez' );
+                addData = prepare_met_data( addData, year, 'DRI' );
+                
+            case 'snotel' % Parse the nearest SNOTEL site
+                addData = UNM_parse_SNOTEL_data( siteID, year );
+                addData = prepare_daily_precip( addData, 'Precip');
+                
+            case 'ghcnd' % Parse the nearest GHCND site
+                addData = UNM_parse_GHCND_met_data( siteID, year );
+                addData = prepare_daily_precip( addData, 'PRCP' );
+                % Convert from tenths to mm
+                addData.Precip = addData.Precip ./ 10;
+                
+            case 'prism'
+                addData = UNM_parse_PRISM_met_data( sitecode, year );
+                addData = prepare_daily_precip( addData, 'Precip');
+                
+            case 'daymet'
+                addData = UNM_parse_DayMet_data( sitecode, year );
+                addData = prepare_daily_precip(addData, 'prcp_mm_day_');
+        end
+        % Fill the timestamps in this dataset and put in fillSiteData
+        filledStruct.(newFieldName) = fillTstamps( addData, thisData.timestamp );
+        catch
+            error(sprintf('The %s filling data failed to parse', ...
+                newFieldName));
+        end
+            
     end
+%==========================================================================
 
-    ds_dest.( var_dest )( idx1 ) = replacement( idx1 );
-    % if there is a secondary site, fill remaining missing values 
-    idx2 = [];  %initialize to empty in case no second site provided
-    if not( isempty( ds_source2 ) )
-        idx2 = find( isnan( ds_dest.( var_dest ) ) & ...
-                     isnan( ds_source1.( var_source1 ) ) & ...
-                     ~isnan( ds_source2.( var_source2 ) ) );
-        ds_dest.( var_dest )( idx2 ) = ds_source2.( var_source2 )( idx2 );
+    % Function to fill in timestamps of a new dataset
+    function filledTsData = fillTstamps( data, tStamps )
+        % Subset data
+        data = data( ( data.timestamp >= min( tStamps ) & ...
+            data.timestamp <= max( tStamps ) ), : );
+        % Fill in timestamps
+        filledTsData = table_fill_timestamps( data, 'timestamp', ...
+            't_min', min( tStamps ), ...
+            't_max', max( tStamps ) );
+        filledTsData.timestamp = datenum( filledTsData.timestamp );
     end
-    n_filled = numel( idx1 ) + numel( idx2 );
-    fprintf( '%s: replaced %d / %d missing observations\n', ...
-             var_dest, n_filled, n_missing );
+%==========================================================================
 
-%===========================================================================
-    
-function h_fig = plot_filled_variable( ds, ds_source1, ds_source2, ...
-                                       var, filled_idx1, filled_idx2, ...
-                                       sitecode, year )
-    
-    seconds = repmat( 0.0, size( ds, 1 ), 1 );
-    ts = datenum( ds.year, ds.month, ds.day, ...
-                  ds.hour, ds.minute, seconds );
-    nobs = size( ds, 1 );
-    jan1 = datenum( ds.year, repmat( 1, nobs, 1 ), repmat( 1, nobs, 1 ) );
-    doy = ts - jan1 + 1;
-    
-    h_fig = figure();
-    h_obs = plot( doy, ds.( var ), '.k' );
-    hold on;
-    h_filled_1 = plot( doy( filled_idx1 ), ...
-                       ds.( var )( filled_idx1 ), ...
-                       '.', 'MarkerEdgeColor', [ 27, 158, 119 ] / 255.0 );
-    if not( isempty( filled_idx2 ) )
-        h_filled_2 = plot( doy( filled_idx2 ), ...
-                           ds.( var )( filled_idx2 ), ...
-                           '.', 'MarkerEdgeColor', [ 217, 95, 2 ] / 255.0 );
-    else
-        h_filled_2 = 0;
+    function [ fillDest, idx1, idx2 ] = fill_variable( fillDest, ...
+            source1, source2, ...
+            varNameDest, ...
+            varNameSource1, ...
+            varNameSource2, ...
+            linfitSource1, ...
+            linfitSource2)
+        % replace missing values in on variable of dataset fillDest with
+        % corresponding values from dataset source1.  Where source1 also
+        % has missing values, fall back to source2 if provided.
+     
+        n_missing = numel( find( isnan( fillDest.( varNameDest ) ) ) );
+        
+        % Check that there is valid data in the filling data
+        if sum( ~isnan( source1.( varNameSource1 ))) == 0
+            error(sprintf('There is no valid data in %s source 1', ...
+                varNameSource1));
+        end
+        % Otherwise, get the index of data in fillDest to fill with
+        % non-nan data from source 1
+        idx1 = find( isnan( fillDest.( varNameDest ) ) & ...
+            ~isnan( source1.( varNameSource1 ) ) );
+        % Do a linear fit if requested
+        if linfitSource1
+            replacement = linfit_var( source1.( varNameSource1 ), ...
+                fillDest.( varNameDest ), ...
+                idx1 );
+        else
+            replacement = source1.( varNameSource1 );
+        end
+        % Put the replacement data in the fill destination
+        fillDest.( varNameDest )( idx1 ) = replacement( idx1 );
+        
+        % If there is a secondary site, fill remaining missing values
+        idx2 = [];  %initialize to empty in case no second site provided
+        if not( isempty( source2 ) )
+            if sum( ~isnan( source2.( varNameSource2 ))) == 0
+                error(sprintf('There is no valid data in %s source 2', ...
+                    varNameSource2));
+            end
+            idx2 = find( isnan( fillDest.( varNameDest ) ) & ...
+                isnan( source1.( varNameSource1 ) ) & ...
+                ~isnan( source2.( varNameSource2 ) ) );
+            fillDest.( varNameDest )( idx2 ) = ...
+                source2.( varNameSource2 )( idx2 );
+        end
+        % Calculate and display number of filled data
+        n_filled = numel( idx1 ) + numel( idx2 );
+        fprintf( '%s: replaced %d / %d missing observations\n', ...
+            varNameDest, n_filled, n_missing );
     end
-    ylabel( var );
-    xlabel( 'day of year' );
-    title( sprintf( '%s %d', get_site_name( sitecode ), year ) );
-    legend( [ h_obs, h_filled_1, h_filled_2 ], ...
+%==========================================================================
+
+    function h_fig = plot_filled_variable( filledData, varName, ...
+            filledIdx1, filledIdx2, ...
+            sitecode, year )
+        
+        seconds = repmat( 0.0, size( filledData, 1 ), 1 );
+        ts = datenum( filledData.year, filledData.month, filledData.day, ...
+            filledData.hour, filledData.minute, seconds );
+        nobs = size( filledData, 1 );
+        jan1 = datenum( filledData.year, repmat( 1, nobs, 1 ), repmat( 1, nobs, 1 ) );
+        doy = ts - jan1 + 1;
+        
+        h_fig = figure();
+        h_obs = plot( doy, filledData.( varName ), '.k' );
+        hold on;
+        h_filled_1 = plot( doy( filledIdx1 ), ...
+            filledData.( varName )( filledIdx1 ), ...
+            '.', 'MarkerEdgeColor', [ 27, 158, 119 ] / 255.0 );
+        if not( isempty( filledIdx2 ) )
+            h_filled_2 = plot( doy( filledIdx2 ), ...
+                filledData.( varName )( filledIdx2 ), ...
+                '.', 'MarkerEdgeColor', [ 217, 95, 2 ] / 255.0 );
+        else
+            h_filled_2 = 0;
+        end
+        ylabel( varName );
+        xlabel( 'day of year' );
+        title( sprintf( '%s %d', get_site_name( sitecode ), year ) );
+        legend( [ h_obs, h_filled_1, h_filled_2 ], ...
             'observed', 'filled 1', 'filled 2' );
-    
+    end
 %===========================================================================
 
-function T = prepare_met_data( T_in, year, site, varargin )
-    if nargin == 4
-        station = varargin{1};
-    end
-    % Initialize some variables
-    stnVar = [];
-    if strcmp(site, 'VCP')
-        hr_2_30min = true; prec_conv = false;
-        varCell = { 'sta', 'airt', 'rh', 'sol', 'ppt'};
-        [stnVar, TairVar, rhVar, RgVar, PrecVar] = deal(varCell{:});
-    elseif strcmp(site, 'DRI')
-        hr_2_30min = false; prec_conv = true;
-        varCell = { 'tair_F', 'rh_pct', 'solarrad_wm2', 'precip_in' };
-        [TairVar, rhVar, RgVar, PrecVar] = deal(varCell{:});
-    elseif strcmp(site, 'Sev')
-        hr_2_30min = true; prec_conv = false;
-        varCell = { 'Station_ID', 'Temp_C', 'RH', 'Solar_Rad', 'Precip' };
-        [stnVar, TairVar, rhVar, RgVar, PrecVar] = deal(varCell{:});
-    end
-    
-    % Trim out extra sites from some datasets
-    if stnVar
-        T_in = T_in( T_in.(stnVar) == station, : );
-    end
-    
-    % Get subset of met variables and rename
-    T = T_in( : , {'timestamp', TairVar, rhVar, RgVar, PrecVar } );
-    T.Properties.VariableNames = { 'timestamp', 'Tair', 'rH', 'Rg', 'Precip' };
-    
-    % Convert rH from [ 0, 100 ] to [ 0, 1 ]
-    if nanmax(T.rH > 2)
-        T.rH = T.rH ./ 100.0;
-    end
-    % Convert precip to mm
-    if prec_conv
-        T.Precip = T.Precip .* 25.4;
-    end
-
-    % If readings are hourly -- interpolate to 30 mins
-    if hr_2_30min
-        ts = T.timestamp;
-        thirty_mins = 30 / ( 60 * 24 );  % thirty minutes in units of days
-        ts_30 = ts + thirty_mins;
-        valid = find( ~isnan( T.rH ) );
-        rh_interp = interp1( ts( valid ), T.rH( valid ), ts_30 );
-        valid = find( ~isnan( T.Tair ) );
-        T_interp = interp1( ts( valid ), T.Tair( valid ), ts_30 );
-        valid = find( ~isnan( T.Rg ) );
-        Rg_interp = interp1( ts( valid ), T.Rg( valid ), ts_30 );
+    function T = prepare_met_data( T_in, year, site )
+        % Initialize some met variables and configuration for the data
+        % If data are hourly, convert to 30min , if precip is in inches,
+        % convert it to mm
+        if strcmp(site, 'VCP')
+            hr_2_30min = true; prec_conv = false; % Conversions
+            varCell = { 'airt', 'rh', 'sol', 'ppt'};
+            [ TairVar, rhVar, RgVar, PrecVar ] = deal(varCell{:});
+        elseif strcmp(site, 'DRI')
+            hr_2_30min = true; prec_conv = false;
+            varCell = { 'Tair_C', 'RH_pct', 'Rad_wm2', 'Precip_mm' };
+            [TairVar, rhVar, RgVar, PrecVar ] = deal(varCell{:});
+        elseif strcmp(site, 'Sev')
+            hr_2_30min = true; prec_conv = false;
+            varCell = { 'Temp_C', 'RH', 'Solar_Rad', 'Precip' };
+            [ TairVar, rhVar, RgVar, PrecVar ] = deal(varCell{:});
+        end
         
-        % Setting 30 min Precip to 0
-        Prec_interp = zeros(length(ts_30), 1);
+        % Get subset of met variables and rename
+        T = T_in( : , {'timestamp', TairVar, rhVar, RgVar, PrecVar } );
+        T.Properties.VariableNames = { 'timestamp', 'Tair', 'rH', 'Rg', 'Precip' };
         
-        T = vertcat( T, table( ts_30, rh_interp, T_interp, Rg_interp , ...
-            Prec_interp, ...
-            'VariableNames', { 'timestamp', 'rH', 'Tair', 'Rg', 'Precip' } ) );
+        % Convert rH from [ 0, 100 ] to [ 0, 1 ]
+        if nanmax(T.rH > 2)
+            T.rH = T.rH ./ 100.0;
+        end
+        % Convert precip to mm
+        if prec_conv
+            T.Precip = T.Precip .* 25.4;
+        end
+        
+        % If readings are hourly -- interpolate to 30 mins
+        if hr_2_30min
+            ts = T.timestamp;
+            thirty_mins = 30 / ( 60 * 24 );  % thirty minutes in units of days
+            ts_30 = ts + thirty_mins;
+            Tair_interp = interp30min( T, ts, ts_30, 'Tair' );
+            rH_interp = interp30min( T, ts, ts_30, 'rH' );
+            Rg_interp = interp30min( T, ts, ts_30, 'Rg' );
+            
+            % Setting 30 min Precip to 0
+            Prec_interp = zeros(length(ts_30), 1);
+            
+            T = vertcat( T, table( ts_30, rH_interp, Tair_interp, Rg_interp , ...
+                Prec_interp, 'VariableNames', ...
+                { 'timestamp', 'rH', 'Tair', 'Rg', 'Precip' } ) );
+        end
+        % Interp subfunction (may fail if there are duplicate timestamps)
+        function varInterp = interp30min( dTable, tstamp, tstamp_30, varName )
+            valid = find( ~isnan( dTable.( varName) ) );
+            if isempty( valid )
+                varInterp = zeros( length( tstamp_30 ), 1) * nan;
+            else
+                varInterp = interp1( tstamp( valid ), ...
+                    dTable.( varName )( valid ), tstamp_30 );
+            end
+        end
+        
+        % filter out bogus values
+        T.Tair( abs( T.Tair ) > 100 ) = NaN;
+        T.rH( T.rH > 1.0 ) = NaN;
+        T.rH( T.rH < 0.0 ) = NaN;
+        T.Rg( T.Rg < -20.0 ) = NaN;
+        
+        % sort by timestamp
+        [ ~, idx ] = sort( T.timestamp );
+        T = T( idx, : );
     end
 
-    % filter out bogus values
-    T.Tair( abs( T.Tair ) > 100 ) = NaN;
-    T.rH( T.rH > 1.0 ) = NaN;
-    T.rH( T.rH < 0.0 ) = NaN;
-    T.Rg( T.Rg < -20.0 ) = NaN;
-
-    % sort by timestamp
-    [ ~, idx ] = sort( T.timestamp );
-    T = T( idx, : );
+%==========================================================================
+    function T_resamp = prepare_daily_precip( T, varname )
+        %
+        %
+        T = T( : , { 'timestamp', varname } );
+        T.Properties.VariableNames = { 'timestamp', 'Precip' };
+        
+        % remove duplicated timestamps
+        dup_timestamps = find( abs( diff( T.timestamp ) ) < 1e-10 );
+        T( dup_timestamps, : ) = [];
+        
+        % Resample the timeseries to 30mins
+        nsamples = repmat(48, 1, length(T.timestamp) - 1);
+        x = cumsum([1 nsamples]);
+        ts_resamp = interp1(x, T.timestamp, x(1):x(end))';
+        
+        % Create a new 30 min table and move values over
+        Precip = zeros(length(ts_resamp), 1);
+        T_resamp = table(ts_resamp, Precip);
+        match_rs = find(ismember(ts_resamp, T.timestamp)); %Match by timestamp
+        T_resamp.Precip(match_rs) = T.Precip;
+        
+        % filter out nonsensical values
+        T_resamp.Precip( T_resamp.Precip < 0 ) = NaN;
+        T_resamp.Precip( T_resamp.Precip > 100 ) = NaN;
+        
+        % sort by timestamp
+        [ discard, idx ] = sort( T_resamp.ts_resamp );
+        T_resamp = T_resamp( idx, : );
+        T_resamp.Properties.VariableNames{'ts_resamp'} = 'timestamp';
+        
+    end
 %===========================================================================
 
-% function ds = prepare_DRI_met_data( T, year )
-% % helper function to trim and sychronize timestamps for Valles DRI data
-% 
-%     T = T( : , { 'timestamp', 'tair_F', 'rh_pct', 'solarrad_wm2' } );
-%     T.rh_pct = T.rh_pct ./ 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
-%     T.tair_F = (T.tair_F - 32) .* (5/9); % convert to Celsius
-%     
-% %     % these readings are hourly -- interpolate to 30 mins
-% %     thirty_mins = 30 / ( 60 * 24 );  % thirty minutes in units of days
-% %     ts_30 = ts + thirty_mins;
-% %     valid = find( ~isnan( ds.rh ) );
-% %     rh_interp = interp1( ts( valid ), ds.rh( valid ), ts_30 );
-% %     valid = find( ~isnan( ds.airt ) );
-% %     T_interp = interp1( ts( valid ), ds.airt( valid ), ts_30 );
-% %     valid = find( ~isnan( ds.sol ) );
-% %     Rg_interp = interp1( ts( valid ), ds.sol( valid ), ts_30 );
-% %     
-% %     ds = vertcat( ds, dataset( { [ ts_30, rh_interp, T_interp, Rg_interp ], ...
-% %                                'timestamp', 'rh', 'airt', 'sol' } ) );
-% % 
-%     % filter out nonsensical values
-%     T.tair_F( abs( T.tair_F ) > 100 ) = NaN;
-%     T.rh_pct( T.rh_pct > 1.0 ) = NaN;
-%     T.rh_pct( T.rh_pct < 0.0 ) = NaN;
-%     t.solarrad_wm2( T.solarrad_wm2 < -20 ) = NaN;
-% 
-%     % make the field names match the "for gapfilling" data
-%     T.Properties.VarNames{ strcmp( ds.Properties.VarNames, 'rh_pct' ) } = 'rH';
-%     T.Properties.VarNames{ strcmp( ds.Properties.VarNames, 'tair_F' ) } = 'Tair';
-%     T.Properties.VarNames{ strcmp( ds.Properties.VarNames, 'solarrad_wm2' ) } = 'Rg';
-%     
-%     % sort by timestamp
-%     [ discard, idx ] = sort( T.timestamp );
-%     T = T( idx, : );
-%     
-% %===========================================================================
-% 
-% function ds = prepare_sev_met_data( ds, year, station )
-% % helper function to trim and sychronize timestamps for Sev data
-%     ds = ds( ds.Station_ID == station, : );
-%     time_ds = ds( :, { 'Year', 'Jul_Day', 'Hour' } );
-%     ts = datenum( time_ds.Year, 1, 1 ) + ...
-%          ( time_ds.Jul_Day - 1 ) + ...
-%          ( time_ds.Hour / 24.0 );
-%     ds = ds( :, { 'Temp_C', 'RH', 'Solar_Rad' } );
-%     ds.Properties.VarNames = { 'Tair', 'rH', 'Rg' };
-%     ds.rH = ds.rH ./ 100.0;  %rescale from [ 0, 100 ] to [ 0, 1 ]
-%     ds.timestamp = ts;
-%     % remove duplicated timestamps
-%     dup_timestamps = find( abs( diff( ts ) ) < 1e-10 );
-%     ds( dup_timestamps, : ) = [];
-%     ts( dup_timestamps ) = [];
-% 
-%     % these readings are hourly -- interpolate to 30 mins
-%     thirty_mins = 30 / ( 60 * 24 );  % thirty minutes in units of days
-%     ts_30 = ts + thirty_mins;
-%     valid = find( ~isnan( ds.rH ) );
-%     rh_interp = interp1( ts( valid ), ds.rH( valid ), ts_30 );
-%     valid = find( ~isnan( ds.Tair ) );
-%     T_interp = interp1( ts( valid ), ds.Tair( valid ), ts_30 );
-%     valid = find( ~isnan( ds.Rg ) );
-%     Rg_interp = interp1( ts( valid ), ds.Rg( valid ), ts_30 );
-%     
-%     ds = vertcat( ds, dataset( { [ ts_30, rh_interp, T_interp, Rg_interp ], ...
-%                                'timestamp', 'rH', 'Tair', 'Rg' } ) );
-% 
-%     % filter out nonsensical values
-%     ds.Tair( abs( ds.Tair ) > 100 ) = NaN;
-%     ds.rH( ds.rH > 1.0 ) = NaN;
-%     ds.rH( ds.rH < 0 ) = NaN;
-%     
-%     % sort by timestamp
-%     [ discard, idx ] = sort( ds.timestamp );
-%     ds = ds( idx, : );
-    
-%===========================================================================
+    function result = linfit_var( x, y, idx )
+        
+        % find timestamps without NaN in either variable
+        nan_idx = any( isnan( [ x, y ] ), 2 );
+        
+        x_valid = x( ~nan_idx );
+        y_valid = y( ~nan_idx );
+        
+        % linear regression of var2 against var1
+        slope = fminsearch( @(m) sse_linfit_slope_only( x_valid, y_valid, m ), ...
+            1.10 );
+        
+        result = x;
+        result( idx ) = x( idx ) * slope;
+        
+        function sse = sse_linfit_slope_only( x, y, m )
+            sse = sum( ( y - ( m * x ) ) .^ 2 );
+        end
+    end
 
-function T_resamp = prepare_daily_precip( T, varname )
-    T = T( : , { 'timestamp', varname } );
-    T.Properties.VariableNames = { 'timestamp', 'Precip' };
-    
-    % remove duplicated timestamps
-    dup_timestamps = find( abs( diff( T.timestamp ) ) < 1e-10 );
-    T( dup_timestamps, : ) = [];
-    
-    % Resample the timeseries to 30mins
-    nsamples = repmat(48, 1, length(T.timestamp) - 1);
-    x = cumsum([1 nsamples]);
-    ts_resamp = interp1(x, T.timestamp, x(1):x(end))';
-    
-    % Create a new 30 min table and move values over
-    Precip = zeros(length(ts_resamp), 1);
-    T_resamp = table(ts_resamp, Precip);
-    match_rs = find(ismember(ts_resamp, T.timestamp)); %Match by timestamp
-    T_resamp.Precip(match_rs) = T.Precip;
-    
-    % filter out nonsensical values
-    T_resamp.Precip( T_resamp.Precip < 0 ) = NaN;
-    T_resamp.Precip( T_resamp.Precip > 100 ) = NaN;
-    
-    % sort by timestamp
-    [ discard, idx ] = sort( T_resamp.ts_resamp );
-    T_resamp = T_resamp( idx, : );
-    T_resamp.Properties.VariableNames{'ts_resamp'} = 'timestamp';
+    function result = linfit_var2( x, y, idx )
+        
+        % find timestamps without NaN in either variable
+        nan_idx = any( isnan( [ x, y ] ), 2 );
+        
+        % linear regression of var2 against var1
+        linfit = polyfit( x( ~nan_idx ), y( ~nan_idx ), 1 );
+        
+        % return prediction of var2 at idx based on regression
+        result = x;
+        result( idx ) = ( x( idx ) * linfit( 1 ) ) + linfit( 2 );
+    end
 
-
-%===========================================================================
-
-function result = linfit_var( x, y, idx )
-    
-% find timestamps without NaN in either variable
-    nan_idx = any( isnan( [ x, y ] ), 2 );
-
-    x_valid = x( ~nan_idx );
-    y_valid = y( ~nan_idx );
-    
-    % linear regression of var2 against var1
-    slope = fminsearch( @(m) sse_linfit_slope_only( x_valid, y_valid, m ), ...
-                        1.10 );
-
-    result = x;
-    result( idx ) = x( idx ) * slope;
-
-function sse = sse_linfit_slope_only( x, y, m )
-    sse = sum( ( y - ( m * x ) ) .^ 2 );
-
-function result = linfit_var2( x, y, idx )
-
-% find timestamps without NaN in either variable
-    nan_idx = any( isnan( [ x, y ] ), 2 );
-
-    % linear regression of var2 against var1
-    linfit = polyfit( x( ~nan_idx ), y( ~nan_idx ), 1 );
-
-    % return prediction of var2 at idx based on regression
-    result = x;
-    result( idx ) = ( x( idx ) * linfit( 1 ) ) + linfit( 2 );
-    
-function linfit = specify_site_linfits( sitecode )
-% SPECIFY_SITE_LINFITS - defines which variables (temp, relative humidity, and
-%   PAR) to perform a regression for data from a nearby site
-
-switch sitecode
-  case { UNM_sites.GLand, UNM_sites.SLand, ...
-         UNM_sites.PJ, UNM_sites.PJ_girdle }
-    linfit = [ false false false false];
-  case { UNM_sites.JSav, UNM_sites.New_GLand }
-    linfit = [ true true true false];
-  case { UNM_sites.PPine, UNM_sites.MCon }
-    linfit = [ false false true false];
-  otherwise
-    error( sprintf( 'Not implemented for %s\n', char( sitecode ) ) );
 end
 

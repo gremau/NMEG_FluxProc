@@ -1,0 +1,41 @@
+---
+configSite: New_GLand
+config: 
+    - year      : 2009
+      fillTair  :
+          - 
+            siteType    : nmeg
+            siteID      : 1    # Grassland (burned)
+            linfit      : true
+          - 
+            siteType    : sev
+            siteID      : 40    # Sev Deep Well station
+            linfit      : true
+      fillrH    :
+          - 
+            siteType    : nmeg
+            siteID      : 1    # Grassland (burned)
+            linfit      : true
+          - 
+            siteType    : sev
+            siteID      : 40    # Sev Deep Well station
+            linfit      : true
+      fillRg    : 
+          - 
+            siteType    : nmeg
+            siteID      : 1    # Grassland (burned)
+            linfit      : true
+          - 
+            siteType    : sev
+            siteID      : 40    # Sev Deep Well station
+            linfit      : true
+      fillPrecip:
+          - 
+            siteType    : nmeg
+            siteID      : 1    # Grassland (burned)
+            linfit      : false
+          - 
+            siteType    : sev
+            siteID      : 40    # Sev Deep Well station
+            linfit      : false
+...

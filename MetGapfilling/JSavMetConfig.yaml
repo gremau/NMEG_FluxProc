@@ -1,0 +1,39 @@
+---
+configSite: JSav
+config: 
+    - year      : 2007
+      fillTair  :
+          - 
+            siteType    : nmeg
+            siteID      : 4    # PJ control
+            linfit      : true
+          - 
+            siteType    : nmeg
+            siteID      : 10    # PJ girdle
+            linfit      : true
+      fillrH    :
+          - 
+            siteType    : nmeg
+            siteID      : 4    # PJ control
+            linfit      : true
+          - 
+            siteType    : nmeg
+            siteID      : 10    # PJ girdle
+            linfit      : true
+      fillRg    : 
+          - 
+            siteType    : nmeg
+            siteID      : 4    # PJ control
+            linfit      : true
+          - 
+            siteType    : nmeg
+            siteID      : 10    # PJ girdle
+            linfit      : true
+      fillPrecip:
+          # PROGRESSO site ends 07/2012, then ESTANCIA is closest
+          # For now use prism
+          - 
+            siteType    : prism
+            siteID      : JSav
+            linfit      : false
+...
