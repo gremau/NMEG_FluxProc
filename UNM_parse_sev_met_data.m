@@ -1,4 +1,4 @@
-function metT = UNM_parse_sev_met_data( year )
+function metTable = UNM_parse_sev_met_data( year, varargin )
 % UNM_PARSE_SEV_MET_DATA- parse Sevilleta meteorological data file to matlab
 % dataset array.
 %
@@ -13,7 +13,8 @@ function metT = UNM_parse_sev_met_data( year )
 %     met_data = UNM_parse_sev_met_data( year )
 %
 % INPUTS
-%    year: four-digit year: specifies the year 
+%    year: four-digit year: specifies the year
+%    optional argument is for siteid
 %
 % OUTPUTS
 %    met_data: matlab dataset array; the Sevilleta data for the specified
@@ -23,47 +24,56 @@ function metT = UNM_parse_sev_met_data( year )
 %    dataset
 %
 % author: Timothy W. Hilton, UNM, March 2012
+% modified by: Gregory E. Maurer, UNM, December 2014
+
 if year < 2013
     fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
-        'sev_met_data_2007_2012.dat' );
+        'sev_met_data_2007_2012.csv' );
 elseif year > 2012
     fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
-        'sev_met_data_2013_2014_2site.dat' );
+        'sev_met_data_2013_2014_2site.csv' );
 end
-infile = fopen( fname, 'r' );
-if ( infile == -1 )
-    error( sprintf( 'failed to open %s\n', fname ) );
+
+% Determine site id (if requested)
+if length( varargin ) > 0
+    siteid = varargin{ 1 };
+elseif length( varargin ) == 0
+    siteid = [];
+else
+    error('Invalid number of arguments')
 end
-headers = fgetl( infile );
-var_names = regexp( headers, ',', 'split' );
-n_cols = numel( var_names );  %how many columns?
-fclose( infile );
 
-fmt = [ repmat( '%f', 1, n_cols -1 ), '%f' ];
-met_data = dataset( 'file', fname, ...
-    'format', fmt, ...
-    'Delimiter', ',', ...
-    'HeaderLines', 1, ...
-    'TreatAsEmpty', '.' );
-
-data_dbl = double( met_data );
-data_dbl = replace_badvals( data_dbl, [ -999 ], 1e-6 );
-
-met_data = dataset( { data_dbl, var_names{ : } } );
-
-% Assign to table and add a matlab timestamp
-metT = dataset2table(met_data);
+% Read the data into a table
+metTable = readtable( fname, 'Delimiter', ',', 'TreatAsEmpty', '.' );
+badValues = metTable{ :, : } == -999 | metTable{ :, : } == -888 ;
+metTable{ :,: }( badValues ) = NaN; 
 
 % There are some discrepancies in the header names between the 2 files
 if year > 2012
-    metT.Properties.VariableNames{'StationID'} = 'Station_ID';
-    metT.Properties.VariableNames{'Julian_Day'} = 'Jul_Day';
-    metT.Properties.VariableNames{'Relative_Humidity'} = 'RH';
-    metT.Properties.VariableNames{'Solar_Radiation'} = 'Solar_Rad';
-    metT.Properties.VariableNames{'Precipitation'} = 'Precip';
+    metTable.Properties.VariableNames{'StationID'} = 'Station_ID';
+    metTable.Properties.VariableNames{'Julian_Day'} = 'Jul_Day';
+    metTable.Properties.VariableNames{'Relative_Humidity'} = 'RH';
+    metTable.Properties.VariableNames{'Solar_Radiation'} = 'Solar_Rad';
+    metTable.Properties.VariableNames{'Precipitation'} = 'Precip';
 end
 
-ts = datenum( metT.Year, 1, 1 ) + ...
-    ( metT.Jul_Day - 1 ) + ...
-    ( metT.Hour / 24.0 );
-metT.timestamp = ts;
+% Trim out extra sites from the table if requested
+if ~isempty( siteid )
+    metTable = metTable(metTable.Station_ID == siteid, :);
+end
+
+% Trim to year and add a timestamp
+metTable = metTable( metTable.Year == year, : );
+
+ts = datenum( metTable.Year, 1, 1 ) + ...
+    ( metTable.Jul_Day - 1 ) + ...
+    ( metTable.Hour / 24.0 );
+
+metTable.timestamp = ts;
+% Observations are in funny order sometimes...
+metTable = sortrows( metTable, {'Station_ID', 'timestamp'} );
+
+% Clear out duplicate timestamps (remove second one)
+[idx, dup] = find_duplicates( metTable.timestamp );
+metTable(idx,:) = [];
+
