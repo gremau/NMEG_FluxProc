@@ -31,7 +31,7 @@ function CombinedDataset = combine_and_fill_datalogger_files( varargin )
 % -----
 % parse and typecheck inputs
 p = inputParser;
-p.addParameter( 'file_names', {} , @( x ) isa( x, 'cell' ) );
+p.addParameter( 'file_names', {}, @( x ) isa( x, 'cell' ) || ischar( x ) );
 p.addParameter( 'datalogger_type', '', @ischar );
 p.addParameter( 'resolve_headers', false, @islogical );
 p.parse( varargin{ : } );
@@ -49,17 +49,16 @@ if isempty( fileNames )
         fullfile( 'C:', 'Research_Flux_Towers', ...
         'Flux_Tower_Data_by_Site' ), ...
         'MultiSelect', 'on' );
-    
-    if ischar( fileNames )
-        fileNames = { fileNames };
-    end
-% Otherwise parse the list of fileNames in case fileNames cellarray
-% contains file names with full paths
-else
-    [ pathName, fileNames, ext ] = cellfun( @fileparts, fileNames, ...
-        'UniformOutput', false );
-    fileNames = strcat( fileNames, ext );
 end
+% If only a single file specified, put in cell array
+if ischar( fileNames )
+    fileNames = { fileNames };
+end
+% Now parse the list of fileNames in case fileNames cellarray
+% contains file names with full paths
+[ pathName, fileNames, ext ] = cellfun( @fileparts, fileNames, ...
+    'UniformOutput', false );
+fileNames = strcat( fileNames, ext );
 
 % If no dataloggerType given, prompt the user for one
 if isempty( dataloggerType )
@@ -102,8 +101,10 @@ if resolve
         fileNames, ...
         dataloggerType);
 else
-    warning(['Changes in datalogger file header columns are not', ...
-        'being resolved!']);
+    % Warn the user, but this is ok with some datalogger files (PJ sites,
+    % possibly others
+    fprintf(['CHANGES IN DATALOGGER FILE HEADER COLUMNS ARE NOT BEING ' ...
+        'RESOLVED!\n']);
 end
 %===============================================================
 

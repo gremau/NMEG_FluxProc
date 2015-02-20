@@ -43,9 +43,11 @@ end
         directoryName = 'yearly_cr23x_compilations';
         fileName = sprintf( 'cr23x_%s_%d_compilation.dat', sitename, year );
         fileName = fullfile( filePath, directoryName, fileName );
+        % Get the data - note that there is NO HEADER RESOLUTION
+        % We are assuming headers in the compiled files are ok
         cr23xData = combine_and_fill_datalogger_files( ...
             'file_names', fileName, 'datalogger_type', 'cr23x', ...
-            'resolve_headers', true);
+            'resolve_headers', false);
     else
         directoryName = 'cr23x_files';
         dataDirectory = fullfile(filePath, directoryName);
@@ -61,7 +63,7 @@ end
         % sort by datenum
         [ dateNumbers, idx ] = sort( dateNumbers );
         fileNames = fileNames( idx );
-        
+        % Get the data and resolve headers in process
         cr23xData = combine_and_fill_datalogger_files( ...
             'file_names', fileNames, 'datalogger_type', 'cr23x', ...
             'resolve_headers', true );
