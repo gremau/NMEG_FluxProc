@@ -65,11 +65,11 @@ if ~isnan( args.Results.replace_nans );
     ds_dbl( isnan( ds_dbl ) ) = args.Results.replace_nans;
 end
 
-% write the data
+% Append the data to the file.
 dlmwrite( args.Results.fname, ...
           ds_dbl, ...
           '-append', ...
-          'Delimiter', args.Results.delimiter );
+          'Delimiter', args.Results.delimiter, 'Precision', 8 );
 
 t_elapsed = round( ( now() - t0 ) * 24 * 60 * 60 );
 

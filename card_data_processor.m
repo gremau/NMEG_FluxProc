@@ -217,12 +217,12 @@ function obj = process_10hz_data( obj )
     % containing data between obj.date_start and obj.date_end to 30-minute
     % averages, concatenates their data and makes sure timestamps include all
     % 30-minute intervals between obj.date_start and obj.date_end without
-    % duplicated timestamps, and places the data into obj.data_30min.
+    % duplicated timestamps, and places the data into obj.data_10hz_avg.
     % If obj.data_10hz_already_processed is true, reads pre-processed data
     % from .mat file (see docs for card_data_processor constructor).
     %
     % USAGE:
-    %    [ obj ] = get_30min_data( obj )
+    %    [ obj ] = process_10hz_data( obj )
     % INPUTS:
     %    obj: card_data_processor object
     % OUTPUTS:
@@ -306,7 +306,7 @@ function obj = update_fluxall( obj, varargin )
         parse_30min = true;
     end
     
-    if isempty( obj.data_30min ) & obj.has_second_logger
+    if isempty( obj.data_30min_logger2 ) && obj.has_second_logger
         parse_30min_logger2 = true;
     end
     % -----
@@ -348,7 +348,7 @@ function obj = update_fluxall( obj, varargin )
     
     fprintf( '---------- merging 30-min, 10-hz, and fluxall ----------\n' );
     
-    new_data = merge_data( obj, parse_30min_logger2 );
+    new_data = merge_data( obj );
     
     % trim new_data down so it only includes time stamps between obj.date_start and
     % obj.date_end. Without this, can introduce gaps in the fields derived from
@@ -386,7 +386,7 @@ end   % update_data
 
 % --------------------------------------------------
 
-function new_data = merge_data( obj, logger2 )
+function new_data = merge_data( obj )
     % MERGE_DATA - merges the 10hz data and the 30-minute data together.
     %
     % Internal function for card_data_processor class; not really intended
@@ -424,8 +424,6 @@ function new_data = merge_data( obj, logger2 )
     obj.data_10hz_avg.second = s;
     
     % make sure all jday and 'date' values are filled in
-    % FIXME - I think this is wrong - there is some sort of rounding error
-    % in this column in the FLUXALL files
     obj.data_10hz_avg.jday = ( obj.data_10hz_avg.timestamp - ...
         datenum( year, 1, 0 ) );
     obj.data_10hz_avg.date = ( obj.data_10hz_avg.month * 1e4 + ...
