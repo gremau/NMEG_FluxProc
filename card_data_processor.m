@@ -16,40 +16,42 @@ methods
 
 % --------------------------------------------------
 function obj = card_data_processor( sitecode, varargin )
-    % Class for processing raw datalogger data files and inserting their data into UNM annual FluxAll files.
+    % Class for processing raw datalogger data files and inserting their
+    % data into UNM annual FluxAll files.
     %
+    % The class constructor for card_data_processor (CDP) creates a new
+    % CDP and initializes fields.  The main top-level method for the class
+    % is update_fluxall.  Typical use of CDP class, then, would look
+    % something like:
     %
-    % The class constructor for card_data_processor (CDP) creates a new CDP and
-    % initializes fields.  The main top-level method for the class is
-    % update_fluxall.  Typical use of CDP class, then, would look something
-    % like: cdp = card_data_processor( UNM_sites.WHICH_SITE, options );
-    % cdp.update_fluxall();
+    %     cdp = card_data_processor( UNM_sites.WHICH_SITE, options );
+    %     cdp.update_fluxall();
     %
     % INPUTS:
     %    sitecode: UNM_sites object; the site to process
-    %    OPTIONAL PARAMETER-VALUE PAIRS:
-    %       'date_start': matlab serial datenumber; date to begin processing.
-    %           If unspecified default is 00:00:00 on 1 Jan of current year
-    %           (that is, the year specified by now()).
-    %       'date_end': Matlab serial datenumber; date to end processing.  If
-    %           unspecified the default is the current system time (as
-    %           provided by now()).
-    %       'rotation': sonic_rotation object; specifies rotation.  Defaults
-    %           to 3D.
-    %       'lag': 0 or 1; lag for 10hz data processing. defaults to 0.
-    %       'data_10hz_avg': dataset array; Allows previously processed 10hz
-    %           data to be supplied for insertion into FluxAll file.  If
-    %           unspecified the necessary 10-hz data files will be located
-    %           and processed to 30-minute averages.
-    %       'data_30min': dataset array; Allows 30-minute data to be supplied
-    %           for insertion into FluxAll file.  If unspecified all TOA5
-    %           files containing data between date_start and date_end are
-    %           parsed and combined.
-    %       'data_10hz_already_processed': true|{false}; if true and
-    %           data_10hz_avg is unspecified CDP loads processed 10hz data from
-    %           $FLUXROOT/FluxOut/TOB1_data/SITE_TOB1_YYYY_filled.mat, with SITE
-    %           the character representation of sitecode and YYYY the present
-    %           year (as returned by now())
+    % OPTIONAL PARAMETER-VALUE PAIRS:
+    %    'date_start': matlab serial datenumber; date to begin processing.
+    %        If unspecified default is 00:00:00 on 1 Jan of current year
+    %        (that is, the year specified by now()).
+    %    'date_end': Matlab serial datenumber; date to end processing.  If
+    %        unspecified the default is the current system time (as
+    %        provided by now()).
+    %    'rotation': sonic_rotation object; specifies rotation.  Defaults
+    %        to 3D.
+    %    'lag': 0 or 1; lag for 10hz data processing. defaults to 0.
+    %    'data_10hz_avg': dataset array; Allows previously processed 10hz
+    %        data to be supplied for insertion into FluxAll file.  If
+    %        unspecified the necessary 10-hz data files will be located
+    %        and processed to 30-minute averages.
+    %    'data_30min': dataset array; Allows 30-minute data to be supplied
+    %        for insertion into FluxAll file.  If unspecified all TOA5
+    %        files containing data between date_start and date_end are
+    %        parsed and combined.
+    %    'data_10hz_already_processed': true|{false}; if true and
+    %        data_10hz_avg is unspecified CDP loads processed 10hz data
+    %        from $FLUXROOT/FluxOut/TOB1_data/SITE_TOB1_YYYY_filled.mat, 
+    %        with SITE the character representation of sitecode and YYYY 
+    %        the present year (as returned by now())
     %
     % SEE ALSO
     %    sonic_rotation, UNM_sites, dataset, now, datenum
@@ -131,9 +133,10 @@ function [ obj, toa5_files ] = get_30min_data( obj )
     % Obtain 30-minute data for a card_data_processor (CDP) from TOA5 files.
     %
     % Parses all TOA5 files containing data between obj.date_start and
-    % obj.date_end, concatenates their data and makes sure timestamps include
-    % all 30-minute intervals between obj.date_start and obj.date_end without
-    % duplicated timestamps, and places the data into obj.data_30min.
+    % obj.date_end, concatenates their data and makes sure timestamps
+    % include all 30-minute intervals between obj.date_start and
+    % obj.date_end without duplicated timestamps, and places the data into
+    % obj.data_30min.
     %
     % USAGE:
     %    [ obj, toa5_files ] = get_30min_data( obj )
@@ -157,27 +160,26 @@ end  % get_30min_data
 % --------------------------------------------------
 
 function [ obj, logger2_files ] = get_second_logger_data( obj )
-    % Obtain 30-minute separately logged soil data for a
-    % card_data_processor (CDP) from TOA5 files.
+    % Obtain 30-minute data for a CDP from secondary datalogger files.
+    %
     % FIXME - documentation
-    % Parses all TOA5 files containing data between obj.date_start and
-    % obj.date_end, concatenates their data and makes sure timestamps include
-    % all 30-minute intervals between obj.date_start and obj.date_end without
-    % duplicated timestamps, and places the data into obj.data_30min.
+    % Parses the data from a secondary datalogger specified for
+    % each site. This function calls a custom parser for each site that 
+    % returns data from a secondary datalogger. These parsers are
+    % configured to retrieve data between obj.date_start and
+    % obj.date_end, concatenate this data, and ensure timestamps include
+    % all 30-minute intervals between obj.date_start and obj.date_end 
+    % without duplicated timestamps. This function then places the data 
+    % into obj.data_30min_logger2.
     %
     % USAGE:
-    %    [ obj, toa5_files ] = get_30min_data( obj )
+    %    [ obj, logger2_files ] = get_second_logger_data( obj )
     % INPUTS:
     %    obj: card_data_processor object
     % OUTPUTS:
-    %    obj: CDP object with data_30min field updated.
-    %    toa5_files: cell array; the TOA5 files whose data were added.
-    
-%     logger2_files = get_data_file_names( obj.date_start, obj.date_end,...
-%         obj.sitecode, ...
-%         'soil' );
-    % get year
-    
+    %    obj: CDP object with data_30min_logger2 field updated.
+    %    logger2_files: cell array; the filenames whose data were added.
+
     % FIXME Temporary hack to make this work. Need to use
     % get_data_file_names.m for this eventually
     logger2_files = {};
