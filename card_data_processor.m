@@ -422,6 +422,8 @@ function new_data = merge_data( obj, logger2 )
     obj.data_10hz_avg.second = s;
     
     % make sure all jday and 'date' values are filled in
+    % FIXME - I think this is wrong - there is some sort of rounding error
+    % in this column in the FLUXALL files
     obj.data_10hz_avg.jday = ( obj.data_10hz_avg.timestamp - ...
         datenum( year, 1, 0 ) );
     obj.data_10hz_avg.date = ( obj.data_10hz_avg.month * 1e4 + ...

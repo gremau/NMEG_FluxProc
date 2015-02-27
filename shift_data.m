@@ -1,4 +1,4 @@
-function data = shift_data( data, offset_hours, varargin )
+function data = shift_data( data, offset_hours, cols_to_shift )
 % SHIFT_DATA - shifts the timestamps within a dataset by a specified number
 % of hours.
 %
@@ -21,7 +21,6 @@ function data = shift_data( data, offset_hours, varargin )
 % INPUTS
 %    data: numeric; array of data to be "shifted"
 %    offset_hours: whole_number; number of hours to shift
-% PARAMETER-VALUE PAIRS
 %    cols_to_shift: which columns to shift.
 %                   Defaults to [ 74: size( data, 2 ) ]
 %                   Corresponds to the 30-minute portion in FLUXALL files.
@@ -30,19 +29,7 @@ function data = shift_data( data, offset_hours, varargin )
 %    data: input arguemnt data, with timestamps shifted
 %
 % Author: Timothy W. Hilton, UNM, June 2012
-
-% -----
-% Define optional inputs, with defaults and typechecking
-% -----
-args = inputParser;
-args.addRequired( 'data', @isnumeric );
-args.addRequired( 'offset_hours', @( x ) isnumeric( x ) & ( numel( x ) == 1 ) );
-args.addParamValue( 'cols_to_shift', [], @isnumeric );
-% parse optional inputs
-args.parse( data, offset_hours, varargin{ : } );
-data = args.Results.data;
-offset_hours = args.Results.offset_hours;
-cols_to_shift = args.Results.cols_to_shift;
+% Modified by: Gregory E. Maurer, UNM, February 2015
 
 if ( offset_hours == 0 )
     % nothing to do
@@ -56,14 +43,11 @@ if ~isintval( offset_idx )
     error( 'offset must be n/2, with n an integer' );
 end
 
-% Create an array of NaNs to replace the chunk of data removed by the
-% shift.
-first_10hz_data_column = 9; % columns 1 through 8 are timestamp stuff --
-                       % leave these alone
+% IF the cols_to_shift argument is empty, choose only 30min data
 first_30min_data_column = 74; % columns 1 through 73 are timestamps and
                               % 10hz data
-
 if isempty( cols_to_shift )
+    warning( 'Columns to shift are unspecified, defaulting to 74:end' );
     cols_to_shift = first_30min_data_column : size( data, 2 );
 end
 
