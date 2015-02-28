@@ -75,6 +75,8 @@ args.addParamValue( 'iteration', 6, ...
     @(x) ( isintval( x ) & ( x >= 1 ) & ( x <= 6 ) ) );
 args.addParamValue( 'write_QC', true, @islogical );
 args.addParamValue( 'write_GF', true, @islogical );
+args.addParamValue( 'old_fluxall', false, @islogical );
+args.addParamValue( 'xls_fluxall', false, @islogical );
 args.addParamValue( 'draw_plots', 1, ...
     @(x) ( isnumeric( x ) & ismember( x, [ 0, 1, 2, 3 ] ) ) );
 
@@ -92,6 +94,10 @@ write_complete_out_file = args.Results.write_QC;
 %true to write file for Reichstein's online gap-filling. SET U* LIM (including
 %site- specific ones--comment out) TO 0!!!!!!!!!!
 write_gap_filling_out_file = args.Results.write_GF;
+
+% Parameters used to select between versions of fluxall files
+use_old_fluxall = args.Results.old_fluxall;
+use_xls_fluxall = args.Results.xls_fluxall;
 
 draw_plots = args.Results.draw_plots;
 
@@ -276,10 +282,27 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % read the fluxall file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if use_old_fluxall
+    pathname = fullfile( get_site_directory( sitecode ), ...
+        'old_fluxall');
+else
+    pathname = fullfile( get_site_directory( sitecode ));
+end
+
+if use_xls_fluxall
+    fname = sprintf( '%s_FLUX_all_%d.xls', get_site_name( sitecode ), ...
+        year_arg );
+    data = UNM_parse_fluxall_xls_file( sitecode, year_arg, ...
+        'file', fullfile( pathname, fname ));
+else
+    fname = sprintf( '%s_FLUX_all_%d.txt', get_site_name( sitecode ), ...
+        year_arg );
+    data = UNM_parse_fluxall_txt_file( sitecode, year_arg, ...
+        'file', fullfile( pathname, fname ));
+end
 
 outfolder = fullfile( get_site_directory( sitecode ), ...
     'processed_flux' );
-data = UNM_parse_fluxall_txt_file( sitecode, year_arg );
 
 headertext = data.Properties.VarNames;
 timestamp = data.timestamp;

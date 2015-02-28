@@ -32,7 +32,7 @@ args.addParamValue( 'file', '', @ischar );
 args.parse( sitecode, year, varargin{ : } );
 
 sitecode = args.Results.sitecode;
-year = args.Results.year;
+year_arg = args.Results.year;
 % -----
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -44,9 +44,10 @@ site = get_site_name( sitecode );
 
 % if no file specified, use default
 if isempty( args.Results.file )
-    fname = sprintf( '%s_FLUX_all_%d.txt', site, year );
+    fname = sprintf( '%s_FLUX_all_%d.txt', site, year_arg );
     full_fname = fullfile( get_site_directory( sitecode ), fname );
 else
+    % Check if file exists
     if not( exist( args.Results.file ) )
         error( sprintf( 'file ''%s'' does not exist', args.Results.file ) );
     end
@@ -91,14 +92,25 @@ headers( empty_columns ) = [];
 data( :, empty_columns ) = [];
 ds = dataset( { data, headers{ : } } );
 
+% Check that there aren't multiple years in the incoming data
+[ nRows, nCol ] = size( ds );
+inYearRecords = ds.year == year_arg ;
+%years = unique( ds.year( 1:end-1 ));
+if sum( inYearRecords ) < ( nRows - 1 );
+    inYearIdx = find( inYearRecords );
+    keep = min( inYearIdx ) : (max( inYearIdx ) + 1 ) ;
+    ds = ds( keep, : );
+    warning( 'Removing data outside of requested year' )
+end
+
 ds.timestamp = datenum( ds.year, ds.month, ds.day, ...
                         ds.hour, ds.min, ds.second );
 
 % Warn user if this is an irregular fluxall file
-[numobs, ~] = size(ds);
+[ numobs, ~ ] = size( ds );
 fullobs = 365 * 48;
 % Chech for leapyear first
-if datenum(year, 2, 29) ~= datenum(year, 3, 1);
+if datenum( year, 2, 29 ) ~= datenum( year, 3, 1 );
     fullobs = fullobs + 48;
 end 
 if numobs < fullobs

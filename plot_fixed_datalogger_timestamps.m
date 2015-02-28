@@ -48,10 +48,11 @@ radStartDay = 171; % June 20
 radEndDay = 191; % July 10
 
 % Check that there aren't multiple years in the incoming data
-[ y, ~, ~, ~, ~, ~ ] = datevec( dataOrig.timestamp( 1:end-1 ));
-if length( unique( y )) > 1 || not( ismember( year, y ) )
-    error(' Error in years being compared ');
-end
+% FIXME There are other checks on years - can probably remove this
+% [ y, ~, ~, ~, ~, ~ ] = datevec( dataOrig.timestamp( 1:end-1 ));
+% if length( unique( y )) > 1 || not( ismember( year, y ) )
+%     error(' Error in years being compared ');
+% end
 
 % -----------------------------------------------------------------
 % Identify and check for Rg and PAR columns in the original data table

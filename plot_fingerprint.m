@@ -49,7 +49,7 @@ function [ h_fig, h_ax ] = plot_fingerprint( dtime, data, t_str, varargin )
 args = inputParser;
 args.addRequired( 'dtime', @(x) ( isnumeric( x ) & ...
                                   all( x >= 1 ) & ...
-                                  all( x <  367 ) ) );
+                                  all( x <=  367 ) ) );
 args.addRequired( 'data', @isnumeric );
 args.addRequired( 't_str', @ischar );
 args.addParamValue( 'cmap', [], @isnumeric );

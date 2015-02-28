@@ -1,15 +1,17 @@
-function ds  = UNM_parse_fluxall_xls_file( sitecode, year )
+function ds  = UNM_parse_fluxall_xls_file( sitecode, year, varargin )
 % UNM_PARSE_FLUXALL_XLS_FILE - parse fluxall data and timestamps from
 % Excel spreadsheet file to matlab dataset.  
-% 
-% The fluxall file is assumed to be is 
-%    get_site_directory( sitecode )/SITE_FLUX_all_YEAR.xls
 %
 % ds  = UNM_parse_fluxall_xls_file( sitecode, year )
+% ds  = UNM_parse_fluxall_xls_file( sitecode, year, 'file', file )
 %
 % INPUTS
 %    sitecode: UNM_sites object; specifies the site to show
 %    year: four-digit year: specifies the year to show
+% PARAMETER-VALUE PAIRS
+%    file: character string; full path to the fluxall file to be read.  If
+%    not specified, default is 
+%    get_site_directory( sitecode )/SITE_FLUX_all_YEAR.xls
 %
 % OUTPUTS
 %    ds: dataset array: the data from the fluxall file
@@ -19,19 +21,44 @@ function ds  = UNM_parse_fluxall_xls_file( sitecode, year )
 %
 % Timothy W. Hilton, UNM, January 2012
 
+[ this_year, ~, ~ ] = datevec( now );
+
+% -----
+args = inputParser;
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'year', ...
+               @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
+args.addParamValue( 'file', '', @ischar );
+args.parse( sitecode, year, varargin{ : } );
+
+sitecode = args.Results.sitecode;
+year = args.Results.year;
+% -----
+
+% Get file properties
 [ lastcolumn, filelength_n ] = get_FluxAll_File_Properties( sitecode, year );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set up file name and file path
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% if no file specified, use default
+if isempty( args.Results.file )
+    fname = sprintf( '%s_FLUX_all_%d.xls', site, year );
+    full_fname = fullfile( get_site_directory( sitecode ), fname );
+else
+    %Check if file exists
+    if not( exist( args.Results.file ) )
+        error( sprintf( 'file ''%s'' does not exist', args.Results.file ) );
+    end
+    fname = args.Results.file;
+    full_fname = args.Results.file;
+end
+
 fluxrc = UNM_flux_process_config();
 site = get_site_name( sitecode );
 
 row1=5;  %first row of data to process - rows 1 - 4 are header
-fname = sprintf( '%s_FLUX_all_%d.xls', site, year );
-filein = fullfile( get_site_directory( sitecode ), fname );
-
 range = sprintf( 'B%d:%s%d', row1 ,lastcolumn, filelength_n );
 headerrange = sprintf( 'A2:%s5',lastcolumn );
 
@@ -50,9 +77,9 @@ disp( sprintf( 'reading %s...', fname ) );
 %% outside of windows, xlsread operates in 'basic' mode, and can only
 %% read the numeric portions of the spreadsheet in their entirety. 
 if ( iswindows )
-    [ num, headertext ] = xlsread( filein, headerrange );
+    [ num, headertext ] = xlsread( full_fname, headerrange );
     headertext = fluxall_extract_column_headers( headertext );
-    [ data, ~ ] = xlsread( filein, '', '', 'basic' );  
+    [ data, ~ ] = xlsread( full_fname, '', '', 'basic' );  
 
     empty_headers = find( cellfun( @isempty, headertext ) );
     dummyheaders = arrayfun( @(x) sprintf('Col_%03d', x), ...
@@ -60,7 +87,7 @@ if ( iswindows )
                              'UniformOutput', false );
     headertext( empty_headers ) = dummyheaders;
 else
-    [ data, discard ] = xlsread( filein, '', '', 'basic' );  
+    [ data, discard ] = xlsread( full_fname, '', '', 'basic' );  
     %% create cell array of variable names -- Col_001, Col_002, ... Col_N
     dummyheaders = arrayfun( @(x) sprintf('Col_%03d', x), ...
                              1:size( data, 2 ), ...

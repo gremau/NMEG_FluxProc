@@ -57,8 +57,11 @@ colHeaders = dataTable.Properties.VariableNames;
 % Determine column locations of 10hz and 30min data
 first10hzCol = find( strcmp( 'iok', colHeaders ));
 first30MinCol = find( strcmp( 'Fc_wpl', colHeaders ));
-timestampCol = find( strcmpi( 'timestamp', colHeaders ));
-if numel( timestampCol ) > 1;
+timestampCol = find( strcmp( 'timestamp', colHeaders ));
+% Check for other timestamps in the file
+otherTimestamps = cellfun(@(x) ~isempty( regexpi( x, 'timestamp' )), ...
+    colHeaders( : ));
+if sum( otherTimestamps > 1 );
     warning( ' Multiple timestamp columns exist in this FLUXALL file! ' );
 end
 
@@ -67,8 +70,11 @@ all10hzCols = first10hzCol:first30MinCol - 1;
 if ismember( nCols, timestampCol );
     all30MinCols = first30MinCol:nCols - 1; % Exclude last timestamp column
     allCols = first10hzCol:nCols - 1;
+elseif timestampCol < first10hzCol
+    all30MinCols = first30MinCol:nCols; % Don't exclude last column
+    allCols = first10hzCol:nCols;
 else
-    error(' New timestamp column not appended to this FLUXALL data! ');
+    error(' Timestamp column is misplaced in this FLUXALL data! ');
 end
 
 %--------------------------------------------------------------------------
@@ -179,6 +185,8 @@ switch sitecode
                 idx = DOYidx( 343 ) : size( data, 1 );
                 data( idx, : ) = shift_data( data( idx, : ), -1.0, ...
                     all30MinCols );
+            case 2013
+                data = shift_data( data, 0.5, allCols );
         end
         
         
