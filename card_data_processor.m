@@ -203,6 +203,10 @@ function [ obj, logger2_files ] = get_second_logger_data( obj )
         idx = ( PJG_cr23x.timestamp >= obj.date_start ) & ...
             ( PJG_cr23x.timestamp <= obj.date_end );
         obj.data_30min_logger2 = PJG_cr23x( idx, : );
+    else
+        warning(' Second datalogger parsing not configured. Flag reset ')
+        obj.has_second_logger = false;
+        return;
     end
     
 end  % get_second_logger_data

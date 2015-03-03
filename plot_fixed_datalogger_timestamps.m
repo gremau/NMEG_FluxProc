@@ -155,9 +155,11 @@ h_fig2 = figure( 'Name', ...
 xLabelList = { 'January', 'February', 'March', 'April', 'May', 'June', ...
     'July', 'August', 'September', 'October', 'November', 'December' };
 
-[ ~, monthsPresent, ~, ~, ~, ~ ] = datevec( allTimestamps );
+% Make sure we don't plot months without at least 7 days
+[ ~, monthsPresent, daysPresent, ~, ~, ~ ] = datevec( allTimestamps );
+fullMonthsPresent = monthsPresent( daysPresent >= 7 ); 
 
-for i = 1:max( monthsPresent )
+for i = 1:max( fullMonthsPresent )
     % Get day numbers, mean data for 2 variables, and solar events for 
     % the first week of month (i)
     startWkDay = datenum( year, i, 1) - datenum( year, 1, 0 );

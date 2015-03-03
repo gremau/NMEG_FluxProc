@@ -1,4 +1,4 @@
-function parsedConfig = parse_yaml_site_config( yamlName, varargin )
+function parsedConfig = parse_yaml_site_config( yamlName, sitecode, varargin )
 % Parse a YAML site configuration file, parsing out configuration variables
 % for a selected individual years if requested.
 %
@@ -12,19 +12,34 @@ function parsedConfig = parse_yaml_site_config( yamlName, varargin )
 %
 % Gregory E. Maurer, UNM, February 2015
 
+% Path to YAML files
+yamlPath = fullfile( pwd, 'YAML_ConfigFiles', get_site_name( sitecode ));
 
 % Load the configuration file using YAMLMatlab
 addpath( 'C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\' );
-rawConfig = ReadYaml(yamlName);
+addpath( yamlPath);
+
+rawConfig = ReadYaml( [yamlPath '\' yamlName ]);
+
+rmpath( yamlPath );
 rmpath( 'C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\' );
 
+% Check that the config file is for the correct site
+if strcmpi( rawConfig.configSite, get_site_name( sitecode ));
+    fprintf( 'parsing %s configuration file for %s \n', ...
+        yamlName, get_site_name( sitecode ));
+else
+    error( 'The YAML config file is for the wrong site!' );
+end
+
+% Check if config parsing by year is needed
 if length(varargin) == 0 && not( isfield( rawConfig, 'yearConfig' ))
     parseYear = false;
 elseif length( varargin ) == 1 && isfield( rawConfig, 'yearConfig' )
     parseYear = true;
     year = varargin{ 1 };
 else
-    error( 'There is a mismatch between input arguments and config file' );
+    error( 'Mismatch between input arguments and YAML config file' );
 end
 
 
@@ -54,7 +69,7 @@ if parseYear;
     % by sorting the configurations and updating each sequential year.
     usableYears = sort( confYears( confYears <= year ));
     for i = 1:length( usableYears )
-        usableYearInd = find( confYears == usableYears( i ))
+        usableYearInd = find( confYears == usableYears( i ));
         conf = rawConfig.yearConfig{ usableYearInd };
         % Get field names for each year's conf and add to parsedConfig
         confNames = fieldnames( conf ); 

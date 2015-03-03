@@ -1,6 +1,6 @@
 ---
 configSite: New_GLand
-config: 
+yearConfig: 
     - year      : 2009
       fillTair  :
           - 

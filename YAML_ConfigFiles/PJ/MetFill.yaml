@@ -1,41 +1,41 @@
 ---
-configSite: PJ_girdle
-config: 
+configSite: PJ
+yearConfig: 
     - year      : 2007
       fillTair  :
           - 
             siteType    : nmeg
-            siteID      : 4    # PJ control
+            siteID      : 10    # PJ girdle (After 2009)
             linfit      : false
           - 
             siteType    : nmeg
-            siteID      : 3    # Juniper Savanna
+            siteID      : 3    # Juniper Savanna (Before 2010)
             linfit      : false
       fillrH    :
           - 
             siteType    : nmeg
-            siteID      : 4    # PJ control
+            siteID      : 10    # PJ girdle (After 2009)
             linfit      : false
           - 
             siteType    : nmeg
-            siteID      : 3    # Juniper Savanna
+            siteID      : 3    # Juniper Savanna (Before 2010)
             linfit      : false
       fillRg    : 
           - 
             siteType    : nmeg
-            siteID      : 4    # PJ control
+            siteID      : 10    # PJ girdle (After 2009)
             linfit      : false
           - 
             siteType    : nmeg
-            siteID      : 3    # Juniper Savanna
+            siteID      : 3    # Juniper Savanna (Before 2010)
             linfit      : false
       fillPrecip:
           - 
             siteType    : nmeg
-            siteID      : 4    # PJ control
+            siteID      : 10    # PJ girdle
             linfit      : false
           - 
             siteType    : prism
-            siteID      : PJ_girdle
+            siteID      : PJ
             linfit      : false
 ...

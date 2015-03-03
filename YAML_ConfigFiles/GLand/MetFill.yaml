@@ -1,6 +1,6 @@
 ---
 configSite: GLand
-config: 
+yearConfig: 
     - year      : 2007
       fillTair  :
           - 

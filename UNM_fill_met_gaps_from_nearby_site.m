@@ -63,23 +63,9 @@ thisData = fillTstamps( thisData, thisData.timestamp );
 % Get Met gapfilling configuration
 % We need to parse YAML config files to do this
 
-gfConfigFileName = sprintf('./MetGapfilling/%sMetConfig.yaml', ...
-    get_site_name(sitecode));
+configFileName = 'MetFill.yaml';
 
-
-addpath( './MetGapfilling' );
-addpath('C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\');
-gfConfig = ReadYaml( gfConfigFileName );
-rmpath('C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\');
-rmpath( './MetGapfilling' );
-
-% Get the correct configuration for this year
-configNum = length( gfConfig.config ); % Number of available configurations
-confYears = zeros( 1,configNum );
-for i = 1:configNum % Get the most recent config preceding this year
-    confYears(i) = extractfield(gfConfig.config{i}, 'year');
-end
-thisConfig = gfConfig.config{ find( confYears==max( confYears ) ) };
+thisConfig = parse_yaml_site_config( configFileName, sitecode, year );
 
 %--------------------------------------------------
 % Now we are going to fill selected met variables in thisData
@@ -123,8 +109,9 @@ for i = 1:length( fillVars )
             varConfig{ 1 }.linfit, ...
             varConfig{ 2 }.linfit );
     catch
-        fprintf([ 'ABORTING - There is not enough ancillary met data ' ...
-            'available.\nFilled file not written. \n' ]);
+        fprintf([ 'ABORTING UNM_fill_met_gaps_from_nearby_site \n' ...
+            'There is not enough ancillary met data available \n' ...
+            'Filled file not written. \n' ]);
         result = 1;
         return
     end

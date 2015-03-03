@@ -224,12 +224,12 @@ try
     dates = cellfun( @get_TOA5_TOB1_file_date, ts_data_fnames );
     % Note that sometimes a card contains data from 2 years
     % 2 fluxall files need to be made in this case
-    datesVec = datevec(dates);
-    inclYears = unique( datesVec(:,1) );
+    datesVec = datevec( dates );
+    inclYears = unique( datesVec( :, 1 ) );
     if length( inclYears ) > 1
         start_first = min( dates );
-        end_first = datenum( inclYears(1), 12, 31, 23, 30, 0 );
-        start_second = datenum( inclYears(2), 1, 1 );
+        end_first = datenum( inclYears( 1 ), 12, 31, 23, 30, 0 );
+        start_second = datenum( inclYears( 2 ), 1, 1 );
         end_second = max( dates );
         cdp1 = card_data_processor( UNM_sites( this_site ), ...
             'date_start', start_first, ...
