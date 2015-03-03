@@ -155,7 +155,9 @@ h_fig2 = figure( 'Name', ...
 xLabelList = { 'January', 'February', 'March', 'April', 'May', 'June', ...
     'July', 'August', 'September', 'October', 'November', 'December' };
 
-for i = 1:12
+[ ~, monthsPresent, ~, ~, ~, ~ ] = datevec( allTimestamps );
+
+for i = 1:max( monthsPresent )
     % Get day numbers, mean data for 2 variables, and solar events for 
     % the first week of month (i)
     startWkDay = datenum( year, i, 1) - datenum( year, 1, 0 );
@@ -262,13 +264,15 @@ diagFig2 = h_fig2;
                 radSubset{ test, radVarName }, '.k');
         end
         plot([12, 12], yLimit, '-k');
-        solarEvents = solarEvents( solarEvents( :, 4 ) == ...
-            floor( mean( [startDay, endDay] )), : );
-        plot([solarEvents(1), solarEvents(1)], yLimit, '--r');
-        plot([solarEvents(2), solarEvents(2)], yLimit, ':r');
-        plot([solarEvents(3), solarEvents(3)], yLimit, ':r');
-        plot( meanRad.time, meanRad.( radVarName ), '-og' );
-        
+        % Making these plots before startDay doesn't make sense
+        if max(solarEvents( :, 4 )) >= endDay
+            solarEvents = solarEvents( solarEvents( :, 4 ) == ...
+                floor( mean( [startDay, endDay] )), : );
+            plot([solarEvents(1), solarEvents(1)], yLimit, '--r');
+            plot([solarEvents(2), solarEvents(2)], yLimit, ':r');
+            plot([solarEvents(3), solarEvents(3)], yLimit, ':r');
+            plot( meanRad.time, meanRad.( radVarName ), '-og' );
+        end
         titleStr = sprintf( '%s %s timing fixed', radVarName, shiftStr );
         titleStr = strrep( titleStr, '_', '\_' );
         title( titleStr );

@@ -66,9 +66,12 @@ thisData = fillTstamps( thisData, thisData.timestamp );
 gfConfigFileName = sprintf('./MetGapfilling/%sMetConfig.yaml', ...
     get_site_name(sitecode));
 
+
+addpath( './MetGapfilling' );
 addpath('C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\');
-gfConfig = ReadYaml(gfConfigFileName);
+gfConfig = ReadYaml( gfConfigFileName );
 rmpath('C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\');
+rmpath( './MetGapfilling' );
 
 % Get the correct configuration for this year
 configNum = length( gfConfig.config ); % Number of available configurations
@@ -109,16 +112,22 @@ for i = 1:length( fillVars )
         fillData.('empty') = [];
     end
     
-    % Replace missing data in thisData with data from fillData
-    % NOTE this also returns indices of what was filled
-    [ thisData, filledIdx1, filledIdx2 ] = ...
-        fill_variable( thisData, ...
-        fillData.( varConfig{ 1 }.fillDataField ), ...
-        fillData.( varConfig{ 2 }.fillDataField ), ...
-        fillVars{ i }, fillVars{ i }, fillVars{ i }, ...
-        varConfig{ 1 }.linfit, ...
-        varConfig{ 2 }.linfit );
-    
+    try
+        % Replace missing data in thisData with data from fillData
+        % NOTE this also returns indices of what was filled
+        [ thisData, filledIdx1, filledIdx2 ] = ...
+            fill_variable( thisData, ...
+            fillData.( varConfig{ 1 }.fillDataField ), ...
+            fillData.( varConfig{ 2 }.fillDataField ), ...
+            fillVars{ i }, fillVars{ i }, fillVars{ i }, ...
+            varConfig{ 1 }.linfit, ...
+            varConfig{ 2 }.linfit );
+    catch
+        fprintf([ 'ABORTING - There is not enough ancillary met data ' ...
+            'available.\nFilled file not written. \n' ]);
+        result = 1;
+        return
+    end
     % Remove bad values from the now filled variables
     if strcmp( fillVars{ i }, 'rH' )
         thisData.rH( thisData.rH > 1.0 ) = 1.0;
@@ -177,7 +186,7 @@ result = 0;
                     get_site_name( siteID ), year );
                 addData = parse_forgapfilling_file( siteID, year, ...
                     'use_filled', filled_file_false );
-                nmegSiteQC = UNM_parse_QC_txt_file(siteID, year);
+                nmegSiteQC = UNM_parse_QC_txt_file( siteID, year );
                 addData.Precip = nmegSiteQC.precip;
                 %FIXME - transition to table
                 addData = dataset2table(addData);
@@ -210,13 +219,21 @@ result = 0;
                 
             case 'daymet'
                 addData = UNM_parse_DayMet_data( sitecode, year );
-                addData = prepare_daily_precip(addData, 'prcp_mm_day_');
+                addData = prepare_daily_precip( addData, 'prcp_mm_day_' );
         end
         % Fill the timestamps in this dataset and put in fillSiteData
-        filledStruct.(newFieldName) = fillTstamps( addData, thisData.timestamp );
+        filledStruct.( newFieldName ) = ...
+            fillTstamps( addData, thisData.timestamp );
         catch
-            error(sprintf('The %s filling data failed to parse', ...
-                newFieldName));
+            % Let missing data slide with a warning only in current year
+            % and fill with NaNs. This is an error in earlier years
+            if year == this_year; 
+                warning( sprintf( 'The %s filling data failed to parse', ...
+                    newFieldName ));
+            else
+                error( sprintf( 'The %s filling data failed to parse', ...
+                    newFieldName ));
+            end
         end
             
     end
