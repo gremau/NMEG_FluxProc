@@ -2,6 +2,9 @@ function ds_out = dataset_foldin_data( ds_in1, ds_in2 )
 % DATASET_FOLDIN_DATA - "folds in" data from a second dataset array into a
 % first, by timestamp.  
 %
+% FIXME - Deprecated. This function is being superseded by 
+% 'table_foldin_data.m'
+%
 % The resulting merged dataset contains all variables that are present in either
 % input.  Where a variable is NaN in ds_in1 but has valid data in ds_in2, the
 % non-NaN value is kept.  Where a variable is non-NaN in both, the value from
@@ -25,6 +28,8 @@ function ds_out = dataset_foldin_data( ds_in1, ds_in2 )
 %   dataset, datenum
 %
 % author: Timothy W. Hilton, UNM, Dec 2012
+
+warning( 'This function ( dataset_foldin_data.m ) is deprecated' );
 
 % -----
 % make sure the two datasets have identical timestamps:

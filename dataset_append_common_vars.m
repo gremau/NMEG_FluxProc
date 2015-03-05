@@ -2,6 +2,9 @@ function ds = dataset_append_common_vars( varargin )
 % DATASET_APPEND_COMMON_VARS - vertically concatenates input dataset arrays,
 %   ignoring variables that are not common to all inputs.
 %
+% FIXME - Deprecated. This function is being superseded by 
+% 'table_append_common_vars.m'
+%
 % USAGE
 %    ds = dataset_append_common_vars( ds1, ds2, ds3, ... )
 %
@@ -17,6 +20,8 @@ function ds = dataset_append_common_vars( varargin )
 %    dataset
 %
 % author: Timothy W. Hilton, UNM, Oct 2012
+
+warning( 'This function ( dataset_append_common_vars.m ) is deprecated' );
 
 fill_vars = true;
 

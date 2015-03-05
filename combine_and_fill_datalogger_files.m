@@ -43,7 +43,7 @@ resolve = p.Results.resolve_headers;
 
 % If no files are specified; prompt user to select files
 if isempty( fileNames )
-    [fileNames, pathName, filterindex] = uigetfile( ...
+    [ fileNames, pathName, filterindex ] = uigetfile( ...
         { '*.dat','Datalogger files (TYPE*DATE*.dat)' }, ...
         'select files to merge', ...
         fullfile( 'C:', 'Research_Flux_Towers', ...
@@ -63,11 +63,11 @@ fileNames = strcat( fileNames, ext );
 % If no dataloggerType given, prompt the user for one
 if isempty( dataloggerType )
     prompt = 'Which datalogger files? ("main", "cr1000" or "cr23x"): ';
-    dataloggerType = input(prompt, 's');
+    dataloggerType = input( prompt, 's' );
 end
 
 % Make sure files are sorted in chronological order
-fileNames = sort(fileNames);
+fileNames = sort( fileNames );
 
 % Count number of files and initialize some arrays
 numFiles = length( fileNames );
@@ -85,10 +85,11 @@ for i = 1:numFiles
     end
     % Add the dataset to the DatasetArray
     % FIXME - switch away from datasets in this file
-    if strcmpi(dataloggerType, 'main') || strcmpi(dataloggerType, 'cr1000')
+    if strcmpi( dataloggerType, 'main' ) || ...
+            strcmpi( dataloggerType, 'cr1000' )
         DatasetArray{ i } = toa5_2_dataset( ...
             fullfile( thisPath, fileNames{ i } ) );
-    elseif strcmpi(dataloggerType, 'cr23x')
+    elseif strcmpi( dataloggerType, 'cr23x' )
         DatasetArray{ i } = table2dataset(cr23x_2_table(...
             fullfile( thisPath, fileNames{ i } ) ));
     end
@@ -97,9 +98,9 @@ end
 % Resolve the headers if asked. If not, process
 % picks up at dataset_vertcat_fill_vars
 if resolve
-    DatasetArray = resolve_datalogger_column_headers(DatasetArray,...
+    DatasetArray = resolve_datalogger_column_headers( DatasetArray,...
         fileNames, ...
-        dataloggerType);
+        dataloggerType );
 else
     % Warn the user, but this is ok with some datalogger files (PJ sites,
     % possibly others

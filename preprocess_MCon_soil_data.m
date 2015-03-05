@@ -2,7 +2,8 @@ function SWC = preprocess_MCon_soil_data( year, timestamps )
 % PREPROCESS_MCON_SOIL_DATA - parse combined MCon soil data file and return soil
 %   water content.
 % 
-% FIXME - deprecated file, replaced by parse_MCon_SAHRA_data.m
+% FIXME - Deprecated. This function will be superceded by 
+%                     parse_MCon_SAHRA_data.m
 %
 % Soil data for the mixed conifer site are collected by Desert Research
 % Institute (DRI) and posted online. Timothy W. Hilton wrote Matlab code to
@@ -31,6 +32,7 @@ function SWC = preprocess_MCon_soil_data( year, timestamps )
 %
 % author: Timothy W. Hilton, UNM, Aug 2012
 
+warning( 'This function ( preprocess_MCon_soil_data ) is deprecated ');
 
 fname = fullfile( get_site_directory( UNM_sites.MCon ), ...
                   'soil_data', ...

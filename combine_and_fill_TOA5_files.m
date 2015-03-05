@@ -3,6 +3,9 @@ function ds = combine_and_fill_TOA5_files( varargin )
 % dataset, fills in any missing 30-minute time stamps and discards duplicated or
 % erroneous timestamp.
 %
+% FIXME - Deprecated. This function is being superseded by 
+% 'combine_and_fill_datalogger_files.m'
+%
 % Variables not present in all datasets are filled with NaN for timestamps in
 % the datasets missing them.  The combined dataset is vetted to make sure each
 % thirty-minute timestamp within the period occurs exactly once.  Missing
@@ -33,6 +36,8 @@ function ds = combine_and_fill_TOA5_files( varargin )
 %
 % Timothy W. Hilton, UNM, Dec 2011
 % Modified by Gregory E. Maurer, UNM, Oct, 2014
+
+warning( 'This function ( combine_and_fill_TOA5_files.m ) is deprecated' );
 
 if nargin == 0
     % no files specified; prompt user to select files

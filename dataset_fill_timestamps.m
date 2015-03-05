@@ -1,6 +1,9 @@
 function ds_filled = dataset_fill_timestamps( ds, t_var, varargin )    
 % DATASET_FILL_TIMESTAMPS - fill in missing timestamps in a dataset containing a
-% regularly-spaced time series and discard duplicate timestamps.  
+% regularly-spaced time series and discard duplicate timestamps.
+%
+% FIXME - Deprecated. This function is being superseded by 
+% 'table_fill_timestamps.m'
 %
 % t_var specifies the name of the dataset variable containing the (unfilled)
 % timestamps for the data in ds.  The timestamps must be Matlab serial
@@ -46,6 +49,9 @@ function ds_filled = dataset_fill_timestamps( ds, t_var, varargin )
 % -----
 % define optional inputs, with defaults
 % -----
+
+warning( 'This function ( dataset_fill_timestamps.m ) is deprecated' );
+
 p = inputParser;
 p.addRequired( 'ds' ); %, @( x ) isa( x, 'dataset' ) );
 p.addRequired( 't_var', @ischar );

@@ -2,7 +2,8 @@ function SoilT = preprocess_PPine_soil_data( year )
 % PREPROCESS_PPINE_SOIL_DATA - parse soil data for Ponderosa Pine site to a
 % dataset array and extract the observations for a specified year.
 %
-% FIXME - deprecated file, replaced by parse_PPine_soil_data.m
+% FIXME - Deprecated. This function will be superceded by 
+%                     parse_PPine_soil_data.m
 %
 % The PPine soil data are parsed from
 % $FLUXROOT/Flux_Tower_Data_by_Site/PPine/soil_data/PPine_soil_data_20080101_20120522.dat.
@@ -18,6 +19,7 @@ function SoilT = preprocess_PPine_soil_data( year )
 %
 % author: Timothy W. Hilton, UNM, August 2012
 
+warning( 'This function ( preprocess_PPine_soilT_data ) is deprecated ');
 
 fname = fullfile( get_site_directory( UNM_sites.PPine ), ...
                   'soil', ...
