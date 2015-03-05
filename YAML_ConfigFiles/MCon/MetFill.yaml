@@ -1,6 +1,6 @@
 ---
-configSite: MCon
-yearConfig: 
+config_site: MCon
+config_year: 
     - year: 2007
       fillTair  :
           - 

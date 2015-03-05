@@ -1,6 +1,6 @@
 ---
-configSite: PPine
-yearConfig: 
+config_site: PPine
+config_year: 
     - year      : 2007
       fillTair  :
           - 

@@ -1,6 +1,6 @@
 ---
-configSite: PJ_girdle
-yearConfig: 
+config_site: PJ_girdle
+config_year: 
     - year      : 2007
       fillTair  :
           - 

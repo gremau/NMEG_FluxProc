@@ -1,6 +1,6 @@
 ---
-configSite: SLand
-yearConfig: 
+config_site: SLand
+config_year: 
     - year      : 2007
       fillTair  :
           - 

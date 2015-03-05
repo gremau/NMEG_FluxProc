@@ -1,6 +1,6 @@
 ---
-configSite: PJ
-yearConfig: 
+config_site: PJ
+config_year: 
     - year      : 2007
       fillTair  :
           - 

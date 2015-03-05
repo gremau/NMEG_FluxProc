@@ -1,6 +1,6 @@
 ---
-configSite: JSav
-yearConfig: 
+config_site: JSav
+config_year: 
     - year      : 2007
       fillTair  :
           - 
