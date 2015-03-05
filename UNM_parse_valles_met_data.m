@@ -1,5 +1,5 @@
 function metTable = UNM_parse_valles_met_data( metNetwork, year, varargin )
-% Parse ancillay Valles Caldera met data files to matlab dataset.
+% Parse ancillary Valles Caldera met data files to matlab dataset.
 %
 % For MCon the met data for year YYYY must be located in
 % $FLUXROOT/AncillaryData/MetData/valles_met_data_YYYY.dat. The Valles

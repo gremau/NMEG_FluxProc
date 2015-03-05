@@ -203,6 +203,18 @@ function [ obj, logger2_files ] = get_second_logger_data( obj )
         idx = ( PJG_cr23x.timestamp >= obj.date_start ) & ...
             ( PJG_cr23x.timestamp <= obj.date_end );
         obj.data_30min_logger2 = PJG_cr23x( idx, : );
+    % Get data from the DRI site at PPine
+    elseif obj.sitecode == UNM_sites.PPine && year < 2015
+        PPineDRI = parse_PPine_soil_data( year );
+        idx = ( PPineDRI.timestamp >= obj.date_start ) & ...
+            ( PPineDRI.timestamp <= obj.date_end );
+        obj.data_30min_logger2 = PPineDRI( idx, : );
+    % Get data from the SAHRA station or the newer CR1000 at MCon
+    elseif obj.sitecode == UNM_sites.MCon
+        MConSAHRA = parse_MCon_SAHRA_data( year );
+        idx = ( MConSAHRA.timestamp >= obj.date_start ) & ...
+            ( MConSAHRA.timestamp <= obj.date_end );
+        obj.data_30min_logger2 = MConSAHRA( idx, : );
     else
         warning(' Second datalogger parsing not configured. Flag reset ')
         obj.has_second_logger = false;

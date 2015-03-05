@@ -283,7 +283,7 @@ plot(ds_pt.timestamp, nan_cumsum(ds_pt.GPP_HBLR), 'xr');
 title(ax(1), sprintf('Partitioning Comparison: %s %d', get_site_name(sitecode), year));
 linkaxes(ax, 'x');
 
-figname = fullfile(getenv('FLUXROOT'), 'partitioning_comparison',...
+figname = fullfile(getenv('FLUXROOT'), 'QAQC_analyses', 'partitioning_comparison',...
     sprintf('part_compare_%s_%d.pdf', get_site_name(sitecode), year(1)));
 print(partition_comp_fig, '-dpdf', figname ); 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

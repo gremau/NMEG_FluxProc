@@ -4,8 +4,8 @@
 %sitelist = {UNM_sites.SLand, UNM_sites.JSav, UNM_sites.PJ_girdle,...
 %    UNM_sites.GLand,UNM_sites.New_GLand, UNM_sites.MCon, UNM_sites.PJ,...
 %    UNM_sites.PPine};
-sitelist = {UNM_sites.PJ};
-yearlist = 2013;% 2009:2013;
+sitelist = {UNM_sites.PPine};
+yearlist = 2014;%2013:2014;% 2009:2013;
 proc_10hz = [false, true, true, true, true, true, true, true,true];
 count = 1;
 for i = 1:length(sitelist);
@@ -13,7 +13,7 @@ for i = 1:length(sitelist);
         % Set site and year
         sitecode = sitelist{i};
         year = yearlist(j);
-        process_10hz = 0; %proc_10hz(count);
+        process_10hz = false; %proc_10hz(count);
         
         % Fix the resolution file if needed
         % generate_header_resolution_file;

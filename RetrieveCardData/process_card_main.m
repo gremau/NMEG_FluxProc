@@ -264,9 +264,11 @@ UNM_RemoveBadData( UNM_sites( this_site ), year, ...
 
 % compare sunrise as measured by observed solar radiation to runrise as
 % calculated by solar angle
-fprintf(1, '\n----------\n');
-fprintf(1, 'make sure timestamps rise the sun at the correct time...\n');
-UNM_site_plot_fullyear_time_offsets( UNM_sites( this_site ), year );
+% FIXME - can probably remove/replace this - useful plots for correcting
+%         time shifts are now made by UNM_fix_datalogger_timestamps.m
+% fprintf(1, '\n----------\n');
+% fprintf(1, 'make sure timestamps rise the sun at the correct time...\n');
+% UNM_site_plot_fullyear_time_offsets( UNM_sites( this_site ), year );
 
 % fill missing temperature, PAR, relative humidity from nearby sites if
 % available.
