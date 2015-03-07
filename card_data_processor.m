@@ -8,8 +8,8 @@ properties
     data_10hz_avg;
     data_10hz_already_processed;
     data_30min;
-    data_30min_logger2;
-    has_second_logger;
+    data_30min_secondary;
+    insert_secondary_data;
 end
 
 methods
@@ -47,6 +47,16 @@ function obj = card_data_processor( sitecode, varargin )
     %        for insertion into FluxAll file.  If unspecified all TOA5
     %        files containing data between date_start and date_end are
     %        parsed and combined.
+    %    'data_30min_secondary': dataset array; Allows 30-minute data from
+    %        a secondary datalogger to be supplied for insertion into a
+    %        FluxAll file. If unspecified, all data from the site's 
+    %        secondary loggers between date_start and date_end are parsed
+    %        and combined. Secondary loggers are specified in a
+    %        configuration file.
+    %    'insert_secondary_data': {true}|false; if true and
+    %        data_30min_secondary is unspecifed, CDP loads secondary
+    %        datalogger files according to each site's individal parse
+    %        files. If false, all secondary data processing steps ignored.
     %    'data_10hz_already_processed': true|{false}; if true and
     %        data_10hz_avg is unspecified CDP loads processed 10hz data
     %        from $FLUXROOT/FluxOut/TOB1_data/SITE_TOB1_YYYY_filled.mat, 
@@ -81,14 +91,14 @@ function obj = card_data_processor( sitecode, varargin )
     p.addParameter( 'data_30min', ...
         dataset([]), ...
         @( x ) isa( x, 'dataset' ) );
-    p.addParameter( 'data_30min_logger2', ...
+    p.addParameter( 'data_30min_secondary', ...
         dataset([]), ...
         @( x ) isa( x, 'dataset' ) );
     p.addParameter( 'data_10hz_already_processed', ...
         false, ...
         @islogical );
-    p.addParameter( 'has_second_logger', ...
-        false, ...
+    p.addParameter( 'insert_secondary_data', ...
+        true, ...
         @islogical );
     args = p.parse( sitecode, varargin{ : } );
     
@@ -102,9 +112,9 @@ function obj = card_data_processor( sitecode, varargin )
     obj.rotation = sonic_rotation( p.Results.rotation );
     obj.data_10hz_avg = p.Results.data_10hz_avg;
     obj.data_30min = p.Results.data_30min;
-    obj.data_30min_logger2 = p.Results.data_30min_logger2;
+    obj.data_30min_secondary = p.Results.data_30min_secondary;
     obj.data_10hz_already_processed  = p.Results.data_10hz_already_processed;
-    obj.has_second_logger = p.Results.has_second_logger;
+    obj.insert_secondary_data = p.Results.insert_secondary_data;
     
     % if start date not specified, default to 1 Jan of current year
     [ year, ~, ~, ~, ~, ~ ] = datevec( now() );
@@ -124,6 +134,18 @@ function obj = card_data_processor( sitecode, varargin )
             'date_end precedes date_start');
         throw( err );
     end
+    
+    % Check for secondary data sources
+%     if obj.insert_secondary_data
+%         config = parse_yaml_site_config( 'SiteVars.yaml', ...
+%             obj.sitecode );
+%         if isfield( config, 'secondary_logger' )
+%             conf = config.secondary_logger;
+%             for i = 1:length( config.secondary )
+                
+                
+        
+        
     
 end   %constructor
 
@@ -159,10 +181,9 @@ function [ obj, toa5_files ] = get_30min_data( obj )
 end  % get_30min_data
 % --------------------------------------------------
 
-function [ obj, logger2_files ] = get_second_logger_data( obj )
+function [ obj, secondary_files ] = get_secondary_data( obj, conf )
     % Obtain 30-minute data for a CDP from secondary datalogger files.
     %
-    % FIXME - documentation
     % Parses the data from a secondary datalogger specified for
     % each site. This function calls a custom parser for each site that 
     % returns data from a secondary datalogger. These parsers are
@@ -170,19 +191,20 @@ function [ obj, logger2_files ] = get_second_logger_data( obj )
     % obj.date_end, concatenate this data, and ensure timestamps include
     % all 30-minute intervals between obj.date_start and obj.date_end 
     % without duplicated timestamps. This function then places the data 
-    % into obj.data_30min_logger2.
+    % into obj.data_30min_secondary.
     %
     % USAGE:
-    %    [ obj, logger2_files ] = get_second_logger_data( obj )
+    %    [ obj, secondary_files ] = get_second_logger_data( obj )
     % INPUTS:
     %    obj: card_data_processor object
+    %    conf: configuration for second datalogger 
     % OUTPUTS:
-    %    obj: CDP object with data_30min_logger2 field updated.
-    %    logger2_files: cell array; the filenames whose data were added.
+    %    obj: CDP object with data_30min_secondary field updated.
+    %    secondary_files: cell array; the filenames whose data were added.
 
     % FIXME Temporary hack to make this work. Need to use
     % get_data_file_names.m for this eventually
-    logger2_files = {};
+    secondary_files = {};
     
     [ year, ~ ] = datevec( obj.date_start );
     % Get JSav data (Only pulls data from cr1000 in 2012-2014)
@@ -190,34 +212,34 @@ function [ obj, logger2_files ] = get_second_logger_data( obj )
         JSav_SWC = get_JSav_CR1000_data( year );
         idx = ( JSav_SWC.timestamp >= obj.date_start ) & ...
             ( JSav_SWC.timestamp <= obj.date_end );
-        obj.data_30min_logger2 = JSav_SWC( idx, : );
+        obj.data_30min_secondary = JSav_SWC( idx, : );
     % Get PJ data from cr23x
     elseif obj.sitecode == UNM_sites.PJ
         PJ_cr23x = get_PJ_cr23x_data( obj.sitecode, year );
         idx = ( PJ_cr23x.timestamp >= obj.date_start ) & ...
             ( PJ_cr23x.timestamp <= obj.date_end );
-        obj.data_30min_logger2 = PJ_cr23x( idx, : );
+        obj.data_30min_secondary = PJ_cr23x( idx, : );
     % Get PJ_girdle data from cr23x
     elseif obj.sitecode == UNM_sites.PJ_girdle
         PJG_cr23x = get_PJ_cr23x_data( obj.sitecode, year );
         idx = ( PJG_cr23x.timestamp >= obj.date_start ) & ...
             ( PJG_cr23x.timestamp <= obj.date_end );
-        obj.data_30min_logger2 = PJG_cr23x( idx, : );
+        obj.data_30min_secondary = PJG_cr23x( idx, : );
     % Get data from the DRI site at PPine
     elseif obj.sitecode == UNM_sites.PPine && year < 2015
         PPineDRI = parse_PPine_soil_data( year );
         idx = ( PPineDRI.timestamp >= obj.date_start ) & ...
             ( PPineDRI.timestamp <= obj.date_end );
-        obj.data_30min_logger2 = PPineDRI( idx, : );
+        obj.data_30min_secondary = PPineDRI( idx, : );
     % Get data from the SAHRA station or the newer CR1000 at MCon
     elseif obj.sitecode == UNM_sites.MCon
         MConSAHRA = parse_MCon_SAHRA_data( year );
         idx = ( MConSAHRA.timestamp >= obj.date_start ) & ...
             ( MConSAHRA.timestamp <= obj.date_end );
-        obj.data_30min_logger2 = MConSAHRA( idx, : );
+        obj.data_30min_secondary = MConSAHRA( idx, : );
     else
         warning(' Second datalogger parsing not configured. Flag reset ')
-        obj.has_second_logger = false;
+        obj.insert_secondary_data = false;
         return;
     end
     
@@ -301,13 +323,13 @@ function obj = update_fluxall( obj, varargin )
     p = inputParser;
     p.addRequired( 'obj', @( x ) isa( x, 'card_data_processor' ) );
     p.addParameter( 'parse_30min', false, @islogical );
-    p.addParameter( 'parse_30min_logger2', false, @islogical );
+    p.addParameter( 'parse_30min_secondary', false, @islogical );
     p.addParameter( 'parse_10hz', false, @islogical );
     parse_result = p.parse( obj, varargin{ : } );
     
     obj = p.Results.obj;
     parse_30min = p.Results.parse_30min;
-    parse_30min_logger2 = p.Results.parse_30min_logger2;
+    parse_30min_secondary = p.Results.parse_30min_secondary;
     parse_10hz = p.Results.parse_10hz;
     % -----
     
@@ -322,9 +344,10 @@ function obj = update_fluxall( obj, varargin )
         parse_30min = true;
     end
     
-    if isempty( obj.data_30min_logger2 ) && obj.has_second_logger
-        parse_30min_logger2 = true;
+    if isempty( obj.data_30min_secondary ) && obj.insert_secondary_data
+        parse_30min_secondary = true;
     end
+    
     % -----
     
     [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
@@ -348,12 +371,13 @@ function obj = update_fluxall( obj, varargin )
         fprintf( '---------- concatenating 30-minute data ----------\n' );
         [ obj, TOA5_files ] = get_30min_data( obj );
     end
-    if parse_30min_logger2
+    if parse_30min_secondary
         fprintf( '--- concatenating 30-minute data from logger 2 ---\n' );
-        [ obj, TOA5_files_2 ] = get_second_logger_data( obj );
+        [ obj, TOA5_files_2 ] = get_second_logger_data( ...
+            obj, config.secondary_logger );
         fprintf( '--- folding in 30-minute data from logger 2 ---\n' );
         obj.data_30min = dataset_foldin_data(...
-            obj.data_30min, obj.data_30min_logger2 );
+            obj.data_30min, obj.data_30min_secondary );
     end
     if parse_10hz
         fprintf( '---------- processing 10-hz data ----------\n' );
