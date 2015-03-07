@@ -167,7 +167,7 @@ elseif sitecode == UNM_sites.PJ; % Pinyon Juniper
     rH_min = 0; rH_max = 1;
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
-    co2_max_by_month = [ 2, 2, 2, 2.5, 3, 3, 3, repmat( 6, 1, 5 ) ];
+    co2_max_by_month = [ 2.5, 2.5, 2.5, 3.5, 4, 5, 6, repmat( 6, 1, 5 ) ];
     
 elseif sitecode == UNM_sites.PJ_girdle; % Pinyon Juniper girdle
     ustar_lim = 0.16;
@@ -485,6 +485,8 @@ for i=1:numel( headertext );
         rH = data(:,i);
         scale = find(rH > 1);
         rH(scale) = rH(scale) ./ 100;
+        % Now convert back to percent
+        %rH = rH * 100;
         
     elseif strcmp('Ts_mean', headertext{i}) == 1 | ...
             strcmp('Ts_Avg', headertext{i}) == 1
@@ -611,6 +613,8 @@ end
 % remove absurd precipitation measurements
 precip( precip > 1000 ) = NaN;
 
+% In 2009 at GLand and SLand, LiCor PAR sensors (Par_Avg) are scaled to
+% Kipp & Zonen sensors (Par_lite)
 if ismember( sitecode, [ 1, 2 ] ) & year(2) == 2009
     Par_Avg = combine_PARavg_PARlite( headertext, data );
 end
@@ -752,11 +756,10 @@ end
 % data processing and fixing datalogger & instrument errors 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 % fix incorrect precipitation values
 precip_uncorr= precip;
-precip = fix_incorrect_precip_factors( sitecode, year, ...
-                                             jday, precip );
+precip = fix_incorrect_precip_factors( sitecode, year_arg, ...
+                                       timestamp, precip );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Radiation corrections
@@ -932,7 +935,7 @@ if draw_plots > 2
     linkaxes(ax, 'x');
 end
 
-% Make the burba corrected flux what we use from here out.
+% Make the burba corrected flux what we use from here on out.
 fc_raw_massman_wpl = fc_out;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1161,6 +1164,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if iteration > 3
+    % FIXME - this a completely bogus filtering method as far
+    % as I can tell. IRGA calibration drifts over time and occasionally it
+    % drifts outside of the 350-450 cutoffs set here. Fluxes are calculated
+    % based on concentration change at high temporal frequencies, so
+    % drift in mean CO2 measured by the instrument shouldn't matter (much).
     
     % Remove high CO2 concentration points
     highco2flag = find(CO2_mean > 450);
@@ -2425,7 +2433,7 @@ switch sitecode
                 std_exc_flag( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = true;
                 
                 DOY_co2_max( DOYidx( 329.0 ) : DOYidx( 329.7 ) ) = 6.5;
-                DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
+                DOY_co2_min( DOYidx( 350 ) : end ) = -2.0;
                 
             case 2012
                 DOY_co2_max( DOYidx( 307 ) : end ) = 1.0;
@@ -2659,6 +2667,8 @@ if ( sitecode == 4 ) & ( year(1) == 2011 )
 end
 if ( sitecode == 4 ) & ( year(1) == 2012 )
     co2_conc_filter_exceptions( 1 : DOYidx( 10 ) ) = true;
+    % IRGA calibration drifts but fluxes are fine during this period
+    co2_conc_filter_exceptions( DOYidx( 160 ) : DOYidx( 175 ) ) = true;
 end
 if (sitecode == 5 ) & ( year == 2007 )
     % days 290:335 -- bogus [CO2] but fluxes look ok

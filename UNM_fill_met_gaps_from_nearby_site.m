@@ -282,8 +282,16 @@ result = 0;
             idx2 = find( isnan( fillDest.( varNameDest ) ) & ...
                 isnan( source1.( varNameSource1 ) ) & ...
                 ~isnan( source2.( varNameSource2 ) ) );
-            fillDest.( varNameDest )( idx2 ) = ...
-                source2.( varNameSource2 )( idx2 );
+            if linfitSource2
+                replacement = linfit_var( source2.( varNameSource2 ), ...
+                    fillDest.( varNameDest ), ...
+                    idx2 );
+            else
+                replacement = source2.( varNameSource2 );
+            end
+            % Put the replacement data in the fill destination
+            fillDest.( varNameDest )( idx2 ) = replacement( idx2 );
+            
         end
         % Calculate and display number of filled data
         n_filled = numel( idx1 ) + numel( idx2 );

@@ -175,20 +175,21 @@ switch sitecode
         
     case UNM_sites.PJ
         switch year
-            case { 2009, 2010, 2011, 2012 }
-                data = shift_data( data, 1.0, all30MinCols );
-                data = shift_data( data, 0.5, all10hzCols );
-        end
-        
-        switch year
+            case { 2009, 2010, 2011 }
+                data = shift_data( data, 1.5, allCols );
+                % data = shift_data( data, 0.5, all10hzCols );
             case 2012
-                idx = DOYidx( 343 ) : size( data, 1 );
-                data( idx, : ) = shift_data( data( idx, : ), -1.0, ...
-                    all30MinCols );
+                % Looks like datalogger clock was reset around day 342
+                preResetIdx = 1 : DOYidx( 342.625 );
+                data( preResetIdx, : ) = ...
+                    shift_data( data( preResetIdx, : ), 1.5, allCols );
+                % Data for rest of year still need to be shifted .5 hours
+                postResetIdx = DOYidx( 342.64 ) : size( data, 1 );
+                data( postResetIdx, : ) = ...
+                    shift_data( data( postResetIdx, : ), 0.5, allCols );
             case 2013
                 data = shift_data( data, 0.5, allCols );
         end
-        
         
     case UNM_sites.PPine
         switch year

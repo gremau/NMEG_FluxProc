@@ -1,4 +1,5 @@
-function pcp_fixed = fix_incorrect_precip_factors(site_code, year, doy, pcp_in)
+function pcp_fixed = fix_incorrect_precip_factors(site_code, year_in, ...
+                                                  tstamp, pcp_in)
 % FIX_INCORRECT_PRECIP_FACTORS - fix preciptiation data collecting using
 % incorrect calibration factors in datalogger code.
 %
@@ -24,13 +25,12 @@ function pcp_fixed = fix_incorrect_precip_factors(site_code, year, doy, pcp_in)
 
 %initialize pcp_fixed to original values
 pcp_fixed = pcp_in;  
-% if year is one element, expand to size of pcp_in
-if numel( year ) == 1
-    year_in = year;
-    year = repmat( year, size( pcp_in ) );
-else
-    year_in = unique(year);
-end
+
+% Get the years contained in the timestamp
+[ year, ~, ~, ~, ~, ~ ] = datevec( tstamp );
+
+% Doy
+doy = tstamp - datenum( year_in, 1, 0 );
 
 %-------------------------
 % fix GLand
@@ -64,7 +64,11 @@ elseif site_code == 11     % New_Gland
 
 %-------------------------
 % fix SLand
-% elseif site_code == 2      %SLand
+% There were some issues with the SLand gauge for while, but data before
+% 2014 are now filled in with other sites.
+elseif site_code == 2      %SLand
+    warning(' Evaluate whether SLand precip is any good' );
+    return
 %     idx = ( year == 2011 );
 %     if any( idx )
 %         pcp_fixed( idx ) = -9999;
@@ -82,8 +86,8 @@ elseif site_code == 3   %JSav
     idx = find( year < 2014 );
     if year_in == 2014;
         idx = find( ( year == 2014 ) & ( doy <= Jan10 ) );
-    elseif year_in == 2009; %This is already fixed in the 2009 fluxall files
-        idx = ~idx;
+%     elseif year_in == 2009; %This is already fixed in the 2009 fluxall files
+%         idx = ~idx;
     end
     if not( isempty( idx ) )
         pcp_fixed( idx ) = pcp_in( idx ) * 0.394;
@@ -99,8 +103,8 @@ elseif site_code == 4     % PJ
     idx = find( year < 2010 );
     if year_in == 2010;
         idx = find( ( year == 2010 ) & ( doy <= May31 ) );
-    elseif year_in == 2009; %This is already fixed in the 2009 fluxall files
-        idx = ~idx;
+%     elseif year_in == 2009; %This is already fixed in the 2009 fluxall files
+%         idx = ~idx;
     end
     if not( isempty( idx ) )
         pcp_fixed( idx ) = pcp_in( idx ) * 0.394;

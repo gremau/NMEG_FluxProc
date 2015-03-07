@@ -128,12 +128,20 @@ for i = 1:2
     
     % Plot an Rg fingerprint for entire year
     ax = subplot( 2, 4, 3 + subplotIterator( i ));
-    ax = fingerprint_subplot( h_fig1, ax, tableList{ i }, RgVar, ...
+    [ ~, ax ] = fingerprint_subplot( h_fig1, ax, tableList{ i }, RgVar, ...
         solCalcs, [0, 900], titleStrings{ i }, year );
+    hold( ax, 'on' );
+    % Plot markers at start/end times for Rg radiation means (prior plot).
+    plot( ax, [ 1 4 ] , [ radStartDay radStartDay ], ...
+        [ 20 24 ] , [ radStartDay radStartDay ], 'LineStyle', ...
+        ':', 'color', 'g' );
+    plot( ax, [ 1 4 ] , [ radEndDay radEndDay ], ...
+        [ 20 24 ] , [ radEndDay radEndDay ], 'LineStyle', ...
+        ':', 'color', 'g' );
     
     % Plot an NEE fingerprint for entire year
     ax = subplot( 2, 4, 4 + subplotIterator( i ));
-    ax = fingerprint_subplot( h_fig1, ax, tableList {i }, ...
+    [ ~, ax ] = fingerprint_subplot( h_fig1, ax, tableList {i }, ...
         'Fc_raw_massman_ourwpl', solCalcs, [-10, 0], ...
         titleStrings{ i }, year );
 end % End fig 1
@@ -227,11 +235,13 @@ diagFig2 = h_fig2;
         % Something is wrong with jday in some fluxall files ( FIXME ) so
         % calculate a day of year
         doy = dataT.timestamp - datenum( yr, 1, 0 );
-        subsetT = dataT( doy >= startDay & doy <= endDay, : );
+        subsetT = dataT( doy >= startDay & doy <= endDay + 1, : );
         subsetT.doy = subsetT.timestamp - datenum( yr, 1, 0 );
         % Calculate decimal hours of day
         subsetT.decimalHrs = 24 * ( subsetT.timestamp - ...
             floor( subsetT.timestamp ));
+        % Change 0 to 24
+        subsetT.decimalHrs( subsetT.decimalHrs == 0 ) = 24.0;
         if strcmp('missing', varName1 )
             subsetT.( varName1 ) = (1:size( subsetT, 1 ))';
         end
