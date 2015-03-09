@@ -33,8 +33,8 @@ CG3DnCo_Avg,dne,Rad_long_Dn_TCor_Avg,Rad_long_Dn_TCor_Avg,Rad_long_Dn_TCor_Avg,c
 NetRs_Avg,Rn_short_Avg_1,Rn_short_Avg,Rn_short_Avg,Rn_short_Avg,current,current
 NetRl_Avg,Rn_long_Avg_1,Rn_long_Avg,Rn_long_Avg,Rn_long_Avg,current,current
 NetTot_Avg,Rn_total_Avg_1,Rn_total_Avg,Rn_total_Avg,Rn_total_Avg,current,current
-Rad_long_Dn_Avg,,current,current,current,Rad_long_Dn__Avg,current
-Rad_long_Up_Avg,,current,current,current,Rad_long_Up__Avg,current
+Rad_long_Dn_Avg,Rad_long_Dn__Avg_1,current,current,current,Rad_long_Dn__Avg,current
+Rad_long_Up_Avg,Rad_long_Up__Avg_1,current,current,current,Rad_long_Up__Avg,current
 Rad_short_Up_Avg,Rad_short_Up_Avg_1,current,current,current,current,current
 Rad_short_Dn_Avg,Rad_short_Dn_Avg_1,current,current,current,current,current
 CNR1TC_Avg,Temp_C_Avg_1,Temp_C_Avg,Temp_C_Avg,Temp_C_Avg,current,current

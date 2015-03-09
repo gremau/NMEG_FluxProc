@@ -1,8 +1,8 @@
 current,previous1,previous2,previous3
-AirTC_10_Avg,AirTC_2_Avg,,
-AirTC_3p7_Avg,AirTC_Avg,,
-RH_10_Avg,RH_2,,
-RH_3p7_Avg,RH,,
+AirTC_10_Avg,AirTC_Avg,,
+AirTC_3p7_Avg,AirTC_2_Avg,,
+RH_10_Avg,RH,,
+RH_3p7_Avg,RH_2,,
 co2_mean_Avg,co2_Avg,,
 co2_um_m_Avg,co2_u_mol_Avg,,
 stdev_co2,cov_co2_co2,,
