@@ -95,7 +95,7 @@ for i = 1:numFiles
     end
 end
 % ================= HEADER RESOLUTION ==========================
-% Resolve the headers if asked. If not, process
+% Resolve the headers if asked. If not, processing
 % picks up at dataset_vertcat_fill_vars
 if resolve
     DatasetArray = resolve_datalogger_column_headers( DatasetArray,...

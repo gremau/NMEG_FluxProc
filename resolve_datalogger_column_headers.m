@@ -96,7 +96,7 @@ for i = 1:numel( DatasetArrayIn )
     dataFileHeader = DatasetArrayIn{ i }.Properties.VarNames;
     % Get the name of the data file
     fnameTokens = regexp( fileNames{ i }, '\.', 'split' );
-    dataFileName = fnameTokens{1};
+    dataFileName = fnameTokens{ 1 };
     % Subsequent data files resolve the same until a new column is found
     if any(strcmp( dataFileName, resColumns ))
         resolveCol = dataFileName;
@@ -104,10 +104,21 @@ for i = 1:numel( DatasetArrayIn )
     end
     % Read old headers locations into toResolve, replace with current
     for j = 1:numHeaders
-        oldHeader = Resolutions.( resolveCol )( j );
-        % Resolve header only if oldHeader exists and is not current
+        oldHeader = Resolutions.( resolveCol ){ j };
+        % Resolve header only if oldHeader exists and is not current. When
+        % this fails it can be pretty hard to debug, so generate some debug
+        % output.
         if ~( strcmp( oldHeader, 'dne' ) || strcmp( oldHeader, 'current' ))
-            toResolve( j ) = find( strcmp( dataFileHeader, oldHeader ));
+            try
+                toResolve( j ) = find( strcmp( dataFileHeader, oldHeader ));
+            catch ME
+                switch ME.identifier
+                    case 'MATLAB:badRectangle'
+                        fprintf( 'oldHeader "%s" not found in %s \n', ...
+                            oldHeader, dataFileName );
+                end
+                rethrow( ME );
+            end
         end
     end
     % Fill in toResolve locations with current header name

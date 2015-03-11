@@ -30,7 +30,7 @@ tstamps = cellfun( @( x ) datenum(x, 'yyyy_mm_dd_HHMM'), ...
               tstamp_strings, ...
               'UniformOutput', false );
 
-tstamps = [ tstamps{:} ];
+tstamps = cell2mat( tstamps );
 
 
 
