@@ -4,8 +4,8 @@
 %sitelist = {UNM_sites.SLand, UNM_sites.JSav, UNM_sites.PJ_girdle,...
 %    UNM_sites.GLand,UNM_sites.New_GLand, UNM_sites.MCon, UNM_sites.PJ,...
 %    UNM_sites.PPine};
-sitelist = {UNM_sites.PPine};
-yearlist = 2014;%2013:2014;% 2009:2013;
+sitelist = {UNM_sites.MCon};
+yearlist = 2009:2013;%2013:2014;% 2009:2013;
 proc_10hz = [false, true, true, true, true, true, true, true,true];
 count = 1;
 for i = 1:length(sitelist);
@@ -41,8 +41,7 @@ for i = 1:length(sitelist);
         date_end = datenum(year, 12, 31, 24, 0, 0);
         
         new = card_data_processor(sitecode, 'date_start', date_start,...
-            'date_end', date_end, 'data_10hz_already_processed', true,...
-            'has_second_logger', true);
+            'date_end', date_end, 'data_10hz_already_processed', true );
         
         % Make a new fluxall file
         new.update_fluxall();

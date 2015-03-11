@@ -106,8 +106,8 @@ for i = 1:numel( DatasetArrayIn )
     for j = 1:numHeaders
         oldHeader = Resolutions.( resolveCol )( j );
         % Resolve header only if oldHeader exists and is not current
-        if ~(strcmp( oldHeader, 'dne' ) || strcmp( oldHeader, 'current' ))
-            toResolve(j) = find( strcmp( dataFileHeader, oldHeader ));
+        if ~( strcmp( oldHeader, 'dne' ) || strcmp( oldHeader, 'current' ))
+            toResolve( j ) = find( strcmp( dataFileHeader, oldHeader ));
         end
     end
     % Fill in toResolve locations with current header name
