@@ -28,12 +28,10 @@ function fnames = get_data_file_names( date_start, date_end, site_code, type )
         data_subdir = 'TOA5';
       case 'TOB1'
         data_subdir = 'ts_data';
-      case 'soil'
-        data_subdir = 'soil';
       otherwise
         err = MException('get_data_file_names:BadDataType', ...
                          [ 'datatype must be from ', ...
-                           '{''TOB1'', ''TOA5'', ''soil'' }' ] );
+                           '{''TOB1'', ''TOA5'' }' ] );
         throw( err );
     end
         

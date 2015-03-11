@@ -1,5 +1,7 @@
-function Tmain = parse_MCon_SAHRA_data( year )
-% PARSE_MCON_SAHRA_DATA - parse data collected at MCon by SAHRA station.
+function Tmain = get_MCon_SAHRA_data( year )
+% GET_MCON_SAHRA_DATA - parse data collected at MCon by SAHRA station.
+%
+% FIXME - change output to table
 %
 % There was a SAHRA station at the MCon site that collected data between
 % 2006 and 2013. These data include from met, sapflow, and (1) soil
@@ -31,6 +33,7 @@ function Tmain = parse_MCon_SAHRA_data( year )
 % This file contains all data from the SAHRA site at MCon:
 filePath = fullfile( get_site_directory( UNM_sites.MCon ), 'soil');
 fname1 = fullfile( filePath, 'MCon_SAHRA_data_20061001_20130601.dat' );
+fprintf( 'reading %s \n', fname1 );
 
 if exist( fname1, 'file' )
     Tmain = parse_MCon_SAHRA_DAT_file( fname1 );
@@ -80,6 +83,8 @@ Tmain = table_fill_timestamps( Tmain, ...
                                'timestamp', ...
                                't_min', min( Tmain.timestamp ), ...
                                't_max', max( Tmain.timestamp ) );
+                           
+Tmain = table2dataset( Tmain );
 
 % May be nice to remove negative SWC values... or not
 %arr = double( SWC );

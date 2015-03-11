@@ -40,8 +40,8 @@ function ds = generate_header_resolution_file( varargin )
 %
 % Gregory E. Maurer, UNM,  Sept 2014
 
-dataloggerType = 'main';
-resolutionFileName = '_main_Header_Resolutions.csv';
+dataloggerType = 'cr23x';
+resolutionFileName = '_cr23x_Header_Resolutions.csv';
 
 if nargin == 0
     % no files specified; prompt user to select files
