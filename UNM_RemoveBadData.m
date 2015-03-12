@@ -182,7 +182,8 @@ elseif sitecode == UNM_sites.PJ_girdle; % Pinyon Juniper girdle
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
     co2_min_by_month = -10;
-    co2_max_by_month = [ 1.5, 1.5, 2, 2, 3, 4, 4, repmat( 6, 1, 5 ) ];
+    co2_max_by_month = [ 2.5, 2.5, 2.5, 3.5, 4, 5, 6, 6, 6, 4, 4, 4 ];
+    %co2_max_by_month = [ 1.5, 1.5, 2, 2, 3, 4, 4, repmat( 6, 1, 5 ) ];
     
 elseif sitecode == UNM_sites.New_GLand; % new Grassland
     ustar_lim = 0.06;
@@ -2421,9 +2422,10 @@ switch sitecode
                 DOY_co2_min( DOYidx( 260 ) : DOYidx( 290 ) ) = -18.0;
                 DOY_co2_min( DOYidx( 335 ) : DOYidx( 365 ) ) = -6.5;
                 
-            case 2009
-                DOY_co2_max( 1 : DOYidx( 180 ) ) = 3.0;
-                DOY_co2_max( DOYidx( 190 ) : DOYidx( 260 ) ) = 4.0;
+%             case 2009
+%                 % Commented by GEM March 2015
+%                 DOY_co2_max( 1 : DOYidx( 180 ) ) = 3.0;
+%                 DOY_co2_max( DOYidx( 190 ) : DOYidx( 260 ) ) = 4.0;
                 
             case 2011
                 std_exc_flag( DOYidx( 31.5 ) : DOYidx( 31.7 ) ) = true;
@@ -2435,11 +2437,11 @@ switch sitecode
                 DOY_co2_min( DOYidx( 350 ) : end ) = -2.0;
                 
             case 2012
-                DOY_co2_max( DOYidx( 307 ) : end ) = 1.0;
+                DOY_co2_max( DOYidx( 307 ) : end ) = 2.0;
                 
             case 2013
-                DOY_co2_max( DOYidx( 195 ) : DOYidx( 195 ) ) = 2.0;
-                DOY_co2_max( DOYidx( 210 ) : DOYidx( 227 ) ) = 4.0;
+                DOY_co2_max( DOYidx( 210 ) : DOYidx( 219 ) ) = 4.0;
+                DOY_co2_max( DOYidx( 345 ) : DOYidx( 365 ) ) = 2.5;
         end  %PJ
         
     case UNM_sites.PPine
@@ -2541,19 +2543,24 @@ switch sitecode
     case UNM_sites.PJ_girdle
         switch year
             case 2009
-                DOY_co2_max( 1 : DOYidx( 100 ) ) = 1.5;
-                DOY_co2_max( DOYidx( 100 ) : DOYidx( 140 ) ) = 2.5;
-                DOY_co2_max( DOYidx( 140 ) : DOYidx( 176 ) ) = 2.0;
-                DOY_co2_max( DOYidx( 177 ) : DOYidx( 191 ) ) = 4.0;
-                DOY_co2_max( DOYidx( 244 ) : DOYidx( 267 ) ) = 3.2;
+                % 5 lines commented out by GEM, March 2015
+%                 DOY_co2_max( 1 : DOYidx( 100 ) ) = 1.5;
+%                 DOY_co2_max( DOYidx( 100 ) : DOYidx( 140 ) ) = 2.5;
+%                 DOY_co2_max( DOYidx( 140 ) : DOYidx( 176 ) ) = 2.0;
+%                 DOY_co2_max( DOYidx( 177 ) : DOYidx( 191 ) ) = 4.0;
+%                 DOY_co2_max( DOYidx( 244 ) : DOYidx( 267 ) ) = 3.2;
                 DOY_co2_max( DOYidx( 275 ) : DOYidx( 299 ) ) = 3.0;
                 DOY_co2_max( DOYidx( 300 ) : end ) = 2.0;
                 
+            case 2010
+                DOY_co2_min( DOYidx( 312) : DOYidx( 322 ) ) = -5.0;
+                
             case 2011
+                % Not sure who likes this respiration spike... GEM
                 idx = DOYidx( 192.2 ) : DOYidx( 192.6 );
                 std_exc_flag( idx ) = true;
                 DOY_co2_max( idx ) = 6.5;
-                DOY_co2_min( DOYidx( 350 ) : end ) = -1.0;
+                DOY_co2_min( DOYidx( 350 ) : end ) = -2.5;
                 
             case 2012
                 DOY_co2_max( DOYidx( 260 ) : DOYidx( 280 ) ) = 2.0;
@@ -2662,11 +2669,12 @@ if ( sitecode == 3 ) & ( year(1) == 2011 )
     co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 52.7 ) ) = true;
 end
 if ( sitecode == 4 ) & ( year(1) == 2011 )
+    % IRGA calibration drifts but fluxes are fine during this period
     co2_conc_filter_exceptions( DOYidx( 358  ) : end ) = true;
 end
 if ( sitecode == 4 ) & ( year(1) == 2012 )
+    % IRGA calibration drifts but fluxes are fine during these periods
     co2_conc_filter_exceptions( 1 : DOYidx( 10 ) ) = true;
-    % IRGA calibration drifts but fluxes are fine during this period
     co2_conc_filter_exceptions( DOYidx( 160 ) : DOYidx( 175 ) ) = true;
 end
 if (sitecode == 5 ) & ( year == 2007 )
