@@ -1,4 +1,5 @@
-function ds = generate_header_resolution_file( varargin )
+function T = generate_header_resolution_file( sitecode, sourceType, ...
+    varargin )
 % generate_header_resolution_file() -- takes a list of TOA5 files and
 % generates a header resolution file for the site
 % ({sitecode}_Header_Resolutions.csv)
@@ -43,15 +44,15 @@ function ds = generate_header_resolution_file( varargin )
 %
 % Gregory E. Maurer, UNM,  Sept 2014
 
-dataloggerType = 'cr23x';
-resolutionFileName = '_cr23x_Header_Resolutions.csv';
+sourceType = lower( sourceType );
+resolutionFileName = [ sourceType '_Header_Resolution.csv' ];
 
-if nargin == 0
+if isempty( varargin )
     % no files specified; prompt user to select files
-    [fileNames, pathNames, filterindex] = uigetfile( ...
+    [ fileNames, pathNames, filterindex ] = uigetfile( ...
         { '*.dat','Datalogger files (*.dat)' }, ...
         'select files to merge', ...
-        fullfile( getenv('FLUXROOT'), 'Flux_Tower_Data_by_Site') , ...
+        get_site_directory( sitecode ) , ...
         'MultiSelect', 'on' );
     
     if ischar( fileNames )
@@ -67,15 +68,15 @@ else
 end
 
 % Make sure files are sorted in chronological order and get dates
-fileNames = sort(fileNames);
-fileDateArray = tstamps_from_filenames(fileNames);
+fileNames = sort( fileNames );
+fileDateArray = tstamps_from_filenames( fileNames );
 
 % Count number of files and initialize some arrays
-nfiles = length( fileNames );
-rawTables = cell( nfiles, 1 );
+nFiles = length( fileNames );
+rawTables = cell( nFiles, 1 );
 
-% Read each TOA5 file, convert to dataset, load datasets into an array
-for i = 1:nfiles
+% Read each data file into a table, load tables into a cellarray
+for i = 1:nFiles
     fprintf( 1, 'reading %s\n', fileNames{ i } );
     % Input checks
     if  iscell( pathNames ) &&  ( numel( pathNames ) == 1 )
@@ -85,42 +86,36 @@ for i = 1:nfiles
     else
         this_path = pathNames;
     end
-    
-    if strcmpi(dataloggerType, 'main') || strcmpi(dataloggerType, 'cr1000');
+    % Load tables into table cellarray
+    if strcmpi( sourceType, 'main' ) || strcmpi( sourceType, 'cr1000' );
         rawTables{ i } = toa5_2_table( fullfile( this_path, fileNames{ i } ) );
-    elseif strcmp(dataloggerType, 'cr23x');
+    elseif strcmp(sourceType, 'cr23x');
         rawTables{ i } = cr23x_2_table( fullfile( this_path, fileNames{ i } ) );
     end
+    % Verify that the files are for the requested site
     tokens = regexp( fileNames{ i }, '_', 'split' );
     % deal with the two sites that have an '_' in the sitename
     if any( strcmp( tokens{ 3 }, { 'girdle', 'GLand' }  ) )
-        sitecode = UNM_sites.( [ tokens{ 2 }, '_', tokens{ 3 } ] );
-        year = str2num( tokens{ 4 } );
+        sitecodeFromFile = UNM_sites.( [ tokens{ 2 }, '_', tokens{ 3 } ] );
     else
-        sitecode = UNM_sites.( tokens{ 2 } );
-        year = str2num( tokens{ 3 } );
+        sitecodeFromFile = UNM_sites.( tokens{ 2 } );
+    end 
+    if sitecodeFromFile ~= sitecode
+        error( ' Files do not match requested site' );
     end
-    
 end
 
-%%%%%%%%%% Choose the header resolution file name %%%%%%%%%%%%%
-% FIXME - this is clunky
-resolutionFileName = strcat( 'HeaderResolutions\', ...
-    char(sitecode), resolutionFileName );
+%%%%%%%%%% Get the header resolution files %%%%%%%%%%%%%
 
-% TOA5 Header resolution config file path
-resolutionPath = fullfile( pwd, 'HeaderResolutions' );
+% Header resolution config file path
+resolutionPath = fullfile( pwd, char( sitecode ), 'HeaderResolutions' );
 
-% Using the sitecode object, open the apropriate header resolution
-% and sensor swap files stored in \TOA5_Header_Resolutions\
-headerChangesFileName = strcat( char(sitecode), '_Header_Changes.csv');
-headerChangesFile = fullfile( resolutionPath, headerChangesFileName);
-sensorSwapsFileName = strcat( char(sitecode), '_Sensor_Swaps.csv');
-sensorSwapsFile = fullfile( resolutionPath, sensorSwapsFileName);
-sensorRenameFileName = strcat( char(sitecode), '_Sensor_Rename.csv');
-sensorRenameFile = fullfile( resolutionPath, sensorRenameFileName);
+% Get the appropriate header resolution files for each site
+headerChangesFile = fullfile( resolutionPath, 'Header_Changes.csv' );
+sensorSwapsFile = fullfile( resolutionPath, 'Sensor_Swaps.csv' );
+sensorRenameFile = fullfile( resolutionPath, 'Sensor_Rename.csv' );
 
-fopenmessage = strcat('----- Opening ', headerChangesFileName,' ----- \n');
+fopenmessage = strcat('----- Opening ', headerChangesFile,' ----- \n');
 fprintf(1, fopenmessage );
 
 % Read in the header changes file
@@ -134,7 +129,7 @@ previous = changes{ :, 2:end };
 swapflag = 0;
 if exist( sensorSwapsFile, 'file' )
     fopenmessage = ...
-        strcat('----- Opening ', sensorSwapsFileName,' ----- \n');
+        strcat('----- Opening ', sensorSwapsFile,' ----- \n');
     fprintf( 1, fopenmessage );
     swapflag = 1;
     % Read in the sensor swaps file
@@ -145,7 +140,7 @@ end
 renameflag = 0;
 if exist( sensorRenameFile, 'file' )
     fopenmessage = ...
-        strcat( '----- Opening ', sensorRenameFileName,' ----- \n' );
+        strcat( '----- Opening ', sensorRenameFile,' ----- \n' );
     fprintf( 1, fopenmessage );
     renameflag = 1;
     % Read in the sensor swaps file
@@ -196,8 +191,6 @@ for i = 1:numel( rawTables )
     % header and make them current
     fprintf(1, 'Resolving header changes for %s \n', fileNames{i});
     
-    for j = 1:length( current )
-        curr = current( j ); % current header name
     for j = 1:length( current )
         curr = current( j ); % current header name
         % previous names for this header, removing blanks
