@@ -167,8 +167,8 @@ for i = 1:numel( rawTables )
         inDateRange = floor( fileDate ) >= firstRenameDate &...
             floor( fileDate ) <= lastRenameDate;
         % Get the original and changed header names
-        changeFrom = renames.changeFrom( inDateRange );
-        changeTo = renames.changeTo( inDateRange );
+        changeFrom = renames.sensor( inDateRange );
+        changeTo = strcat( changeFrom, '_rename' );
         
         % Get the locations of headers to rename in headerChanges
         [ ~, loc ] = ismember( changeFrom, unresolvedHeaders );
@@ -274,6 +274,10 @@ if isempty( str )
 end
 aff = { 'Y', 'y', 'YES', 'yes', 'Yes' };
 if  any( strcmp( str, aff ))
+    % Strip '_rename' from all columns of header names
+    for i = 2:width( T )
+        T( :, i ) = regexprep( T{ :, i }, '_rename', '' );
+    end
     % Make resolution file name
     resolutionFileName = fullfile( resolutionPath, ...
         [ sourceType '_Header_Resolution.csv' ]);

@@ -794,6 +794,24 @@ precip = fix_incorrect_precip_factors( sitecode, year_arg, ...
 Par_Avg = normalize_PAR_wrapper( sitecode, year_arg, decimal_day, Par_Avg, ...
     draw_plots > 1 );
 
+% Quick figure to check whether PPFD and SWin are scaled well.
+% PPFD (PAR) converts to SWin using a .48 scaling factor, and it should
+% normally be slightly larger than our sw_incoming measurement, but below
+% the top of the atmosphere max SWin ( around 1300 W/m2 ).
+
+figure( 'Name', 'PAR vs SWin scaling', 'Position', [ 230 230 700 550 ] );
+plot(timestamp, Par_Avg, 'color', [ 0.6 0.6 0.6 ] );
+hold on;
+plot( timestamp, Par_Avg * .48, 'ob' );
+plot( timestamp, sw_incoming, '.y' );
+plot( [ min( timestamp ) max( timestamp ) ], [ 1300 1300 ], '--k' );
+legend( 'raw PPFD (umol m^{-2} s^{-2})', 'scaled PPFD (W m^2)', ...
+    'SWin (W m^2)', 'max SWin (Top of atmos.)');
+xlabel( 'Timestamp');
+ylabel( 'Radiation' );
+ylim( [-10, 1700] );
+xlim([ min( timestamp ) max( timestamp ) ]);
+
 
 save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
     sprintf( '%s_%d_after_radiation.mat', ...

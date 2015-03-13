@@ -7,7 +7,7 @@ function DatasetArrayOut = resolve_datalogger_column_headers( ...
 %
 % USAGE
 %   DatasetArrayOut = resolve_datalogger_column_headers(DatasetArrayIn, ...
-%                                                       siteCode, ...
+%                                                       sitecode, ...
 %                                                       dataloggerType);
 %
 % INPUTS:
@@ -33,19 +33,18 @@ function DatasetArrayOut = resolve_datalogger_column_headers( ...
 % Get the site name
 % SEE fileNames INPUT REQUIREMENTS ABOVE !
 toks = regexp( fileNames{ 1 }, '_', 'split' );
+dataloggerType = lower( dataloggerType );
 % Deal with the two sites that have an '_' in the sitename
 if any( strcmp( toks{ 3 }, { 'girdle', 'GLand' }  ) )
-    siteCode = UNM_sites.( [ toks{ 2 }, '_', toks{ 3 } ] );
+    sitecode = UNM_sites.( [ toks{ 2 }, '_', toks{ 3 } ] );
 else
-    siteCode = UNM_sites.( toks{ 2 } );
+    sitecode = UNM_sites.( toks{ 2 } );
 end
 
 % -----
-% Using siteCode and dataloggerType find appropriate header resolution file
-resFileName = sprintf('%s_%s_Header_Resolutions.csv', ...
-    get_site_name(siteCode), dataloggerType);
-resFilePath = 'HeaderResolutions/';
-resFileName = [resFilePath, resFileName];
+% Use sitecode and dataloggerType find appropriate header resolution file
+resFileName = sprintf('%s_Header_Resolution.csv', dataloggerType);
+resFileName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), resFileName );
 % -----
 
 % == PREPROCESSING HEADER RESOLUTION ===
@@ -57,9 +56,9 @@ fOpenMessage = strcat('--------- Opening', resFileName,' --------- \n');
 fprintf( fOpenMessage );
 
 try
-    Resolutions = readtable(resFileName);
+    Resolutions = readtable( resFileName );
 catch
-    error(sprintf('%s file does not load!', resFileName));
+    error( sprintf( '%s file does not load!', resFileName ));
 end
 
 % Make sure files are sorted in chronological order
