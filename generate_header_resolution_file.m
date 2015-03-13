@@ -188,6 +188,7 @@ for i = 1:numel( rawTables )
 
     % Store header resolution in a new table
     new = repmat( {''}, length( current ), 1 );
+    new = repmat( {''}, length( current ), 1 );
     headerChanges = table( new, 'VariableNames', { fileName } );
     
     % for each line in the header change file, parse out the current
@@ -197,7 +198,10 @@ for i = 1:numel( rawTables )
     
     for j = 1:length( current )
         curr = current( j ); % current header name
+    for j = 1:length( current )
+        curr = current( j ); % current header name
         % previous names for this header, removing blanks
+        prev = previous( j, ~strcmp(previous( j, : ), '' ));
         prev = previous( j, ~strcmp(previous( j, : ), '' ));
         prevloc = find( ismember( unresolvedHeaders, prev ));
         multiple_previous_flag = false;
