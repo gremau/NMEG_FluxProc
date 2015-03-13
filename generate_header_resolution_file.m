@@ -45,7 +45,7 @@ function T = generate_header_resolution_file( sitecode, sourceType, ...
 % Gregory E. Maurer, UNM,  Sept 2014
 
 sourceType = lower( sourceType );
-resolutionFileName = [ sourceType '_Header_Resolution.csv' ];
+
 
 if isempty( varargin )
     % no files specified; prompt user to select files
@@ -108,14 +108,15 @@ end
 %%%%%%%%%% Get the header resolution files %%%%%%%%%%%%%
 
 % Header resolution config file path
-resolutionPath = fullfile( pwd, char( sitecode ), 'HeaderResolutions' );
+resolutionPath = fullfile( pwd, 'HeaderResolutions', char( sitecode ) );
 
 % Get the appropriate header resolution files for each site
 headerChangesFile = fullfile( resolutionPath, 'Header_Changes.csv' );
 sensorSwapsFile = fullfile( resolutionPath, 'Sensor_Swaps.csv' );
 sensorRenameFile = fullfile( resolutionPath, 'Sensor_Rename.csv' );
 
-fopenmessage = strcat('----- Opening ', headerChangesFile,' ----- \n');
+fopenmessage = [ '----- Opening ', char( sitecode ), ...
+    ' Header_Changes.csv ----- \n' ];
 fprintf(1, fopenmessage );
 
 % Read in the header changes file
@@ -128,8 +129,8 @@ previous = changes{ :, 2:end };
 %Check for sensor swaps file and open if found
 swapflag = 0;
 if exist( sensorSwapsFile, 'file' )
-    fopenmessage = ...
-        strcat('----- Opening ', sensorSwapsFile,' ----- \n');
+    fopenmessage = [ '----- Opening ', char( sitecode ), ...
+        ' Sensor_Swaps.csv ----- \n' ];
     fprintf( 1, fopenmessage );
     swapflag = 1;
     % Read in the sensor swaps file
@@ -139,8 +140,8 @@ end
 %Check for sensor rename file and open if found
 renameflag = 0;
 if exist( sensorRenameFile, 'file' )
-    fopenmessage = ...
-        strcat( '----- Opening ', sensorRenameFile,' ----- \n' );
+    fopenmessage = [ '----- Opening ', char( sitecode ), ...
+        ' Sensor_Rename.csv ----- \n' ];
     fprintf( 1, fopenmessage );
     renameflag = 1;
     % Read in the sensor swaps file
@@ -273,6 +274,10 @@ if isempty( str )
 end
 aff = { 'Y', 'y', 'YES', 'yes', 'Yes' };
 if  any( strcmp( str, aff ))
+    % Make resolution file name
+    resolutionFileName = fullfile( resolutionPath, ...
+        [ sourceType '_Header_Resolution.csv' ]);
+    
     writetable( T, resolutionFileName );
 end
 
