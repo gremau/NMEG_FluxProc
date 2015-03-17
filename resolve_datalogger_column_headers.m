@@ -44,7 +44,7 @@ end
 % -----
 % Use sitecode and dataloggerType find appropriate header resolution file
 resFileName = sprintf('%s_Header_Resolution.csv', dataloggerType);
-resFileName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), resFileName );
+resFilePathName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), resFileName );
 % -----
 
 % == PREPROCESSING HEADER RESOLUTION ===
@@ -52,11 +52,12 @@ resFileName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), resFileName 
 % variable names (that have existed in older program versions), which
 % permit the assignment of old variables to consistent, new formats.
 fprintf( '---------- resolving column headers ----------\n' );
-fOpenMessage = strcat('--------- Opening', resFileName,' --------- \n');
+fOpenMessage = [ '--------- Opening ', char( sitecode ), ' ', ...
+    resFileName, ' --------- \n' ];
 fprintf( fOpenMessage );
 
 try
-    Resolutions = readtable( resFileName );
+    Resolutions = readtable( resFilePathName );
 catch
     error( sprintf( '%s file does not load!', resFileName ));
 end
@@ -106,7 +107,8 @@ for i = 1:numel( DatasetArrayIn )
         oldHeader = Resolutions.( resolveCol ){ j };
         % Resolve header only if oldHeader exists and is not current. When
         % this fails it can be pretty hard to debug, so generate some debug
-        % output.
+        % output. Might also be nice to call up another header resolution
+        % script from here...
         if ~( strcmp( oldHeader, 'dne' ) || strcmp( oldHeader, 'current' ))
             try
                 toResolve( j ) = find( strcmp( dataFileHeader, oldHeader ));

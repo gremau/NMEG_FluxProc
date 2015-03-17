@@ -187,12 +187,12 @@ switch sitecode
                 postResetIdx = DOYidx( 342.64 ) : size( data, 1 );
                 data( postResetIdx, : ) = ...
                     shift_data( data( postResetIdx, : ), 0.5, allCols );
-            case 2013
+            case { 2013, 2014 }
                 data = shift_data( data, 0.5, allCols );
         end
     case UNM_sites.PJ_girdle
         switch year
-            case { 2009, 2010, 2011, 2012, 2013 };
+            case { 2009, 2010, 2011, 2012, 2013, 2014 };
                 data = shift_data( data, 0.5, allCols );
         end
         

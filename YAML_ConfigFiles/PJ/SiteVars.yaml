@@ -4,11 +4,11 @@ short_name  : PJ
 ameriflux_name   : US-Mpj
 latitude    :  34.438450
 longitude   : -106.237694
-elevation   : 2200
+elevation   : 2196
 timezone    : -7
 flux_meas_height  :
 secondary_data_sources   :
-    # This is our CR23x datalogger at the site
+    # This is the CR23x datalogger at the site
     - type          : cr23x
       start_date    : 2009-05-12 00:00
 ...
