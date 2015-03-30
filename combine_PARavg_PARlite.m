@@ -26,7 +26,7 @@ function result = combine_PARavg_PARlite(headertext, data)
 % author: Timothy W. Hilton, UNM, Apr 2012
 
 lite_col = find( strcmp( 'par_lite_avg', lower( headertext ) ) );
-avg_col = find( strcmp( 'par_avg', lower( headertext ) ) );
+avg_col = find( strcmp( 'par_face_up_avg', lower( headertext ) ) );
 
 par_lite = data( :, lite_col - 1 );
 par_avg = data( :, avg_col - 1 );

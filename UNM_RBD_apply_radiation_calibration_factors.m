@@ -262,7 +262,7 @@ switch sitecode
             
         elseif year_arg >= 2009 & year_arg <= 2013
             % calibration for par-lite installed on 2/11/08
-            Par_Avg = Par_Avg.*1000./5.51;
+            Par_Avg = Par_Avg .* 1000 ./ 5.51;
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             

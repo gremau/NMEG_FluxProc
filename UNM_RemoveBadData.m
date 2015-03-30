@@ -811,6 +811,7 @@ xlabel( 'Timestamp');
 ylabel( 'Radiation' );
 ylim( [-10, 1700] );
 xlim([ min( timestamp ) max( timestamp ) ]);
+datetick('x','mmm dd', 'keepticks');
 
 
 save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...

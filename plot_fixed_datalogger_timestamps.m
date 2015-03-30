@@ -150,7 +150,7 @@ diagFig1 = h_fig1;
 
 %=============================== FIGURE 2 =============================
 % Diurnal curves of Rg and Fc for the first week of each month. Useful for
-% assessing shifts between solar events and ecosystem update, which may
+% assessing shifts between solar events and ecosystem fluxes, which may
 % indicate that the 10hz and 30min data in a fluxall file are offset for
 % some reason.
 

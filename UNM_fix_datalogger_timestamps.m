@@ -99,21 +99,30 @@ switch sitecode
                 data = shift_data( data, -1.0, all30MinCols );
                 data = shift_data( data, -0.5, all10hzCols );
             case 2009
-                idx = 1 : DOYidx( 58 );
-                data( idx, : ) = shift_data( data( idx, : ),  -1.0, ...
-                    all30MinCols );
-                idx = DOYidx( 82 ) : size( data, 1 );
-                data( idx, : ) = shift_data( data( idx, : ),  -0.5, ...
-                    all30MinCols );
-                
-                idx = DOYidx( 295 ) : DOYidx( 330 );
-                data( idx, : ) = shift_data( data( idx, : ), -2.0, ...
-                    all10hzCols );
-                idx = DOYidx( 27 ) : DOYidx( 50 );
-                data( idx, : ) = shift_data( data( idx, : ), -1.0, ...
-                    all10hzCols );
-                
-                data = shift_data( data, 0.5, all10hzCols );
+%                 idx = 1 : DOYidx( 58 );
+%                 data( idx, : ) = shift_data( data( idx, : ),  -1.0, ...
+%                     all30MinCols );
+%                 idx = DOYidx( 82 ) : size( data, 1 );
+%                 data( idx, : ) = shift_data( data( idx, : ),  -0.5, ...
+%                     all30MinCols );
+%                 
+%                 idx = DOYidx( 295 ) : DOYidx( 330 );
+%                 data( idx, : ) = shift_data( data( idx, : ), -2.0, ...
+%                     all10hzCols );
+%                 idx = DOYidx( 27 ) : DOYidx( 50 );
+%                 data( idx, : ) = shift_data( data( idx, : ), -1.0, ...
+%                     all10hzCols );
+%                 
+%                 data = shift_data( data, 0.5, all10hzCols );
+                % There was a .5 hour shift and then it looks like clock
+                % was set to DST on day 66
+                preResetIdx = 1 : DOYidx( 66.57 );
+                data( preResetIdx, : ) = ...
+                    shift_data( data( preResetIdx, : ), 0.5, allCols );
+                % Data for rest of year need to be shifted 1.5 hours
+                postResetIdx = DOYidx( 66.58 ) : size( data, 1 );
+                data( postResetIdx, : ) = ...
+                    shift_data( data( postResetIdx, : ), 1.5, allCols );
                 
             case 2010
                 col_idx = allCols;
