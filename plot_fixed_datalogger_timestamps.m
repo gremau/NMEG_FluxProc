@@ -78,12 +78,12 @@ allTimestamps = [ dataOrig.timestamp, dataShifted.timestamp ];
 solDates = unique( round( allTimestamps )); % Dates in the plotting range
 solDates = solDates( ~isnan( solDates ));
 % [Solar noon, theoretical sunrise, theoretical sunset]
-solCalcs = noaa_solar_calculations( ...
+solCalcs = noaa_solar_calcs( ...
     UNM_sites_info( sitecode ).latitude, ...
     UNM_sites_info( sitecode ).longitude, ...
-    datevec( solDates ));
-% Convert from day fraction to hours
-solCalcs = solCalcs .* 24;
+    solDates );
+% Convert from times from day fraction to hours
+solCalcs = solCalcs( :, 2:4 ) .* 24;
 solCalcs = [ solCalcs (solDates - datenum( year, 1, 0 )) ];
 
 % ============================ FIGURE 1 =================================

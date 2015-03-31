@@ -1,5 +1,5 @@
-function solarCalcs = noaa_solar_calculations( latitude, longitude, ...
-                                               dates)
+function solarCalcs = noaa_solar_calcs( latitude, longitude, ...
+                                               datenums )
 % Calculates and returns solar noon and theoretical sunrise/sunset time for
 % specified location and dates. Based on NOAA solar model.
 %
@@ -10,9 +10,27 @@ function solarCalcs = noaa_solar_calculations( latitude, longitude, ...
 %
 % Gregory E. Maurer, UNM, February 2015
 
+dates = datevec( datenums );
+
 localtime = 12;
 tzone = -7;
 year = unique( dates( :, 1 ));
+month = dates( :, 2 );
+day = dates( :, 3 );
+hours = dates( :, 4 );
+min = dates( :, 5 );
+%sec = dates( :, 6 );
+
+% FIXME - need a better way to ensure correct input/output
+if length( datenums ) == 48 && sum( [ hours ; min ] ) > 0
+    dectime = datenums - floor( datenums ); % time past local midnight
+    julDayNum = ( datenum( dates ) - datenum( 1900, 1, -1 )) + ...
+        2415018.5 - ( tzone/24 );
+else
+    dectime = localtime/24; % time past local midnight;
+    julDayNum = ( datenum( dates ) - datenum( 1900, 1, -1 )) + ...
+        2415018.5 + dectime - ( tzone/24 );
+end
 
 % Functions to convert between radians and degrees
     function r = radians( degs )
@@ -21,10 +39,6 @@ year = unique( dates( :, 1 ));
     function d = degrees( rads )
         d = rads .* 180 ./ pi;
     end
-
-month = dates( :, 2 );
-day = dates( :, 3 );
-dectime = localtime/24; % time past local midnight
 
 % Calculate julian day from the date.
 % Below is the version taken from the excel spreadsheet. This only works
@@ -37,8 +51,7 @@ dectime = localtime/24; % time past local midnight
 %
 % There might be some discrepancy between excel and matlab. Thus the 
 % negative 1900/1/-1 datenum call.
-julDayNum = ( datenum( dates ) - datenum( 1900, 1, -1 )) + ...
-    2415018.5 + dectime - ( tzone/24 );
+
 
 julCentury = ( julDayNum - 2451545 ) ./  36525 ;
 
@@ -122,6 +135,10 @@ solarElevationAngleDeg = 90 - solarZenithAngleDeg;
 % solarElevCorrForAtmRef= solarElevationAngleDeg + AF2
 
 % solarAzimuthAngleDegCwFromN = " if(AC2>0,mod(degrees(acos(((sin(radians($B$2))*cos(radians(AD2)))-sin(radians(T2)))/(cos(radians($B$2))*sin(radians(AD2)))))+180,360),mod(540-degrees(acos(((sin(radians($B$2))*cos(radians(AD2)))-sin(radians(T2)))/(cos(radians($B$2))*sin(radians(AD2))))),360)) "
-solarCalcs = [solarNoonLST, sunriseTimeLST, sunsetTimeLST];
+
+
+% Return a vector of values
+solarCalcs = [ datenums, solarNoonLST, sunriseTimeLST, sunsetTimeLST ...
+    solarZenithAngleDeg ];
 end
 

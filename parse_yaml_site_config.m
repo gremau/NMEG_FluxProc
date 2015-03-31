@@ -19,7 +19,7 @@ yamlPath = fullfile( pwd, 'YAML_ConfigFiles', get_site_name( sitecode ));
 addpath( 'C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\' );
 addpath( yamlPath);
 
-rawConfig = ReadYaml( [yamlPath '\' yamlName ]);
+rawConfig = ReadYaml( [ yamlPath '\' yamlName '.yaml']);
 
 rmpath( yamlPath );
 rmpath( 'C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\' );
