@@ -178,10 +178,8 @@ switch sitecode
                     ( data( :, doy_col ) <= 335 ) );
                 data( idx, : ) = shift_data( data( idx, : ),  1.0, ...
                     all30MinCols );
-            case 2009
-                idx = 1 : DOYidx( 97.5 );
-                data( idx, : ) = shift_data( data( idx, : ),  -1.0, ...
-                    all30MinCols );
+            case { 2009, 2010, 2011, 2012, 2013, 2014 }
+                data = shift_data( data, 0.5, allCols );
         end
         
     case UNM_sites.PJ

@@ -37,8 +37,8 @@ box on;
 % plot all observations as black circles
 axes( ax_NEE );
 h_all = plot( decimal_day, fc_raw_massman_wpl, 'ok' );
-gray90 = [ 232, 232, 232 ] / 255;  %RGB specs for unix color "gray90"
-set( h_all, 'MarkerEdgeColor', gray90  );
+gray82 = [ 209, 209, 209 ] / 255;  %RGB specs for unix color "gray82"
+set( h_all, 'MarkerEdgeColor', gray82  );
 xlim( [ 0, 366 ] );
 
 % plot the "good" observations (that weren't filtered out) as red dots

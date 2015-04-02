@@ -141,7 +141,7 @@ elseif sitecode == UNM_sites.SLand; % shrubland
 elseif sitecode == UNM_sites.JSav; % Juniper savanna
     ustar_lim = 0.11;
     co2_min_by_month = -15;
-    co2_max_by_month = [ repmat( 4, 1, 6 ), repmat( 10, 1, 6 ) ];
+    co2_max_by_month = [ repmat( 5, 1, 6 ), repmat( 10, 1, 6 ) ];
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
@@ -2420,26 +2420,28 @@ switch sitecode
                 DOY_co2_min( idx ) = -12.0;
                 
             case 2009
-                DOY_co2_max( 1 : DOYidx( 125 ) ) = 2.0;
-                DOY_co2_max( DOYidx( 150 ) : DOYidx( 180 ) ) = 2.0;
-                DOY_co2_max( DOYidx( 220 ) : DOYidx( 250 ) ) = 2.5;
-                DOY_co2_max( DOYidx( 251 ) : DOYidx( 280 ) ) = 4.0;
-                DOY_co2_max( DOYidx( 281 ) : DOYidx( 365 ) ) = 2.5;
-                DOY_co2_min( 1 : DOYidx( 94 ) ) = -6.0;
+                DOY_co2_max( 1 : DOYidx( 125 ) ) = 2.25;
+                DOY_co2_max( DOYidx( 150 ) : DOYidx( 280 ) ) = 4.0;
+                % Too restrictive - GEM
+                %DOY_co2_max( DOYidx( 150 ) : DOYidx( 180 ) ) = 2.0;
+                %DOY_co2_max( DOYidx( 220 ) : DOYidx( 250 ) ) = 2.5;
+                %DOY_co2_max( DOYidx( 281 ) : DOYidx( 365 ) ) = 2.5;
+                %DOY_co2_min( 1 : DOYidx( 94 ) ) = -6.0;
                 
             case 2010
-                DOY_co2_max( 1 : DOYidx( 80 ) ) = 2.0;
-                DOY_co2_max( DOYidx( 81 ) : DOYidx( 190 ) ) = 4.0;
-                DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 6.0;
-                DOY_co2_max( DOYidx( 211 ) : DOYidx( 225 ) ) = 5.0;
-                DOY_co2_max( DOYidx( 226 ) : end ) = 3.0;
+%                 DOY_co2_max( 1 : DOYidx( 80 ) ) = 2.0;
+%                 DOY_co2_max( DOYidx( 81 ) : DOYidx( 190 ) ) = 4.0;
+%                 DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 6.0;
+                DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 5.5;
+                DOY_co2_max( DOYidx( 265 ) : DOYidx( 295 ) ) = 4.0;
+%                 DOY_co2_max( DOYidx( 226 ) : end ) = 3.0;
                 
             case 2011
-                DOY_co2_min( 1 : DOYidx( 40 ) ) = -2.0;
-                DOY_co2_max( DOYidx( 210 ) : DOYidx( 220 ) ) = 5.0;
-                DOY_co2_max( DOYidx( 221 ) : DOYidx( 265 ) ) = 4.0;
-                DOY_co2_max( DOYidx( 266 ) : end ) = 3.0;
-                
+                DOY_co2_min( 1 : DOYidx( 30 ) ) = -3.0;
+                DOY_co2_max( DOYidx( 210 ) : DOYidx( 220 ) ) = 5.5;
+                DOY_co2_max( DOYidx( 221 ) : DOYidx( 265 ) ) = 4.5;
+                DOY_co2_max( DOYidx( 266 ) : end ) = 3.5;
+                % Exceptions
                 std_exc_flag( DOYidx( 12.5 ) : DOYidx( 12.6 ) ) = true;
                 std_exc_flag( DOYidx( 17.4 ) : DOYidx( 17.6 ) ) = true;
                 std_exc_flag( DOYidx( 20.4 ) : DOYidx( 20.7 ) ) = true;
