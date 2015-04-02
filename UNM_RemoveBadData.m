@@ -1208,7 +1208,7 @@ if iteration > 3
     co2_conc_filter_exceptions = repmat( false, size( CO2_mean ) );
     co2_conc_filter_exceptions = ...
         specify_siteyear_co2_conc_filter_exceptions( ...
-        sitecode, year, co2_conc_filter_exceptions );
+        sitecode, year_arg, co2_conc_filter_exceptions );
     
     removed_highco2 = length(highco2flag);
     decimal_day_nan(highco2flag) = NaN;
@@ -2111,6 +2111,7 @@ switch sitecode
                 H2O_mean( idx ) = NaN;
                 
                 % [CO2] concentration calibration problem
+                % WTF? - GEM
                 idx = DOYidx( 131.6 ) : DOYidx( 164.6 );
                 CO2_mean( idx ) = CO2_mean( idx ) + 10.0;
         end
@@ -2316,10 +2317,11 @@ switch sitecode
                 DOY_co2_max( idx ) = 15;
                 std_exc_flag( idx ) = true;
             case 2009
+                % Too restrictive - GEM
                 idx = DOYidx( 245 ) : DOYidx( 255 );
-                DOY_co2_max( idx ) = 1.5;
-                
-                DOY_co2_max( DOYidx( 178 ) : DOYidx( 267 ) ) = 0.8;
+                DOY_co2_max( idx ) = 2.25;
+                % Too restrictive - GEM
+                % DOY_co2_max( DOYidx( 178 ) : DOYidx( 267 ) ) = 0.8;
                 
                 % the site burned DOY 210, 2009.  Here we remove points in the period
                 % following the burn that look more like noise than biologically
@@ -2327,32 +2329,46 @@ switch sitecode
                 DOY_co2_min( DOYidx( 210 ) : DOYidx( 256 ) ) = -0.5;
                 DOY_co2_min( DOYidx( 256 ) : DOYidx( 270 ) ) = -1.2;
             case 2010
-                DOY_co2_max( DOYidx( 200 ) : DOYidx( 225 ) ) = 2.5;
-                DOY_co2_max( 1 : DOYidx( 160 ) ) = 1.5;
-                DOY_co2_min( 1 : DOYidx( 160 ) ) = -1.5;
-                
-                idx = DOYidx( 223 ) : DOYidx( 229 );
-                DOY_co2_min( idx ) = -17;
-                std_exc_flag( idx ) = true;
+                DOY_co2_max( DOYidx( 200 ) : DOYidx( 225 ) ) = 3.25;
+                DOY_co2_max( 1 : DOYidx( 160 ) ) = 2.0;
+                % Is this too restrictive (changed from 2.5-3.75)?  - GEM
+                DOY_co2_min( 1 : DOYidx( 160 ) ) = -3.75;
+                % Don't understand why next 3 lines are needed - GEM
+%                 idx = DOYidx( 223 ) : DOYidx( 229 );
+%                 DOY_co2_min( idx ) = -17;
+%                 std_exc_flag( idx ) = true;
             case 2011
-                std_exc_flag( DOYidx( 158.4 ) : DOYidx( 158.6 ) ) = true;
-                std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
-                std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
+                % Not clear why these are here - GEM
+%                 std_exc_flag( DOYidx( 158.4 ) : DOYidx( 158.6 ) ) = true;
+%                 std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
+%                 std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
                 %    std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
+                % Too restrictive ( -0.5 to -1 )- GEM
+                DOY_co2_min( DOYidx( 309 ) : end ) = -1.0;
+                DOY_co2_min( 1 : DOYidx( 210 ) ) = -1.0;
                 
-                DOY_co2_min( DOYidx( 310 ) : end ) = -0.5;
-                DOY_co2_min( 1 : DOYidx( 210 ) ) = -0.5;
-                
-                DOY_co2_max( DOYidx( 261 ) : end ) = 2.0;
-                DOY_co2_max( DOYidx( 250 ) : DOYidx( 260 ) ) = 0.8;
+                DOY_co2_max( DOYidx( 261 ) : end ) = 2.5;
+                % Too restrictive - GEM
+                %DOY_co2_max( DOYidx( 250 ) : DOYidx( 260 ) ) = 0.8;
                 DOY_co2_max( DOYidx( 280 ) : DOYidx( 285 ) ) = 1.2;
             case 2012
-                DOY_co2_max( DOYidx( 113 ) : DOYidx( 137 ) ) = 1.0;
-                DOY_co2_max( DOYidx( 300 ) : DOYidx( 317 ) ) = 1.7;
-                DOY_co2_max( DOYidx( 325 ) : DOYidx( 343 ) ) = 1.4;
-                DOY_co2_max( DOYidx( 343 ) : DOYidx( 347 ) ) = 1.2;
-                DOY_co2_max( DOYidx( 348 ) : end ) = 0.75;
+                % Most of these are a bit too restrictive - GEM
+                DOY_co2_max( DOYidx( 112 ) : DOYidx( 137 ) ) = 1.25;
+                DOY_co2_max( DOYidx( 300 ) : DOYidx( 317 ) ) = 2;
+%                 DOY_co2_max( DOYidx( 325 ) : DOYidx( 343 ) ) = 1.4;
+%                 DOY_co2_max( DOYidx( 343 ) : DOYidx( 347 ) ) = 1.2;
+%                 DOY_co2_max( DOYidx( 348 ) : end ) = 0.75;
                 std_exc_flag( DOYidx( 174 ) : DOYidx( 175 ) ) = true;
+            case 2013
+                % There is a small period where variance in fluxes is
+                % especially high - not sure it is real
+                DOY_co2_max( DOYidx( 160 ) : DOYidx( 169 ) ) = 3;
+                DOY_co2_min( DOYidx( 160 ) : DOYidx( 169 ) ) = -1.75;
+            case 2014
+                % There is a small period where variance in fluxes is
+                % especially high - not sure it is real
+                DOY_co2_max( DOYidx( 190 ) : DOYidx( 199 ) ) = 4;
+                DOY_co2_min( DOYidx( 190 ) : DOYidx( 199 ) ) = -2;
         end %GLand
         
     case UNM_sites.SLand
@@ -2666,13 +2682,13 @@ function co2_conc_filter_exceptions = ...
 % nonetheless contain reasonable CO2 NEE.  This allows us to keep those NEE
 % measurements.
 
-if ( sitecode == 1 ) & ( year(1) == 2007 )
+if ( sitecode == 1 ) && ( year == 2007 )
     co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
 end
 
 % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
 % fluxes look OK.  TWH 27 Mar 2012
-if ( sitecode == 1 ) & ( year(1) == 2010 )
+if ( sitecode == 1 ) && ( year == 2010 )
     % keep index 4128 to 5084, 7296-8064 (days 152:168) in 2010 -
     % these CO2 obs are bogus but the datalogger 30-min fluxes look OK.  TWH 27
     % Mar 2012
@@ -2682,36 +2698,42 @@ if ( sitecode == 1 ) & ( year(1) == 2010 )
     co2_conc_filter_exceptions( DOYidx( 218 ) : DOYidx( 223 ) ) = true;
     %co2_conc_filter_exceptions( DOYidx( 271 ) : DOYidx( 278 ) ) = true;
 end
-if ( sitecode == 1 ) & ( year(1) == 2011 )
-    co2_conc_filter_exceptions( DOYidx( 153 ) : DOYidx( 160 ) ) = true;
-end
-if ( sitecode == 1 ) & ( year == 2012 )
+% Not needed? GEM
+% if ( sitecode == 1 ) & ( year == 2011 )
+%     co2_conc_filter_exceptions( DOYidx( 153 ) : DOYidx( 160 ) ) = true;
+% end
+if ( sitecode == 1 ) && ( year == 2012 )
+    % Bad [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 78 ) : DOYidx( 94 ) ) = true;
 end
-if ( sitecode == 2 ) & ( year == 2007 )
+if ( sitecode == 1 ) && ( year == 2014 )
+    % Bad [CO2] but fluxes look ok - GEM
+    co2_conc_filter_exceptions( DOYidx( 263 ) : DOYidx( 268 ) ) = true;
+end
+if ( sitecode == 2 ) && ( year == 2007 )
     % days 253:257 -- bogus [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 253 ) : DOYidx( 257 ) ) = true;
 end
-if ( sitecode == 2 ) & ( year == 2012 )
+if ( sitecode == 2 ) && ( year == 2012 )
     co2_conc_filter_exceptions( DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = true;
 end
-if ( sitecode == 3 ) & ( year(1) == 2011 )
+if ( sitecode == 3 ) && ( year == 2011 )
     co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 52.7 ) ) = true;
 end
-if ( sitecode == 4 ) & ( year(1) == 2011 )
+if ( sitecode == 4 ) && ( year == 2011 )
     % IRGA calibration drifts but fluxes are fine during this period
     co2_conc_filter_exceptions( DOYidx( 358  ) : end ) = true;
 end
-if ( sitecode == 4 ) & ( year(1) == 2012 )
+if ( sitecode == 4 ) && ( year == 2012 )
     % IRGA calibration drifts but fluxes are fine during these periods
     co2_conc_filter_exceptions( 1 : DOYidx( 10 ) ) = true;
     co2_conc_filter_exceptions( DOYidx( 160 ) : DOYidx( 175 ) ) = true;
 end
-if (sitecode == 5 ) & ( year == 2007 )
+if (sitecode == 5 ) && ( year == 2007 )
     % days 290:335 -- bogus [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 290 ) : DOYidx( 335 ) ) = true;
 end
-if (sitecode == 8 ) & ( year == 2009 )
+if (sitecode == 8 ) && ( year == 2009 )
     % days 1 to 40.5 -- low [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 1 ) : DOYidx( 40.5 ) ) = true;
 end

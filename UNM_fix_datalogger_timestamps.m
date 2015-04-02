@@ -116,27 +116,29 @@ switch sitecode
 %                 data = shift_data( data, 0.5, all10hzCols );
                 % There was a .5 hour shift and then it looks like clock
                 % was set to DST on day 66
-                preResetIdx = 1 : DOYidx( 66.57 );
-                data( preResetIdx, : ) = ...
-                    shift_data( data( preResetIdx, : ), 0.5, allCols );
+                preClockSet = 1 : DOYidx( 66.57 );
+                data( preClockSet, : ) = ...
+                    shift_data( data( preClockSet, : ), 0.5, allCols );
                 % Data for rest of year need to be shifted 1.5 hours
-                postResetIdx = DOYidx( 66.58 ) : size( data, 1 );
-                data( postResetIdx, : ) = ...
-                    shift_data( data( postResetIdx, : ), 1.5, allCols );
+                postClockSet = DOYidx( 66.58 ) : size( data, 1 );
+                data( postClockSet, : ) = ...
+                    shift_data( data( postClockSet, : ), 1.5, allCols );
                 
-            case 2010
-                col_idx = allCols;
-                data = shift_data( data, 1.0, col_idx );
-            case 2011
-                data = shift_data( data, 1.0, all30MinCols );
-                data = shift_data( data, 0.5, all10hzCols );
+            case { 2010, 2011 }
+                data = shift_data( data, 1.5, allCols );
+%             case 2011
+%                 data = shift_data( data, 1.0, all30MinCols );
+%                 data = shift_data( data, 0.5, all10hzCols );
             case 2012
-                Dec07_1255 = datenum( 2012, 12, 7, 12, 55, 0 ) - ...
+                % Clock change on Dec 07 at 12:55
+                clockSet = datenum( 2012, 12, 7, 12, 55, 0 ) - ...
                     datenum( 2012, 1, 0 );
-                idx = 1 : DOYidx( Dec07_1255  );
-                data( idx, : ) = shift_data( data( idx, : ), 1.0, ...
-                    all30MinCols );
-                
+                idx = 1 : DOYidx( clockSet  );
+                data( idx, : ) = shift_data( data( idx, : ), 1.0, allCols );
+                % The entire year must shift an additional 0.5 hours
+                data = shift_data( data, 0.5, allCols );
+            case { 2013, 2014 }
+                data = shift_data( data, 0.5, allCols );
         end
         
     case UNM_sites.SLand
