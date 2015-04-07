@@ -347,25 +347,26 @@ switch sitecode
     case UNM_sites.New_GLand
         switch year
             case 2010
-                col_idx = allCols;
-                idx = DOYidx( 179 ) : size( data, 1 );
-                data( idx, : ) = shift_data( data( idx, : ),  1.0, col_idx );
+                % Clock reset occured at 3pm on 6/27
+                preClockSet = 1 : DOYidx( 178.6042 );
+                data( preClockSet, : ) = ...
+                    shift_data( data( preClockSet, : ), 0.5, allCols );
+                % Data for rest of year need to be shifted 1.5 hours
+                postClockSet = DOYidx( 178.625 ) : size( data, 1 );
+                data( postClockSet, : ) = ...
+                    shift_data( data( postClockSet, : ), 1.5, allCols );
             case 2011
-                data = shift_data( data,  1.0, all30MinCols );
-                data = shift_data( data, 0.5, all10hzCols );
+                data = shift_data( data, 1.5, allCols );
             case 2012
-                idx = 1 : DOYidx( 103 );
-                data( idx, : ) = shift_data( data( idx, : ), 1.0, ...
-                    all30MinCols );
-                idx = DOYidx( 104 ) : size( data, 1 );
-                data( idx, : ) = shift_data( data( idx, : ), 2.0, ...
-                    all30MinCols );
-                
-                Dec07_1355 = datenum( 2012, 12, 7, 13, 55, 0 ) - ...
-                    datenum( 2012, 1, 0 );
-                idx = 1 : DOYidx( Dec07_1355  );
-                data( idx, : ) = shift_data( data( idx, : ), 1.0, ...
-                    all30MinCols );
+                preClockSet = 1 : DOYidx( 342.625 );
+                data( preClockSet, : ) = ...
+                    shift_data( data( preClockSet, : ), 1.5, allCols );
+                % Data for rest of year need to be shifted 0.5 hours
+                postClockSet = DOYidx( 342.645 ) : size( data, 1 );
+                data( postClockSet, : ) = ...
+                    shift_data( data( postClockSet, : ), 0.5, allCols );
+            case { 2013 2014 }
+                data = shift_data( data, 0.5, allCols );
         end
         
 end

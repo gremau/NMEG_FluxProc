@@ -114,7 +114,7 @@ obs_per_day = 48;  % half-hourly observations
 
 if sitecode == UNM_sites.GLand; % grassland
     ustar_lim = 0.06;
-    co2_min_by_month = -15; co2_max_by_month = 6;
+    co2_min_by_month = -15; co2_max_by_month = 7.25;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
@@ -189,7 +189,7 @@ elseif sitecode == UNM_sites.New_GLand; % new Grassland
     ustar_lim = 0.06;
     n_SDs_filter_hi = 4.5; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
-    co2_min_by_month = -15; co2_max_by_month = 6;
+    co2_min_by_month = -15; co2_max_by_month = 7.25;
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
@@ -2122,11 +2122,11 @@ switch sitecode
                 NR_tot( DOYidx( 143 ) : DOYidx( 151 ) ) = NaN;
                 sw_outgoing( DOYidx( 150 ) : DOYidx( 162 ) ) = NaN;
             case 2009
-                % Explanation?
+                % FIXME - Explanation?
                 CO2_mean( DOYidx( 139 ) : DOYidx( 142 ) ) = NaN;
                 CO2_mean( DOYidx( 287.5 ) : DOYidx( 290.8 ) ) = NaN;
             case 2011
-                % Explanation?
+                % FIXME - Explanation?
                 idx = DOYidx( 342 ) : DOYidx( 348 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
@@ -2138,12 +2138,12 @@ switch sitecode
     case UNM_sites.JSav
         switch year
             case 2010
-                % Explanation?
+                % FIXME - Explanation?
                 lw_outgoing( DOYidx( 130.3 ) : DOYidx( 131.5 ) ) = NaN;
                 lw_outgoing( DOYidx( 331.4 ) : DOYidx( 332.7 ) ) = NaN;
                 H2O_mean( DOYidx( 221 ) : DOYidx( 229 ) ) = NaN;
             case 2012
-                % Explanation?
+                % FIXME - Explanation?
                 E_wpl_massman( E_wpl_massman > ( 200 / 18 ) ) = NaN;
                 
                 % there are a smattering of really cold ( < -8 C ) Tdry observations
@@ -2160,7 +2160,7 @@ switch sitecode
     case UNM_sites.PJ_girdle
         switch year
             case 2009
-                % Explanation?
+                % FIXME - Explanation?
                 CO2_mean( DOYidx( 131.4 ) : DOYidx( 141.5 ) ) = NaN;
                 CO2_mean( DOYidx( 284 ) : DOYidx( 293.65 ) ) = NaN;
         end
@@ -2285,6 +2285,7 @@ switch sitecode
         
     case UNM_sites.New_GLand
         switch year
+            % FIXME - Explanation?
             case 2010
                 sw_incoming( DOYidx( 355 ) : end ) = NaN;
             case 2014
@@ -2632,46 +2633,58 @@ switch sitecode
         
     case UNM_sites.New_GLand
         switch year
+            case 2010
+                % IRGA acting funny between these 2 periods - removing only
+                % outliers because most of data ([CO2] and Fc) looks
+                % reasonable
+                idx = DOYidx( 18.5 ) : DOYidx( 42.3 );
+                DOY_co2_max( idx ) = 1.5;
+                DOY_co2_min( idx ) = -2.0;
+                % Big pulses - seemingly tied to precip events.
+                % Removing some because I don't believe the magnitude.
+                idx = DOYidx( 100 ) : DOYidx( 300 );
+                DOY_co2_max( idx ) = 3.7;
+                DOY_co2_min( idx ) = -7.0;
             case 2011
-                std_exc_flag( DOYidx( 39.5 ) : DOYidx( 39.7 ) ) = true;
-                std_exc_flag( DOYidx( 50.5 ) : DOYidx( 50.7 ) ) = true;
-                std_exc_flag( DOYidx( 58.5 ) : DOYidx( 58.7 ) ) = true;
-                std_exc_flag( DOYidx( 66.6 ) : DOYidx( 66.8 ) ) = true;
-                std_exc_flag( DOYidx( 72.5 ) : DOYidx( 72.6 ) ) = true;
-                std_exc_flag( DOYidx( 89.55 ) : DOYidx( 89.65 ) ) = true;
-                std_exc_flag( DOYidx( 104.48 ) : DOYidx( 104.52 ) ) = true;
-                std_exc_flag( DOYidx( 107.52 ) : DOYidx( 107.58 ) ) = true;
-                std_exc_flag( DOYidx( 129.48 ) : DOYidx( 129.56 ) ) = true;
-                
-                idx = DOYidx( 80.5 ) : DOYidx( 80.65 );
-                std_exc_flag( idx ) = true;
-                DOY_co2_max( idx ) = 6.9;
-                
-                
-                idx = DOYidx( 99.45 ) : DOYidx( 99.6 );
-                std_exc_flag( idx ) = true;
-                DOY_co2_max( idx ) = 7.4;
-                
-                idx = DOYidx( 116.5 ) : DOYidx( 116.6 );
-                std_exc_flag( idx ) = true;
-                DOY_co2_max( idx ) = 7.2;
-                
-                DOY_co2_max( DOYidx( 194 ) : DOYidx( 195 ) ) = 2.3;
-                std_exc_flag( DOYidx( 201 ) : DOYidx( 203 ) ) = true;
-                std_exc_flag( DOYidx( 225.6 ) : DOYidx( 225.7 ) ) = true;
-                std_exc_flag( DOYidx( 290.4 ) : DOYidx( 290.6 ) ) = true;
-                std_exc_flag( DOYidx( 335.45 ) : DOYidx( 335.6 ) ) = true;
-                DOY_co2_max( DOYidx( 344.5 ) : DOYidx( 344.7 ) ) = 9.0;
-                DOY_co2_max( DOYidx( 345.48 ) : DOYidx( 345.56 ) ) = 9.0;
+                % FIXME - Explanation for all these?
+%                 std_exc_flag( DOYidx( 39.5 ) : DOYidx( 39.7 ) ) = true;
+%                 std_exc_flag( DOYidx( 50.5 ) : DOYidx( 50.7 ) ) = true;
+%                 std_exc_flag( DOYidx( 58.5 ) : DOYidx( 58.7 ) ) = true;
+%                 std_exc_flag( DOYidx( 66.6 ) : DOYidx( 66.8 ) ) = true;
+%                 std_exc_flag( DOYidx( 72.5 ) : DOYidx( 72.6 ) ) = true;
+%                 std_exc_flag( DOYidx( 89.55 ) : DOYidx( 89.65 ) ) = true;
+%                 std_exc_flag( DOYidx( 104.48 ) : DOYidx( 104.52 ) ) = true;
+%                 std_exc_flag( DOYidx( 107.52 ) : DOYidx( 107.58 ) ) = true;
+%                 std_exc_flag( DOYidx( 129.48 ) : DOYidx( 129.56 ) ) = true;
+%                 
+%                 idx = DOYidx( 80.5 ) : DOYidx( 80.65 );
+%                 std_exc_flag( idx ) = true;
+%                 DOY_co2_max( idx ) = 6.9;
+%                 
+%                 
+%                 idx = DOYidx( 99.45 ) : DOYidx( 99.6 );
+%                 std_exc_flag( idx ) = true;
+%                 DOY_co2_max( idx ) = 7.4;
+%                 
+%                 idx = DOYidx( 116.5 ) : DOYidx( 116.6 );
+%                 std_exc_flag( idx ) = true;
+%                 DOY_co2_max( idx ) = 7.2;
+%                 
+%                 DOY_co2_max( DOYidx( 194 ) : DOYidx( 195 ) ) = 2.3;
+%                 std_exc_flag( DOYidx( 201 ) : DOYidx( 203 ) ) = true;
+%                 std_exc_flag( DOYidx( 225.6 ) : DOYidx( 225.7 ) ) = true;
+%                 std_exc_flag( DOYidx( 290.4 ) : DOYidx( 290.6 ) ) = true;
+%                 std_exc_flag( DOYidx( 335.45 ) : DOYidx( 335.6 ) ) = true;
+%                 DOY_co2_max( DOYidx( 344.5 ) : DOYidx( 344.7 ) ) = 9.0;
+%                 DOY_co2_max( DOYidx( 345.48 ) : DOYidx( 345.56 ) ) = 9.0;
                 
             case 2012
-                DOY_co2_max( DOYidx( 215 ) : DOYidx( 285 ) ) = 2.0;
-                DOY_co2_max( DOYidx( 306 ) : DOYidx( 312 ) ) = 1.5;
-                DOY_co2_max( DOYidx( 312 ) : DOYidx( 347 ) ) = 1.5;
-                DOY_co2_max( DOYidx( 348 ) : end ) = 0.75;
+                DOY_co2_max( DOYidx( 185 ) : DOYidx( 285 ) ) = 3.0;
+                DOY_co2_max( DOYidx( 312 ) : end ) = 2.5;
                 
             case 2013 %Added by RJL based on Marcy request 11/22/2013
-                DOY_co2_min( DOYidx( 160 ) : DOYidx( 190 ) ) = -3.0;
+                DOY_co2_min( DOYidx( 173 ) : DOYidx( 193 ) ) = -3.0;
+                % Too restrictive - GEM
 %                 DOY_co2_min( DOYidx( 190 ) : DOYidx( 200 ) ) = -4.0;
 %                 DOY_co2_min( DOYidx( 200 ) : DOYidx( 208 ) ) = -9.0;
 %                 DOY_co2_min( DOYidx( 208 ) : DOYidx( 210 ) ) = -10.0;
@@ -2680,7 +2693,9 @@ switch sitecode
 %                 DOY_co2_min( DOYidx( 238 ) : DOYidx( 255 ) ) = -4.0;
 %                 DOY_co2_min( DOYidx( 255 ) : DOYidx( 264 ) ) = -6.0;
 %                 DOY_co2_min( DOYidx( 264 ) : DOYidx( 272 ) ) = -7.0;
-                DOY_co2_min( DOYidx( 292 ) : end ) = -6.0;
+%                 DOY_co2_min( DOYidx( 292 ) : end ) = -6.0;
+            case 2014 %Added by RJL based on Marcy request 11/22/2013
+                DOY_co2_max( DOYidx( 335 ) : end ) = 2.0;
         end  % New_GLand
 end
 
