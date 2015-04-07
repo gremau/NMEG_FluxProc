@@ -2122,9 +2122,11 @@ switch sitecode
                 NR_tot( DOYidx( 143 ) : DOYidx( 151 ) ) = NaN;
                 sw_outgoing( DOYidx( 150 ) : DOYidx( 162 ) ) = NaN;
             case 2009
+                % Explanation?
                 CO2_mean( DOYidx( 139 ) : DOYidx( 142 ) ) = NaN;
                 CO2_mean( DOYidx( 287.5 ) : DOYidx( 290.8 ) ) = NaN;
             case 2011
+                % Explanation?
                 idx = DOYidx( 342 ) : DOYidx( 348 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
@@ -2136,10 +2138,12 @@ switch sitecode
     case UNM_sites.JSav
         switch year
             case 2010
+                % Explanation?
                 lw_outgoing( DOYidx( 130.3 ) : DOYidx( 131.5 ) ) = NaN;
                 lw_outgoing( DOYidx( 331.4 ) : DOYidx( 332.7 ) ) = NaN;
                 H2O_mean( DOYidx( 221 ) : DOYidx( 229 ) ) = NaN;
             case 2012
+                % Explanation?
                 E_wpl_massman( E_wpl_massman > ( 200 / 18 ) ) = NaN;
                 
                 % there are a smattering of really cold ( < -8 C ) Tdry observations
@@ -2156,6 +2160,7 @@ switch sitecode
     case UNM_sites.PJ_girdle
         switch year
             case 2009
+                % Explanation?
                 CO2_mean( DOYidx( 131.4 ) : DOYidx( 141.5 ) ) = NaN;
                 CO2_mean( DOYidx( 284 ) : DOYidx( 293.65 ) ) = NaN;
         end
@@ -2331,7 +2336,7 @@ switch sitecode
             case 2010
                 DOY_co2_max( DOYidx( 200 ) : DOYidx( 225 ) ) = 3.25;
                 DOY_co2_max( 1 : DOYidx( 160 ) ) = 2.0;
-                % Is this too restrictive (changed from 2.5-3.75)?  - GEM
+                % Too restrictive (changed from 2.5-3.75)?  - GEM
                 DOY_co2_min( 1 : DOYidx( 160 ) ) = -3.75;
                 % Don't understand why next 3 lines are needed - GEM
 %                 idx = DOYidx( 223 ) : DOYidx( 229 );
@@ -2381,36 +2386,42 @@ switch sitecode
                 std_exc_flag( idx ) = true;
             case 2010
                 DOY_co2_min( 1 : DOYidx( 80 ) ) = -1.4;
-                DOY_co2_max( DOYidx( 204 ) : DOYidx( 220 ) ) = 2.0;
+                DOY_co2_max( DOYidx( 204 ) : DOYidx( 220 ) ) = 3.0;
             case 2011
+                % Not sure why these resp pulses are protected - GEM
                 idx = DOYidx( 215.5 ) : DOYidx( 216.4 );
                 std_exc_flag( idx ) = true;
-                
+
                 idx = DOYidx( 190 ) : DOYidx( 195 );
                 DOY_co2_max( idx ) = 7;
                 std_exc_flag( idx ) = true;
+%                 % Too restrictive, sd filter works fine - GEM
+%                 DOY_co2_min(  1 : DOYidx( 70.0 ) ) = -0.5;
+%                 DOY_co2_max(  1 : DOYidx( 70.0 ) ) = 1.0;
+%                 DOY_co2_min( DOYidx( 80  ) : DOYidx( 100 ) ) = -2.0;
+%                 
+%                 std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
                 
-                DOY_co2_min(  1 : DOYidx( 70.0 ) ) = -0.5;
-                DOY_co2_max(  1 : DOYidx( 70.0 ) ) = 1.0;
-                DOY_co2_min( DOYidx( 80  ) : DOYidx( 100 ) ) = -2.0;
-                
-                std_exc_flag( DOYidx( 20.4) : DOYidx( 20.6 ) ) = true;
-                
-                DOY_co2_min(  DOYidx( 185 ) : end ) = -1.5;
+                DOY_co2_min(  DOYidx( 185 ) : end ) = -2.0;
             case 2012
-                DOY_co2_max(  DOYidx( 285 ) : DOYidx( 328 ) ) = 0.95;
-                DOY_co2_max(  DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = 2.5;
+                DOY_co2_max(  DOYidx( 310 ) : DOYidx( 320 ) ) = 1.5;
+%                 DOY_co2_max(  DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = 2.5;
                 std_exc_flag( DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = true;
-                DOY_co2_max(  DOYidx( 328 ) : end ) = 0.5;
+%                 DOY_co2_max(  DOYidx( 328 ) : end ) = 0.5;
             case 2013
-                DOY_co2_max(  DOYidx( 21 ) : DOYidx( 27 ) ) = 0.5;
-                DOY_co2_max(  DOYidx( 28 ) : DOYidx( 30 ) ) = 2.0;
-                DOY_co2_max(  DOYidx( 208 ) : DOYidx( 216 ) ) = 2.0;
-                DOY_co2_max(  DOYidx( 216 ) : DOYidx( 225 ) ) = 2.7;
-                DOY_co2_min(  DOYidx( 125 ) : DOYidx( 134 ) ) = -1.0;
-                DOY_co2_min(  DOYidx( 155 ) : DOYidx( 170 ) ) = -1.0;
-                DOY_co2_min(  DOYidx( 208 ) : DOYidx( 216 ) ) = -5.0;
-                DOY_co2_min(  DOYidx( 224 ) : DOYidx( 225 ) ) = -5.0;
+%                 DOY_co2_max(  DOYidx( 21 ) : DOYidx( 27 ) ) = 0.5;
+%                 DOY_co2_max(  DOYidx( 28 ) : DOYidx( 30 ) ) = 2.0;
+                DOY_co2_max(  DOYidx( 208 ) : DOYidx( 270 ) ) = 3.5;
+%                 DOY_co2_max(  DOYidx( 216 ) : DOYidx( 225 ) ) = 2.7;
+                DOY_co2_min(  DOYidx( 133 ) : DOYidx( 134 ) ) = -1.0;
+%                 DOY_co2_min(  DOYidx( 155 ) : DOYidx( 170 ) ) = -1.0;
+%                 DOY_co2_min(  DOYidx( 208 ) : DOYidx( 216 ) ) = -5.0;
+%                 DOY_co2_min(  DOYidx( 224 ) : DOYidx( 225 ) ) = -5.0;
+            case 2014
+                DOY_co2_max(  DOYidx( 215 ) : DOYidx( 280 ) ) = 2.5;
+                DOY_co2_min(  DOYidx( 267 ) : DOYidx( 268 ) ) = -4.0;
+                DOY_co2_min(  DOYidx( 280 ) : DOYidx( 345 ) ) = -3.0;
+
         end %SLand
         
     case UNM_sites.JSav
@@ -2710,15 +2721,16 @@ if ( sitecode == 1 ) && ( year == 2012 )
 end
 if ( sitecode == 1 ) && ( year == 2014 )
     % Bad [CO2] but fluxes look ok - GEM
-    co2_conc_filter_exceptions( DOYidx( 263 ) : DOYidx( 268 ) ) = true;
+    co2_conc_filter_exceptions( DOYidx( 263 ) : DOYidx( 268.7 ) ) = true;
 end
 if ( sitecode == 2 ) && ( year == 2007 )
     % days 253:257 -- bogus [CO2] but fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 253 ) : DOYidx( 257 ) ) = true;
 end
-if ( sitecode == 2 ) && ( year == 2012 )
-    co2_conc_filter_exceptions( DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = true;
-end
+% Not needed? GEM
+% if ( sitecode == 2 ) && ( year == 2012 )
+%    co2_conc_filter_exceptions( DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = true;
+% end
 if ( sitecode == 3 ) && ( year == 2011 )
     co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 52.7 ) ) = true;
 end

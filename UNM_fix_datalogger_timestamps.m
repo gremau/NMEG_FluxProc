@@ -160,14 +160,16 @@ switch sitecode
                 %   all30MinCols );
                 data = shift_data( data, -1.0, all30MinCols );
                 data = shift_data( data, -0.5, all10hzCols );
-            case 2009
-                idx = 1 : DOYidx( 64 );
-                data( idx, : ) = shift_data( data( idx, : ),  -1.0, ...
-                    all30MinCols );
-            case 2011
-                idx = DOYidx( 137 ) : DOYidx( 165 );
-                data( idx, : ) = shift_data( data( idx, : ),  -0.5, ...
-                    all30MinCols );
+%             case 2009
+%                 idx = 1 : DOYidx( 64 );
+%                 data( idx, : ) = shift_data( data( idx, : ),  -1.0, ...
+%                     all30MinCols );
+            case { 2009 2010 2011 2012 2013 2014 }
+                data = shift_data( data, 0.5, allCols );
+%             case 2011
+%                 idx = DOYidx( 137 ) : DOYidx( 165 );
+%                 data( idx, : ) = shift_data( data( idx, : ),  -0.5, ...
+%                     all30MinCols );
         end
         
     case UNM_sites.JSav
