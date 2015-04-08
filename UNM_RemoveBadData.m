@@ -200,8 +200,10 @@ elseif sitecode == UNM_sites.New_GLand; % new Grassland
     
 elseif sitecode == UNM_sites.PPine; % Ponderosa Pine
     % site default values
-    co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -5];
-    co2_max_by_month = [4 4 4 5 30 30 30 30 30 30 5 4];
+    %co2_min_by_month = [-6 -6 -15 -15 -15 -15 -15 -15 -15 -15 -15 -5];
+    %co2_max_by_month = [4 4 4 5 30 30 30 30 30 30 5 4];
+    co2_min_by_month = [-8 -8 -21 -21 -21 -21 -21 -21 -21 -21 -17 -10];
+    % Note that the sketchy NEE normalization that occurs relies on this:
     co2_max_by_month = 30;
     ustar_lim = 0.2;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
@@ -2168,11 +2170,13 @@ switch sitecode
     case UNM_sites.PPine
         switch year
             case 2008
+                % FIXME - Explanation?
                 fc_raw_massman_wpl( DOYidx( 260 ) : DOYidx( 290 ) ) = NaN;
                 rH( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;  %these observation are way
                 %too small
                 E_wpl_massman( E_wpl_massman > 200 ) = NaN;
             case 2009
+                % FIXME - Explanation?
                 fc_raw_massman_wpl( DOYidx( 157 ) : DOYidx( 159 ) ) = NaN;
                 idx = DOYidx( 157 ) : DOYidx( 183 );
                 fc_raw_massman_wpl( idx ) = NaN;
@@ -2182,6 +2186,7 @@ switch sitecode
                 HSdry( idx ) = NaN;
                 HSdry_massman( idx ) = NaN;
             case 2011
+                % FIXME - Explanation?
                 idx = DOYidx( 186 ) : DOYidx( 200 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
@@ -2513,22 +2518,27 @@ switch sitecode
                 DOY_co2_max( DOYidx( 277 ) : DOYidx( 279 ) ) = 10.0;
                 DOY_co2_max( DOYidx( 280 ) : end ) = 5.0;
                 
-            case 2009
-                DOY_co2_max( : ) = 10;
-                DOY_co2_max( DOYidx( 64 ) : DOYidx( 67 ) ) = 15.0;
-                DOY_co2_max( DOYidx( 67 ) : DOYidx( 150 ) ) = 8.0;
-                DOY_co2_max( DOYidx( 300 ) : end ) = 10.0;
+%            case 2009
+%                 DOY_co2_max( : ) = 10;
+%                 DOY_co2_max( DOYidx( 64 ) : DOYidx( 67 ) ) = 15.0;
+%                 DOY_co2_max( DOYidx( 67 ) : DOYidx( 150 ) ) = 8.0;
+%                 DOY_co2_max( DOYidx( 300 ) : end ) = 10.0;
                 
             case 2011
                 std_exc_flag( DOYidx( 171 ) : DOYidx( 172 ) ) = true;
-                DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20.0;
+                %DOY_co2_min( DOYidx( 291.4 ) : DOYidx( 291.6 ) ) = -20.0;
+                DOY_co2_min( DOYidx( 90 ) : DOYidx( 310 ) ) = -15.5;
                 
-            case 2012
-                DOY_co2_min( DOYidx( 90 ) : DOYidx( 140 ) ) = -20.0;
-                DOY_co2_max( DOYidx( 353 ) : DOYidx( 355 ) ) = 4.0;
+%             case 2012
+%                 DOY_co2_min( DOYidx( 90 ) : DOYidx( 140 ) ) = -20.0;
+%                 DOY_co2_max( DOYidx( 353 ) : DOYidx( 355 ) ) = 4.0;
                 
             case 2013 %Added by RJL based on Marcy request 11/22/2013
-                DOY_co2_min( DOYidx( 220 ) : end ) = -18.0;
+                DOY_co2_min( DOYidx( 330 ) : end ) = -18.0;
+                DOY_co2_min( DOYidx( 20 ) : DOYidx( 150 ) ) = -15.0;
+                
+            case 2014
+                DOY_co2_min( DOYidx( 100 ) : DOYidx( 310 ) ) = -17.0;
         end
         
     case UNM_sites.MCon

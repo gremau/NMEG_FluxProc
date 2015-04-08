@@ -215,44 +215,52 @@ switch sitecode
                 Tdry_col = 14;  %shift temperature record
                 data( idx, : ) = shift_data( data( idx, : ), -1.5, ...
                     Tdry_col );
-            case 2009
-                data = shift_data( data, 1.0, all30MinCols );
-                idx = DOYidx( 261 ) : DOYidx( 267 );
-                data( idx, : ) = shift_data( data( idx, : ), -2.5, ...
-                    all30MinCols );
-                idx = DOYidx( 267 ) : ( DOYidx( 268 ) - 1 );
-                data( idx, : ) = shift_data( data( idx, : ), -3.0, ...
-                    all30MinCols );
-                idx = DOYidx( 268 ) : DOYidx( 283 );
-                data( idx, : ) = shift_data( data( idx, : ), -3.5, ...
-                    all30MinCols );
-                idx = DOYidx( 283.0 ) : DOYidx( 293.5 );
-                data( idx, : ) = shift_data( data( idx, : ), -4.5, ...
-                    all30MinCols );
-                
-            case 2010
-                data = shift_data( data, 1.0, all30MinCols );
+            case { 2009 2010 }
+                data = shift_data( data, 1.5, allCols );
+                % No idea why all this is below - GEM
+%                 idx = DOYidx( 261 ) : DOYidx( 267 );
+%                 data( idx, : ) = shift_data( data( idx, : ), -2.5, ...
+%                     all30MinCols );
+%                 idx = DOYidx( 267 ) : ( DOYidx( 268 ) - 1 );
+%                 data( idx, : ) = shift_data( data( idx, : ), -3.0, ...
+%                     all30MinCols );
+%                 idx = DOYidx( 268 ) : DOYidx( 283 );
+%                 data( idx, : ) = shift_data( data( idx, : ), -3.5, ...
+%                     all30MinCols );
+%                 idx = DOYidx( 283.0 ) : DOYidx( 293.5 );
+%                 data( idx, : ) = shift_data( data( idx, : ), -4.5, ...
+%                     all30MinCols );
+%                 
+%             case 2010
+%                 data = shift_data( data, 1.0, all30MinCols );
                 
             case 2011
-                idx = DOYidx( 12 ) : DOYidx( 30 );
-                data( idx, : ) = shift_data( data( idx, : ), 1.0, ...
-                    all30MinCols );
-                idx = DOYidx( 30 ) : DOYidx( 56 );
-                data( idx, : ) = shift_data( data( idx, : ), 0.5, ...
-                    all30MinCols );
+                % Looks like datalogger clock was reset around day 54
+                preClockSet = 1 : DOYidx( 54.395 );
+                data( preClockSet, : ) = ...
+                    shift_data( data( preClockSet, : ), 1.5, allCols );
+                % Data for rest of year need to be shifted 0.5 hours
+                postClockSet = DOYidx( 54.416 ) : size( data, 1 );
+                data( postClockSet, : ) = ...
+                    shift_data( data( postClockSet, : ), 1.0, allCols );
                 
-            case 2012
-                idx = DOYidx( 204 ) : DOYidx( 233 );
-                data( idx, : ) = shift_data( data( idx, : ), -2.0, ...
-                    all30MinCols );
+            case 2012 
+                data = shift_data( data, 1.0, allCols );
                 
-            case 2013   %RJL added this section on 11/11/13
-                idx = DOYidx( 129 ) : DOYidx( 151 );
-                data( idx, : ) = shift_data( data( idx, : ), 1.5, ...
-                    all30MinCols );
-                idx = DOYidx( 221 ) : DOYidx( 309 );
-                data( idx, : ) = shift_data( data( idx, : ), 1.5, ...
-                    all30MinCols );
+            case 2013
+                data = shift_data( data, 1.0, allCols );
+                % There is a small period in Nov-Dec where time is shifted
+                % even further
+                shiftIdx = DOYidx( 323.69 ) : DOYidx( 362.52 );
+                data( shiftIdx, : ) = ...
+                    shift_data( data( shiftIdx, : ), 1.0, allCols );
+            case 2014
+                data = shift_data( data, 1.0, allCols );
+                % There is a period in the summer where time is shifted
+                % even further
+                shiftIdx = DOYidx( 172.52 ) : DOYidx( 282.52 );
+                data( shiftIdx, : ) = ...
+                    shift_data( data( shiftIdx, : ), 1.0, allCols );
         end
         
     case UNM_sites.MCon
