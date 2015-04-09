@@ -1,8 +1,13 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
-# Custom for Visual Studio
-*.cs     diff=csharp
+# Declare text files to normalize to native line endings on checkout 
+*.m	 text
+*.py     text
+*.r      text
+*.csv    text
+*.yaml   text
+*.txt    text
 
 # Standard to msysgit
 *.doc	 diff=astextplain

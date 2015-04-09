@@ -217,7 +217,7 @@ elseif sitecode == UNM_sites.PPine; % Ponderosa Pine
     h2o_max = 30; h2o_min = 0;
     
 elseif sitecode == UNM_sites.MCon; % Mixed conifer
-    co2_min_by_month = [ -2.5, -2.5, repmat( -12, 1, 9 ), -2.5 ];%[ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ];
+    co2_min_by_month = [ -2.5, -2.5, repmat( -16, 1, 9 ), -2.5 ];%[ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ];
     co2_max_by_month = 6;
     n_SDs_filter_hi = 2.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -2209,14 +2209,17 @@ switch sitecode
     case UNM_sites.MCon
         switch year
             case 2009
+                % FIXME - Explanation?
                 sw_incoming( DOYidx( 342 ) : end ) = NaN;
             case 2010
+                % FIXME - Explanation?
                 idx = DOYidx( 134.4 ) : DOYidx( 146.5 );
                 CO2_mean( idx ) = CO2_mean( idx ) + 10;
                 
                 idx = DOYidx( 301.6 ) : DOYidx( 344.7 );
                 CO2_mean( idx ) = CO2_mean( idx ) - 17;
             case 2011
+                % FIXME - Explanation?
                 idx = DOYidx( 225.4 ) : DOYidx( 237.8 );
                 lw_incoming( idx ) = NaN;
                 lw_outgoing( idx ) = NaN;
@@ -2229,6 +2232,7 @@ switch sitecode
                 precip( DOYidx( 80 ):DOYidx( 81 ) ) = 0.0;
                 precip( DOYidx( 309 ):DOYidx( 310 ) ) = 0.0;
             case 2012
+                % FIXME - Explanation?
                 idx = DOYidx( 254.5 ) : min( DOYidx( 263.7 ), numel( NR_tot ) );
                 NR_tot( idx ) = NaN;
                 sw_incoming( idx ) = NaN;
@@ -2564,20 +2568,19 @@ switch sitecode
                 DOY_co2_min( 1 : DOYidx( 106 ) ) = -2.0;
                 DOY_co2_max( DOYidx( 125 ) : DOYidx( 155 ) ) = 3.0;
                 
-            case 2009
-                DOY_co2_min( DOYidx( 83 ) : DOYidx( 100 ) ) = -3.0;
-                DOY_co2_max( DOYidx( 83 ) : DOYidx( 100 ) ) = 4.0;
-                DOY_co2_max( DOYidx( 156 ) : DOYidx( 305 ) ) = 4.0;
-                DOY_co2_max( DOYidx( 311 ) : end ) = 3.0;
+%             case 2009
+%                 DOY_co2_min( DOYidx( 83 ) : DOYidx( 100 ) ) = -3.0;
+%                 DOY_co2_max( DOYidx( 83 ) : DOYidx( 100 ) ) = 4.0;
+%                 DOY_co2_max( DOYidx( 156 ) : DOYidx( 305 ) ) = 4.0;
+%                 DOY_co2_max( DOYidx( 311 ) : end ) = 3.0;
                 
             case 2010
-                DOY_co2_max( DOYidx( 200 ) : DOYidx( 244 ) ) = 4.0;
+                DOY_co2_max( DOYidx( 200 ) : DOYidx( 244 ) ) = 5.0;
                 DOY_co2_max( DOYidx( 246 ) : DOYidx( 300 ) ) = 3.0;
                 
             case 2011
-                
-                DOY_co2_max( DOYidx( 95 ) : DOYidx( 166 ) ) = 4.0;
-                DOY_co2_max( DOYidx( 180 ) : end ) = 4.0;
+%                 DOY_co2_max( DOYidx( 95 ) : DOYidx( 166 ) ) = 4.0;
+                DOY_co2_max( DOYidx( 300 ) : end ) = 4.0;
                 
             case 2012
                 DOY_co2_max( DOYidx( 344 ) : end ) = 2.0;
