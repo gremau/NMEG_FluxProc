@@ -1,13 +1,14 @@
 %close all;
 %clear all;
 %
-%sitelist = { UNM_sites.PPine, UNM_sites.MCon, UNM_sites.SLand, UNM_sites.JSav,...
-%    UNM_sites.PJ };
+sitelist = { UNM_sites.PPine, UNM_sites.MCon, ...
+    UNM_sites.JSav, UNM_sites.PJ, UNM_sites.PJ_girdle ...
+     UNM_sites.SLand, UNM_sites.GLand, UNM_sites.New_GLand};
 %sitelist = {UNM_sites.GLand};
-sitelist = {UNM_sites.PJ_girdle};
+%sitelist = {UNM_sites.PJ_girdle};
 %sitelist = {UNM_sites.New_GLand};
 
-yearlist = 2009;
+yearlist = 2010:2014;
 partmethod = 'eddyproc';%'Reddyproc'
 
 for i = 1:length(sitelist);
