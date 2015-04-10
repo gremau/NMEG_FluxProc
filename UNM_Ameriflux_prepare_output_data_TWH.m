@@ -147,13 +147,20 @@ NEE_2( idx ) = NEE_obs( idx );
 % To ensure carbon balance, calculate GPP as remainder when NEE is
 % subtracted from RE. This will give negative GPP when NEE exceeds
 % modelled RE. So set GPP to zero and add difference to RE.
+
+% Changing this while we evaluate whether to keep the ensure C balance
+% steps - GEM.
+GPP_2 = GPP_f;
+RE_2 = RE_f;
+NEE_2 = NEE_f;
+% _ecb fluxes are what were in AF files before the change
 fix_night = true;
-[ GPP_2, RE_2, NEE_2 ] = ...
+[ GPP_ecb, RE_ecb, NEE_ecb ] = ...
     ensure_carbon_balance( sitecode, ds_qc.timestamp, ...
     RE_f, NEE_2, ...
     Rg_f, fix_night );
 fix_night = false;
-[ GPP_old, RE_old, NEE_old ] = ...
+[ GPP_oldecb, RE_oldecb, NEE_oldecb ] = ...
     ensure_carbon_balance( sitecode, ds_qc.timestamp, ...
     RE_f, NEE_2, ...
     Rg_f, fix_night );
@@ -311,7 +318,8 @@ amflux_gf.WD = ds_qc.wnd_dir_compass;
 amflux_gf.WS = ds_qc.wnd_spd;
 amflux_gf.NEE = dummy;
 amflux_gf.FC = NEE_2;
-amflux_gf.FC_old = NEE_old;
+amflux_gf.FC_ecb = NEE_ecb;
+amflux_gf.FC_oldecb = NEE_oldecb;
 amflux_gf.FC_flag = NEE_flag;
 amflux_gf.SFC = dummy;
 amflux_gf.H = H_2;
@@ -344,10 +352,12 @@ amflux_gf.Rlong_out = ds_qc.lw_outgoing;
 amflux_gf.FH2O = ds_qc.E_wpl_massman .* 18;
 amflux_gf.H20 = ds_qc.H2O_mean;
 amflux_gf.RE = RE_2;
-amflux_gf.RE_old = RE_old;
+amflux_gf.RE_ecb = RE_ecb;
+amflux_gf.RE_oldecb = RE_oldecb;
 amflux_gf.RE_flag = NEE_flag;
 amflux_gf.GPP = GPP_2;
-amflux_gf.GPP_old = GPP_old;
+amflux_gf.GPP_ecb = GPP_ecb;
+amflux_gf.GPP_oldecb = GPP_oldecb;
 amflux_gf.GPP_flag = NEE_flag;
 amflux_gf.APAR = dummy;
 %amflux_gf.SWC_2 = []; %dummy; %ds_soil.SWC_2;
