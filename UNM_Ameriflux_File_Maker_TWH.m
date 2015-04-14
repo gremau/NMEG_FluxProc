@@ -179,23 +179,23 @@ switch sitecode
   case int8( UNM_sites.MCon ) 
     switch year
       case 2009
-        
-        NEE_vars = cellfun( @(x) not(isempty(x)), ...
-                            regexp( ds_pt_GL.Properties.VarNames, '.*NEE.*' ) );
-        GPP_vars = cellfun( @(x) not(isempty(x)), ...
-                            regexp( ds_pt_GL.Properties.VarNames, '.*GPP.*' ) );
-        RE_vars = cellfun( @(x) not(isempty(x)), ...
-                           regexp( ds_pt_GL.Properties.VarNames, '.*RE.*' ) );
-        LE_vars = cellfun( @(x) not(isempty(x)), ...
-                           regexp( ds_pt_GL.Properties.VarNames, '.*LE.*' ) );
-        H_vars = cellfun( @(x) not(isempty(x)), ...
-                          regexp( ds_pt_GL.Properties.VarNames, '.*H_.*' ) );
-        shift_vars = find( NEE_vars | GPP_vars | RE_vars | H_vars );
-        idx = 1:DOYidx( 20 );
-        temp_arr = double( ds_pt );
-        temp_arr( idx, : ) = shift_data( temp_arr( idx, : ), -1.0, ...
-                                         'cols_to_shift', shift_vars );
-        ds_pt = replacedata( ds_pt, temp_arr );
+        % I don't understand why this is here. commenting it out - GEM
+%         NEE_vars = cellfun( @(x) not(isempty(x)), ...
+%                             regexp( ds_pt_GL.Properties.VarNames, '.*NEE.*' ) );
+%         GPP_vars = cellfun( @(x) not(isempty(x)), ...
+%                             regexp( ds_pt_GL.Properties.VarNames, '.*GPP.*' ) );
+%         RE_vars = cellfun( @(x) not(isempty(x)), ...
+%                            regexp( ds_pt_GL.Properties.VarNames, '.*RE.*' ) );
+%         LE_vars = cellfun( @(x) not(isempty(x)), ...
+%                            regexp( ds_pt_GL.Properties.VarNames, '.*LE.*' ) );
+%         H_vars = cellfun( @(x) not(isempty(x)), ...
+%                           regexp( ds_pt_GL.Properties.VarNames, '.*H_.*' ) );
+%         shift_vars = find( NEE_vars | GPP_vars | RE_vars | H_vars );
+%         idx = 1:DOYidx( 20 );
+%         temp_arr = double( ds_pt );
+%         temp_arr( idx, : ) = shift_data( temp_arr( idx, : ), -1.0, ...
+%                                          'cols_to_shift', shift_vars );
+%         ds_pt = replacedata( ds_pt, temp_arr );
       case 2011
         % the gapfiller/partitioner put in a big RE spike between days 300
         % and 335.  Dampen that spike to 2 (as per conversation with Marcy 17

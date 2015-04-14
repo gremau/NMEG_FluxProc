@@ -245,8 +245,8 @@ if soil_moisture
     SHF_mean = nanmean( double( SHF_vars ), 2 );
 end
 
-% do not include [CO2] for GLand 2009, 2010 -- the calibrations are
-% really bad.
+% Hide [CO2] for GLand 2009, 2010 -- the calibrations are
+% really bad. FIXME - should we unhide this?
 if ( sitecode == 1 ) & ismember( year, [ 2009, 2010 ] )
     ds_qc.CO2_mean( : ) = dummy;
 end

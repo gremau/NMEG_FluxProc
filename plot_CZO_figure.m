@@ -102,13 +102,22 @@ tstamp = datenum( aflx_data.YEAR, 1, 0 ) + aflx_data.DTIME;
                     'GPPgc', 'REgc', 'ETmm' } ) ), ...
     @nansum );
 
+% FIXME - should be able to get rid of this after precip gapfilling is
+% complete - make sure there are not gaps in precip in 2013-2014
 if args.Results.sitecode == UNM_sites.MCon
     % sub in Redondo pcp for Mcon pcp as per conversation with Marcy 30 Jul 2012
     redondo_pcp = get_redondo_monthly_pcp_2011_to_present();
-    for i = 1:size( redondo_pcp, 1 )
-        %idx = agg_sums( 
-        %agg_sums( , 1 ) = monthly_pcp_11;
+    redondo_pcp = redondo_pcp( 1:end-1, : ); % Includes Jan 2015 - remove
+    replaceIdx = year_mon( :, 1 ) > 2010
+    if sum( replaceIdx ) == length( redondo_pcp )
+        agg_sums( replaceIdx, 1 ) = redondo_pcp( 1:end, 3 );
+    else
+        error('redondo and MCon precip do not match in time');
     end
+%     for i = 1:size( redondo_pcp, 1 )
+%         idx = year_mon( :, 1) == redondo_pcp( i, 1 ) &&  
+%         %agg_sums( idx, 1 ) = redondo_pcp.pcp( i, 3);
+%     end
 end
 
 % calculate monthly means for air T
@@ -132,7 +141,7 @@ agg.timestamp = datenum( agg.year, agg.month, 1 );
 % plot the figure
 %================
 
-hf = figure( 'Visible', 'on', ...
+hf = figure( 'Visible', 'on', 'PaperPositionMode', 'auto', ...
              'Name', sprintf( '%s CZO plot', char( args.Results.sitecode ) ) );
 if  all( isnan( args.Results.xlims ) )
     % set horizontal axis limit to time frame requested +- 30 days
@@ -155,13 +164,14 @@ ax1 = subplot( 4, 1, 1 );
 h_NEE = bar( agg.timestamp, agg.NEE );
 set( ax1, 'XLim', x_limits, ...
           'XTick', x_ticks, ...
-          'XTickLabel', [] );
+          'XTickLabel', [], ...
+           'FontSize', 13 );
 if not( all( isnan( args.Results.ylims ) ) )
     set( ax1, 'YLim', args.Results.ylims( 1, : ) );
 end
-ylabel( 'NEE [ gC m^{-2} ]' );
+ylabel( 'NEE [ gC m^{-2} ]',  'FontSize', 14  );
 info = parse_UNM_site_table();
-title( info.SITE_NAME( args.Results.sitecode ) );
+title( info.SITE_NAME( args.Results.sitecode ), 'FontSize', 14 );
 %ylim( [ -150, 250 ] );
 
 %--
@@ -173,12 +183,13 @@ h_RE = bar( agg.timestamp, agg.RE * -1.0 );
 %ylim( [ -400, 250 ] );
 set( ax2, 'XLim', x_limits, ...
           'XTick', x_ticks, ...
-          'XTickLabel', [] );
+          'XTickLabel', [], ...
+           'FontSize', 13 );
 if not( isnan( args.Results.ylims ) )
     set( ax2, 'YLim', args.Results.ylims( 2, : ) );
 end
-ylabel( 'GPP & RE [ gC m^{-2} ]' );
-legend( [ h_GPP, h_RE ], 'GPP', 'RE', 'Location', 'best' );
+ylabel( 'GPP & RE [ gC m^{-2} ]', 'FontSize', 14 );
+legend( [ h_GPP, h_RE ], 'GPP', 'RE', 'Location', 'NorthEast' );
 
 pal = cbrewer( 'div', 'PRGn', 9 );
 set( h_GPP, 'FaceColor', pal( end, : ) );  %plot GPP in green
@@ -193,11 +204,12 @@ ax3L = axes( 'Units', 'Normalized', ...
              'Position', [0.1300 0.3291 0.7750 0.1577 ] );
 h_ET = bar( double( agg.timestamp ), double( agg.ET ), ...
             'FaceColor', med_blue );
-ylabel('ET [ mm ]')
+ylabel('ET [ mm ]',  'FontSize', 14 )
 set( ax3L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...
            'XTickLabel', [], ...           
-           'YColor', get( h_ET, 'FaceColor' ) );
+           'YColor', get( h_ET, 'FaceColor' ), ...
+           'FontSize', 13 );
 
 if not( isnan( args.Results.ylims ) )
     set( ax3L, 'YLim', args.Results.ylims( 3, : ) );
@@ -212,13 +224,14 @@ set(ax3R, 'YAxisLocation', 'right', ...
           'Layer', 'top', ...
           'XAxisLocation', 'top', ...
           'XTick', x_ticks, ...
-          'XTickLabel', [] );
+          'XTickLabel', [], ...
+           'FontSize', 13 );
 
 if not( isnan( args.Results.ylims ) )
     set( ax3R, 'YLim', args.Results.ylims( 4, : ) );
 end
 
-ylabel( 'Rg [ W m^{-2} ]' );
+ylabel( 'Rg [ W m^{-2} ]',  'FontSize', 14  );
 
 set( ax3L, 'box', 'off' );
 set( ax3R, 'box', 'off' );
@@ -230,11 +243,12 @@ ax4L = axes( 'Units', 'Normalized', ...
              'Position', [ 0.1300 0.1100 0.7750 0.1577 ] );
 h_pcp = bar( agg.timestamp, agg.PCP, ...
         'FaceColor', med_blue );
-ylabel('precipitation [ mm ]')
+ylabel('Precip [ mm ]',  'FontSize', 14 )
 set( ax4L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...           
            'YColor', get( h_ET, 'FaceColor' ), ...
-           'XTickLabel', datestr( x_ticks, 'mmm yy' ) );
+           'XTickLabel', datestr( x_ticks, 'mmm yy' ), ...
+           'FontSize', 13 );
 if not( isnan( args.Results.ylims ) )
     set( ax4L, 'YLim', args.Results.ylims( 5, : ) );
 end
@@ -248,12 +262,13 @@ set(ax4R, 'YAxisLocation', 'right', ...
           'XTick', x_ticks, ...
           'Layer', 'top', ...
           'XAxisLocation', 'top', ...
-          'XTickLabel', [] );
+          'XTickLabel', [], ...
+          'FontSize', 13 );
 if not( isnan( args.Results.ylims ) )
     set( ax4R, 'YLim', args.Results.ylims( 6, : ) );
 end
 
-ylabel( 'Air temp [ ^{\circ}C ]' );
+ylabel( 'Air temp [ ^{\circ}C ]', 'FontSize', 14  );
 
 set( ax4L, 'box', 'off' );
 set( ax4R, 'box', 'off' );
@@ -284,13 +299,14 @@ function [ redondo_monthly_pcp ] = get_redondo_monthly_pcp_2011_to_present()
 
 HOURS_PER_DAY = 24.0;
 [ present_year, ~, ~, ~, ~, ~ ] = datevec( now() );
-fun = @(yr) { UNM_parse_valles_met_data( yr ) };
-valles = arrayfun( fun, 2011:present_year );
+fun = @(yr) { UNM_parse_valles_met_data( 'vcp', yr ) };
+valles = arrayfun( fun, 2011:present_year - 1 );
 valles = vertcat( valles{ : } );
 valles.timestamp = datenum( valles.year, 1, 0 ) +  ...
     valles.day + valles.time / HOURS_PER_DAY;
 % Redondo is station 14
 redondo = valles( valles.sta == 14, : );
+redondo = table2dataset(redondo); % FIXME - rely on tables
 redondo = dataset_fill_timestamps( redondo, 'timestamp' );
 
 [ red_year, red_month, ~, ~, ~, ~ ] = datevec( redondo.timestamp );
