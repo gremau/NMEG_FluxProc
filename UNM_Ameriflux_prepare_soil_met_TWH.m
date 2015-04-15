@@ -8,8 +8,30 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met_TWH( sitecode, year, ...
 % through and replaced QC columns with ds_qc -- the dataset created by
 % fluxallqc_2_dataset.m.  Abbreviations: SWC: soil water content; VWC:
 % volumetric water content.
-%   
 %
+% Extracts variables from inut argument data whose names match one of:
+%     soilT_COVER_NUMBER_DEPTH
+%     SHF*, soil_heat_flux*, shf*
+%     cs616SWC_COVER_NUMBER_DEPTH
+%   
+% USAGE
+%    ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data, precip );
+%
+% INPUTS:
+%    sitecode: UNM_sites object; specifies the site
+%    year: four-digit year: specifies the year
+%    data: dataset array; parsed fluxall data.  Generally will be the output
+%        of UNM_parse_fluxall_txt_file or UNM_parse_fluxall_xls_file
+%    ds_qc: dataset array; parsed qc file data. Generally will be the output
+%        of UNM_parse_QC_txt_file
+%
+% OUTPUTS
+%    ds_out: dataset array: soil variables extracted from data
+%
+% SEE ALSO
+%    dataset, UNM_parse_fluxall_txt_file, UNM_parse_fluxall_xls_file
+%
+% author: Timothy W. Hilton, UNM, January 2012
 
 [ last_obs_row_data, ~, ~ ] = find( not( isnan( double( data( :, 2:end ) ) ) ) );
 [ last_obs_row_qc, ~, ~ ] = find( not( isnan( double( ds_qc( :, 2:end ) ) ) ) );
@@ -156,6 +178,10 @@ switch sitecode
     % These data are already converted to VWC.
     
     [ Tsoil, cs616, SHF ] = preprocess_PJ_soil_data( sitecode, year );
+%         preprocess_PJ_soil_data( sitecode, ...
+%                                  year, ...
+%                                  't_min', min( data.timestamp ), ...
+%                                  't_max', max( data.timestamp ) );
     if any( ( Tsoil.tstamps - data.timestamp ) > 1e-10 )
         error( 'soil data timestamps do not match fluxall timestamps' );
     end
@@ -389,7 +415,7 @@ function SHF_pars = define_SHF_pars( sitecode, year )
 % DEFINE_SHF_PARS - specifies parameters for calculating soil heat flux.
 % Helper function for UNM_Ameriflux_prepare_soil_met
 %   
-% (c) Timothy W. Hilton, UNM, April 2012
+% author: Timothy W. Hilton, UNM, April 2012
 
 % set parameter values for soil heat flux
 % scap and wcap do not vary among sites
