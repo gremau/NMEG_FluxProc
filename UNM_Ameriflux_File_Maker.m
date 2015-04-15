@@ -1,7 +1,7 @@
-function result = UNM_Ameriflux_File_Maker_TWH( sitecode, year, varargin )
-% UNM_AMERIFLUX_FILE_MAKER_TWH
+function result = UNM_Ameriflux_File_Maker( sitecode, year, varargin )
+% UNM_AMERIFLUX_FILE_MAKER
 %
-% UNM_Ameriflux_file_maker_TWH( sitecode, year )
+% UNM_Ameriflux_file_maker( sitecode, year )
 % This code reads in the QC file, the original annual flux all file for
 % soil data and the gap filled and flux partitioned files and generates
 % output in a format for submission to Ameriflux
@@ -11,7 +11,7 @@ function result = UNM_Ameriflux_File_Maker_TWH( sitecode, year, varargin )
 % to 2013.
 %
 % USAGE
-%    result = UNM_Ameriflux_file_maker_TWH( sitecode, year, ... )
+%    result = UNM_Ameriflux_file_maker( sitecode, year, ... )
 %
 % KEYWORD ARGUMENTS:
 %    write_files: logical; if false, do not write the Ameriflux files (useful
@@ -71,9 +71,13 @@ data( data.timestamp < datenum( 2000, 1, 1 ), : ) = [];
 %% parse the QC file
 ds_qc = UNM_parse_QC_txt_file( sitecode, year );
 
-%% parse gapfilled and partitioned fluxes
+%% parse gapfilled and partitioned fluxes from online MPI eddyproc tool
 [ ds_pt_GL, ds_pt_MR ] = ...
-    UNM_parse_gapfilled_partitioned_output_TWH( sitecode, year );
+    UNM_parse_mpi_eddyproc_output( sitecode, year );
+
+%% parse gapfilled fluxes from Reddyproc tool FIXME - not ready yet
+% [ ds_pt_GL, ds_pt_MR ] = ...
+%     UNM_parse_reddyproc_output( sitecode, year );
 
 % make sure that QC, FluxAll, gapfilled, and partitioned have identical,
 % complete 30 minute timeseries
@@ -244,7 +248,7 @@ soil_restart_fname = sprintf( 'soil_restart_%s_%d.mat', ...
 
 % create dataset of soil properties.
 if args.Results.process_soil_data
-    ds_soil = UNM_Ameriflux_prepare_soil_met_TWH( sitecode, year, ...
+    ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
                                                   data, ds_qc );
 else
     ds_soil = dataset( [] );
@@ -295,7 +299,7 @@ print(partition_comp_fig, '-dpdf', figname );
 
 % create the variables to be written to the output files
 [ amflux_gaps, amflux_gf ] = ...
-    UNM_Ameriflux_prepare_output_data_TWH( sitecode, year, ...
+    UNM_Ameriflux_prepare_output_data( sitecode, year, ...
                                        data, ds_qc, ...
                                        ds_pt, ds_soil, 'part_method',...
                                        'Reichstein');

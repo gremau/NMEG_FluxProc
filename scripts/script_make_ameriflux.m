@@ -8,7 +8,7 @@ sitelist = {UNM_sites.GLand};
 %sitelist = {UNM_sites.PJ_girdle};
 %sitelist = {UNM_sites.New_GLand};
 
-yearlist = 2009:2014;
+yearlist = 2009;
 partmethod = 'eddyproc';%'Reddyproc'
 make_daily = false;
 
@@ -21,7 +21,7 @@ for i = 1:length(sitelist);
         
         if strcmp(partmethod, 'eddyproc');
         
-            UNM_Ameriflux_File_Maker_TWH(sitecode, year,...
+            UNM_Ameriflux_File_Maker(sitecode, year,...
                 'write_daily_file', true, 'process_soil_data', false);
             
         elseif strcmp(partmethod, 'Reddyproc');

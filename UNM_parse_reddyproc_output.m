@@ -1,6 +1,6 @@
-function ds_gf_pt = UNM_parse_gapfilled_partitioned_output( sitecode, year )
-% UNM_PARSE_GAPFILLED_PARTITIONED_OUTPUT - parse the output of Jena's online
-% gapfilling/partitioning tool into Matlab dataset array.  
+function ds_gf_pt = UNM_parse_reddyproc_output( sitecode, year )
+% UNM_PARSE_REDDYPROC_OUTPUT - parse the output of ReddyProc
+% gapfilling/partitioning tool (local) into Matlab dataset array.  
 %
 % In January 2012 Jena updated the online tool to merge the old
 % DatasetAfterGapfill.txt into DataSetAfterPartition_GL2010.txt for jobs that
@@ -19,7 +19,7 @@ function ds_gf_pt = UNM_parse_gapfilled_partitioned_output( sitecode, year )
 % datenumbers and appends these to the output in a column labeled "timestamp".
 % 
 % USAGE
-%    ds_gf_pt = UNM_parse_gapfilled_partitioned_output( sitecode, year )
+%    ds_gf_pt = UNM_parse_reddyproc_output( sitecode, year )
 %
 % INPUTS:
 %    sitecode: UNM_sites object; specifies the UNM site

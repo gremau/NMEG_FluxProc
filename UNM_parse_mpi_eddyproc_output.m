@@ -1,6 +1,6 @@
 function [ pt_in_MR, pt_in_GL ] = ...
-        UNM_parse_gapfilled_partitioned_output_TWH( sitecode, year )
-% UNM_PARSE_GAPFILLED_PARTITIONED_OUTPUT - parse the output of Jena's online
+        UNM_parse_mpi_eddyproc_output( sitecode, year )
+% UNM_PARSE_MPI_EDDYPROC_OUTPUT - parse the output of Jena's online
 % gapfilling/partitioning tool into Matlab Datasets.  In January 2012 Jena
 % updated the tool to merge the old DatasetAfterGapfill.txt into
 % DataSetAfterPartition_GL2010.txt for jobs that requested partitioning.  This
@@ -8,7 +8,7 @@ function [ pt_in_MR, pt_in_GL ] = ...
 % DataSetAfterPartition_GL2010.txt and DataSetAfterPartition.txt.
 %   
 % [ pt_in_MR, pt_in_GL ] = ...
-%     UNM_parse_gapfilled_partitioned_output_TWH( sitecode, year )
+%     UNM_parse_mpi_eddyproc_output( sitecode, year )
 %
 % OUTPUT:
 %   pt_in_MR: Matlab dataset containing data from DataSetAfterPartition.txt
