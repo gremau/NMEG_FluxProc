@@ -1,27 +1,23 @@
-function qc_ds = UNM_parse_QC_txt_file( sitecode, year )
-% UNM_PARSE_QC_TXT_FILE - parse tab-delimited ASCII QC file to matlab dataset
+function tbl = parse_fluxall_qc_file( sitecode, year )
+% PARSE_FLUXALL_QC_FILE - parse tab-delimited ASCII QC file to matlab dataset
 %
-% FIXME - Deprecated. This function is being superseded by 
-% 'parse_fluxall_qc_file.m'
 %   
 % The QC file is created by UNM_RemoveBadData (or UNM_RemoveBadData_pre2012).
 %
 % USAGE:
-%     qc_ds = UNM_parse_QC_txt_file( sitecode, year );
+%     tbl = UNM_parse_QC_txt_file( sitecode, year );
 % 
 % INPUTS
 %    sitecode: UNM_sites object; specifies the site to show
 %    year: four-digit year: specifies the year to show
 %
 % OUTPUTS:
-%    ds_qc: dataset array; the data from the QC file
+%    tbl: dataset array; the data from the QC file
 %
 % SEE ALSO
 %    dataset, UNM_RemoveBadData, UNM_RemoveBadData_pre2012
 %
 % author: Timothy W. Hilton, UNM, April 2012
-
-warning( 'This function ( UNM_parse_QC_txt_file.m ) is deprecated' );
 
 site = get_site_name( sitecode );
 
@@ -39,14 +35,14 @@ n_cols = numel( regexp( header_line, '\t', 'split' ) );
 
 fmt = repmat( '%f', 1, n_cols );
 %fmt = '%f';
-qc_ds = dataset( 'File', qcfile, ...
+tbl = readtable(  qcfile, ...
                  'Delimiter', '\t', ...
-                 'format', fmt );
+                 'Format', fmt );
 
-qc_ds = replace_badvals( qc_ds, [-9999], 1e-6 );
+tbl = replace_badvals( tbl, [-9999], 1e-6 );
 
-qc_ds.timestamp = datenum( qc_ds.year, qc_ds.month, qc_ds.day, ...
-                           qc_ds.hour, qc_ds.minute, qc_ds.second );
+tbl.timestamp = datenum( tbl.year, tbl.month, tbl.day, ...
+    tbl.hour, tbl.minute, tbl.second );
 
 
 fprintf( 'done\n');

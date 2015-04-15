@@ -1,12 +1,10 @@
-function ds  = UNM_parse_fluxall_txt_file( sitecode, year, varargin )
-% UNM_PARSE_FLUXALL_TXT_FILE - parse fluxall data and timestamps from
+function tbl  = parse_fluxall_txt_file( sitecode, year, varargin )
+% PARSE_FLUXALL_TXT_FILE - parse fluxall data and timestamps from
 % tab-delimited text file to matlab dataset.
 %
-% FIXME - Deprecated. This function is being superseded by 
-% 'parse_fluxall_txt_file.m'
 %   
-% ds  = UNM_parse_fluxall_txt_file( sitecode, year )
-% ds  = UNM_parse_fluxall_txt_file( sitecode, year, 'file', file )
+% tbl  = UNM_parse_fluxall_txt_file( sitecode, year )
+% tbl  = UNM_parse_fluxall_txt_file( sitecode, year, 'file', file )
 %
 % INPUTS
 %    sitecode: UNM_sites object; specifies the site to show
@@ -17,14 +15,13 @@ function ds  = UNM_parse_fluxall_txt_file( sitecode, year, varargin )
 %    get_site_directory( sitecode )/SITE_FLUX_all_YEAR.txt
 %
 % OUTPUTS
-%    ds: dataset array: the data from the fluxall file
+%    tbl: dataset array: the data from the fluxall file
 %
 % SEE ALSO
 %    UNM_sites, dataset, get_site_directory
 %
 % Timothy W. Hilton, UNM, January 2012
-
-warning( 'This function ( UNM_parse_fluxall_txt_file.m ) is deprecated' );
+% Modified by Gregory E. Maurer, UNM, April 2015
 
 [ this_year, ~, ~ ] = datevec( now );
 
@@ -70,15 +67,10 @@ fid = fopen( full_fname, 'r' );
 headers = fgetl( fid );
 
 % split the headers on tab characters
-headers = regexp( headers, '\t', 'split' );
+headers_orig = regexp( headers, '\t', 'split' );
+
 % remove or replace characters that are illegal in matlab variable names
-headers_orig = headers;
-headers = regexprep( headers, '[\(\),/;]', '_' );
-headers = regexprep( headers, '[\^" -]', '' );
-headers = regexprep( headers, '_+$', '' ); % remove trailing _
-headers = regexprep( headers, '^_+', '' ); % remove leading _
-                                           % replace decimals in headers with 'p'
-headers = regexprep( headers, '([0-9])\.([0-9])', '$1p$2' );
+headers = clean_up_varnames( headers_orig );
 
 % read the numeric data
 fmt = repmat( '%f', 1, numel( headers ) );
@@ -95,32 +87,32 @@ data = replace_badvals( data, [ -9999 ], 0.0001 );
 empty_columns = find( cellfun( @length, headers ) == 0 );
 headers( empty_columns ) = [];
 data( :, empty_columns ) = [];
-ds = dataset( { data, headers{ : } } );
+tbl = array2table( data, 'VariableNames', headers );
 
 % Check that there aren't multiple years in the incoming data
-[ nRows, nCol ] = size( ds );
-inYearRecords = ds.year == year_arg ;
-%years = unique( ds.year( 1:end-1 ));
+[ nRows, nCol ] = size( tbl );
+inYearRecords = tbl.year == year_arg ;
+%years = unique( tbl.year( 1:end-1 ));
 if sum( inYearRecords ) < ( nRows - 1 );
     inYearIdx = find( inYearRecords );
     keep = min( inYearIdx ) : (max( inYearIdx ) + 1 ) ;
-    ds = ds( keep, : );
+    tbl = tbl( keep, : );
     warning( 'Removing data outside of requested year' )
 end
 
-ds.timestamp = datenum( ds.year, ds.month, ds.day, ...
-                        ds.hour, ds.min, ds.second );
+tbl.timestamp = datenum( tbl.year, tbl.month, tbl.day, ...
+                        tbl.hour, tbl.min, tbl.second );
 
 % Warn user if this is an irregular fluxall file
-[ numobs, ~ ] = size( ds );
+[ numobs, ~ ] = size( tbl );
 fullobs = 365 * 48;
-% Chech for leapyear first
+% Check for leapyear first
 if datenum( year, 2, 29 ) ~= datenum( year, 3, 1 );
     fullobs = fullobs + 48;
 end 
-if numobs < fullobs
+if numobs < fullobs - 1
     warning( sprintf( 'file %s is missing observations!', fname ) );
-elseif numobs > fullobs
+elseif numobs > fullobs + 1
     warning( sprintf( 'file %s has too many observations!', fname ) );
 end
 fprintf( ' file read\n' );

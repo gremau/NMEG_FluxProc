@@ -5,13 +5,14 @@ function arr = replace_badvals(arr, badvals, tol)
 % (see, for example, http://support.microsoft.com/kb/69333,
 % http://en.wikipedia.org/wiki/Floating_point).
 %
-% Elements of arr that are equal to any element of badvals are replaced with NaN.
+% Elements of arr that are equal to any element of badvals
+% are replaced with NaN.
 % 
 % USAGE
 %     arr = replace_badvals( arr, badvals, tol )
 %
 % INPUTS
-%     arr: array or dataset array in which to replace bad values
+%     arr: array, table, or dataset array in which to replace bad values
 %     badvals: array of values to be replace with NaN
 %     tol: tolerance for floating point comparison; floating point values
 %         that differ by less than tol are considered equal.
@@ -25,10 +26,15 @@ function arr = replace_badvals(arr, badvals, tol)
 % author: Timothy W. Hilton, UNM
     
 arg_is_dataset = false;
+arg_is_table = false;
 if isa( arr, 'dataset' )
     arg_is_dataset = true;
     arr_arg = arr;
     arr = double( arr );
+elseif isa( arr, 'table' );
+    arg_is_table = true;
+    arr_arg = arr;
+    arr = table2array( arr );
 end
 
 badvals = reshape( badvals, 1, [] );
@@ -41,7 +47,10 @@ for i = 1:length(badvals)
     
 end
 
-% if argument was a dataset, convert it back
+% if argument was a dataset or table, convert it back
 if ( arg_is_dataset )
     arr = replacedata( arr_arg, arr );
+elseif ( arg_is_table )
+    arr = array2table( arr, ...
+        'VariableNames', arr_arg.Properties.VariableNames );
 end
