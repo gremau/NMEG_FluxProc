@@ -11,6 +11,28 @@ function [ amflux_gaps, amflux_gf ] = ...
 %   names they should have for Ameriflux.
 % This code is largely taken from UNM_Ameriflux_file_maker_011211.m
 %
+% USAGE
+%    [ amflux_gaps, amflux_gf ] = ...
+%        UNM_Ameriflux_prepare_output_data( sitecode, ...
+%                                           year, ...
+%                                           ds_qc, ...
+%                                           ds_pt, ...
+%                                           ds_soil )
+% INPUTS
+%    sitecode: UNM_sites object; specifies the site
+%    year: four-digit year: specifies the year
+%    ds_qc: dataset array; data from fluxall_QC file
+%    ds_pt: dataset array; output from MPI gapfiller/flux partitioner output
+%    ds_soil: dataset array; soil data.  Unused for now -- specify as NaN.
+%
+% OUTPUTS
+%    amflux_gaps: dataset array; with-gaps Ameriflux data
+%    amflux_gf: dataset array; gap-filled Ameriflux data
+%
+% SEE ALSO
+%    UNM_sites, dataset, UNM_Ameriflux_File_Maker,
+%    UNM_parse_gapfilled_partitioned_output, UNM_parse_QC_txt_file
+%
 % (c) Timothy W. Hilton, UNM, January 2012
 
 [ this_year, ~, ~ ] = datevec( now );
@@ -269,7 +291,7 @@ amflux_gaps.DTIME = amflux_gaps.timestamp - datenum( amflux_gaps.YEAR, 1, 1 ) + 
 amflux_gaps.DOY = floor( amflux_gaps.DTIME );
 amflux_gaps.HRMIN = str2num( datestr( amflux_gaps.timestamp, 'HHMM' ) );
 amflux_gaps.UST = ds_qc.u_star;
-amflux_gaps.TA = Tair_obs;
+amflux_gaps.TA = Tair_obs; %FIXME - evaluate this!
 amflux_gaps.WD = ds_qc.wnd_dir_compass;
 amflux_gaps.WS = ds_qc.wnd_spd;
 amflux_gaps.NEE = dummy;
