@@ -1,9 +1,6 @@
 function ds  = UNM_parse_fluxall_txt_file( sitecode, year, varargin )
 % UNM_PARSE_FLUXALL_TXT_FILE - parse fluxall data and timestamps from
-% tab-delimited text file to matlab dataset.
-%
-% FIXME - Deprecated. This function is being superseded by 
-% 'parse_fluxall_txt_file.m'
+% tab-delimited text file to matlab dataset.  
 %   
 % ds  = UNM_parse_fluxall_txt_file( sitecode, year )
 % ds  = UNM_parse_fluxall_txt_file( sitecode, year, 'file', file )
@@ -24,8 +21,6 @@ function ds  = UNM_parse_fluxall_txt_file( sitecode, year, varargin )
 %
 % Timothy W. Hilton, UNM, January 2012
 
-warning( 'This function ( UNM_parse_fluxall_txt_file.m ) is deprecated' );
-
 [ this_year, ~, ~ ] = datevec( now );
 
 % -----
@@ -44,7 +39,7 @@ year_arg = args.Results.year;
 % Set up file name and file path
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%fluxrc = UNM_flux_process_config(); % Not used - GEM
+fluxrc = UNM_flux_process_config();
 site = get_site_name( sitecode );
 
 % if no file specified, use default

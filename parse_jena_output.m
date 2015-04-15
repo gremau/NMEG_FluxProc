@@ -1,4 +1,4 @@
-function out = parse_jena_output( fname )
+function out = parse_jena_output(fname)
 % PARSE_JENA_OUTPUT - parses an output file from the Jena online
 % gapfilling/partitioning tool.  
 %
@@ -11,7 +11,7 @@ function out = parse_jena_output( fname )
 % where the first row contains the variable names, the second row contains
 % units, and rows three to EOF contain data.
 %
-% The output is a matlab table array.  The dataset may be converted to a
+% The output is a matlab dataset array.  The dataset may be converted to a
 % matrix of doubles using double(out).
 %
 % Missing values (-9999, -999, etc) are kept.  They may be replace with NaNs
@@ -23,7 +23,7 @@ function out = parse_jena_output( fname )
 % INPUTS
 %     fname: string; full path to the data file to be parsed
 % OUTPUTS
-%     out: matlab table array; the data in the file
+%     out: matlab dataset array; the data in the file
 %
 % SEE ALSO
 %     dataset, replace_badvals
@@ -46,7 +46,7 @@ units = regexp(line2, '\s*', 'split');
 fmt = repmat('%f', 1, nvars);
 arr = cell2mat(textscan(fid, fmt, 'CollectOutput', true));
 
-out = array2table( arr, 'VariableNames', vars );
+out = dataset({arr, vars{:}});
 
 
 

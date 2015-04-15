@@ -3,10 +3,7 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
                                                       tol, ...
                                                       t_start, t_end )
 % MERGE_DATASETS_BY_DATENUM - fills in two 30-minute timeseries datasets so that
-% both have identical timestamps.
-%
-% FIXME - Deprecated. This function is being superseded by 
-% 'merge_tables_by_datenum.m'
+% both have identical timestamps.  
 %
 % Where a timestamp is present in A but not B or vice versa , adds the timestamp
 % to B and fills data with NaNs.
@@ -38,8 +35,6 @@ function [ ds_out1, ds_out2 ] = merge_datasets_by_datenum( ds_in1, ds_in2, ...
 %     dataset
 % 
 % author: Timothy W. Hilton, UNM, October 2011
-
-warning( 'This function ( merge_datasets_by_datenum.m ) is deprecated' );
 
 discard_idx = ( ( ds_in1.( tvar1 ) < t_start ) | ...
                 ( ds_in1.( tvar1 ) > t_end ) ); 

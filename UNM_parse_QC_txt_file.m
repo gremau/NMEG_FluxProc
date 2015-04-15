@@ -1,8 +1,5 @@
 function qc_ds = UNM_parse_QC_txt_file( sitecode, year )
 % UNM_PARSE_QC_TXT_FILE - parse tab-delimited ASCII QC file to matlab dataset
-%
-% FIXME - Deprecated. This function is being superseded by 
-% 'parse_fluxall_qc_file.m'
 %   
 % The QC file is created by UNM_RemoveBadData (or UNM_RemoveBadData_pre2012).
 %
@@ -20,8 +17,6 @@ function qc_ds = UNM_parse_QC_txt_file( sitecode, year )
 %    dataset, UNM_RemoveBadData, UNM_RemoveBadData_pre2012
 %
 % author: Timothy W. Hilton, UNM, April 2012
-
-warning( 'This function ( UNM_parse_QC_txt_file.m ) is deprecated' );
 
 site = get_site_name( sitecode );
 
