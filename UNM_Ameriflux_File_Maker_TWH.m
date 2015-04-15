@@ -105,6 +105,9 @@ ds_qc = dataset_fill_timestamps( ds_qc, 'timestamp', ...
                                  't_min', Jan1, 't_max', Dec31 );
 ds_pt_GL = dataset_fill_timestamps( ds_pt_GL, 'timestamp', ...
                                     't_min', Jan1, 't_max', Dec31 );
+T_pt_MR = dataset2table(ds_pt_MR);
+T_pt_MR = table_fill_timestamps(T_pt_MR, 'timestamp', 't_min', Jan1, ...
+    't_max', Dec31);
 ds_pt_MR = dataset_fill_timestamps( ds_pt_MR, 'timestamp', ...
                                     't_min', Jan1, 't_max', Dec31 );
 % merge gapfilling/partitioning output into one dataset so we don't have
@@ -143,7 +146,7 @@ dummy = repmat( -9999, size( data, 1 ), 1 );
 %% fix incorrect precipitation values
 %ds_qc.precip = fix_incorrect_precip_factors( sitecode, year, ...
 %                                             ds_qc.fjday, ds_qc.precip );
-
+% FIXME - put this in a "remove_gapfilling" script
 switch sitecode
   case int8( UNM_sites.JSav ) 
     if  year == 2007 
