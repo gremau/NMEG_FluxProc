@@ -82,11 +82,11 @@ units_GF = {'-','-','-','-','m/s','deg C','-','deg','m/s','mumol/m2/s',...
 
 % Ameriflux output tables
 dummy_data = repmat( NaN, nrow, numel( header_gaps ) );
-amflux_gaps = table( dummy_data, 'VariableNames', header_gaps );
+amflux_gaps = array2table( dummy_data, 'VariableNames', header_gaps );
 amflux_gaps.Properties.VariableUnits = units_gaps;
 
 dummy_data = repmat( NaN, nrow, numel( header_GF ) );
-amflux_gf = table( dummy_data, 'VariableNames', header_GF );
+amflux_gf = array2table( dummy_data, 'VariableNames', header_GF );
 amflux_gf.Properties.VariableUnits = units_GF;
 
 

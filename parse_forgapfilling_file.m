@@ -3,7 +3,7 @@ function tbl = parse_forgapfilling_file( sitecode, year, varargin )
 % matlab table
 %   
 % USAGE
-%    ds = parse_forgapfilling_file( sitecode, year, ... )
+%    tbl = parse_forgapfilling_file( sitecode, year, ... )
 %
 % INPUTS
 %     sitecode [ integer ]: code of site to be filled
@@ -15,7 +15,7 @@ function tbl = parse_forgapfilling_file( sitecode, year, varargin )
 %          $FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux/SITE_flux_all_YYYY_for_gapfilling[_filled].txt 
 %
 % OUTPUTS
-%     ds [ matlab table ]: the data contained in the file
+%     tbl [ matlab table ]: the data contained in the file
 %
 % SEE ALSO
 %     table
