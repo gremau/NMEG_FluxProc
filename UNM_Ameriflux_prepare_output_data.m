@@ -4,25 +4,28 @@ function [ amflux_gaps, amflux_gf ] = ...
     data, ...
     qc_tbl, ...
     pt_tbl, ...
-    soil_tbl,...
-    varargin)
+    soil_tbl )
 % UNM_AMERIFLUX_PREPARE_FLUXES - prepare observed fluxes for writing to
 %   Ameriflux files.  Mostly creates QC flags and gives various observations the
 %   names they should have for Ameriflux.
 % This code is largely taken from UNM_Ameriflux_file_maker_011211.m
 %
+% FIXME: the workflow in this is confusing (though I've cleaned it up a
+% bit) because it generates a ton of arrays using repetetive methods and
+% then some tempate tables get filled in. It would be smarter to build 1
+% table and then split it into with/without gaps tables using the flags in
+% a smart way.
+%
 % USAGE
 %    [ amflux_gaps, amflux_gf ] = ...
 %        UNM_Ameriflux_prepare_output_data( sitecode, ...
 %                                           year, ...
-%                                           data, ...
 %                                           qc_tbl, ...
 %                                           pt_tbl, ...
 %                                           soil_tbl )
 % INPUTS
 %    sitecode: UNM_sites object; specifies the site
 %    year: four-digit year: specifies the year
-%    data: FIXME ????? what is this
 %    qc_tbl: table array; data from fluxall_QC file
 %    pt_tbl: table array; output from MPI gapfiller/flux partitioner output
 %    soil_tbl: table array; soil data.  Unused for now -- specify as NaN.
@@ -43,19 +46,16 @@ args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'year', ...
     @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
-args.addRequired( 'data', @(x) ( isa( x, 'table' ) ) );
 args.addRequired( 'qc_tbl', @(x) ( isa( x, 'table' ) ) );
 args.addRequired( 'pt_tbl', @(x) ( isa( x, 'table' ) ) );
 args.addRequired( 'soil_tbl', @(x) ( isa( x, 'table' ) ) );
-args.addParameter( 'part_method', 'Lasslop', @ischar );
 
 % parse optional inputs
-args.parse( sitecode, year, data, qc_tbl, pt_tbl, soil_tbl, varargin{ : } );
+args.parse( sitecode, year, qc_tbl, pt_tbl, soil_tbl );
 
 % place user arguments into variables
 sitecode = args.Results.sitecode;
 year_arg = args.Results.year;
-data = args.Results.data;
 qc_tbl = args.Results.qc_tbl;
 pt_tbl = args.Results.pt_tbl;
 soil_tbl = args.Results.soil_tbl;
@@ -63,9 +63,8 @@ part_method = args.Results.part_method;
 
 % Including filled precip in AF files for now!
 gf_met_tbl = parse_forgapfilling_file( sitecode, year, 'use_filled', true );
-
 Pidx = isnan( gf_met_tbl.Precip );
-gf_met_tbl.Precip( Pidx ) = 0;
+gf_met_tbl.Precip( Pidx ) = 0; % Change NaN values to 0
 
 soil_moisture = false; % turn off soil moisture processing for now
 
@@ -78,25 +77,31 @@ dummy = repmat( -9999, size( qc_tbl, 1 ), 1 );
 HL = @( x, L, H )  (x < L) | (x > H);
 
 % initialize flags to 1
-% f_flag = int8( repmat( 1, size( data, 1 ), 1 ) );
+% f_flag = int8( repmat( 1, size( qc_tbl, 1 ), 1 ) );
 % Double data type works better for data export
-f_flag = repmat( 1, size( data, 1 ), 1 );
+f_flag = repmat( 1, size( qc_tbl, 1 ), 1 );
 NEE_flag = f_flag;
 LE_flag = f_flag;
 H_flag = f_flag;
 TA_flag = f_flag;
-Rg_flag=f_flag;
+Rg_flag = f_flag;
 VPD_flag = f_flag;
 rH_flag = f_flag;
 
 VPD_f = pt_tbl.VPD_f ./ 10; % convert to kPa
-% what is "_g"?  "good" values?  --TWH
+
+% Seems to be trying to put calculated values of VPD in the AF with_gaps
+% file from periods where we actually have rH (though we didn't calculate
+% this VPD value).
 VPD_g = dummy;
 VPD_g( ~isnan( qc_tbl.rH ) ) = VPD_f( ~isnan( qc_tbl.rH ) );
+
 %RJL 02/21/2014 converted the MPI online GF/P output from percent
 %    to 0-1 to be consistent with qc input. Gets multiplied by 100
 %    in this script.
-RH_pt_scaled = pt_tbl.rH .* 0.01;
+%RH_pt_scaled = ds_pt.rH .* 0.01;
+
+% FIXME - ensure that this is hmp and not sonic temp
 Tair_f = pt_tbl.Tair_f;
 Rg_f = pt_tbl.Rg_f;
 %Rg_f( pt_tbl.Rg_fqcOK == 0 ) = NaN;
@@ -117,20 +122,6 @@ rH_flag( ~isnan( qc_tbl.rH ) ) = 0 ;
 Tair_obs = Tair_f;
 Tair_obs( TA_flag == 1 ) = NaN;
 
-% the following taken care of in RemoveBadData now
-% % Take out some extra uptake values at Grassland premonsoon.
-% if sitecode ==1
-%     to_remove = find( qc_tbl.fc_raw_massman_wpl( 1:7000 ) < -1.5 );
-%     qc_tbl.fc_raw_massman_wpl( to_remove ) = NaN;
-%     to_remove = find( qc_tbl.fc_raw_massman_wpl( 1:5000 ) < -0.75 );
-%     qc_tbl.fc_raw_massman_wpl( to_remove ) = NaN;
-% end
-% % Take out some extra uptake values at Ponderosa respiration.
-% if sitecode == 5
-%     to_remove= find( qc_tbl.fc_raw_massman_wpl > 8 );
-%     qc_tbl.fc_raw_massman_wpl( to_remove ) = NaN;
-% end
-
 % initialize observed fluxes to NaNs
 NEE_obs = dummy;
 LE_obs = dummy;
@@ -141,83 +132,109 @@ H_obs = dummy;
 idx = ~isnan( qc_tbl.fc_raw_massman_wpl );
 NEE_obs( idx ) =   qc_tbl.fc_raw_massman_wpl( idx );
 NEE_flag( idx ) = 0;
-% set NEE_flag to 1 where local gapfilling was performed
-%idx_filled = UNM_gapfill_from_local_data( sitecode, year, table( [] ) );
-%NEE_flag( idx_filled ) = 1;
 % LE,
 idx = ~isnan( qc_tbl.HL_wpl_massman );
 LE_obs( idx ) = qc_tbl.HL_wpl_massman( idx );
-LE_flag( ~isnan(qc_tbl.HL_wpl_massman) ) = 0;
+LE_flag( idx ) = 0;
 % and H
 idx = ~isnan( qc_tbl.HSdry_massman );
 H_obs( idx ) = qc_tbl.HSdry_massman( idx );
 H_flag( idx ) = 0;
 
-% if sitecode == 5
-%     NEE_f = pt_tbl.NEE_HBLR;  % Lasslop filled NEE
-% else
-% NEE_f = pt_tbl.NEE_f;  % Reichstein filled NEE
-% end
-NEE_f = pt_tbl.NEE_f;  % Reichstein filled NEE
-% Choose whether to use Lasslop (default) or Reichstein partitioning
-if strcmp(part_method, 'Lasslop');
-    RE_f  = pt_tbl.Reco_HBLR;
-    GPP_f = pt_tbl.GPP_HBLR;
-else
-    RE_f  = pt_tbl.Reco;
-    GPP_f = pt_tbl.GPP_f;
-end
+% set NEE_flag to 1 where local gapfilling was performed
+%idx_filled = UNM_gapfill_from_local_data( sitecode, year, table( [] ) );
+%NEE_flag( idx_filled ) = 1;
+
+% Reichstein filled NEE
+NEE_f = pt_tbl.NEE_f;
+
+% Select partitioning columns to use
+% Lasslop 2010: 
+RE_f_GL2010  = pt_tbl.Reco_HBLR;
+GPP_f_GL2010 = pt_tbl.GPP_HBLR;
+% Reichstein 2005
+RE_f_MR2005  = pt_tbl.Reco;
+GPP_f_MR2005 = pt_tbl.GPP_f;
+% Keenan
+RE_f_TK201X  = pt_tbl.Reco_TK201X;
+GPP_f_TK201X = pt_tbl.GPP_TK201X;
+
+% Latent and sensible heat fluxes
 LE_f = pt_tbl.LE_f;
 H_f = pt_tbl.H_f;
 
-% Make sure NEE contain observations where available
-NEE_2 = NEE_f;
-idx = ~isnan( qc_tbl.fc_raw_massman_wpl );
-NEE_2( idx ) = NEE_obs( idx );
+% Make sure NEE contains observations where available
+NEE_f2 = NEE_f;
+NEE_f2( ~NEE_flag ) = NEE_obs( ~NEE_flag );
+% and LE
+LE_f2 = LE_f;
+LE_f2( ~LE_flag ) = qc_tbl.HL_wpl_massman( ~LE_flag );
+% and H
+H_f2 = H_f;
+H_f2( H_flag ) = qc_tbl.HSdry_massman( H_flag );
+
+% Do the observations in qc_pt and the filled files match?
+test = sum( [ NEE_f ~= NEE_f2 ; H_f ~= H_f2 ; LE_f ~= LE_f2 ] );
+if test > 0
+    error( 'Gapfiller may be overfilling flux columns' );
+    NEE_f = NEE_f2;
+    H_f = H_f2;
+    LE_f = LE_f2;
+end
 
 % To ensure carbon balance, calculate GPP as remainder when NEE is
 % subtracted from RE. This will give negative GPP when NEE exceeds
 % modelled RE. So set GPP to zero and add difference to RE.
 
-% Changing this while we evaluate whether to keep the ensure C balance
-% steps - GEM.
-GPP_2 = GPP_f;
-RE_2 = RE_f;
-NEE_2 = NEE_f;
 % _ecb fluxes are what were in AF files before the change
 fix_night = true;
-[ GPP_ecb, RE_ecb, NEE_ecb ] = ...
+% Lasslop
+[ GPP_GL2010_ecb, RE_f_GL2010_ecb, NEE_f_GL2010_ecb ] = ...
     ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
-    RE_f, NEE_2, ...
+    RE_f_GL2010, NEE_f, ...
     Rg_f, fix_night );
+% Reichstein
+[ GPP_MR2005_ecb, RE_f_MR2005_ecb, NEE_f_MR2005_ecb ] = ...
+    ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
+    RE_f_MR2005, NEE_f, ...
+    Rg_f, fix_night );
+% Keenan
+[ GPP_TK201X_ecb, RE_f_TK201X_ecb, NEE_f_TK201X_ecb ] = ...
+    ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
+    RE_f_TK201X, NEE_f, ...
+    Rg_f, fix_night );
+% This is without nighttime GPP correction (?)
 fix_night = false;
-[ GPP_oldecb, RE_oldecb, NEE_oldecb ] = ...
+[ GPP_GL2010_oldecb, RE_F_GL2010_oldecb, NEE_f_GL2010_oldecb ] = ...
     ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
-    RE_f, NEE_2, ...
+    RE_f_GL2010, NEE_f, ...
     Rg_f, fix_night );
-
-
-% Make sure LE and H contain observations where available
-LE_2 = LE_f;
-idx = ~isnan( qc_tbl.HL_wpl_massman );
-LE_2( idx ) = qc_tbl.HL_wpl_massman( idx );
-
-H_2 = H_f;
-idx = ~isnan( qc_tbl.HSdry_massman );
-H_2( idx ) = qc_tbl.HSdry_massman( idx );
+% Reichstein
+[ GPP_MR2005_oldecb, RE_F_MR2005_oldecb, NEE_f_MR2005_oldecb ] = ...
+    ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
+    RE_f_MR2005, NEE_f, ...
+    Rg_f, fix_night );
+% Keenan
+[ GPP_TK201X_oldecb, RE_F_TK201X_oldecb, NEE_f_TK201X_oldecb ] = ...
+    ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
+    RE_f_TK201X, NEE_f, ...
+    Rg_f, fix_night );
 
 % Make GPP and RE "obs" for output to file with gaps using modeled RE
 % and GPP as remainder
-GPP_obs = dummy;
-idx = ~isnan( qc_tbl.fc_raw_massman_wpl );
-GPP_obs( idx ) = GPP_2( idx );
-RE_obs = dummy;
-RE_obs( idx ) = RE_2( idx );
+% Commenting out - GEM - will add GPP/RE columns abore to with_gaps and
+% then remove modeled periods with NEE_flag
+% GPP_obs = dummy;
+% idx = ~isnan( qc_tbl.fc_raw_massman_wpl );
+% GPP_obs( idx ) = GPP_2( idx );
+% RE_obs = dummy;
+% RE_obs( idx ) = RE_2( idx );
 
+% FIXME??? - not sure I get the difference between E and HL yet GEM
 qc_tbl.HL_wpl_massman( isnan( qc_tbl.E_wpl_massman ) ) = NaN;
 
 %get the names of the soil heat flux variables (how many there are varies
-%site to site
+%site to site)
 if soil_moisture
     shf_vars = regexp_header_vars( soil_tbl, 'SHF.*' );
     
@@ -225,6 +242,7 @@ if soil_moisture
     soil_tbl.SWC_1( HL( soil_tbl.SWC_1, 0, 1 ) ) = NaN;
 end
 
+% FIXME - this kind of filtering does not belong here
 qc_tbl.lw_incoming( HL( qc_tbl.lw_incoming, 120, 600 ) ) = NaN;
 qc_tbl.lw_outgoing( HL( qc_tbl.lw_outgoing, 120, 650 ) ) = NaN;
 qc_tbl.E_wpl_massman( HL( qc_tbl.E_wpl_massman .* 18, -5, 500 ) ) = NaN;
@@ -236,7 +254,7 @@ end
 qc_tbl.wnd_spd( HL( qc_tbl.wnd_spd, -Inf, 25  ) ) = NaN;
 qc_tbl.atm_press( HL( qc_tbl.atm_press, 20, 150 ) ) = NaN;
 qc_tbl.Par_Avg( HL( qc_tbl.Par_Avg, -100, 5000 ) ) = NaN;
-RH_pt_scaled( HL( RH_pt_scaled, 0, 1 ) ) = NaN; %RJL added 02/21/2014
+%RH_pt_scaled( HL( RH_pt_scaled, 0, 1 ) ) = NaN; %RJL added 02/21/2014
 %Original    pt_tbl.rH( HL( pt_tbl.rH, 0, 1 ) ) = NaN;
 if soil_moisture
     for i = 1:numel( shf_vars )
@@ -245,17 +263,21 @@ if soil_moisture
         soil_tbl.( shf_vars{ i } ) = this_shf;
     end
 end
-NEE_f( HL( NEE_f, -50, 50 ) ) = NaN;
-RE_f( HL( RE_f, -50, 50) ) = NaN;
-GPP_f( HL( GPP_f, -50, 50 ) ) = NaN;
-NEE_obs( HL( NEE_obs, -50, 50 ) ) = NaN;
-RE_obs( HL( RE_obs, -50, 50 ) ) = NaN;
-GPP_obs( HL( GPP_obs, -50, 50 ) ) = NaN;
-NEE_2( HL( NEE_2, -50, 50 ) ) = NaN;
-RE_2( HL( RE_2, -50, 50 ) ) = NaN;
-GPP_2( HL( GPP_2, -50, 50 ) ) = NaN;
+% FIXME - GEM
+% This shouldn't be here - commenting and if needed we can do this
+% somewhere else.
+% NEE_f( HL( NEE_f, -50, 50 ) ) = NaN;
+% RE_f( HL( RE_f, -50, 50) ) = NaN;
+% GPP_f( HL( GPP_f, -50, 50 ) ) = NaN;
+% NEE_obs( HL( NEE_obs, -50, 50 ) ) = NaN;
+% RE_obs( HL( RE_obs, -50, 50 ) ) = NaN;
+% GPP_obs( HL( GPP_obs, -50, 50 ) ) = NaN;
+% NEE_f( HL( NEE_f, -50, 50 ) ) = NaN;
+% RE_2( HL( RE_2, -50, 50 ) ) = NaN;
+% GPP_2( HL( GPP_2, -50, 50 ) ) = NaN;
 
 if sitecode == 6 && year == 2008
+    error( 'Put this data removal somewhere else');
     qc_tbl.lw_incoming( ~isnan( qc_tbl.lw_incoming ) ) = NaN;
     qc_tbl.lw_outgoing( ~isnan( qc_tbl.lw_outgoing ) ) = NaN;
     qc_tbl.NR_tot( ~isnan( qc_tbl.NR_tot ) ) = NaN;
@@ -348,15 +370,15 @@ amflux_gf.TA_flag = TA_flag;
 amflux_gf.WD = qc_tbl.wnd_dir_compass;
 amflux_gf.WS = qc_tbl.wnd_spd;
 amflux_gf.NEE = dummy;
-amflux_gf.FC = NEE_2;
+amflux_gf.FC = NEE_f;
 amflux_gf.FC_ecb = NEE_ecb;
 amflux_gf.FC_oldecb = NEE_oldecb;
 amflux_gf.FC_flag = NEE_flag;
 amflux_gf.SFC = dummy;
-amflux_gf.H = H_2;
+amflux_gf.H = H_f;
 amflux_gf.H_flag = H_flag;
 amflux_gf.SSA = dummy;
-amflux_gf.LE = LE_2;
+amflux_gf.LE = LE_f;
 amflux_gf.LE_flag = LE_flag;
 amflux_gf.SLE = dummy;
 amflux_gf.G1 = dummy; %SHF_mean;

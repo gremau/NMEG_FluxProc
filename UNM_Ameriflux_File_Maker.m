@@ -53,7 +53,7 @@ end
 % parse Flux_All, Flux_All_qc, gapfilled fluxes, and partitioned fluxes
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Parse the annual Flux_All file
+% Parse the annual Flux_All file FIXME: Why are we using this data?
 if year < 2007
     % before 2009, fluxall data are in excel files
     data = UNM_parse_fluxall_xls_file( sitecode, year );
@@ -127,8 +127,8 @@ pt_GL_tbl = table_fill_timestamps( pt_GL_tbl, 'timestamp', ...
 pt_MR_tbl = table_fill_timestamps( pt_MR_tbl, 'timestamp', ...
     't_min', Jan1, 't_max', Dec31 );
 
-% Merge gapfilling/partitioning output into one dataset so we don't have
-% to worry about which variables are in which dataset
+% Merge gapfilling/partitioning output into one table so we don't have
+% to worry about which variables are in which table
 cols = setdiff( pt_MR_tbl.Properties.VariableNames, ...
                 pt_GL_tbl.Properties.VariableNames );
 pt_tbl = [ pt_GL_tbl, pt_MR_tbl( :, cols ) ];
@@ -149,15 +149,13 @@ part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl );
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% create Ameriflux output dataset and write to ASCII files
+% create Ameriflux output table and write to ASCII files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % create the variables to be written to the output files
 [ amflux_gaps, amflux_gf ] = ...
     UNM_Ameriflux_prepare_output_data( sitecode, year, ...
-                                       data, qc_tbl, ...
-                                       pt_tbl, soil_tbl, 'part_method',...
-                                       'Reichstein');
+                                       qc_tbl, pt_tbl, soil_tbl );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot the data before writing out to files

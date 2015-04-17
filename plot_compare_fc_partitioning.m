@@ -78,7 +78,7 @@ plot( pt_tbl.timestamp, nan_cumsum( pt_tbl.GPP_f ), '.k' );
 hold on;
 plot( pt_tbl.timestamp, nan_cumsum( pt_tbl.GPP_HBLR ), 'xr');
 title( ax( 1 ), sprintf('Partitioning Comparison: %s %d', ...
-    get_site_name( sitecode ), yr ));
+    get_site_name( site ), yr ));
 linkaxes( ax, 'x' );
 
 % figname = fullfile(getenv('FLUXROOT'), 'QAQC_analyses', 'partitioning_comparison',...

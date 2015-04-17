@@ -2,11 +2,9 @@ function [ tbl_out1, tbl_out2 ] = merge_tables_by_datenum( tbl_in1, tbl_in2, ...
                                                       tvar1, tvar2, ...
                                                       tol, ...
                                                       t_start, t_end )
-% MERGE_DATASETS_BY_DATENUM - fills in two 30-minute timeseries tables so that
+% MERGE_TABLES_BY_DATENUM - fills in two 30-minute timeseries tables so that
 % both have identical timestamps.
 %
-% FIXME - Deprecated. This function is being superseded by 
-% 'merge_tables_by_datenum.m'
 %
 % Where a timestamp is present in A but not B or vice versa , adds the timestamp
 % to B and fills data with NaNs.
@@ -80,11 +78,11 @@ tbl_in1.( tvar1 ) = ts1;
 tbl_in2 = tbl_in2( keep_idx2, : );
 tbl_in2.( tvar2 ) = ts2;
 
-%% combine timestamps & remove duplicates 
+% combine timestamps & remove duplicates 
 ts_all = union( ts1, ts2 );
 
-%% fill both tables so that they contain complete 30-minute timeseries
-%% for the entire range of ts_all
+% fill both tables so that they contain complete 30-minute timeseries
+% for the entire range of ts_all
 tbl_out1 = table_fill_timestamps( tbl_in1, ...
                                    tvar1, ...
                                    't_min', min( ts_all ), ...
