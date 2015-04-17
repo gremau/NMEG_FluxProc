@@ -87,10 +87,10 @@ fprintf( fid, fmt, units{:} );
 
 fclose( fid );
 
+% Beware of ints when converting table to array!
 data = table2array( af_tbl );
 data( isnan( data ) ) = -9999;
 dlmwrite( fname, data, '-append', ...
-          'delimiter', delim, ...
-          'precision', 7 );
-%'precision', '%.7f' );  %use 15 signigicant figures
+          'Delimiter', delim, ...
+          'Precision', 7 );
 
