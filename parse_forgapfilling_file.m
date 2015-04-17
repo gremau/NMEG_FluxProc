@@ -1,5 +1,6 @@
-function ds = parse_forgapfilling_file( sitecode, year, varargin )
-% PARSE_FORGAPFILLING_FILE - parse an ASCII for_gapfilling file to a matlab dataset
+function tbl = parse_forgapfilling_file( sitecode, year, varargin )
+% PARSE_FORGAPFILLING_FILE - parse an ASCII for_gapfilling file to a
+% matlab table
 %   
 % USAGE
 %    ds = parse_forgapfilling_file( sitecode, year, ... )
@@ -14,12 +15,13 @@ function ds = parse_forgapfilling_file( sitecode, year, varargin )
 %          $FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux/SITE_flux_all_YYYY_for_gapfilling[_filled].txt 
 %
 % OUTPUTS
-%     ds [ matlab dataset ]: the data contained in the file
+%     ds [ matlab table ]: the data contained in the file
 %
 % SEE ALSO
-%     dataset
+%     table
 %
 % author: Timothy W. Hilton, UNM, March 2012
+% Modified by: Gregory E. Maurer, UNM, April 2015
 
 [ this_year, ~, ~, ~, ~, ~ ] = datevec( now() );
 
@@ -30,7 +32,7 @@ args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'year', ...
                @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
-args.addParamValue( 'use_filled', true, @islogical );
+args.addParameter( 'use_filled', true, @islogical );
 args.addParamValue( 'fname', '', @ischar );
 
 % parse optional inputs
@@ -54,6 +56,8 @@ if isempty( fname )
     fprintf( 'parsing %s\n', fname );
 end
 
+% File has column header and units, so need to separate
+% FIXME - should we load in units as a table field?
 infile = fopen( fname, 'r' );
 headers = fgetl( infile );
 col_headers = regexp( headers, '[ \t]+', 'split' );
@@ -61,34 +65,29 @@ n_cols = numel( col_headers );  %how many columns?
 fclose( infile );
 
 fmt = [ repmat( '%f ', 1, n_cols-1 ), '%f' ];
-ds = dataset( 'File', fname, ...
-              'format', fmt, ...
-              'delimiter', '\t', ...
-              'MultipleDelimsAsOne', true, ...
-              'HeaderLines', 2, ...
-              'readVarNames', false );
+          
+tbl = readtable( fname, 'Format', fmt, 'Delimiter', '\t', ...
+    'MultipleDelimsAsOne', true, 'Headerlines', 2, ...
+    'ReadVariableNames', false );
 
-ds_names = ds.Properties.VarNames;
-ds_dbl = double( ds );
-ds_dbl = replace_badvals( ds_dbl, [ -9999.0 ], 1e-6 );
-clear ds;
+% Add column headers and replace NaN with -9999
+tbl.Properties.VariableNames = col_headers;
+tbl = replace_badvals( tbl, [ -9999.0 ], 1e-6 );
 
-ds = dataset( { ds_dbl, col_headers{:} } );
+% Create a matlab datenum timestamp column
 
-% create a matlab datenum timestamp column
-
-%detect time format
+% Detect time format
 if all( ismember( { 'year', 'month', 'day', 'hour', 'minute' }, ...
-                  ds.Properties.VarNames ) )
-    ts = datenum( ds.year, ds.month, ds.day, ds.hour, ds.minute, 0 );
+                  tbl.Properties.VariableNames ) )
+    ts = datenum( tbl.year, tbl.month, tbl.day, tbl.hour, tbl.minute, 0 );
 elseif all( ismember( { 'Year', 'DoY', 'Hour' }, ...
-                      ds.Properties.VarNames ) )
+                      tbl.Properties.VariableNames ) )
     HOURS_PER_DAY = 24.0;
-    ts = datenum( ds.Year, 1, 0 ) + ...
-         ds.DoY + ...
-         ( ds.Hour / HOURS_PER_DAY );
+    ts = datenum( tbl.Year, 1, 0 ) + ...
+         tbl.DoY + ...
+         ( tbl.Hour / HOURS_PER_DAY );
 else
     error( 'unrecognized time format' );
 end
 
-ds.timestamp = ts;
+tbl.timestamp = ts;

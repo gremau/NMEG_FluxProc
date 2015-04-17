@@ -35,8 +35,8 @@ args.addRequired( 'year', ...
                @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
 args.addRequired( 'ds_aflx', @(x) isa( x, 'dataset' ) );
 args.addRequired( 'fname_suffix', @ischar );
-args.addParamValue( 'email', 'mlitvak@unm.edu', @ischar );
-args.addParamValue( 'outdir', '', @ischar );
+args.addParameter( 'email', 'mlitvak@unm.edu', @ischar );
+args.addParameter( 'outdir', '', @ischar );
 
 args.parse( sitecode, year, ds_aflx,  varargin{ : } );
 
@@ -61,7 +61,7 @@ ncol = size( ds_aflx, 2 );
 sites_info = parse_UNM_site_table();
 aflx_site_name = char( sites_info.Ameriflux( sitecode ) );
 fname = fullfile( outdir, ...
-                  sprintf( '%s_%d_%s.txt', ...
+                  sprintf( '%s_%d_%s_branch.txt', ...
                            aflx_site_name, ...
                            year, ...
                            fname_suffix ) );

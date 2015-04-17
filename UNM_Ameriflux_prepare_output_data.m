@@ -45,7 +45,7 @@ args.addRequired( 'data', @(x) ( isa( x, 'dataset' ) ) );
 args.addRequired( 'ds_qc', @(x) ( isa( x, 'dataset' ) ) );
 args.addRequired( 'ds_pt', @(x) ( isa( x, 'dataset' ) ) );
 args.addRequired( 'ds_soil', @(x) ( isa( x, 'dataset' ) ) );
-args.addParamValue( 'part_method', 'Lasslop', @ischar );
+args.addParameter( 'part_method', 'Lasslop', @ischar );
 
 % parse optional inputs
 args.parse( sitecode, year, data, ds_qc, ds_pt, ds_soil, varargin{ : } );
@@ -59,7 +59,7 @@ ds_pt = args.Results.ds_pt;
 ds_soil = args.Results.ds_soil;
 part_method = args.Results.part_method;
 
-% Including fille precip in AF files for now!
+% Including filled precip in AF files for now!
 ds_met_gf = parse_forgapfilling_file(sitecode, year, 'use_filled', true);
 
 Pidx = isnan(ds_met_gf.Precip);

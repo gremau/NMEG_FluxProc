@@ -54,7 +54,6 @@ fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt ("destination")\n', ...
     get_site_name( sitecode ), year );
 thisData = parse_forgapfilling_file( sitecode, year, ...
     'use_filled', filled_file_false );
-thisData = dataset2table(thisData);
 
 % Fill in missing timestamps for this data
 thisData = fillTstamps( thisData, thisData.timestamp );
@@ -173,10 +172,8 @@ result = 0;
                     get_site_name( siteID ), year );
                 addData = parse_forgapfilling_file( siteID, year, ...
                     'use_filled', filled_file_false );
-                nmegSiteQC = UNM_parse_QC_txt_file( siteID, year );
+                nmegSiteQC = parse_fluxall_qc_file( siteID, year );
                 addData.Precip = nmegSiteQC.precip;
-                %FIXME - transition to table
-                addData = dataset2table(addData);
                 
             case 'sev' % Parse the nearest Sevilletta met site
                 addData = UNM_parse_sev_met_data( year, siteID );

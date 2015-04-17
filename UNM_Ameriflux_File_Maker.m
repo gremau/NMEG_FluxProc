@@ -32,11 +32,11 @@ result = -1;  %initialize to error; replace upon successful completion
 args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isnumeric(x) | isa( x, 'UNM_sites' ) ) ); 
 args.addRequired( 'year', @isnumeric );
-args.addParamValue( 'write_files', true, @(x) ( islogical(x) & ...
+args.addParameter( 'write_files', true, @(x) ( islogical(x) & ...
                                                 numel( x ) ==  1 ) );
-args.addParamValue( 'write_daily_files', true, @(x) ( islogical(x) & ...
+args.addParameter( 'write_daily_files', true, @(x) ( islogical(x) & ...
                                                 numel( x ) ==  1 ) );
-args.addParamValue( 'process_soil_data', false, @(x) ( islogical(x) & ...
+args.addParameter( 'process_soil_data', false, @(x) ( islogical(x) & ...
                                                   numel( x ) ==  1 ) );
 args.parse( sitecode, year, varargin{ : } );
 sitecode = args.Results.sitecode;
@@ -246,10 +246,13 @@ soil_restart_fname = sprintf( 'soil_restart_%s_%d.mat', ...
 
 % create dataset of soil properties.
 if args.Results.process_soil_data
+    % FIXME: This needs to be transitioned to tables
+    warning( 'Converting between tables and datasets' );
     ds_soil = UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
-                                                  data, ds_qc );
+        table2dataset( data ), table2dataset( ds_qc ) );
+    ds_soil = dataset2table( ds_soil );
 else
-    ds_soil = dataset( [] );
+    ds_soil = table( [] );
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -268,7 +271,8 @@ plot(ds_pt.timestamp, ds_pt.NEE_f, ':', 'color', [0.7,0.7,0.7]);
 hold on;
 plot(ds_pt.timestamp, ds_pt.Reco, '.k');
 plot(ds_pt.timestamp, ds_pt.Reco_HBLR, 'xb');
-legend('filled NEE', 'R_{eco} Reichstein', 'R_{eco} Lasslop', 'Location','southwest');
+legend('filled NEE', 'R_{eco} Reichstein', 'R_{eco} Lasslop', ...
+    'Location','southwest');
 datetick(); %ylim([-15, 10]);
 ax(2) = subplot(2,3,3);
 plot(ds_pt.timestamp, nan_cumsum(ds_pt.Reco), '.k');
