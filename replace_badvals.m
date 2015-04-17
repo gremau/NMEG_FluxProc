@@ -27,6 +27,7 @@ function arr = replace_badvals(arr, badvals, tol)
     
 arg_is_dataset = false;
 arg_is_table = false;
+
 if isa( arr, 'dataset' )
     arg_is_dataset = true;
     arr_arg = arr;

@@ -60,10 +60,10 @@ ds_soil = args.Results.ds_soil;
 part_method = args.Results.part_method;
 
 % Including filled precip in AF files for now!
-ds_met_gf = parse_forgapfilling_file(sitecode, year, 'use_filled', true);
+ds_met_gf = parse_forgapfilling_file( sitecode, year, 'use_filled', true );
 
-Pidx = isnan(ds_met_gf.Precip);
-ds_met_gf.Precip(Pidx) = 0;
+Pidx = isnan( ds_met_gf.Precip );
+ds_met_gf.Precip( Pidx ) = 0;
 
 soil_moisture = false; % turn off soil moisture processing for now
 
@@ -205,14 +205,14 @@ GPP_obs( idx ) = GPP_2( idx );
 RE_obs = dummy;
 RE_obs( idx ) = RE_2( idx );
 
-ds_qc.HL_wpl_massman( isnan(ds_qc.E_wpl_massman ) ) = NaN;
+ds_qc.HL_wpl_massman( isnan( ds_qc.E_wpl_massman ) ) = NaN;
 
 %get the names of the soil heat flux variables (how many there are varies
 %site to site
 if soil_moisture
-    shf_vars = regexp_ds_vars( ds_soil, 'SHF.*' );
+    shf_vars = regexp_header_vars( ds_soil, 'SHF.*' );
     
-    ds_soil.Tsoil_1( HL(ds_soil.Tsoil_1, -10, 50 ) ) = NaN;
+    ds_soil.Tsoil_1( HL( ds_soil.Tsoil_1, -10, 50 ) ) = NaN;
     ds_soil.SWC_1( HL( ds_soil.SWC_1, 0, 1 ) ) = NaN;
 end
 
@@ -263,7 +263,7 @@ VPD_f = replace_badvals( VPD_f, -999.9, fp_tol );
 
 % calculate mean soil heat flux across all pits
 if soil_moisture
-    SHF_vars = ds_soil( :, regexp_ds_vars( ds_soil, 'SHF.*' ) );
+    SHF_vars = ds_soil( :, regexp_header_vars( ds_soil, 'SHF.*' ) );
     SHF_mean = nanmean( double( SHF_vars ), 2 );
 end
 
@@ -280,7 +280,7 @@ end
 
 % initialize variable names, units, etc.
 [amflux_gaps, amflux_gf] = ...
-    UNM_Ameriflux_create_output_datasets( sitecode, size( ds_qc, 1 ) );
+    make_AF_output_tables( sitecode, size( ds_qc, 1 ) );
 
 amflux_gaps.timestamp = ds_qc.timestamp;
 amflux_gf.timestamp = ds_qc.timestamp;
