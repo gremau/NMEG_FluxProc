@@ -40,26 +40,26 @@ if length( varargin ) > 0
 elseif length( varargin ) == 0
     siteid = [];
 else
-    error('Invalid number of arguments')
+    error( 'Invalid number of arguments' )
 end
 
 % Read the data into a table
 metTable = readtable( fname, 'Delimiter', ',', 'TreatAsEmpty', '.' );
 badValues = metTable{ :, : } == -999 | metTable{ :, : } == -888 ;
-metTable{ :,: }( badValues ) = NaN; 
+metTable{ :, : }( badValues ) = NaN; 
 
 % There are some discrepancies in the header names between the 2 files
 if year > 2012
-    metTable.Properties.VariableNames{'StationID'} = 'Station_ID';
-    metTable.Properties.VariableNames{'Julian_Day'} = 'Jul_Day';
-    metTable.Properties.VariableNames{'Relative_Humidity'} = 'RH';
-    metTable.Properties.VariableNames{'Solar_Radiation'} = 'Solar_Rad';
-    metTable.Properties.VariableNames{'Precipitation'} = 'Precip';
+    metTable.Properties.VariableNames{ 'StationID' } = 'Station_ID';
+    metTable.Properties.VariableNames{ 'Julian_Day' } = 'Jul_Day';
+    metTable.Properties.VariableNames{ 'Relative_Humidity' } = 'RH';
+    metTable.Properties.VariableNames{ 'Solar_Radiation' } = 'Solar_Rad';
+    metTable.Properties.VariableNames{ 'Precipitation' } = 'Precip';
 end
 
 % Trim out extra sites from the table if requested
 if ~isempty( siteid )
-    metTable = metTable(metTable.Station_ID == siteid, :);
+    metTable = metTable( metTable.Station_ID == siteid, : );
 end
 
 % Trim to year and add a timestamp
@@ -71,9 +71,9 @@ ts = datenum( metTable.Year, 1, 1 ) + ...
 
 metTable.timestamp = ts;
 % Observations are in funny order sometimes...
-metTable = sortrows( metTable, {'Station_ID', 'timestamp'} );
+metTable = sortrows( metTable, { 'Station_ID', 'timestamp' } );
 
 % Clear out duplicate timestamps (remove second one)
-[idx, dup] = find_duplicates( metTable.timestamp );
-metTable(idx,:) = [];
+[ idx, dup ] = find_duplicates( metTable.timestamp );
+metTable( idx,: ) = [];
 
