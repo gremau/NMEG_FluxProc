@@ -76,7 +76,7 @@ qc_tbl = parse_fluxall_qc_file( sitecode, year );
 %     UNM_parse_reddyproc_output( sitecode, year );
 
 % Parse gapfilled and partitioned fluxes from Trevor Keenan's files
-
+pt_TK_tbl = parse_TK201X_output( sitecode, year );
 
 % Parse soil files.
 if args.Results.process_soil_data
@@ -133,10 +133,24 @@ cols = setdiff( pt_MR_tbl.Properties.VariableNames, ...
                 pt_GL_tbl.Properties.VariableNames );
 pt_tbl = [ pt_GL_tbl, pt_MR_tbl( :, cols ) ];
 
+
 seconds_per_day = 60 * 60 * 24;
 t_run = ceil( ( now() - t0 ) * seconds_per_day );
 fprintf( 'done (%d seconds)\n', t_run ); %done sychronizing timestamps
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% If we have data from the keenan synthesis put it in pt_tbl
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+keenan = false;
+if ~isempty( pt_TK_tbl )
+    [ pt_TK_tbl, data ] = merge_tables_by_datenum( pt_TK_tbl, data, ...
+        'timestamp', 'timestamp', 3, t_min, t_max );
+    pt_TK_tbl = table_fill_timestamps( pt_TK_tbl, 'timestamp', ...
+        't_min', Jan1, 't_max', Dec31 );
+    pt_tbl.GPP_f_TK201X = pt_TK_tbl.GPP_f;
+    pt_tbl.RE_f_TK201X = pt_TK_tbl.RE_f;
+    keenan = true;
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Remove periods where gapfilling fails or is ridiculous and make a 
@@ -155,7 +169,8 @@ part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl );
 % create the variables to be written to the output files
 [ amflux_gaps, amflux_gf ] = ...
     UNM_Ameriflux_prepare_output_data( sitecode, year, ...
-                                       qc_tbl, pt_tbl, soil_tbl );
+                                       qc_tbl, pt_tbl, soil_tbl, ...
+                                       keenan );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot the data before writing out to files

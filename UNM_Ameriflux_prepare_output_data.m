@@ -1,10 +1,10 @@
 function [ amflux_gaps, amflux_gf ] = ...
     UNM_Ameriflux_prepare_output_data( sitecode, ...
     year, ...
-    data, ...
     qc_tbl, ...
     pt_tbl, ...
-    soil_tbl )
+    soil_tbl, ...
+    keenan )
 % UNM_AMERIFLUX_PREPARE_FLUXES - prepare observed fluxes for writing to
 %   Ameriflux files.  Mostly creates QC flags and gives various observations the
 %   names they should have for Ameriflux.
@@ -12,7 +12,7 @@ function [ amflux_gaps, amflux_gf ] = ...
 %
 % FIXME: the workflow in this is confusing (though I've cleaned it up a
 % bit) because it generates a ton of arrays using repetetive methods and
-% then some tempate tables get filled in. It would be smarter to build 1
+% then some template tables get filled in. It would be smarter to build 1
 % table and then split it into with/without gaps tables using the flags in
 % a smart way.
 %
@@ -59,7 +59,6 @@ year_arg = args.Results.year;
 qc_tbl = args.Results.qc_tbl;
 pt_tbl = args.Results.pt_tbl;
 soil_tbl = args.Results.soil_tbl;
-part_method = args.Results.part_method;
 
 % Including filled precip in AF files for now!
 gf_met_tbl = parse_forgapfilling_file( sitecode, year, 'use_filled', true );
@@ -156,14 +155,16 @@ GPP_f_GL2010 = pt_tbl.GPP_HBLR;
 RE_f_MR2005  = pt_tbl.Reco;
 GPP_f_MR2005 = pt_tbl.GPP_f;
 % Keenan
-RE_f_TK201X  = pt_tbl.Reco_TK201X;
-GPP_f_TK201X = pt_tbl.GPP_TK201X;
+if keenan
+    RE_f_TK201X  = pt_tbl.RE_f_TK201X;
+    GPP_f_TK201X = pt_tbl.GPP_f_TK201X;
+end
 
 % Latent and sensible heat fluxes
 LE_f = pt_tbl.LE_f;
 H_f = pt_tbl.H_f;
 
-% Make sure NEE contains observations where available
+% Make sure fluxes contains observations where available
 NEE_f2 = NEE_f;
 NEE_f2( ~NEE_flag ) = NEE_obs( ~NEE_flag );
 % and LE
@@ -171,12 +172,12 @@ LE_f2 = LE_f;
 LE_f2( ~LE_flag ) = qc_tbl.HL_wpl_massman( ~LE_flag );
 % and H
 H_f2 = H_f;
-H_f2( H_flag ) = qc_tbl.HSdry_massman( H_flag );
+H_f2( ~H_flag ) = qc_tbl.HSdry_massman( ~H_flag );
 
 % Do the observations in qc_pt and the filled files match?
-test = sum( [ NEE_f ~= NEE_f2 ; H_f ~= H_f2 ; LE_f ~= LE_f2 ] );
-if test > 0
-    error( 'Gapfiller may be overfilling flux columns' );
+test = sum( [ NEE_f - NEE_f2 ; H_f - H_f2 ; LE_f - LE_f2 ] );
+if abs( test ) > 0.1
+    error( 'Gapfilled and non-gapfilled data are different!' );
     NEE_f = NEE_f2;
     H_f = H_f2;
     LE_f = LE_f2;
@@ -189,40 +190,44 @@ end
 % _ecb fluxes are what were in AF files before the change
 fix_night = true;
 % Lasslop
-[ GPP_GL2010_ecb, RE_f_GL2010_ecb, NEE_f_GL2010_ecb ] = ...
+[ GPP_f_GL2010_ecb, RE_f_GL2010_ecb, NEE_f_GL2010_ecb ] = ...
     ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
     RE_f_GL2010, NEE_f, ...
     Rg_f, fix_night );
 % Reichstein
-[ GPP_MR2005_ecb, RE_f_MR2005_ecb, NEE_f_MR2005_ecb ] = ...
+[ GPP_f_MR2005_ecb, RE_f_MR2005_ecb, NEE_f_MR2005_ecb ] = ...
     ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
     RE_f_MR2005, NEE_f, ...
     Rg_f, fix_night );
 % Keenan
-[ GPP_TK201X_ecb, RE_f_TK201X_ecb, NEE_f_TK201X_ecb ] = ...
-    ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
-    RE_f_TK201X, NEE_f, ...
-    Rg_f, fix_night );
+if keenan
+    [ GPP_f_TK201X_ecb, RE_f_TK201X_ecb, NEE_f_TK201X_ecb ] = ...
+        ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
+        RE_f_TK201X, NEE_f, ...
+        Rg_f, fix_night );
+end
 % This is without nighttime GPP correction (?)
 fix_night = false;
-[ GPP_GL2010_oldecb, RE_F_GL2010_oldecb, NEE_f_GL2010_oldecb ] = ...
+[ GPP_f_GL2010_oldecb, RE_f_GL2010_oldecb, NEE_f_GL2010_oldecb ] = ...
     ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
     RE_f_GL2010, NEE_f, ...
     Rg_f, fix_night );
 % Reichstein
-[ GPP_MR2005_oldecb, RE_F_MR2005_oldecb, NEE_f_MR2005_oldecb ] = ...
+[ GPP_f_MR2005_oldecb, RE_f_MR2005_oldecb, NEE_f_MR2005_oldecb ] = ...
     ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
     RE_f_MR2005, NEE_f, ...
     Rg_f, fix_night );
 % Keenan
-[ GPP_TK201X_oldecb, RE_F_TK201X_oldecb, NEE_f_TK201X_oldecb ] = ...
-    ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
-    RE_f_TK201X, NEE_f, ...
-    Rg_f, fix_night );
+if keenan
+    [ GPP_f_TK201X_oldecb, RE_f_TK201X_oldecb, NEE_f_TK201X_oldecb ] = ...
+        ensure_carbon_balance( sitecode, qc_tbl.timestamp, ...
+        RE_f_TK201X, NEE_f, ...
+        Rg_f, fix_night );
+end
 
 % Make GPP and RE "obs" for output to file with gaps using modeled RE
 % and GPP as remainder
-% Commenting out - GEM - will add GPP/RE columns abore to with_gaps and
+% Commenting out - GEM - will add GPP/RE columns above to with_gaps and
 % then remove modeled periods with NEE_flag
 % GPP_obs = dummy;
 % idx = ~isnan( qc_tbl.fc_raw_massman_wpl );
@@ -283,14 +288,16 @@ if sitecode == 6 && year == 2008
     qc_tbl.NR_tot( ~isnan( qc_tbl.NR_tot ) ) = NaN;
 end
 
+% Moving this down to deal with exported tables directly - GEM
+
 % replace 9999s with matlab NaNs
-fp_tol = 0.0001;  % tolerance for floating point comparison
-NEE_obs = replace_badvals( NEE_obs, -9999, fp_tol );
-GPP_obs = replace_badvals( GPP_obs, -9999, fp_tol );
-RE_obs = replace_badvals( RE_obs, -9999, fp_tol );
-H_obs = replace_badvals( H_obs, -9999, fp_tol );
-LE_obs = replace_badvals( LE_obs, -9999, fp_tol );
-VPD_f = replace_badvals( VPD_f, -999.9, fp_tol );
+% fp_tol = 0.0001;  % tolerance for floating point comparison
+% NEE_obs = replace_badvals( NEE_obs, -9999, fp_tol );
+% GPP_obs = replace_badvals( GPP_obs, -9999, fp_tol );
+% RE_obs = replace_badvals( RE_obs, -9999, fp_tol );
+% H_obs = replace_badvals( H_obs, -9999, fp_tol );
+% LE_obs = replace_badvals( LE_obs, -9999, fp_tol );
+% VPD_f = replace_badvals( VPD_f, -999.9, fp_tol );
 
 % calculate mean soil heat flux across all pits
 if soil_moisture
@@ -304,10 +311,14 @@ if ( sitecode == 1 ) & ismember( year, [ 2009, 2010 ] )
     qc_tbl.CO2_mean( : ) = dummy;
 end
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % place calculated values into Matlab tables
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    function w_gaps = insert_gaps( coldata, gaps )
+        w_gaps = dummy;
+        w_gaps( ~gaps ) = coldata( ~gaps );
+    end
 
 % initialize variable names, units, etc.
 [amflux_gaps, amflux_gf] = ...
@@ -327,6 +338,8 @@ amflux_gaps.WD = qc_tbl.wnd_dir_compass;
 amflux_gaps.WS = qc_tbl.wnd_spd;
 amflux_gaps.NEE = dummy;
 amflux_gaps.FC = NEE_obs;
+%amflux_gaps.FC_ecb = insert_gaps( NEE_f_ecb, NEE_flag );
+%amflux_gaps.FC_oldecb = insert_gaps( NEE_f_oldecb, NEE_flag );
 amflux_gaps.SFC = dummy;
 amflux_gaps.H = H_obs;
 amflux_gaps.SSA = dummy;
@@ -351,9 +364,43 @@ amflux_gaps.Rlong_in = qc_tbl.lw_incoming;
 amflux_gaps.Rlong_out = qc_tbl.lw_outgoing;
 amflux_gaps.FH2O = qc_tbl.E_wpl_massman .* 18;
 amflux_gaps.H20 = qc_tbl.H2O_mean;
-amflux_gaps.RE = RE_obs;
-amflux_gaps.GPP = GPP_obs;
+% Lasslop
+amflux_gaps.RE_f_GL2010  = insert_gaps( RE_f_GL2010, NEE_flag );
+amflux_gaps.GPP_f_GL2010 = insert_gaps( GPP_f_GL2010, NEE_flag );
+% Reichstein 2005
+amflux_gaps.RE_f_MR2005  = insert_gaps( RE_f_MR2005, NEE_flag );
+amflux_gaps.GPP_f_MR2005 = insert_gaps( GPP_f_MR2005, NEE_flag );
+% Keenan
+if keenan
+    amflux_gaps.RE_f_TK201X  = insert_gaps( RE_f_TK201X, NEE_flag );
+    amflux_gaps.GPP_f_TK201X = insert_gaps( GPP_f_TK201X, NEE_flag );
+end
+% ecb versions
+amflux_gaps.NEE_f_GL2010_ecb = insert_gaps( NEE_f_GL2010_ecb, NEE_flag );
+amflux_gaps.RE_f_GL2010_ecb  = insert_gaps( RE_f_GL2010_ecb, NEE_flag );
+amflux_gaps.GPP_f_GL2010_ecb = insert_gaps( GPP_f_GL2010_ecb, NEE_flag );
+amflux_gaps.NEE_f_MR2005_ecb = insert_gaps( NEE_f_MR2005_ecb, NEE_flag );
+amflux_gaps.RE_f_MR2005_ecb  = insert_gaps( RE_f_MR2005_ecb, NEE_flag );
+amflux_gaps.GPP_f_MR2005_ecb = insert_gaps( GPP_f_MR2005_ecb, NEE_flag );
+if keenan
+    amflux_gaps.NEE_f_TK201X_ecb = insert_gaps( NEE_f_TK201X_ecb, NEE_flag );
+    amflux_gaps.RE_f_TK201X_ecb  = insert_gaps( RE_f_TK201X_ecb, NEE_flag );
+    amflux_gaps.GPP_f_TK201X_ecb = insert_gaps( GPP_f_TK201X_ecb, NEE_flag );
+end
+% oldecb versions
+amflux_gaps.NEE_f_GL2010_oldecb = insert_gaps( NEE_f_GL2010_oldecb, NEE_flag );
+amflux_gaps.RE_f_GL2010_oldecb  = insert_gaps( RE_f_GL2010_oldecb, NEE_flag );
+amflux_gaps.GPP_f_GL2010_oldecb = insert_gaps( GPP_f_GL2010_oldecb, NEE_flag );
+amflux_gaps.NEE_f_MR2005_oldecb = insert_gaps( NEE_f_MR2005_oldecb, NEE_flag );
+amflux_gaps.RE_f_MR2005_oldecb  = insert_gaps( RE_f_MR2005_oldecb, NEE_flag );
+amflux_gaps.GPP_f_MR2005_oldecb = insert_gaps( GPP_f_MR2005_oldecb, NEE_flag );
+if keenan
+    amflux_gaps.NEE_f_TK201X_oldecb = insert_gaps( NEE_f_TK201X_oldecb, NEE_flag );
+    amflux_gaps.RE_f_TK201X_oldecb  = insert_gaps( RE_f_TK201X_oldecb, NEE_flag );
+    amflux_gaps.GPP_f_TK201X_oldecb = insert_gaps( GPP_f_TK201X_oldecb, NEE_flag );
+end
 amflux_gaps.APAR = dummy;
+
 
 % assign values to amflux_gaps
 amflux_gf.YEAR = str2num( datestr( amflux_gf.timestamp, 'YYYY' ) );
@@ -371,8 +418,6 @@ amflux_gf.WD = qc_tbl.wnd_dir_compass;
 amflux_gf.WS = qc_tbl.wnd_spd;
 amflux_gf.NEE = dummy;
 amflux_gf.FC = NEE_f;
-amflux_gf.FC_ecb = NEE_ecb;
-amflux_gf.FC_oldecb = NEE_oldecb;
 amflux_gf.FC_flag = NEE_flag;
 amflux_gf.SFC = dummy;
 amflux_gf.H = H_f;
@@ -384,7 +429,7 @@ amflux_gf.SLE = dummy;
 amflux_gf.G1 = dummy; %SHF_mean;
 %amflux_gf.TS_2p5cm = dummy; %soil_tbl.Tsoil_1;
 amflux_gf.PRECIP = gf_met_tbl.Precip;
-amflux_gf.RH = RH_pt_scaled .* 100; %RJL 02/21/2014 added
+%amflux_gf.RH = RH_pt_scaled .* 100; %RJL 02/21/2014 added
 %original    amflux_gf.RH = pt_tbl.rH .* 100;
 amflux_gf.RH_flag = rH_flag;
 amflux_gf.PA = qc_tbl.atm_press;
@@ -404,13 +449,41 @@ amflux_gf.Rlong_in = qc_tbl.lw_incoming;
 amflux_gf.Rlong_out = qc_tbl.lw_outgoing;
 amflux_gf.FH2O = qc_tbl.E_wpl_massman .* 18;
 amflux_gf.H20 = qc_tbl.H2O_mean;
-amflux_gf.RE = RE_2;
-amflux_gf.RE_ecb = RE_ecb;
-amflux_gf.RE_oldecb = RE_oldecb;
-amflux_gf.RE_flag = NEE_flag;
-amflux_gf.GPP = GPP_2;
-amflux_gf.GPP_ecb = GPP_ecb;
-amflux_gf.GPP_oldecb = GPP_oldecb;
+% Lasslop
+amflux_gf.RE_f_GL2010  = RE_f_GL2010;
+amflux_gf.GPP_f_GL2010 = GPP_f_GL2010;
+% Reichstein 2005
+amflux_gf.RE_f_MR2005  = RE_f_MR2005;
+amflux_gf.GPP_f_MR2005 = GPP_f_MR2005;
+% Keenan
+if keenan
+    amflux_gf.RE_f_TK201X  = RE_f_TK201X;
+    amflux_gf.GPP_f_TK201X = GPP_f_TK201X;
+end
+% ecb versions
+amflux_gf.NEE_f_GL2010_ecb = NEE_f_GL2010_ecb;
+amflux_gf.RE_f_GL2010_ecb  = RE_f_GL2010_ecb;
+amflux_gf.GPP_f_GL2010_ecb = GPP_f_GL2010_ecb;
+amflux_gf.NEE_f_MR2005_ecb = NEE_f_MR2005_ecb;
+amflux_gf.RE_f_MR2005_ecb  = RE_f_MR2005_ecb;
+amflux_gf.GPP_f_MR2005_ecb = GPP_f_MR2005_ecb;
+if keenan
+    amflux_gf.NEE_f_TK201X_ecb = NEE_f_TK201X_ecb;
+    amflux_gf.RE_f_TK201X_ecb  = RE_f_TK201X_ecb;
+    amflux_gf.GPP_f_TK201X_ecb = GPP_f_TK201X_ecb;
+end
+% oldecb versions
+amflux_gf.NEE_f_GL2010_oldecb = NEE_f_GL2010_oldecb;
+amflux_gf.RE_f_GL2010_oldecb  = RE_f_GL2010_oldecb;
+amflux_gf.GPP_f_GL2010_oldecb = GPP_f_GL2010_oldecb;
+amflux_gf.NEE_f_MR2005_oldecb = NEE_f_MR2005_oldecb;
+amflux_gf.RE_f_MR2005_oldecb  = RE_f_MR2005_oldecb;
+amflux_gf.GPP_f_MR2005_oldecb = GPP_f_MR2005_oldecb;
+if keenan
+    amflux_gf.NEE_f_TK201X_oldecb = NEE_f_TK201X_oldecb;
+    amflux_gf.RE_f_TK201X_oldecb  = RE_f_TK201X_oldecb;
+    amflux_gf.GPP_f_TK201X_oldecb = GPP_f_TK201X_oldecb;
+end
 amflux_gf.GPP_flag = NEE_flag;
 amflux_gf.APAR = dummy;
 %amflux_gf.SWC_2 = []; %dummy; %soil_tbl.SWC_2;
@@ -419,60 +492,67 @@ amflux_gf.APAR = dummy;
 amflux_gaps.timestamp = [];
 amflux_gf.timestamp = [];
 
+% Change error values to NaN
+fp_tol = 0.0001;  % tolerance for floating point comparison
+amflux_gaps = replace_badvals( amflux_gaps, -9999, fp_tol );
+amflux_gf = replace_badvals( amflux_gf, -9999, fp_tol );
 %----------------------------------------------------------------------
-function [ GPPout, REout, NEEout ] = ...
-    ensure_carbon_balance( sitecode, tstamp, REin, NEEin, Rg, fix_night_GPP )
-% ENSURE_CARBON_BALANCE - To ensure carbon balance, calculate GPP as remainder
-% when NEE is subtracted from RE. This will give negative GPP when NEE exceeds
-% modelled RE. So set GPP to zero and add difference to RE.  Beause it is not
-% physically realistic to report positive GPP at night, also make sure that
-% nighttime GPP is < 0.1.
-
-GPPout = REin - NEEin;
-REout = REin;
-NEEout = NEEin;
-
-sitecode = UNM_sites( sitecode );
-% define an observed Rg threshold, below which we will consider it to be night.
-switch sitecode
-    case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.New_GLand }
-        Rg_threshold = 1.0;
-    case UNM_sites.JSav
-        Rg_threshold = -1.0;
-    case UNM_sites.PJ
-        Rg_threshold = 0.6;
-    case UNM_sites.MCon
-        Rg_threshold = 0.0;
-    case UNM_sites.PPine
-        Rg_threshold = 0.1;
-    case UNM_sites.TX
-        Rg_threshold = 4.0;
-    case UNM_sites.PJ_girdle
-        Rg_threshold = 5.0;
-    otherwise
-        error( sprintf( 'Rg threshold not implemented for site %s', ...
-            char( sitecode ) ) );
+    function [ GPPout, REout, NEEout ] = ...
+            ensure_carbon_balance( sitecode, tstamp, REin, NEEin, Rg, fix_night_GPP )
+        % ENSURE_CARBON_BALANCE - To ensure carbon balance, calculate GPP as remainder
+        % when NEE is subtracted from RE. This will give negative GPP when NEE exceeds
+        % modelled RE. So set GPP to zero and add difference to RE.  Beause it is not
+        % physically realistic to report positive GPP at night, also make sure that
+        % nighttime GPP is < 0.1.
+        
+        GPPout = REin - NEEin;
+        REout = REin;
+        NEEout = NEEin;
+        
+        sitecode = UNM_sites( sitecode );
+        % define an observed Rg threshold, below which we will consider it to be night.
+        switch sitecode
+            case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.New_GLand }
+                Rg_threshold = 1.0;
+            case UNM_sites.JSav
+                Rg_threshold = -1.0;
+            case UNM_sites.PJ
+                Rg_threshold = 0.6;
+            case UNM_sites.MCon
+                Rg_threshold = 0.0;
+            case UNM_sites.PPine
+                Rg_threshold = 0.1;
+            case UNM_sites.TX
+                Rg_threshold = 4.0;
+            case UNM_sites.PJ_girdle
+                Rg_threshold = 5.0;
+            otherwise
+                error( sprintf( 'Rg threshold not implemented for site %s', ...
+                    char( sitecode ) ) );
+        end
+        Rg_threshold = Rg_threshold + 1e-6;  %% compare to threshold plus epsilon to
+        % allow for floating point error
+        
+        if fix_night_GPP
+            % fix positive GPP at night -- define night as radiation < 20 umol/m2/s set
+            % positive nighttime GPP to zero and reduce corresponding respiration
+            % accordingly
+            sol = get_solar_elevation( UNM_sites( sitecode ), tstamp );
+            idx = ( sol < -10 ) & ( Rg < Rg_threshold ) & ( GPPout > 0.1 );
+            fprintf( '# of positive nighttime GPP: %d\n', numel( find( idx ) ) );
+            % take nighttime positive GPP out of RE
+            REout( idx ) = REout( idx ) - GPPout( idx );
+            GPPout( idx ) = 0.0;
+            
+            idx_RE_negative = REout < 0.0;
+            REout( idx_RE_negative ) = 0.0;
+            NEEout( idx_RE_negative ) = 0.0;
+        end
+        
+        % fix negative GPP
+        idx_neg_GPP = find( GPPout < 0 );
+        REout( idx_neg_GPP ) = REin( idx_neg_GPP ) - GPPout( idx_neg_GPP );
+        GPPout( idx_neg_GPP ) = 0;
+        
+    end
 end
-Rg_threshold = Rg_threshold + 1e-6;  %% compare to threshold plus epsilon to
-%% allow for floating point error
-
-if fix_night_GPP
-    % fix positive GPP at night -- define night as radiation < 20 umol/m2/s set
-    % positive nighttime GPP to zero and reduce corresponding respiration
-    % accordingly
-    sol = get_solar_elevation( UNM_sites( sitecode ), tstamp );
-    idx = ( sol < -10 ) & ( Rg < Rg_threshold ) & ( GPPout > 0.1 );
-    fprintf( '# of positive nighttime GPP: %d\n', numel( find( idx ) ) );
-    % take nighttime positive GPP out of RE
-    REout( idx ) = REout( idx ) - GPPout( idx );
-    GPPout( idx ) = 0.0;
-    
-    idx_RE_negative = REout < 0.0;
-    REout( idx_RE_negative ) = 0.0;
-    NEEout( idx_RE_negative ) = 0.0;
-end
-
-% fix negative GPP
-idx_neg_GPP = find( GPPout < 0 );
-REout( idx_neg_GPP ) = REin( idx_neg_GPP ) - GPPout( idx_neg_GPP );
-GPPout( idx_neg_GPP ) = 0;
