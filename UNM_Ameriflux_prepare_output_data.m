@@ -87,6 +87,7 @@ Rg_flag = f_flag;
 VPD_flag = f_flag;
 rH_flag = f_flag;
 
+% Get VPD from MPI output
 VPD_f = pt_tbl.VPD_f ./ 10; % convert to kPa
 
 % Seems to be trying to put calculated values of VPD in the AF with_gaps
@@ -100,7 +101,8 @@ VPD_g( ~isnan( qc_tbl.rH ) ) = VPD_f( ~isnan( qc_tbl.rH ) );
 %    in this script.
 %RH_pt_scaled = ds_pt.rH .* 0.01;
 
-% FIXME - ensure that this is hmp and not sonic temp
+% FIXME - this is sonic temperature (filled in by MPI), not HMP
+% see issue # 12
 Tair_f = pt_tbl.Tair_f;
 Rg_f = pt_tbl.Rg_f;
 %Rg_f( pt_tbl.Rg_fqcOK == 0 ) = NaN;
@@ -401,7 +403,6 @@ if keenan
 end
 amflux_gaps.APAR = dummy;
 
-
 % assign values to amflux_gaps
 amflux_gf.YEAR = str2num( datestr( amflux_gf.timestamp, 'YYYY' ) );
 amflux_gf.DTIME = amflux_gf.timestamp - datenum( amflux_gf.YEAR, 1, 1 ) + 1;
@@ -497,8 +498,8 @@ fp_tol = 0.0001;  % tolerance for floating point comparison
 amflux_gaps = replace_badvals( amflux_gaps, -9999, fp_tol );
 amflux_gf = replace_badvals( amflux_gf, -9999, fp_tol );
 %----------------------------------------------------------------------
-    function [ GPPout, REout, NEEout ] = ...
-            ensure_carbon_balance( sitecode, tstamp, REin, NEEin, Rg, fix_night_GPP )
+    function [ GPPout, REout, NEEout ] = ensure_carbon_balance( ...
+            sitecode, tstamp, REin, NEEin, Rg, fix_night_GPP )
         % ENSURE_CARBON_BALANCE - To ensure carbon balance, calculate GPP as remainder
         % when NEE is subtracted from RE. This will give negative GPP when NEE exceeds
         % modelled RE. So set GPP to zero and add difference to RE.  Beause it is not
@@ -510,7 +511,8 @@ amflux_gf = replace_badvals( amflux_gf, -9999, fp_tol );
         NEEout = NEEin;
         
         sitecode = UNM_sites( sitecode );
-        % define an observed Rg threshold, below which we will consider it to be night.
+        % define an observed Rg threshold, below which we will consider
+        % it to be night.
         switch sitecode
             case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.New_GLand }
                 Rg_threshold = 1.0;
@@ -530,13 +532,13 @@ amflux_gf = replace_badvals( amflux_gf, -9999, fp_tol );
                 error( sprintf( 'Rg threshold not implemented for site %s', ...
                     char( sitecode ) ) );
         end
-        Rg_threshold = Rg_threshold + 1e-6;  %% compare to threshold plus epsilon to
-        % allow for floating point error
+        Rg_threshold = Rg_threshold + 1e-6;  %% compare to threshold plus
+        % epsilon to allow for floating point error
         
         if fix_night_GPP
-            % fix positive GPP at night -- define night as radiation < 20 umol/m2/s set
-            % positive nighttime GPP to zero and reduce corresponding respiration
-            % accordingly
+            % fix positive GPP at night -- define night as 
+            % radiation < 20 umol/m2/s set positive nighttime GPP to 
+            % zero and reduce corresponding respiration accordingly
             sol = get_solar_elevation( UNM_sites( sitecode ), tstamp );
             idx = ( sol < -10 ) & ( Rg < Rg_threshold ) & ( GPPout > 0.1 );
             fprintf( '# of positive nighttime GPP: %d\n', numel( find( idx ) ) );
