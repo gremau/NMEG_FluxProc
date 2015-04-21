@@ -1,5 +1,5 @@
 function T = toa5_2_table( fname )
-% TOA5_2_DATASET - parse a Campbell Scientific TOA5 file to a matlab dataset
+% TOA5_2_TABLE - parse a Campbell Scientific TOA5 file to a matlab table
 % array.  
 %
 % Uses parse_TOA5_file_headers to determine variable names, variable units,
@@ -11,30 +11,31 @@ function T = toa5_2_table( fname )
 %    fname: string; full path of file to be parsed
 %
 % OUTPUTS:
-%    ds: matlab dataset array; the data from the TOA5 file
+%    T: matlab table array; the data from the TOA5 file
 %
 % SEE ALSO
-%    dataset, datenum, parse_TOA5_file_headers, clean_up_varnames
+%    table, datenum, parse_TOA5_file_headers, clean_up_varnames
 %
-% author: Timothy W. Hilton, UNM, Oct 2011
+% author: Gregory E. Maurer, UNM, April 2015
+% modified from: toa5_2_dataset by Timothy Hilton
     
     [ var_names, var_units, file_lines, first_data_line, delim ] = ...
         parse_TOA5_file_headers( fname );
     
     % scan the data portion of the matrix into a matlab array
-    n_numeric_vars = length(var_names) - 1; % all the variables except
+    n_numeric_vars = length( var_names ) - 1; % all the variables except
                                             % the timestamp
 
     % done with header now
-    file_lines = file_lines( first_data_line:end );
+    file_lines = file_lines( first_data_line : end );
 
     %remove quotations from the file text (some NaNs are quoted)
-    file_lines = strrep(file_lines, '"', '');
+    file_lines = strrep( file_lines, '"', '' );
     
     % ---------
     % parse timestamps into matlab datenums
     %
-    % There are a variety of timestamp formats in the TOA 5 files:
+    % There are a variety of timestamp formats in the TOA5 files:
     % yyyy/mm/dd, mm/dd/yyyy both appear, sometimes with '-' instead of
     % '/'. Months 1 to 9 are sometimes written with one digit, sometimes two
     % (with leading zero).
@@ -85,14 +86,14 @@ function T = toa5_2_table( fname )
     dn = datenum( t_num( :, [ year_col, month_col, day_col, 4, 5, 6 ] ) );
     
     fmt = repmat( sprintf( '%s%%f', delim ), 1, n_numeric_vars );
-    [ data, count ] = cellfun( @( x, idx ) sscanf( x( (idx+1):end ), fmt ), ...
+    [ data, count ] = cellfun( @( x, idx ) sscanf( x( ( idx+1 ):end ), fmt ), ...
                             file_lines, ...
                             data_idx, ...
-                            'UniformOutput', false);
+                            'UniformOutput', false );
 
     % reject lines with fewer than n_numeric_vars readable numbers
     full_line = cellfun( @(x) size( x, 1 ), data ) == n_numeric_vars;
-    data = [ data{ find(full_line) } ]';
+    data = [ data{ find( full_line ) } ]';
     
     var_names = clean_up_varnames( var_names( 2:end ) );
 
