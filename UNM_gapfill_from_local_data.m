@@ -37,6 +37,8 @@ function varargout =  UNM_gapfill_from_local_data( sitecode, ...
 
 % author: Timothy W. Hilton, UNM, March 2012
 
+error('Should this be running?????');
+
 obs_per_day = 48;
 
 filled_idx = [];  %initialize to no gapfilling performed

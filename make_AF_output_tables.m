@@ -1,23 +1,22 @@
-function [amflux_gaps, amflux_gf] = ...
-        UNM_Ameriflux_create_output_datasets( sitecode, nrow)
-% UNM_AMERIFLUX_CREATE_OUTPUT_DATASETS - define variable name and units for
-% Ameriflux files and create dummy dataset array to be populated externally.
+function [amflux_gaps, amflux_gf] = make_AF_output_tables( sitecode, nrow)
+% MAKE_AF_OUTPUT_TABLES - define variable name and units for
+% Ameriflux files and create dummy table array to be populated externally.
 % 
-% Helper function for UNM_Ameriflux_prepare_output_data.  Creates a dataset with
+% Helper function for UNM_Ameriflux_prepare_output_data.  Creates a table with
 % specified variables, units, and number of rows populated entirely with NaN.
 %
 % INPUTS
 %    sitecode: UNM_sites object; specifies the site
-%    nrow: integer; specifies the number of rows in the dataset
+%    nrow: integer; specifies the number of rows in the table
 %
 % OUTPUTS
-%    amflux_gaps: dataset array; dataset array with variable and units for
+%    amflux_gaps: table array; table array with variable and units for
 %         with-gaps Ameriflux files, populated with NaNs
-%    amflux_gf; dataset array; dataset array with variable and units for
+%    amflux_gf; table array; table array with variable and units for
 %         gapfilled Ameriflux files, populated with NaNs
 %
 % SEE ALSO
-%    dataset, UNM_sites
+%    table, UNM_sites
 %
 % author: Timothy W. Hilton, UNM, January 2012
 
@@ -81,13 +80,13 @@ units_GF = {'-','-','-','-','m/s','deg C','-','deg','m/s','mumol/m2/s',...
             '-','mumol/m2/s','m3/m3','m3/m3'};
 
 
-% Ameriflux output dataset
+% Ameriflux output tables
 dummy_data = repmat( NaN, nrow, numel( header_gaps ) );
-amflux_gaps = dataset( { dummy_data, header_gaps{ : } } );
-amflux_gaps.Properties.Units = units_gaps;
+amflux_gaps = array2table( dummy_data, 'VariableNames', header_gaps );
+amflux_gaps.Properties.VariableUnits = units_gaps;
 
 dummy_data = repmat( NaN, nrow, numel( header_GF ) );
-amflux_gf = dataset( { dummy_data, header_GF{ : } } );
-amflux_gf.Properties.Units = units_GF;
+amflux_gf = array2table( dummy_data, 'VariableNames', header_GF );
+amflux_gf.Properties.VariableUnits = units_GF;
 
 

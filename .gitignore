@@ -5,6 +5,7 @@
 *.ps
 *.mat
 *.fig
+*.fig
 *.dat
 *.txt
 *.bak

@@ -32,7 +32,7 @@ switch metstn
             'MetData',...
             sprintf( 'GHCND_ESTANCIA_DailySumm_20070101-20131231.csv' ));
         % Get data from the ESTANCIA - station is north of Hwy 60
-        metData_T = readtable(fname, 'Delimiter', ',');
+        metData_T = readtable( fname, 'Delimiter', ',' );
         
         
     case 'PROGRESSO'
@@ -40,16 +40,16 @@ switch metstn
             'MetData',...
             sprintf( 'GHCND_PROGRESSO_DailySumm_20070101-20120731.csv' ));
         % Get data from the PROGRESSO - station is a few miles W of tower
-        metData_T = readtable(fname, 'Delimiter', ',');
+        metData_T = readtable( fname, 'Delimiter', ',' );
 end
 
 % Trim data to year
-dvec = datevec(num2str(metData_T.DATE), 'yyyymmdd');
-yearIdx = dvec(:, 1) == year;
-metData_T = metData_T(yearIdx, :);
+dvec = datevec( num2str( metData_T.DATE ), 'yyyymmdd' );
+yearIdx = dvec( :, 1 ) == year;
+metData_T = metData_T( yearIdx, : );
 
 % Create a matlab timestamp
-metData_T.timestamp = datenum(num2str(metData_T.DATE), 'yyyymmdd');
+metData_T.timestamp = datenum( num2str( metData_T.DATE ), 'yyyymmdd' );
 
 
 

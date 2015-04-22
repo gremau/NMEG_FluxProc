@@ -4,13 +4,15 @@
 % sitelist = { UNM_sites.PPine, UNM_sites.MCon, ...
 %     UNM_sites.JSav, UNM_sites.PJ, UNM_sites.PJ_girdle ...
 %      UNM_sites.SLand, UNM_sites.GLand, UNM_sites.New_GLand};
-sitelist = {UNM_sites.GLand};
+sitelist = {UNM_sites.PJ};
 %sitelist = {UNM_sites.PJ_girdle};
 %sitelist = {UNM_sites.New_GLand};
 
-yearlist = 2009;
+yearlist = 2011;
 partmethod = 'eddyproc';%'Reddyproc'
-make_daily = false;
+% Make daily files? All (desired) AF files should be in
+% $FLUXROOT$/Ameriflux_files
+make_daily = true;
 
 for i = 1:length(sitelist);
     close all;
@@ -22,12 +24,12 @@ for i = 1:length(sitelist);
         if strcmp(partmethod, 'eddyproc');
         
             UNM_Ameriflux_File_Maker(sitecode, year,...
-                'write_daily_file', true, 'process_soil_data', false);
+                'write_daily_file', make_daily, 'process_soil_data', false);
             
         elseif strcmp(partmethod, 'Reddyproc');
             
             UNM_Ameriflux_File_Maker(sitecode, year,...
-                'write_daily_file', false);
+                'write_daily_file', make_daily);
             
         end
         
@@ -35,13 +37,6 @@ for i = 1:length(sitelist);
         %UNM_Ameriflux_Data_Viewer( sitecode, year, 'AFlux_dir',...
         %    fullfile(getenv('FLUXROOT'), 'FluxOut' ));
         %clear year;
-    end
-    
-    % Make daily files? All (desired) AF files should be in
-    % $FLUXROOT$/Ameriflux_files
-    if make_daily
-        agg = UNM_Ameriflux_daily_aggregator(sitecode);
-        agg.write_daily_file();
     end
     
     

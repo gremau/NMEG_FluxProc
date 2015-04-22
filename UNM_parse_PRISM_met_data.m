@@ -28,22 +28,21 @@ function precipDataT = UNM_parse_PRISM_met_data( sitecode, year )
 %     dataset
 %
 % author: Timothy W. Hilton, UNM, March 2012
-sitename = sitecode;
 
 precipFname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
     'MetData', sprintf( 'PRISM_DailyPrecip_%d.csv', year ));
 
 % Get data
-precipDataT = readtable(precipFname, 'Delimiter', ',');
+precipDataT = readtable( precipFname, 'Delimiter', ',' );
 
 % Parse out year
-precipDataT = precipDataT( : , {'date', get_site_name(sitecode)});
+precipDataT = precipDataT( : , { 'date', get_site_name( sitecode ) });
 
 % Change variable name
-precipDataT.Properties.VariableNames{get_site_name(sitecode)} = 'Precip';
+precipDataT.Properties.VariableNames{ get_site_name( sitecode ) } = 'Precip';
 
 % Add a timestamp
-precipDataT.timestamp = datenum(precipDataT.date, 'yyyy-mm-dd');
+precipDataT.timestamp = datenum( precipDataT.date, 'yyyy-mm-dd' );
 
 
 

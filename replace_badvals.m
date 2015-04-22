@@ -1,4 +1,4 @@
-function arr = replace_badvals(arr, badvals, tol)
+function arr = replace_badvals( arr, badvals, tol )
 % REPLACE_BADVALS - replace specifed values within an array with NaN, with
 % floating point comparison 
 % 
@@ -11,7 +11,7 @@ function arr = replace_badvals(arr, badvals, tol)
 %     arr = replace_badvals( arr, badvals, tol )
 %
 % INPUTS
-%     arr: array or dataset array in which to replace bad values
+%     arr: table or dataset array in which to replace bad values
 %     badvals: array of values to be replace with NaN
 %     tol: tolerance for floating point comparison; floating point values
 %         that differ by less than tol are considered equal.
@@ -25,10 +25,16 @@ function arr = replace_badvals(arr, badvals, tol)
 % author: Timothy W. Hilton, UNM
     
 arg_is_dataset = false;
+arg_is_table = false;
+
 if isa( arr, 'dataset' )
     arg_is_dataset = true;
     arr_arg = arr;
     arr = double( arr );
+elseif isa( arr, 'table' )
+    arg_is_table = true;
+    arr_arg = arr;
+    arr = table2array( arr );
 end
 
 badvals = reshape( badvals, 1, [] );
@@ -41,7 +47,10 @@ for i = 1:length(badvals)
     
 end
 
-% if argument was a dataset, convert it back
+% Convert back to table/dataset
 if ( arg_is_dataset )
     arr = replacedata( arr_arg, arr );
+elseif ( arg_is_table )
+    arr = array2table( arr, 'VariableNames', ...
+        arr_arg.Properties.VariableNames );
 end

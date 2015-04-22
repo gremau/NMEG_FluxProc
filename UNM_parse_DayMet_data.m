@@ -31,19 +31,17 @@ function met_data_T = UNM_parse_DayMet_data( sitecode, year )
 %
 % author: Timothy W. Hilton, UNM, March 2012
 
-sitename = sitecode;
-
 fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
-    'MetData', sprintf( 'DayMet_%s.csv', get_site_name(sitecode) ));
+    'MetData', sprintf( 'DayMet_%s.csv', get_site_name( sitecode ) ));
 
 % Get data
-met_data_T = readtable(fname, 'Delimiter', ',', 'HeaderLines', 7);
+met_data_T = readtable( fname, 'Delimiter', ',', 'HeaderLines', 7 );
 
 % Parse out year
 met_data_T = met_data_T( met_data_T.year == year, : );
 
 % Add a timestamp
-met_data_T.timestamp = datenum(met_data_T.year - 1 , 12, 31, 0, 0, 0)...
+met_data_T.timestamp = datenum( met_data_T.year - 1 , 12, 31, 0, 0, 0 )...
     + met_data_T.yday;
 
 

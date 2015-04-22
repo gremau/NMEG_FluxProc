@@ -50,13 +50,13 @@ switch lower( metNetwork )
                 'MetData', 'DRI_AllSites_06-current.dat' );
         end
         % Get data from the DRI met station
-        metTable = readtable(fname, 'Delimiter', ',');
+        metTable = readtable( fname, 'Delimiter', ',' );
         
         % Trim to year and add a timestamp
-        metTable.dstring = num2str(metTable.YYMMDDhhmm, '%010u');
-        tvec = datevec(metTable.dstring, 'YYmmDDHHMM');
-        metTable = metTable(tvec(:, 1) == year, : );
-        metTable.timestamp = datenum(metTable.dstring, 'YYmmDDHHMM');
+        metTable.dstring = num2str( metTable.YYMMDDhhmm, '%010u' );
+        tvec = datevec( metTable.dstring, 'YYmmDDHHMM' );
+        metTable = metTable( tvec( :, 1 ) == year, : );
+        metTable.timestamp = datenum( metTable.dstring, 'YYmmDDHHMM' );
         
         % Precip is in inches and temp is in F - add converted columns
         metTable.Tair_C = ( metTable.Tair_F  - 32 ) .* ( 5/9 );
@@ -90,8 +90,8 @@ switch lower( metNetwork )
         % separate headers (first line) from data
         newline_pos = regexp( whole_file, '\n' );   % find newlines
         end_of_first_line = min( newline_pos );
-        headers = whole_file( 1:end_of_first_line );% get headers
-        data = whole_file( end_of_first_line+1:end );   % rest of data
+        headers = whole_file( 1 : end_of_first_line );% get headers
+        data = whole_file( end_of_first_line + 1 : end );   % rest of data
         
         % Split the headers (by spaces or tabs) and count the columns.  Some
         % Valles met files are tab-delimited, others use both tabs and multiple
@@ -112,7 +112,7 @@ switch lower( metNetwork )
         
         % Trim out extra sites from the table if requested
         if ~isempty( siteid )
-            metTable = metTable(metTable.sta == siteid, :);
+            metTable = metTable( metTable.sta == siteid, :);
         end
         
         % Trim to year and add a timestamp (Files should be yearly already)
@@ -122,8 +122,8 @@ switch lower( metNetwork )
         metTable.timestamp = ts;
         
         % Clear out duplicate timestamps (remove second one)
-        [idx, dup] = find_duplicates( ts );
-        metTable(idx,:) = [];
+        [ idx, dup ] = find_duplicates( ts );
+        metTable( idx, : ) = [];
 end
 
 

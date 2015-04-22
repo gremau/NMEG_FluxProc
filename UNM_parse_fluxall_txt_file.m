@@ -25,9 +25,11 @@ function ds  = UNM_parse_fluxall_txt_file( sitecode, year, varargin )
 
 % -----
 args = inputParser;
-args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | ...
+                                     isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'year', ...
-               @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
+               @(x) ( isintval( x ) & ( x >= 2006 ) & ...
+                    ( x <= this_year ) ) );
 args.addParamValue( 'file', '', @ischar );
 args.parse( sitecode, year, varargin{ : } );
 
@@ -68,12 +70,7 @@ headers = fgetl( fid );
 headers = regexp( headers, '\t', 'split' );
 % remove or replace characters that are illegal in matlab variable names
 headers_orig = headers;
-headers = regexprep( headers, '[\(\),/;]', '_' );
-headers = regexprep( headers, '[\^" -]', '' );
-headers = regexprep( headers, '_+$', '' ); % remove trailing _
-headers = regexprep( headers, '^_+', '' ); % remove leading _
-                                           % replace decimals in headers with 'p'
-headers = regexprep( headers, '([0-9])\.([0-9])', '$1p$2' );
+headers = clean_up_varnames( headers_orig );
 
 % read the numeric data
 fmt = repmat( '%f', 1, numel( headers ) );

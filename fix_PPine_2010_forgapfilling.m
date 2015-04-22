@@ -10,6 +10,8 @@ function success = fix_PPine_2010_forgapfilling()
 %
 % author: Timothy W. Hilton, UNM, Oct 2012
 
+error('Should this script be running????');
+
 fgf = parse_forgapfilling_file( UNM_sites.PPine, 2010 );
 aflx_gf = parse_ameriflux_file( fullfile( getenv( 'FLUXROOT' ), ...
                                           'FluxOut', ...
