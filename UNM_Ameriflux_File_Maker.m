@@ -57,9 +57,11 @@ end
 if year < 2007
     % before 2009, fluxall data are in excel files
     data = UNM_parse_fluxall_xls_file( sitecode, year );
+    warning( 'converting dataset to table' );
+    dataset2table( data );
 else
     % after 2012, fluxall data are kept in delimited ASCII files
-    data = UNM_parse_fluxall_txt_file( sitecode, year );
+    data = parse_fluxall_txt_file( sitecode, year );
 end
 
 % Parse the QC file
@@ -130,6 +132,7 @@ pt_MR_tbl = table_fill_timestamps( pt_MR_tbl, 'timestamp', ...
 cols = setdiff( pt_MR_tbl.Properties.VariableNames, ...
                 pt_GL_tbl.Properties.VariableNames );
 pt_tbl = [ pt_GL_tbl, pt_MR_tbl( :, cols ) ];
+
 
 seconds_per_day = 60 * 60 * 24;
 t_run = ceil( ( now() - t0 ) * seconds_per_day );
