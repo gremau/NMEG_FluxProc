@@ -1,10 +1,11 @@
 function [ pt_in_MR, pt_in_GL ] = ...
     UNM_parse_mpi_eddyproc_output( sitecode, year )
-% UNM_PARSE_MPI_EDDYPROC_OUTPUT - parse the output of Jena's online
-% gapfilling/partitioning tool into Matlab Datasets.  In January 2012 Jena
+% UNM_PARSE_MPI_EDDYPROC_OUTPUT - parse the output of MPI Jena's online
+% gapfilling/partitioning tool into Matlab tables.  In January 2012 Jena
 % updated the tool to merge the old DatasetAfterGapfill.txt into
-% DataSetAfterPartition_GL2010.txt for jobs that requested partitioning.  This
-% version of this function expects to find two partitioned output files:
+% DataSetAfterPartition_GL2010.txt for jobs that requested partitioning.
+% This version of the function expects to find two partitioned output 
+% files:
 % DataSetAfterPartition_GL2010.txt and DataSetAfterPartition.txt.
 %
 % [ pt_in_MR, pt_in_GL ] = ...
@@ -17,71 +18,54 @@ function [ pt_in_MR, pt_in_GL ] = ...
 %             DataSetAfterPartition_GL2010.txt (partitioning algorithm of
 %             Gita Lasslop 2010)
 %
-% (c) Timothy W. Hilton, UNM, Feb 2012
+% author: Gregory E. Maurer, UNM, April 2015
+% Modified from: UNM_parse_gapfilled_partitioned_output_TWH and 
+%                parse_jena_output by Timothy Hilton.
 
-%% parse the Lasslop 2010 partitioned file
+% Parse the Lasslop 2010 partitioned file
 fname = fullfile( get_site_directory( sitecode ), ...
     'processed_flux', ...
     sprintf( 'DataSetafterFluxpartGL2010_%d.txt', year ) );
 
 [ ~, fname_short, ext ] = fileparts( fname );
-fprintf( 'reading %s.%s... ', fname_short, ext );
+fprintf( 'reading %s%s... ', fname_short, ext );
 
-% exception handling added by MF, modified by TWH
+% Exception handling
 try
     pt_in_GL = parse_eddyproc_output( fname );  %GL == Gita Lasslop
 catch err
     error( sprintf( 'error parsing %s', fname) );
 end
-seconds = zeros( size( pt_in_GL.Year ) );
-pt_in_GL.timestamp = datenum( pt_in_GL.Year, ...
-    pt_in_GL.Month, ...
-    pt_in_GL.Day, ...
-    pt_in_GL.Hour, ...
-    pt_in_GL.Minute, ...
-    seconds );
+fprintf( 'done\n');
 
-%% parse the Reichstein 2005 partitioned file
+% Parse the Reichstein 2005 partitioned file
 fname = fullfile( get_site_directory( sitecode ), ...
     'processed_flux', ...
     sprintf( 'DataSetafterFluxpart_%d.txt', year ) );
-% exception handling added by MF, modified by TWH
+
+[ ~, fname_short, ext ] = fileparts( fname );
+fprintf( 'reading %s%s... ', fname_short, ext );
+
 try
     pt_in_MR = parse_eddyproc_output( fname );  %MR == Markus Reichstein
 catch err
     error( sprintf( 'error parsing %s', fname ) );
 end
-seconds = zeros( size( pt_in_MR.Year ) );
-pt_in_MR.timestamp = datenum( pt_in_MR.Year, ...
-    pt_in_MR.Month, ...
-    pt_in_MR.Day, ...
-    pt_in_MR.Hour, ...
-    pt_in_MR.Minute, ...
-    seconds );
-
 fprintf( 'done\n');
 
     function out = parse_eddyproc_output( fname )
         % PARSE_EDDYPROC_OUTPUT - parses an output file from the MPI online
         % gapfilling/partitioning tool (used to be parse_jena_output).
         %
-        % The online tool places some leading whitespace on each data line; this parser
-        % does not require that whitespace to be removed.  Likewise, this parser does
-        % not require the second header line of the data file to be removed.
+        % The online tool places some leading whitespace on each data line;
+        % this parser does not require that whitespace to be removed.  
+        % Likewise, this parser does not require the second header line of
+        % the data file to be removed.
         %
-        % Though it was written for parsing output of the Jena gapfilling/partitioning
-        % tool, it should in theory work for any whitespace-delimited ASCII data file
-        % where the first row contains the variable names, the second row contains
-        % units, and rows three to EOF contain data.
-        %
-        % The output is a matlab table array.  The dataset may be converted to a
-        % matrix of doubles using double(out).
-        %
-        % Missing values (-9999, -999, etc) are kept.  They may be replace with NaNs
-        % using replace_badvals.
+        % Missing values (-9999) are replaced with NaNs
         %
         % USAGE
-        %      out = parse_jena_output(fname);
+        %      out = parse_eddyproc_output(fname);
         %
         % INPUTS
         %     fname: string; full path to the data file to be parsed
@@ -89,9 +73,8 @@ fprintf( 'done\n');
         %     out: matlab table array; the data in the file
         %
         % SEE ALSO
-        %     dataset, replace_badvals
-        %
-        % author: Timothy W. Hilton, UNM
+        %     table, replace_badvals
+
         
         fid = fopen(fname, 'r');
         line1 = fgetl(fid);
@@ -106,9 +89,22 @@ fprintf( 'done\n');
         line2 = fgetl( fid );
         units = regexp( line2, '\s*', 'split' );
         
+        % Read data from the file
         fmt = repmat( '%f', 1, nvars );
         arr = cell2mat( textscan( fid, fmt, 'CollectOutput', true ));
         
+        % Create table
         out = array2table( arr, 'VariableNames', vars );
+        % Replace -9999 with matlab NaNs
+        out = replace_badvals( out, [-9999], 1e-6 );
+        % Add a timestamp
+        seconds = zeros( size( out.Year ) );
+        out.timestamp = datenum( out.Year, ...
+            out.Month, ...
+            out.Day, ...
+            out.Hour, ...
+            out.Minute, ...
+            seconds );
+        
     end
 end

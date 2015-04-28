@@ -40,10 +40,10 @@ end
 badvals = reshape( badvals, 1, [] );
 badval_idx = zeros( size( arr ) );
 
-for i = 1:length(badvals)
+for i = 1:length( badvals )
     
-    badval_idx = badval_idx | abs(arr - badvals(i)) < tol;
-    arr(badval_idx) = NaN;
+    badval_idx = badval_idx | abs( arr - badvals( i ) ) < tol;
+    arr( badval_idx ) = NaN;
     
 end
 
@@ -51,6 +51,7 @@ end
 if ( arg_is_dataset )
     arr = replacedata( arr_arg, arr );
 elseif ( arg_is_table )
-    arr = array2table( arr, 'VariableNames', ...
-        arr_arg.Properties.VariableNames );
+    arr = array2table( arr, ...
+        'VariableNames', arr_arg.Properties.VariableNames );
+    arr.Properties.VariableUnits = arr_arg.Properties.VariableUnits;
 end
