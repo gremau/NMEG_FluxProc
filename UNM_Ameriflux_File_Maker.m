@@ -173,9 +173,8 @@ part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl );
                                        keenan );
 
 [ amflux_gaps_new, amflux_gf_new ] = ...
-    prepare_AF_output_data( sitecode, year, ...
-                                       qc_tbl, pt_tbl, soil_tbl, ...
-                                       keenan );
+    prepare_AF_output_data( sitecode, qc_tbl, pt_tbl, soil_tbl, keenan );
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot the data before writing out to files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
