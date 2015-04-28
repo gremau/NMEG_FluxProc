@@ -1,0 +1,410 @@
+function [ amflx_gaps, amflx_gf ] = prepare_AF_output_data( sitecode, ...
+    qc_tbl, ...
+    pt_tbl, ...
+    soil_tbl, ...
+    keenan )
+% UNM_AMERIFLUX_PREPARE_FLUXES - prepare observed fluxes for writing to
+%   Ameriflux files.  Mostly creates QC flags and gives various observations the
+%   names they should have for Ameriflux.
+% This code is largely taken from UNM_Ameriflux_file_maker_011211.m
+%
+% Currently NEE, H, LE, Tair, Rg, and VPD are filled by the 
+% mpi gapfiller
+%
+% FIXME: the workflow in this is confusing (though I've cleaned it up a
+% bit) because it generates a ton of arrays using repetetive methods and
+% then some template tables get filled in. It would be smarter to build 1
+% table and then split it into with/without gaps tables using the flags in
+% a smart way.
+%
+% USAGE
+%    [ amflx_gaps, amflx_gf ] = ...
+%        UNM_Ameriflux_prepare_output_data( sitecode, ...
+%                                           year, ...
+%                                           qc_tbl, ...
+%                                           pt_tbl, ...
+%                                           soil_tbl )
+% INPUTS
+%    sitecode: UNM_sites object; specifies the site
+%    year: four-digit year: specifies the year
+%    qc_tbl: table array; data from fluxall_QC file
+%    pt_tbl: table array; output from MPI gapfiller/flux partitioner output
+%    soil_tbl: table array; soil data.  Unused for now -- specify as NaN.
+%
+% OUTPUTS
+%    amflx_gaps: table array; with-gaps Ameriflux data
+%    amflx_gf: table array; gap-filled Ameriflux data
+%
+% SEE ALSO
+%    UNM_sites, table, UNM_Ameriflux_File_Maker,
+%    UNM_parse_gapfilled_partitioned_output, UNM_parse_QC_txt_file
+%
+% by: Gregory E. Maurer, UNM, April 2015
+
+args = inputParser;
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'qc_tbl', @(x) ( isa( x, 'table' ) ) );
+args.addRequired( 'pt_tbl', @(x) ( isa( x, 'table' ) ) );
+args.addRequired( 'soil_tbl', @(x) ( isa( x, 'table' ) ) );
+
+% parse optional inputs
+args.parse( sitecode, qc_tbl, pt_tbl, soil_tbl );
+
+% place user arguments into variables
+sitecode = args.Results.sitecode;
+qc_tbl = args.Results.qc_tbl;
+pt_tbl = args.Results.pt_tbl;
+soil_tbl = args.Results.soil_tbl;
+
+soil_moisture = false; % turn off soil moisture processing for now
+
+% Create a column of -9999s to place in the table where a site does
+% not record a particular variable
+dummy = repmat( -9999, size( qc_tbl, 1 ), 1 );
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Create basic output tables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[ YEAR, MONTH, DAY, HOUR, MIN, SEC ] = datevec( qc_tbl.timestamp );
+DTIME = qc_tbl.timestamp - datenum( YEAR, 1, 1 ) + 1;
+amflx_gf = table( YEAR, MONTH, DAY, HOUR, MIN, SEC, DTIME );
+amflx_gf.Properties.VariableUnits = ...
+    { '--', '--', '--', '--', '--', '--', '--' };
+
+amflx_gaps = amflx_gf;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Add GAPFILLED met and radiation variables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Tair
+% FIXME - this is sonic temperature (Tdry - 273.15), not hmp
+% temperature. See issue 12
+TA_flag = verify_gapfilling( pt_tbl.Tair_f, qc_tbl.Tdry - 273.15, 1e-5 );
+amflx_gf = add_cols( amflx_gf, pt_tbl.Tair_f, ...
+                     { 'TA_f' }, { 'degrees C' }, TA_flag );
+amflx_gaps = add_cols( amflx_gaps, qc_tbl.Tdry - 273.15, ...
+                       { 'TA' }, { 'degrees C' } );
+
+% RH
+rH_flag = verify_gapfilling( pt_tbl.rH, qc_tbl.rH, 1e-5 );
+amflx_gf = add_cols( amflx_gf, pt_tbl.rH, { 'RH_f' }, { '%' }, rH_flag );
+amflx_gaps = add_cols( amflx_gaps, qc_tbl.rH, { 'RH' }, { '%' } );
+% Not sure why, but this converts the MPI Rh output from percent
+%    to 0-1 to be consistent with qc input. Gets multiplied by 100
+%    in this script (RJL 02/21/2014)
+%RH_pt_scaled = ds_pt.rH .* 0.01;
+
+% VPD
+% Get VPD from MPI output
+VPD_f = pt_tbl.VPD_f ./ 10; % convert to kPa
+% Flag any VPD values as true because all our VPD data is calculated
+% from our Tair and rH data by the MPI tool ( we don't send them VPD )
+VPD_flag = ~isnan( VPD_f ); %repmat( 1, size( VPD_f, 1 ), 1 );
+warning( 'VPD data in Ameriflux files is all filled from MPI' );
+amflx_gf = add_cols( amflx_gf, VPD_f, { 'VPD_f' }, { 'kPa' }, VPD_flag );
+% Add dummy data to with_gaps
+amflx_gaps = add_cols( amflx_gaps, dummy, { 'VPD' }, { 'kPa' } );
+
+% Rg - pyrranometer
+Rg_flag = verify_gapfilling( pt_tbl.Rg_f, qc_tbl.sw_incoming, 1e-4 );
+amflx_gf = add_cols( amflx_gf, pt_tbl.Rg_f, ...
+                     { 'Rg_f' }, { 'W/m2' }, Rg_flag ); %SW_IN_F
+amflx_gaps = add_cols( amflx_gaps, qc_tbl.sw_incoming, ...
+                       { 'Rg' }, { 'W/m2' } );                   
+%Rg_f( pt_tbl.Rg_fqcOK == 0 ) = NaN;
+%Rg_f( HL( Rg_f, -50, Inf ) ) = NaN;
+
+% Precip
+% Gapfilled precip should be found in MPI files
+P_flag = verify_gapfilling( pt_tbl.Precip, qc_tbl.precip, 1e-6 );
+amflx_gf = add_cols( amflx_gf, pt_tbl.Precip, ... % P_F
+    { 'PRECIP_F' }, { 'mm' }, P_flag );
+amflx_gaps = add_cols( amflx_gaps, qc_tbl.precip, { 'PRECIP' }, { 'mm' } );
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Add NON-GAPFILLED met and radiation variables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% FIXME - Potentially missing: APAR, PAR_out, PAR_DIFF, Rg_DIFF.
+
+met_nongf = [ qc_tbl.u_star, qc_tbl.wnd_dir_compass, qc_tbl.wnd_spd, ...
+              qc_tbl.atm_press, qc_tbl.Par_Avg, ...%qc_tbl.PAR_out, ...
+              qc_tbl.NR_tot, qc_tbl.sw_outgoing, qc_tbl.lw_incoming, ...
+              qc_tbl.lw_outgoing ];
+headers = { 'USTAR', 'WD', 'WS', ...
+            'PA', 'PAR', ...%'PAR_out', ...
+            'RNET', 'Rg_out', 'Rlong_in', ...
+            'Rlong_out' };
+units = { 'm/s', 'deg', 'm/s', ...
+          'kPa', 'mumol/m2/s', ...% 'mumol/m2/s', ...
+          'W/m2', 'W/m2', 'W/m2', ...
+          'W/m2' };
+      
+% Make table
+met_nongf_tbl = array2table( met_nongf, 'VariableNames', headers );
+met_nongf_tbl.Properties.VariableUnits = units;
+
+% Add to output tables
+amflx_gf = [ amflx_gf, met_nongf_tbl ];
+amflx_gaps = [amflx_gaps, met_nongf_tbl];
+
+clear headers units;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Add filled C, H2O, and energy flux variables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+FC_flag = verify_gapfilling( pt_tbl.NEE_f, qc_tbl.fc_raw_massman_wpl, ...
+    1e-5 );
+amflx_gf = add_cols( amflx_gf, pt_tbl.NEE_f, ...
+    { 'FC_f' }, { 'mumol/m2/s' }, FC_flag );
+amflx_gaps = add_cols( amflx_gaps, qc_tbl.fc_raw_massman_wpl, ...
+    { 'FC' }, { 'mumol/m2/s' } );
+
+LE_flag = verify_gapfilling( pt_tbl.LE_f, qc_tbl.HL_wpl_massman, 1e-4 );
+amflx_gf = add_cols( amflx_gf, pt_tbl.LE_f, ...
+    { 'LE_f' }, { 'W/m2' }, LE_flag );
+amflx_gaps = add_cols( amflx_gaps, qc_tbl.HL_wpl_massman, ...
+    { 'LE' }, { 'W/m2' } );
+
+H_flag = verify_gapfilling( pt_tbl.H_f, qc_tbl.HSdry_massman, 1e-4 );
+amflx_gf = add_cols( amflx_gf, pt_tbl.H_f, ...
+    { 'H_f' }, { 'W/m2' }, H_flag );
+amflx_gaps = add_cols( amflx_gaps, qc_tbl.HSdry_massman, ...
+    { 'H' }, { 'W/m2' } );
+
+% FIXME??? - not sure I get the difference between E and HL yet GEM
+% qc_tbl.HL_wpl_massman( isnan( qc_tbl.E_wpl_massman ) ) = NaN;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Add NON-FILLED flux variables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% FIXME - Potentially missing: G1 (SHF_mean), FH2O (E_wpl_massman * .18), 
+%         GPP_flag (should be same as FC_flag?).
+%         These have been added to prior Ameriflux tables.
+
+flux_nongf = [ qc_tbl.CO2_mean, qc_tbl.H2O_mean ];
+headers = { 'CO2', 'H2O' };
+units = { 'mumol/mol', 'mmol/mol' };
+
+% Make table
+flux_nongf_tbl = array2table( flux_nongf, 'VariableNames', headers );
+flux_nongf_tbl.Properties.VariableUnits = units;
+
+% Add to output tables
+amflx_gf = [ amflx_gf, flux_nongf_tbl ];
+amflx_gaps = [ amflx_gaps, flux_nongf_tbl ];
+
+clear headers units;
+      
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Add PARTITIONED C flux variables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Make a large table of partitioned values first
+part_mat = [ pt_tbl.GPP_f, pt_tbl.Reco, ...
+             pt_tbl.GPP_HBLR, pt_tbl.Reco_HBLR ];
+headers =  {'GPP_f_MR2005', 'RE_MR2005', ...
+            'GPP_GL2010', 'RE_GL2010' };
+units =    { 'mumol/m2/s', 'mumol/m2/s', ...
+             'mumol/m2/s', 'mumol/m2/s' };
+
+% Keenan 201X partitioning
+if keenan
+    part_mat = [ part_mat, pt_tbl.GPP_f_TK201X, pt_tbl.RE_f_TK201X ];
+    headers = [ headers, 'GPP_f_TK201X', 'RE_f_TK201X' ];
+    units = [ units, 'mumol/m2/s', 'mumol/m2/s' ];
+end
+
+% Add partitioned fluxes to output tables
+amflx_gf = add_cols( amflx_gf, part_mat, headers, units, FC_flag );
+% Backfill the gaps into these columns for the "with_gaps" table
+part_mat( FC_flag, : ) = NaN;
+amflx_gaps = add_cols( amflx_gaps, part_mat, headers, units );
+
+clear headers units;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Add "Ensure C balance" PARTITIONED C flux variables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% To ensure carbon balance, calculate GPP as remainder when NEE is
+% subtracted from RE. This will give negative GPP when NEE exceeds
+% modelled RE. So set GPP to zero and add difference to RE.
+
+MR2005_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
+    'RE_MR2005', 'FC_f', 'Rg_f', qc_tbl.timestamp, true );
+
+GL2010_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
+    'RE_GL2010', 'FC_f', 'Rg_f', qc_tbl.timestamp, true );
+
+TK201X_ecb_tbl = table(); % Intitialize empty table
+if keenan
+    TK201X_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
+        'RE_TK201X', 'FC_f', 'Rg_f', qc_tbl.timestamp, true );
+end
+
+% Join ecb tables together
+ecb_tbl = [ MR2005_ecb_tbl, GL2010_ecb_tbl, TK201X_ecb_tbl ];
+
+% Add to main output tables
+amflx_gf = [ amflx_gf, ecb_tbl ];
+
+% Backfill the gaps into these columns for the "with_gaps" table
+ecb_tbl{ FC_flag, : } = NaN; % Add gaps in
+amflx_gaps = [ amflx_gaps, ecb_tbl ];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A bunch of filtering and bad-data removal
+% FIXME - This should be removed or moved elsewhere
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% A little cleaning - very basic high/low filtering
+% anon function to find values in x outside of [L H]
+%HL = @( x, L, H )  (x < L) | (x > H);
+
+% FIXME - this kind of filtering does not belong here
+% qc_tbl.lw_incoming( HL( qc_tbl.lw_incoming, 120, 600 ) ) = NaN;
+% qc_tbl.lw_outgoing( HL( qc_tbl.lw_outgoing, 120, 650 ) ) = NaN;
+% qc_tbl.E_wpl_massman( HL( qc_tbl.E_wpl_massman .* 18, -5, 500 ) ) = NaN;
+% if ( sitecode == 1 ) & ( year == 2007 )
+%     qc_tbl.CO2_mean( HL( qc_tbl.CO2_mean, 344, Inf ) ) = NaN;
+% else
+%     qc_tbl.CO2_mean( HL( qc_tbl.CO2_mean, 350, Inf ) ) = NaN;
+% end
+% qc_tbl.wnd_spd( HL( qc_tbl.wnd_spd, -Inf, 25  ) ) = NaN;
+% qc_tbl.atm_press( HL( qc_tbl.atm_press, 20, 150 ) ) = NaN;
+% qc_tbl.Par_Avg( HL( qc_tbl.Par_Avg, -100, 5000 ) ) = NaN;
+% RH_pt_scaled( HL( RH_pt_scaled, 0, 1 ) ) = NaN; %RJL added 02/21/2014
+% Original    pt_tbl.rH( HL( pt_tbl.rH, 0, 1 ) ) = NaN;
+
+% FIXME - GEM
+% This shouldn't be here - commenting and if needed we can do this
+% somewhere else.
+% NEE_f( HL( NEE_f, -50, 50 ) ) = NaN;
+% RE_f( HL( RE_f, -50, 50) ) = NaN;
+% GPP_f( HL( GPP_f, -50, 50 ) ) = NaN;
+% NEE_obs( HL( NEE_obs, -50, 50 ) ) = NaN;
+% RE_obs( HL( RE_obs, -50, 50 ) ) = NaN;
+% GPP_obs( HL( GPP_obs, -50, 50 ) ) = NaN;
+% NEE_f( HL( NEE_f, -50, 50 ) ) = NaN;
+% RE_2( HL( RE_2, -50, 50 ) ) = NaN;
+% GPP_2( HL( GPP_2, -50, 50 ) ) = NaN;
+
+% if sitecode == 6 && year == 2008
+%     error( 'Put this data removal somewhere else');
+%     qc_tbl.lw_incoming( ~isnan( qc_tbl.lw_incoming ) ) = NaN;
+%     qc_tbl.lw_outgoing( ~isnan( qc_tbl.lw_outgoing ) ) = NaN;
+%     qc_tbl.NR_tot( ~isnan( qc_tbl.NR_tot ) ) = NaN;
+% end
+
+% Moving this down to deal with exported tables directly - GEM
+
+% replace 9999s with matlab NaNs
+% fp_tol = 0.0001;  % tolerance for floating point comparison
+% NEE_obs = replace_badvals( NEE_obs, -9999, fp_tol );
+% GPP_obs = replace_badvals( GPP_obs, -9999, fp_tol );
+% RE_obs = replace_badvals( RE_obs, -9999, fp_tol );
+% H_obs = replace_badvals( H_obs, -9999, fp_tol );
+% LE_obs = replace_badvals( LE_obs, -9999, fp_tol );
+% VPD_f = replace_badvals( VPD_f, -999.9, fp_tol );
+
+% Hide [CO2] for GLand 2009, 2010 -- the calibrations are
+% really bad. FIXME - should we unhide this?
+if ( sitecode == 1 ) && ismember( year, [ 2009, 2010 ] )
+    qc_tbl.CO2_mean( : ) = dummy;
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Soil stuff
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%get the names of the soil heat flux variables (how many there are varies
+%site to site)
+if soil_moisture
+    shf_vars = regexp_header_vars( soil_tbl, 'SHF.*' );
+    
+    soil_tbl.Tsoil_1( HL( soil_tbl.Tsoil_1, -10, 50 ) ) = NaN;
+    soil_tbl.SWC_1( HL( soil_tbl.SWC_1, 0, 1 ) ) = NaN;
+end
+
+if soil_moisture
+    for i = 1:numel( shf_vars )
+        this_shf = soil_tbl.( shf_vars{ i } );
+        this_shf( HL( this_shf, -150, 150 ) ) = NaN;
+        soil_tbl.( shf_vars{ i } ) = this_shf;
+    end
+end
+
+% calculate mean soil heat flux across all pits
+if soil_moisture
+    SHF_vars = soil_tbl( :, regexp_header_vars( soil_tbl, 'SHF.*' ) );
+    SHF_mean = nanmean( double( SHF_vars ), 2 );
+end
+
+% Add to AF files?
+%amflx_gaps.SWC_2p5cm = dummy; %soil_tbl.SWC_1;
+%amflx_gaps.TS_2p5cm = dummy; %soil_tbl.Tsoil_1;
+
+%amflx_gf.SWC_2p5cm = dummy; %soil_tbl.SWC_1;
+%amflx_gf.TS_2p5cm = dummy; %soil_tbl.Tsoil_1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Change any leftover error values to NaN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+fp_tol = 0.0001;  % tolerance for floating point comparison
+amflx_gaps = replace_badvals( amflx_gaps, -9999, fp_tol );
+amflx_gf = replace_badvals( amflx_gf, -9999, fp_tol );
+
+%----------------------------------------------------------------------
+% Subfunctions
+
+    % Function to add colums of data to a table, including headers and
+    % units
+    function tbl_out = add_cols( tbl_in, add_mat, headers, units, varargin )
+        % If there is a data flag append it and give it a name indicating
+        % the first column to use this flag
+        if ~isempty( varargin ) && islogical( varargin{ 1 })
+            gaps = varargin{ 1 };
+            % and then append the flag to the end of the table
+            headers{ end + 1 } = [ headers{ 1 } '_flag' ];
+            units{ end + 1 } = '--';
+            prep_add_mat = [ add_mat, gaps ];
+        else
+            prep_add_mat = add_mat;
+        end         
+        tbl_add = array2table( prep_add_mat, 'VariableNames', headers );
+        tbl_add.Properties.VariableUnits = units;
+        % Make the new table by concatenating the 2 tables
+        tbl_out = [ tbl_in, tbl_add ];
+        
+    end
+
+    % Function to make sure the observed data and gapfilled data don't
+    % overlap - returns a flag indicating where gapfilling has occurred
+    function flag = verify_gapfilling( gapfilled, obs, tol )
+        % Verify that gapfilled and obs are the same size
+        if length( gapfilled ) ~= length( obs )
+            error( 'Gapfilled and observed data have different sizes!' );
+        end
+        % Initialize a gapfilled data flag to true
+        % ( double - old int8 flag was problematic )
+        flag = true( size( obs, 1 ), 1 );
+        flag( ~isnan( obs ) ) = false; % Mark observations with zero
+        % Backfill the gapfilled column with observations when available
+        gapfilled_obs = gapfilled;
+        gapfilled_obs( ~flag ) = obs( ~flag );
+        % Do the backfilled and original gapfilled columns match?
+        % There are some small rounding errors when comparing mpi output
+        % to our files, but otherwise the columns should be the same
+        difftest = abs( gapfilled - gapfilled_obs ) > tol ;
+        if sum( difftest ) > 0
+            error( 'Gapfilled and non-gapfilled data are different!' );
+        end
+    end
+        
+end
