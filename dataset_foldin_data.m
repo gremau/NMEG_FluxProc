@@ -32,6 +32,12 @@ function ds_out = dataset_foldin_data( ds_in1, ds_in2 )
 warning( 'This function ( dataset_foldin_data.m ) is deprecated' );
 
 % -----
+
+if isempty( ds_in2 )
+    ds_out = ds_in1;
+    fprintf( 'Second dataset was empty. Returning first dataset. \n' )
+    return
+end
 % make sure the two datasets have identical timestamps:
 % align 30-minute timestamps and fill in missing timestamps
 two_mins_tolerance = 2; % for purposes of joining data, treat timestamps

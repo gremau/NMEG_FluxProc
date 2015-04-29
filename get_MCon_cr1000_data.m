@@ -57,8 +57,13 @@ if min( chooseFiles ) ~= 1
     chooseFiles = [ min( chooseFiles ) - 1, chooseFiles ];
 end
 
-% This should concatenate data and fill in missing timestamps for all the
-% fileNames. Dont think headers have changed at this point.
-cr1000Data = combine_and_fill_datalogger_files( ...
-    'file_names', fileNames( chooseFiles ), ...
-    'datalogger_type', 'cr1000', 'resolve_headers', false );
+if ~isempty( chooseFiles );
+    % This should concatenate data and fill in missing timestamps for
+    % all thefileNames. Dont think headers have changed at this point.
+    cr1000Data = combine_and_fill_datalogger_files( ...
+        'file_names', fileNames( chooseFiles ), ...
+        'datalogger_type', 'cr1000', 'resolve_headers', false );
+elseif isempty( chooseFiles )
+    fprintf( 'No cr1000 data available for MCon in %d\n', year );
+    cr1000Data = dataset();
+end
