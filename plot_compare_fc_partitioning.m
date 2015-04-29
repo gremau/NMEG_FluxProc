@@ -1,5 +1,5 @@
 function fighandle = plot_compare_fc_partitioning( site, yr, ...
-                                                   data_in, keenan )
+                                                   data_in, varargin )
 % PLOT_COMPARE_FC_PARTITIONING - makes diagnostic figures showing the
 % output of several different NEE partitioning methods.
 %
@@ -30,13 +30,15 @@ args.addRequired( 'site', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'yr', ...
     @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
 args.addRequired( 'data_in', @istable );
+args.addParameter( 'keenan', false, @logical );
 
 % parse optional inputs
-args.parse( site, yr, data_in );
+args.parse( site, yr, data_in, varargin{ : } );
 
 site = args.Results.site;
 yr = args.Results.yr;
 pt_tbl = args.Results.data_in; % Contains partitioned NEE values
+keenan = args.Results.keenan;
 
 % Set up figure window
 fighandle = figure( 'Name',...

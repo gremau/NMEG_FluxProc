@@ -158,7 +158,8 @@ end
 
 pt_tbl = correct_AF_gapfilling( sitecode, year, pt_tbl );
 
-part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl, keenan );
+part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl, ...
+    'keenan', keenan );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create Ameriflux output table and write to ASCII files
