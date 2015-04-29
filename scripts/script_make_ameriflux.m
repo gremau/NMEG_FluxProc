@@ -4,11 +4,11 @@
 % sitelist = { UNM_sites.PPine, UNM_sites.MCon, ...
 %     UNM_sites.JSav, UNM_sites.PJ, UNM_sites.PJ_girdle ...
 %      UNM_sites.SLand, UNM_sites.GLand, UNM_sites.New_GLand};
-sitelist = {UNM_sites.PJ_girdle};
+sitelist = {UNM_sites.MCon};
 %sitelist = {UNM_sites.PJ_girdle};
 %sitelist = {UNM_sites.New_GLand};
 
-yearlist = 2009;
+yearlist = 2011;
 partmethod = 'eddyproc';%'Reddyproc'
 % Make daily files? All (desired) AF files should be in
 % $FLUXROOT$/Ameriflux_files
