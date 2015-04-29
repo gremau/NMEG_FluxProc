@@ -168,11 +168,6 @@ part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl );
 
 % create the variables to be written to the output files
 [ amflux_gaps, amflux_gf ] = ...
-    UNM_Ameriflux_prepare_output_data( sitecode, year, ...
-                                       qc_tbl, pt_tbl, soil_tbl, ...
-                                       keenan );
-
-[ amflux_gaps_new, amflux_gf_new ] = ...
     prepare_AF_output_data( sitecode, qc_tbl, pt_tbl, soil_tbl, keenan );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,15 +178,15 @@ if 0 % turned off for now
     start_col = 5; %skip plotting for first 4 columns (time variables)
     t0 = now();
     fname = fullfile( get_out_directory( sitecode ), ...
-                      sprintf( '%s_%d_gapfilled.ps', ...
-                               get_site_name(sitecode), year ) );
+        sprintf( '%s_%d_gapfilled.ps', ...
+        get_site_name(sitecode), year ) );
     UNM_Ameriflux_plot_dataset_eps( amflux_gf, fname, year, start_col );
     fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
     
     t0 = now();
     fname = fullfile( get_out_directory( sitecode ), ...
-                      sprintf( '%s_%d_with_gaps.ps', ...
-                               get_site_name(sitecode), year ) );
+        sprintf( '%s_%d_with_gaps.ps', ...
+        get_site_name(sitecode), year ) );
     UNM_Ameriflux_plot_dataset_eps( amflux_gaps, fname, year, start_col );
     fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
 end
@@ -200,12 +195,12 @@ end
 % write gapfilled and with_gaps Ameriflux files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if args.Results.write_files 
-UNM_Ameriflux_write_file( sitecode, year, amflux_gf, ...
-                          'mlitvak@unm.edu', 'gapfilled' );
-
-UNM_Ameriflux_write_file( sitecode, year, amflux_gaps, ...
-                          'mlitvak@unm.edu', 'with_gaps' );
+if args.Results.write_files
+    UNM_Ameriflux_write_file( sitecode, year, amflux_gf, ...
+        'mlitvak@unm.edu', 'gapfilled' );
+    
+    UNM_Ameriflux_write_file( sitecode, year, amflux_gaps, ...
+        'mlitvak@unm.edu', 'with_gaps' );
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

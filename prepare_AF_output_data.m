@@ -1,51 +1,46 @@
 function [ amflx_gaps, amflx_gf ] = prepare_AF_output_data( sitecode, ...
-    qc_tbl, ...
-    pt_tbl, ...
-    soil_tbl, ...
-    keenan )
-% UNM_AMERIFLUX_PREPARE_FLUXES - prepare observed fluxes for writing to
-%   Ameriflux files.  Mostly creates QC flags and gives various observations the
-%   names they should have for Ameriflux.
-% This code is largely taken from UNM_Ameriflux_file_maker_011211.m
+                                                            qc_tbl, ...
+                                                            pt_tbl, ...
+                                                            soil_tbl, ...
+                                                            keenan )
+% PREPARE_AF_OUTPUT_DATA - prepare observed fluxes for writing to
+%   Ameriflux files.  Mostly creates QC flags and gives various 
+%   observations the names they should have for Ameriflux.
 %
-% Currently NEE, H, LE, Tair, Rg, and VPD are filled by the 
-% mpi gapfiller
+% Currently NEE, H, LE, Tair, Rg, Precip, and VPD are filled by either
+% the mpi gapfiller or from nearby site data
 %
-% FIXME: the workflow in this is confusing (though I've cleaned it up a
-% bit) because it generates a ton of arrays using repetetive methods and
-% then some template tables get filled in. It would be smarter to build 1
-% table and then split it into with/without gaps tables using the flags in
-% a smart way.
 %
 % USAGE
-%    [ amflx_gaps, amflx_gf ] = ...
-%        UNM_Ameriflux_prepare_output_data( sitecode, ...
-%                                           year, ...
-%                                           qc_tbl, ...
-%                                           pt_tbl, ...
-%                                           soil_tbl )
+%    [ amflx_gaps, amflx_gf ] = prepare_AF_output_data( sitecode, ...
+%                                                       qc_tbl, ...
+%                                                       pt_tbl, ...
+%                                                       soil_tbl, ...
+%                                                       keenan )
 % INPUTS
 %    sitecode: UNM_sites object; specifies the site
-%    year: four-digit year: specifies the year
 %    qc_tbl: table array; data from fluxall_QC file
 %    pt_tbl: table array; output from MPI gapfiller/flux partitioner output
 %    soil_tbl: table array; soil data.  Unused for now -- specify as NaN.
+%    keenan: boolean; flag indicating use of keenan partitioned fluxes
 %
 % OUTPUTS
 %    amflx_gaps: table array; with-gaps Ameriflux data
 %    amflx_gf: table array; gap-filled Ameriflux data
 %
 % SEE ALSO
-%    UNM_sites, table, UNM_Ameriflux_File_Maker,
-%    UNM_parse_gapfilled_partitioned_output, UNM_parse_QC_txt_file
+%    UNM_sites, table, UNM_Ameriflux_File_Maker
 %
 % by: Gregory E. Maurer, UNM, April 2015
+%
+% Some code adapted from UNM_Ameriflux_prepare_output_data.m and 
+% make_AF_output_tables.m by Tim Hilton
 
 args = inputParser;
-args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
-args.addRequired( 'qc_tbl', @(x) ( isa( x, 'table' ) ) );
-args.addRequired( 'pt_tbl', @(x) ( isa( x, 'table' ) ) );
-args.addRequired( 'soil_tbl', @(x) ( isa( x, 'table' ) ) );
+args.addRequired( 'sitecode', @(x) ( isintval(x) | isa( x, 'UNM_sites' )));
+args.addRequired( 'qc_tbl', @(x) ( isa( x, 'table' )));
+args.addRequired( 'pt_tbl', @(x) ( isa( x, 'table' )));
+args.addRequired( 'soil_tbl', @(x) ( isa( x, 'table' )));
 
 % parse optional inputs
 args.parse( sitecode, qc_tbl, pt_tbl, soil_tbl );
@@ -91,10 +86,6 @@ amflx_gaps = add_cols( amflx_gaps, qc_tbl.Tdry - 273.15, ...
 rH_flag = verify_gapfilling( pt_tbl.rH, qc_tbl.rH, 1e-5 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.rH, { 'RH_f' }, { '%' }, rH_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.rH, { 'RH' }, { '%' } );
-% Not sure why, but this converts the MPI Rh output from percent
-%    to 0-1 to be consistent with qc input. Gets multiplied by 100
-%    in this script (RJL 02/21/2014)
-%RH_pt_scaled = ds_pt.rH .* 0.01;
 
 % VPD
 % Get VPD from MPI output
@@ -104,7 +95,7 @@ VPD_f = pt_tbl.VPD_f ./ 10; % convert to kPa
 VPD_flag = ~isnan( VPD_f ); %repmat( 1, size( VPD_f, 1 ), 1 );
 warning( 'VPD data in Ameriflux files is all filled from MPI' );
 amflx_gf = add_cols( amflx_gf, VPD_f, { 'VPD_f' }, { 'kPa' }, VPD_flag );
-% Add dummy data to with_gaps
+% Add dummy data to with_gaps table
 amflx_gaps = add_cols( amflx_gaps, dummy, { 'VPD' }, { 'kPa' } );
 
 % Rg - pyrranometer
@@ -113,8 +104,6 @@ amflx_gf = add_cols( amflx_gf, pt_tbl.Rg_f, ...
                      { 'Rg_f' }, { 'W/m2' }, Rg_flag ); %SW_IN_F
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.sw_incoming, ...
                        { 'Rg' }, { 'W/m2' } );                   
-%Rg_f( pt_tbl.Rg_fqcOK == 0 ) = NaN;
-%Rg_f( HL( Rg_f, -50, Inf ) ) = NaN;
 
 % Precip
 % Gapfilled precip should be found in MPI files
@@ -175,7 +164,7 @@ amflx_gf = add_cols( amflx_gf, pt_tbl.H_f, ...
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.HSdry_massman, ...
     { 'H' }, { 'W/m2' } );
 
-% FIXME??? - not sure I get the difference between E and HL yet GEM
+% FIXME??? - not sure I get the difference between E and HL yet - GEM
 % qc_tbl.HL_wpl_massman( isnan( qc_tbl.E_wpl_massman ) ) = NaN;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -244,7 +233,7 @@ GL2010_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
 TK201X_ecb_tbl = table(); % Intitialize empty table
 if keenan
     TK201X_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
-        'RE_TK201X', 'FC_f', 'Rg_f', qc_tbl.timestamp, true );
+        'RE_f_TK201X', 'FC_f', 'Rg_f', qc_tbl.timestamp, true );
 end
 
 % Join ecb tables together
@@ -322,8 +311,8 @@ end
 % Soil stuff
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%get the names of the soil heat flux variables (how many there are varies
-%site to site)
+% Get the names of the soil heat flux variables (how many 
+% there are varies site to site)
 if soil_moisture
     shf_vars = regexp_header_vars( soil_tbl, 'SHF.*' );
     
@@ -339,7 +328,7 @@ if soil_moisture
     end
 end
 
-% calculate mean soil heat flux across all pits
+% Calculate mean soil heat flux across all pits
 if soil_moisture
     SHF_vars = soil_tbl( :, regexp_header_vars( soil_tbl, 'SHF.*' ) );
     SHF_mean = nanmean( double( SHF_vars ), 2 );
@@ -365,7 +354,8 @@ amflx_gf = replace_badvals( amflx_gf, -9999, fp_tol );
 
     % Function to add colums of data to a table, including headers and
     % units
-    function tbl_out = add_cols( tbl_in, add_mat, headers, units, varargin )
+    function tbl_out = add_cols( tbl_in, add_mat, ...
+                                 headers, units, varargin )
         % If there is a data flag append it and give it a name indicating
         % the first column to use this flag
         if ~isempty( varargin ) && islogical( varargin{ 1 })
@@ -381,7 +371,6 @@ amflx_gf = replace_badvals( amflx_gf, -9999, fp_tol );
         tbl_add.Properties.VariableUnits = units;
         % Make the new table by concatenating the 2 tables
         tbl_out = [ tbl_in, tbl_add ];
-        
     end
 
     % Function to make sure the observed data and gapfilled data don't

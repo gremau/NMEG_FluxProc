@@ -16,6 +16,9 @@ function [ amflux_gaps, amflux_gf ] = ...
 % table and then split it into with/without gaps tables using the flags in
 % a smart way.
 %
+% FIXME - Deprecated. This function is being superseded by
+% prepare_AF_output_data.m
+%
 % USAGE
 %    [ amflux_gaps, amflux_gf ] = ...
 %        UNM_Ameriflux_prepare_output_data( sitecode, ...
@@ -39,6 +42,8 @@ function [ amflux_gaps, amflux_gf ] = ...
 %    UNM_parse_gapfilled_partitioned_output, UNM_parse_QC_txt_file
 %
 % (c) Timothy W. Hilton, UNM, January 2012
+
+warning( 'This function (UNM_Ameriflux_prepare_output_data) is deprecated!' );
 
 [ this_year, ~, ~ ] = datevec( now );
 

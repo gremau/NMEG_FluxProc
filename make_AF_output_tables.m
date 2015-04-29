@@ -2,6 +2,9 @@ function [amflux_gaps, amflux_gf] = make_AF_output_tables( sitecode, nrow)
 % MAKE_AF_OUTPUT_TABLES - define variable name and units for
 % Ameriflux files and create dummy table array to be populated externally.
 % 
+% FIXME - This is deprecated. It is being superseded by
+% prepare_AF_output_data.m
+%
 % Helper function for UNM_Ameriflux_prepare_output_data.  Creates a table with
 % specified variables, units, and number of rows populated entirely with NaN.
 %
@@ -20,6 +23,7 @@ function [amflux_gaps, amflux_gf] = make_AF_output_tables( sitecode, nrow)
 %
 % author: Timothy W. Hilton, UNM, January 2012
 
+warning( 'This function (make_AF_output_tables) is deprecated!' );
 
 ts_depth(1)={'TS_2p5cm'};
 ts_depth(2)={'TS_2p5cm'};
