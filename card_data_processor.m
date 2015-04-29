@@ -286,10 +286,13 @@ methods
                     secondary_data, dataset_array{ j });
             end
         end
-        % Trim data to obj.date_start <==> obj.date_end
-        idx = ( secondary_data.timestamp >= obj.date_start ) & ...
-            ( secondary_data.timestamp <= obj.date_end );
-        obj.data_30min_secondary = secondary_data( idx, : );
+        % There isn't always data available, but if there is
+        % trim data to obj.date_start <==> obj.date_end
+        if ~isempty( secondary_data );
+            idx = ( secondary_data.timestamp >= obj.date_start ) & ...
+                ( secondary_data.timestamp <= obj.date_end );
+            obj.data_30min_secondary = secondary_data( idx, : );
+        end
 
     end  % get_secondary_data
 
