@@ -6,9 +6,9 @@ function result = UNM_Ameriflux_File_Maker( sitecode, year, varargin )
 % soil data and the gap filled and flux partitioned files and generates
 % output in a format for submission to Ameriflux
 %
-% based on code created by Krista Anderson Teixeira in July 2007 and modified by
-% John DeLong 2008 through 2009.  Extensively modified by Timothy W. Hilton 2011
-% to 2013.
+% based on code created by Krista Anderson Teixeira in July 2007 and 
+% modified by John DeLong 2008 through 2009. Extensively modified by
+% Timothy W. Hilton 2011 to 2013.
 %
 % USAGE
 %    result = UNM_Ameriflux_file_maker( sitecode, year, ... )
@@ -133,7 +133,6 @@ cols = setdiff( pt_MR_tbl.Properties.VariableNames, ...
                 pt_GL_tbl.Properties.VariableNames );
 pt_tbl = [ pt_GL_tbl, pt_MR_tbl( :, cols ) ];
 
-
 seconds_per_day = 60 * 60 * 24;
 t_run = ceil( ( now() - t0 ) * seconds_per_day );
 fprintf( 'done (%d seconds)\n', t_run ); %done sychronizing timestamps
@@ -159,8 +158,7 @@ end
 
 pt_tbl = correct_AF_gapfilling( sitecode, year, pt_tbl );
 
-part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl );
-
+part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl, keenan );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create Ameriflux output table and write to ASCII files
@@ -174,17 +172,17 @@ part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl );
 % plot the data before writing out to files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if 0 % turned off for now
+if 1 % turned on for now
     start_col = 5; %skip plotting for first 4 columns (time variables)
     t0 = now();
-    fname = fullfile( get_out_directory( sitecode ), ...
+    fname = fullfile( get_out_directory( sitecode ), 'figures',...
         sprintf( '%s_%d_gapfilled.ps', ...
         get_site_name(sitecode), year ) );
     UNM_Ameriflux_plot_dataset_eps( amflux_gf, fname, year, start_col );
     fprintf( 'plot time: %.0f secs\n', ( now() - t0 ) * 86400 );
     
     t0 = now();
-    fname = fullfile( get_out_directory( sitecode ), ...
+    fname = fullfile( get_out_directory( sitecode ), 'figures',...
         sprintf( '%s_%d_with_gaps.ps', ...
         get_site_name(sitecode), year ) );
     UNM_Ameriflux_plot_dataset_eps( amflux_gaps, fname, year, start_col );
