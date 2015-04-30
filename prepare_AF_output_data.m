@@ -61,11 +61,13 @@ dummy = repmat( -9999, size( qc_tbl, 1 ), 1 );
 % Create basic output tables
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[ YEAR, MONTH, DAY, HOUR, MIN, SEC ] = datevec( qc_tbl.timestamp );
-DTIME = qc_tbl.timestamp - datenum( YEAR, 1, 1 ) + 1;
-amflx_gf = table( YEAR, MONTH, DAY, HOUR, MIN, SEC, DTIME );
-amflx_gf.Properties.VariableUnits = ...
-    { '--', '--', '--', '--', '--', '--', '--' };
+timestamp = qc_tbl.timestamp; % Will be stripped later
+TIMESTAMP = dummy; % This will be a string, so fill it in later
+[ YEAR, ~, ~ ] = datevec( timestamp );
+DTIME = timestamp - datenum( YEAR, 1, 1 ) + 1;
+amflx_gf = table( timestamp, TIMESTAMP, YEAR, DTIME );
+amflx_gf.Properties.VariableUnits = { '--', 'YYYYMMDDHHMMSS', ...
+    'YYYY', 'D.D' };
 
 amflx_gaps = amflx_gf;
 
@@ -225,15 +227,15 @@ clear headers units;
 % modelled RE. So set GPP to zero and add difference to RE.
 
 MR2005_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
-    'RE_MR2005', 'FC_f', 'Rg_f', qc_tbl.timestamp, true );
+    'RE_MR2005', 'FC_f', 'Rg_f', true );
 
 GL2010_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
-    'RE_GL2010', 'FC_f', 'Rg_f', qc_tbl.timestamp, true );
+    'RE_GL2010', 'FC_f', 'Rg_f', true );
 
 TK201X_ecb_tbl = table(); % Intitialize empty table
 if keenan
     TK201X_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
-        'RE_f_TK201X', 'FC_f', 'Rg_f', qc_tbl.timestamp, true );
+        'RE_f_TK201X', 'FC_f', 'Rg_f', true );
 end
 
 % Join ecb tables together

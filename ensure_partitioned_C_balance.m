@@ -1,5 +1,5 @@
 function out_tbl = ensure_partitioned_C_balance( sitecode, ...
-    in_tbl, RE_str, NEE_str, Rg_str, timestamp, include_old_ecb )
+    in_tbl, RE_str, NEE_str, Rg_str, include_old_ecb )
 
 % FIXME - documentation and cleanup
 
@@ -12,6 +12,7 @@ fix_night = false;
 RE = in_tbl.( RE_str );
 NEE = in_tbl.( NEE_str );
 Rg = in_tbl.( Rg_str );
+tstamp = in_tbl.timestamp;
 
 % Make new header cellarrays
 RE_str_new = [ RE_str, '_ecb' ];
@@ -21,8 +22,8 @@ new_headers = { GPP_str_new, RE_str_new, NEE_str_new };
 unit_headers = { 'mumol/m2/s', 'mumol/m2/s', 'mumol/m2/s' };
 
 % Retrieve the carbon-balanced outputs and put in table
-ecb_mat = ensure_carbon_balance( sitecode, timestamp, ...
-    RE, NEE, Rg, fix_night );
+ecb_mat = ensure_carbon_balance( sitecode, tstamp, RE, NEE, Rg, ...
+                                 fix_night );
 ecb_tbl = array2table( ecb_mat, 'VariableNames', new_headers );
 ecb_tbl.Properties.VariableUnits = unit_headers;
 
@@ -33,8 +34,8 @@ if include_old_ecb
     % Change the headers a bit
     new_headers = strrep( new_headers, '_ecb', '_oldecb');
     % Retrieve carbon-balanced outputs and put in table
-    old_ecb_mat = ensure_carbon_balance( sitecode, timestamp, ...
-        RE, NEE, Rg, fix_night );
+    old_ecb_mat = ensure_carbon_balance( sitecode, tstamp, RE, NEE, Rg, ...
+                                         fix_night );
     old_ecb_tbl = array2table( old_ecb_mat, 'VariableNames', new_headers );
     old_ecb_tbl.Properties.VariableUnits = unit_headers;
 end

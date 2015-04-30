@@ -50,6 +50,15 @@ outdir = args.Results.outdir;
 % now create and write the output file
 result = 1;
 
+% We can now fill in the 'TIMESTAMP' and remove 'timestamp'
+if any( strcmp( 'timestamp', af_tbl.Properties.VariableNames ) )
+    af_tbl.TIMESTAMP = str2num( ...
+        datestr( af_tbl.timestamp, 'YYYYmmDDHHMMSS' ));
+    af_tbl.timestamp = [];
+else
+    error( 'Time columns not properly configured!' );
+end
+
 %use a default if no output directory specified
 if strcmp( outdir, '' )
     outdir = get_out_directory( sitecode );
@@ -61,7 +70,7 @@ ncol = size( af_tbl, 2 );
 sites_info = parse_UNM_site_table();
 aflx_site_name = char( sites_info.Ameriflux( sitecode ) );
 fname = fullfile( outdir, ...
-                  sprintf( '%s_%d_%s.txt', ...
+                  sprintf( '%s_%d_%s_branch.txt', ...
                            aflx_site_name, ...
                            year, ...
                            fname_suffix ) );

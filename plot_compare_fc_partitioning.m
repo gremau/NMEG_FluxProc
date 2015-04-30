@@ -30,15 +30,18 @@ args.addRequired( 'site', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'yr', ...
     @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
 args.addRequired( 'data_in', @istable );
-args.addParameter( 'keenan', false, @logical );
+args.addParameter( 'keenan', false, @islogical );
 
-% parse optional inputs
+% Parse optional inputs
 args.parse( site, yr, data_in, varargin{ : } );
-
 site = args.Results.site;
 yr = args.Results.yr;
-pt_tbl = args.Results.data_in; % Contains partitioned NEE values
+af_tbl = args.Results.data_in; % Contains partitioned NEE values
 keenan = args.Results.keenan;
+
+% These are the partitioned flux variables to be plotted
+re_vars = { 'RE_MR2005', 'RE_GL2010', 'RE_f_TK201X' };
+gpp_vars = { 'GPP_f_MR2005', 'GPP_GL2010', 'GPP_f_TK201X' };
 
 % Set up figure window
 fighandle = figure( 'Name',...
@@ -47,7 +50,7 @@ fighandle = figure( 'Name',...
 
 % Four subplots
 ax( 1 ) = subplot( 2, 3, 1:2 );
-h = compare_timeseries( 'RE', ax( 1 ), pt_tbl, keenan );
+h = compare_timeseries( 'RE', ax( 1 ), af_tbl, keenan );
 if keenan
     legend( 'filled NEE', 'Reichstein', 'Lasslop', 'Keenan x 100', ...
         'Location','northwest' )
@@ -57,13 +60,13 @@ else
 end
 
 ax( 2 ) = subplot( 2, 3, 3 );
-h = compare_cumulative_series( 'RE', ax( 2 ), pt_tbl, keenan );
+h = compare_cumulative_series( 'RE', ax( 2 ), af_tbl, keenan );
 
 ax( 3 ) = subplot( 2, 3, 4:5 );
-h = compare_timeseries( 'GPP', ax( 3 ), pt_tbl, keenan );
+h = compare_timeseries( 'GPP', ax( 3 ), af_tbl, keenan );
 
 ax( 4 ) = subplot( 2, 3, 6 );
-h = compare_cumulative_series( 'GPP', ax( 4 ), pt_tbl, keenan );
+h = compare_cumulative_series( 'GPP', ax( 4 ), af_tbl, keenan );
 
 title( ax( 1 ), sprintf('Partitioning Comparison: %s %d', ...
     get_site_name( site ), yr ));
@@ -79,15 +82,15 @@ linkaxes( ax, 'x' );
 % Plot the timeseries from all partitioning methods
     function handles = compare_timeseries( var, axis, tbl, keen )
         if strcmp( var, 'RE' )
-            tbl_vars = { 'Reco', 'Reco_HBLR', 'RE_f_TK201X' };
+            tbl_vars = re_vars;
             ylimit = [ -2, max( tbl.( tbl_vars{ 2 } )) ];
             sc = 1; % RE should have a positive sign convention
         elseif strcmp( var, 'GPP' )
-            tbl_vars = { 'GPP_f', 'GPP_HBLR', 'GPP_f_TK201X' };
+            tbl_vars = gpp_vars;
             ylimit = [ -max( tbl.( tbl_vars{ 2 } )), 5 ];
             sc = -1; % GPP has a negative sign convention
         end
-        plot( axis, tbl.timestamp, tbl.NEE_f, ':', ...
+        plot( axis, tbl.timestamp, tbl.FC_f, ':', ...
             'color', [ 0.7,0.7,0.7 ] );
         hold on;
         plot( axis, tbl.timestamp, tbl.( tbl_vars{ 1 } ) * sc, '-k' );
@@ -105,10 +108,10 @@ linkaxes( ax, 'x' );
 % Plot the cumulative series
     function handles = compare_cumulative_series( var, axis, tbl, keen )
         if strcmp( var, 'RE' )
-            tbl_vars = { 'Reco', 'Reco_HBLR', 'RE_f_TK201X' };
+            tbl_vars = re_vars;
             sc = 1; % RE should have a positive sign convention
         elseif strcmp( var, 'GPP' )
-            tbl_vars = { 'GPP_f', 'GPP_HBLR', 'GPP_f_TK201X' };
+            tbl_vars = gpp_vars;
             sc = -1; % GPP has a negative sign convention
         end
         plot( tbl.timestamp, ...

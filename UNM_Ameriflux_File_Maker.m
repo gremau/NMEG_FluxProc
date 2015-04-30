@@ -152,14 +152,10 @@ if ~isempty( pt_TK_tbl )
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Remove periods where gapfilling fails or is ridiculous and make a 
-% diagnostic plot of partitioning outputs.
+% Remove periods where gapfilling fails or is ridiculous
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pt_tbl = correct_AF_gapfilling( sitecode, year, pt_tbl );
-
-part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl, ...
-    'keenan', keenan );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create Ameriflux output table and write to ASCII files
@@ -170,10 +166,17 @@ part_dfig = plot_compare_fc_partitioning( sitecode, year, pt_tbl, ...
     prepare_AF_output_data( sitecode, qc_tbl, pt_tbl, soil_tbl, keenan );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% make a diagnostic plot of partitioning outputs.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+part_dfig = plot_compare_fc_partitioning( sitecode, year, amflux_gf, ...
+    'keenan', keenan );
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot the data before writing out to files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if 1 % turned on for now
+if 0 % turned on for now
     start_col = 5; %skip plotting for first 4 columns (time variables)
     t0 = now();
     fname = fullfile( get_out_directory( sitecode ), 'figures',...
