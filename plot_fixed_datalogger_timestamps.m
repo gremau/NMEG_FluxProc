@@ -262,7 +262,6 @@ diagFig2 = h_fig2;
             'VariableNames', { 'time', varName1, varName2 } );
     end
 
-
 % ========================== PLOT DEFINITIONS =============================
 
 % Plot radiation for specified period and its average
