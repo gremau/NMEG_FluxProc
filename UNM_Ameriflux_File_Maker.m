@@ -68,7 +68,7 @@ end
 qc_tbl = parse_fluxall_qc_file( sitecode, year );
 
 % Parse gapfilled and partitioned fluxes from online MPI eddyproc tool
-[ pt_GL_tbl, pt_MR_tbl ] = ...
+[ pt_MR_tbl, pt_GL_tbl ] = ...
     UNM_parse_mpi_eddyproc_output( sitecode, year );
 
 % Parse gapfilled fluxes from Reddyproc tool FIXME - not ready yet

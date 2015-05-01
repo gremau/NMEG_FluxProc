@@ -1,4 +1,5 @@
-function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, varargin )
+function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
+                                                      varargin )
 % UNM_FILL_MET_GAPS_FROM_NEARBY_SITE - fills gaps in site's meteorological data
 %   from the closest nearby site
 %

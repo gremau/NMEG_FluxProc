@@ -109,7 +109,7 @@ amflx_gaps = add_cols( amflx_gaps, qc_tbl.sw_incoming, ...
 
 % Precip
 % Gapfilled precip should be found in MPI files
-P_flag = verify_gapfilling( pt_tbl.Precip, qc_tbl.precip, 1e-6 );
+P_flag = verify_gapfilling( pt_tbl.Precip, qc_tbl.precip, 1e-5 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.Precip, ... % P_F
     { 'PRECIP_F' }, { 'mm' }, P_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.precip, { 'PRECIP' }, { 'mm' } );
@@ -394,7 +394,20 @@ amflx_gf = replace_badvals( amflx_gf, -9999, fp_tol );
         % to our files, but otherwise the columns should be the same
         difftest = abs( gapfilled - gapfilled_obs ) > tol ;
         if sum( difftest ) > 0
-            error( 'Gapfilled and non-gapfilled data are different!' );
+            % Figure showing observations that passed the QC process
+            % (in fluxall_qc_rbd) but still appear to be gapfilled.
+            % This may be due to rounding error (check tolerance used),
+            % different contents in the fluxall_qc_rbd and 
+            % for_gapfilling_filled files (check creation dates), or 
+            % perhaps the gapfiller is overfilling the data.
+            figure( 'name', 'Error output' );
+            plot( gapfilled_obs, '-g' );
+            hold on;
+            plot( gapfilled, '-b' );
+            plot( find( difftest ), obs( difftest ), 'or' );
+            legend( 'Gapfilled + qcOK observed', 'Gapfilled only', ...
+                'Filled qcOK observations' );
+            error( 'Gapfilled and fluxall_qc_rbd observations are different!' );
         end
     end
         

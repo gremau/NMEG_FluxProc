@@ -2661,6 +2661,10 @@ switch sitecode
                 DOY_co2_min( idx ) = -2.0;
                 % Big pulses - seemingly tied to precip events.
                 % Removing some because I don't believe the magnitude.
+                idx = DOYidx( 74 ) : DOYidx( 100 );
+                DOY_co2_max( idx ) = 2.6;
+                idx = DOYidx( 74 ) : DOYidx( 80 );
+                DOY_co2_min( idx ) = -2.2;
                 idx = DOYidx( 100 ) : DOYidx( 300 );
                 DOY_co2_max( idx ) = 3.7;
                 DOY_co2_min( idx ) = -7.0;
