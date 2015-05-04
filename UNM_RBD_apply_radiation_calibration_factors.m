@@ -396,6 +396,24 @@ switch sitecode
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             
+        elseif year_arg == 2012
+            % There are a bunch of "stuck" PPFD periods to remove
+            PAR_diff = diff( Par_Avg );
+            rem_idx = PAR_diff == 0;
+            Par_Avg( rem_idx ) = NaN;
+            % And one period with bad SW_in and SW_out
+            rem_idx = decimal_day > 254.4 & decimal_day < 263.7;
+            sw_incoming( rem_idx ) = NaN;
+            sw_outgoing( rem_idx ) = NaN;
+            NR_tot( rem_idx ) = NaN;
+            % Copied from below
+            % radiation values apparently already calibrated and unit-converted
+            % in progarm for valles sites
+            % temperature correction just for long-wave
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+            % calibration for par-lite sensor
+            Par_Avg = Par_Avg.*1000./5.65;
+            
         elseif year_arg >= 2008 & year_arg <= 2013
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites
