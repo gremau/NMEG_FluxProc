@@ -273,8 +273,22 @@ switch sitecode
                 data( idx, : ) = shift_data( data( idx, : ), -0.5, ...
                     all30MinCols );
                 
-            case { 2009 2010 }
+            case 2009
                 data = shift_data( data, 1.5, allCols );
+                
+            case 2010
+                % Same as 2009 until day 296, then a small shift (?)
+                preClockSet = 1 : DOYidx( 296.875 );
+                data( preClockSet, : ) = ...
+                    shift_data( data( preClockSet, : ), 1.5, allCols );
+                % Then another small shift (?)
+                preClockSet = DOYidx( 296.89 ) : DOYidx( 327.79 );
+                data( preClockSet, : ) = ...
+                    shift_data( data( preClockSet, : ), 2.0, allCols );
+                % Data for rest of year need to be shifted 2.5 hours
+                postClockSet = DOYidx( 327.81 ) : size( data, 1 );
+                data( postClockSet, : ) = ...
+                    shift_data( data( postClockSet, : ), 2.5, allCols );
 
             case 2011
                 % Looks like datalogger clock was reset around day 47
