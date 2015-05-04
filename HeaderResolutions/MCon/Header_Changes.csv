@@ -42,7 +42,7 @@ NetTot_Avg,,
 NetRs_Avg,,
 NetRl_Avg,,
 par_facedown_Avg,par_down_Avg,
-par_faceup_Avg,par_up_Avg,
+par_faceup_Avg,par_up_Avg,par_Avg
 CNR1TC_Avg,,
 rho_a_mean_Avg,rho_a_Avg,
 sig_lck_f_Tot,track_f_Tot,
