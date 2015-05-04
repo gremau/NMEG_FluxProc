@@ -396,6 +396,14 @@ switch sitecode
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             
+        elseif year_arg >= 2008 & year_arg <= 2012
+            % radiation values apparently already calibrated and unit-converted
+            % in progarm for valles sites
+            % temperature correction just for long-wave
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+            % calibration for par-lite sensor
+            Par_Avg = Par_Avg.*1000./5.65;
+            
         elseif year_arg == 2012
             % There are a bunch of "stuck" PPFD periods to remove
             PAR_diff = diff( Par_Avg );
@@ -406,7 +414,6 @@ switch sitecode
             sw_incoming( rem_idx ) = NaN;
             sw_outgoing( rem_idx ) = NaN;
             NR_tot( rem_idx ) = NaN;
-            % Copied from below
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites
             % temperature correction just for long-wave
@@ -414,13 +421,14 @@ switch sitecode
             % calibration for par-lite sensor
             Par_Avg = Par_Avg.*1000./5.65;
             
-        elseif year_arg >= 2008 & year_arg <= 2013
+        elseif year_arg == 2013
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for par-lite sensor
-            Par_Avg = Par_Avg.*1000./5.65;
+            Par_Avg(find(decimal_day > 0.0 & decimal_day < 122.5)) = ...
+                Par_Avg(find(decimal_day > 0.0 & decimal_day < 122.5)).*1000./5.65;
             
         elseif year_arg == 2014
             % RJL added on 01/15/2014 per Marcy, stop all correction 01/14/2014
@@ -428,12 +436,16 @@ switch sitecode
             % radiation values apparently already calibrated and unit-converted
             % in progarm for valles sites
             % temperature correction just for long-wave
-            idx = find(decimal_day > 0.0 & decimal_day < 14.5);
-            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing, idx);
-            % calibration for par-lite sensor
-            Par_Avg(find(decimal_day > 0.0 & decimal_day < 14.5)) = ...
-                Par_Avg(find(decimal_day > 0.0 & decimal_day < 14.5)).*1000./5.65;
             
+            % Most of this is not necessary - GEM
+%             idx = find(decimal_day > 0.0 & decimal_day < 14.5);
+%             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing, idx);
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+            % calibration for par-lite sensor
+%             Par_Avg(find(decimal_day > 0.0 & decimal_day < 14.5)) = ...
+%                 Par_Avg(find(decimal_day > 0.0 & decimal_day < 14.5)).*1000./5.65;
+            % Bad PPFD values early in 2014 - GEM
+            Par_Avg(find(decimal_day > 52.0 & decimal_day < 107.0)) = NaN;
         end
         
         %%%%%%%%%%%%%%%%% texas

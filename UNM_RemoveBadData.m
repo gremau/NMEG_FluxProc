@@ -302,6 +302,8 @@ else
         year_arg );
     data = UNM_parse_fluxall_txt_file( sitecode, year_arg, ...
         'file', fullfile( pathname, fname ));
+    data_orig = parse_fluxall_txt_file( sitecode, year_arg, 'file', ...
+        fullfile( pathname, fname ));
 end
 
 outfolder = fullfile( get_site_directory( sitecode ), ...
@@ -478,14 +480,16 @@ for i=1:numel( headertext );
             strcmp('RH',headertext{i}) == 1 | ...
             strcmp('RH_2_Avg',headertext{i}) == 1 | ...
             strcmp('RH_10_Avg',headertext{i}) == 1 | ...
-            strcmp('RH_6p85_Avg', headertext{i})==1
+            strcmp('RH_6p85_Avg', headertext{i})==1 | ...
+            strcmp('RH_24_Avg', headertext{i})==1
+        rH = data(:,i);
         %strcmp('RH_3p7_Avg',headertext{i}) == 1 | ...
         % strcmp('RH_2',headertext{i}) == 1 | ...
         
         %Fixed scaling the rH now on a per rH value to account for
         %the scale changes associated with program changes in the
         %fluxall.
-        rH = data(:,i);
+        
         scale = find(rH > 1);
         rH(scale) = rH(scale) ./ 100;
         % Now convert back to percent
@@ -954,7 +958,8 @@ if draw_plots > 2
     plot(timestamp, t_mean, '.r');
     hold on;
     plot(get(gca,'xlim'), [0 0], ':k');
-    ylabel('T_{mean} (C)'); xlabel('Date'); datetick('x', 'mm-yyyy');
+    ylabel('T_{mean} (C)'); xlabel('Date');
+    datetick('x', 'mmm yy', 'keepticks', 'keeplimits');
     linkaxes(ax, 'x');
 end
 

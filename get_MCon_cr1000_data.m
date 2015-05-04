@@ -63,6 +63,9 @@ if ~isempty( chooseFiles );
     cr1000Data = combine_and_fill_datalogger_files( ...
         'file_names', fileNames( chooseFiles ), ...
         'datalogger_type', 'cr1000', 'resolve_headers', false );
+    % FIXME - changing var names so they don't conflict with tower ones
+    change = find( strcmp( 'RH', cr1000Data.Properties.VarNames ))
+    cr1000Data.Properties.VarNames{ change } = 'RH_cr1k';
 elseif isempty( chooseFiles )
     fprintf( 'No cr1000 data available for MCon in %d\n', year );
     cr1000Data = dataset();
