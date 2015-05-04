@@ -111,4 +111,22 @@ elseif site_code == 4     % PJ
     end
 end
 
+%-------------------------
+% fix MCon
+% After the fire a new set of sensors was installed. The precip gauge was
+% not working properly until late 2014
+if site_code == 6     % MCon
+    start2013fire = 122.5;
+    beforeGaugeFixed = 305;
+    idx = find( year > 2012 & year < 2015 );
+    if year_in == 2013;
+        idx = find( ( year == 2013 ) & ( doy >= start2013fire ) );
+    elseif year_in == 2014;
+        idx = find( ( year == 2014 ) & ( doy <= beforeGaugeFixed ) );
+    end
+    if not( isempty( idx ) )
+        pcp_fixed( idx ) = NaN;
+    end
+end
+
 
