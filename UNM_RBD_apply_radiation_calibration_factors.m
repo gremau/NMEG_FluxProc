@@ -406,7 +406,7 @@ switch sitecode
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for par-lite sensor
-            Par_Avg = Par_Avg.*1000./5.65;
+            Par_Avg = Par_Avg .* 1000 ./ 5.65;
             
         elseif year_arg == 2012
             % There are a bunch of "stuck" PPFD periods to remove
@@ -423,7 +423,7 @@ switch sitecode
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for par-lite sensor
-            Par_Avg = Par_Avg.*1000./5.65;
+            Par_Avg = Par_Avg .* 1000 ./ 5.65;
             
         elseif year_arg == 2013
             % radiation values apparently already calibrated and unit-converted
@@ -542,18 +542,20 @@ switch sitecode
         end
 end
 
-
     % A function for temperature correcting longwave radiation
-    function [lw_in_co, lw_out_co] = lw_correct(lw_in, lw_out, varargin)
+    function [ lw_in_co, lw_out_co ] = ...
+            lw_correct( lw_in, lw_out, varargin )
         if nargin > 2
-            cor_idx = varargin{1};
+            cor_idx = varargin{ 1 };
         else
-            cor_idx = find(decimal_day >= 0.0);
+            cor_idx = find( decimal_day >= 0.0 );
         end
         lw_in_co = lw_in;
         lw_out_co = lw_out;
-        lw_in_co(cor_idx) = lw_in(cor_idx) + 0.0000000567.*(CNR1TK(cor_idx)).^4;
-        lw_out_co(cor_idx) = lw_out(cor_idx) + 0.0000000567.*(CNR1TK(cor_idx)).^4;
+        lw_in_co( cor_idx ) = lw_in( cor_idx ) + ...
+            0.0000000567 .* ( CNR1TK( cor_idx )) .^4;
+        lw_out_co( cor_idx ) = lw_out( cor_idx ) + ...
+            0.0000000567 .* ( CNR1TK( cor_idx )) .^4;
     end
 
     % A function for applying a linear correction to data

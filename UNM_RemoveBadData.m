@@ -1140,13 +1140,16 @@ end
 
 if iteration > 2
     
-    [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
+    [ fc_raw_massman_wpl, E_wpl_massman, E_raw_massman, ...
+        E_heat_term_massman, HL_wpl_massman, ...
         HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
         sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, ...
         rH, Par_Avg, Tdry ] = ...
         remove_specific_problem_periods( sitecode, year_arg, ...
         fc_raw_massman_wpl, ...
         E_wpl_massman, ...
+        E_raw_massman, ...
+        E_heat_term_massman, ...
         HL_wpl_massman, ...
         HSdry, ...
         HSdry_massman, ...
@@ -1501,6 +1504,9 @@ Lv = ( repmat( 2.501, size( E_raw_massman ) ) - ...
     0.00237 .* ( Tdry - 273.15 ) )  .* 10^3;
 HL_wpl_massman = ( 18.016 / 1000.0 .* Lv ) .* ...
     ( E_raw_massman + E_heat_term_massman );
+
+% FIXME - steps above completely recalculate HL_wpl_massman (Latent heat
+% flux) so the qc steps applied to HL_wpl_massman prior to this do not work.
 
 % clean the co2 concentration
 CO2_mean( isnan( conc_record ) ) = NaN;
@@ -2022,7 +2028,8 @@ end
 
 %------------------------------------------------------------
 
-function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
+function [ fc_raw_massman_wpl, E_wpl_massman, E_raw_massman, ...
+    E_heat_term_massman, HL_wpl_massman, ...
     HSdry, HSdry_massman, CO2_mean, H2O_mean, atm_press, NR_tot, ...
     sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, precip, ...
     rH, Par_Avg, Tdry ] = ...
@@ -2030,6 +2037,8 @@ function [ fc_raw_massman_wpl, E_wpl_massman, HL_wpl_massman, ...
     year, ...
     fc_raw_massman_wpl, ...
     E_wpl_massman, ...
+    E_raw_massman, ...
+    E_heat_term_massman, ...
     HL_wpl_massman, ...
     HSdry, ...
     HSdry_massman, ...
@@ -2065,6 +2074,8 @@ switch sitecode
                 idx = DOYidx( 156 ) : DOYidx( 163 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
                 CO2_mean( idx  ) = NaN;
                 H2O_mean( idx ) = NaN;
@@ -2082,6 +2093,8 @@ switch sitecode
                 % IRGA problems
                 idx = DOYidx( 102 ) : DOYidx( 119.5 );
                 E_wpl_massman( idx ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
                 H2O_mean( idx ) = NaN;
                 
@@ -2095,6 +2108,8 @@ switch sitecode
                 idx = DOYidx( 96 ) : DOYidx( 104 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
                 CO2_mean( idx ) = NaN;
                 H2O_mean( idx ) = NaN;
@@ -2102,6 +2117,8 @@ switch sitecode
                 idx = DOYidx( 342 ) : DOYidx( 348 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
                 CO2_mean( idx ) = NaN;
                 H2O_mean( idx ) = NaN;
@@ -2126,6 +2143,8 @@ switch sitecode
                 idx = DOYidx( 342 ) : DOYidx( 348 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
                 CO2_mean( idx ) = NaN;
                 H2O_mean( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
@@ -2169,6 +2188,8 @@ switch sitecode
                 idx = DOYidx( 112.3 ) : DOYidx( 129 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
                 CO2_mean( idx ) = NaN;
                 H2O_mean( idx ) = NaN;
@@ -2183,13 +2204,16 @@ switch sitecode
                 %too small
                 E_wpl_massman( E_wpl_massman > 200 ) = NaN;
             case 2009
-                % FIXME - Explanation?
-                fc_raw_massman_wpl( DOYidx( 157 ) : DOYidx( 159 ) ) = NaN;
-                idx = DOYidx( 157 ) : DOYidx( 183 );
+                % There is a period of bad flux data here that looks
+                % like it should be removed - probably an IRGA issue
+                % There were some IRGA calibration events here (see log)
+                idx = DOYidx( 144.5 ) : DOYidx( 182.0 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
                 E_wpl_massman( E_wpl_massman > 200 ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
                 HSdry( idx ) = NaN;
                 HSdry_massman( idx ) = NaN;
             case 2011
@@ -2198,6 +2222,8 @@ switch sitecode
                 fc_raw_massman_wpl( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
             case 2012
                 idx = DOYidx( 319.5 );
                 % beginning here sw sensor reported all zeros and lw sensor
@@ -2231,6 +2257,8 @@ switch sitecode
                 lw_incoming( idx ) = NaN;
                 lw_outgoing( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
                 HSdry( idx ) = NaN;
                 HSdry_massman( idx ) = NaN;
