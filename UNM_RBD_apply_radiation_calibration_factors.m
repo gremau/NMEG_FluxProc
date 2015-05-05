@@ -353,44 +353,75 @@ switch sitecode
         elseif year_arg == 2013
             %RJL added on 01/15/2014 per Marcy because calibration factor was
             %incorrect from 05/02/2013 through 01/15/2014
-            sw_incoming(find(decimal_day > 122.5 & decimal_day < 366.0)) = ...
-                sw_incoming(find(decimal_day > 122.5 & decimal_day < 366.0)) ...
-                .*(142.857/163.666);
-            sw_outgoing(find(decimal_day > 122.5 & decimal_day < 366.0)) = ...
-                sw_outgoing(find(decimal_day > 122.5 & decimal_day < 366.0)) ...
-                .*(142.857/163.666);
-            lw_incoming(find(decimal_day > 122.5 & decimal_day < 366.0)) = ...
-                lw_incoming(find(decimal_day > 122.5 & decimal_day < 366.0)) ...
-                .*(142.857/163.666);
-            lw_outgoing(find(decimal_day > 122.5 & decimal_day < 366.0)) = ...
-                lw_outgoing(find(decimal_day > 122.5 & decimal_day < 366.0)) ...
-                .*(142.857/163.666);
+            %idx = decimal_day > 122.5 & decimal_day < 366.0 ;
+%             sw_incoming(find(decimal_day > 122.5 & decimal_day < 366.0)) = ...
+%                 sw_incoming(find(decimal_day > 122.5 & decimal_day < 366.0)) ...
+%                 .*(142.857/163.666);
+%             sw_outgoing(find(decimal_day > 122.5 & decimal_day < 366.0)) = ...
+%                 sw_outgoing(find(decimal_day > 122.5 & decimal_day < 366.0)) ...
+%                 .*(142.857/163.666);
+%             lw_incoming(find(decimal_day > 122.5 & decimal_day < 366.0)) = ...
+%                 lw_incoming(find(decimal_day > 122.5 & decimal_day < 366.0)) ...
+%                 .*(142.857/163.666);
+%             lw_outgoing(find(decimal_day > 122.5 & decimal_day < 366.0)) = ...
+%                 lw_outgoing(find(decimal_day > 122.5 & decimal_day < 366.0)) ...
+%                 .*(142.857/163.666);
             % calibration for par-lite sensor???????????????????????????
             % Par_Avg(find(decimal_day > 122.5 & decimal_day < 366.0)) = ...
             %  Par_Avg(find(decimal_day > 122.5 & decimal_day < 366.0)).*1000./5.25
-            Par_Avg = Par_Avg;
+            %Par_Avg = Par_Avg;
+            
+            % Above does not seem to work well - Calibration for SWin was
+            % too aggressive ( FIXME - check cal values and dates ) and
+            % PAR/lw was not corrected - GEM
+            % This works:
+            idx = decimal_day > 328.7 & decimal_day <= 366;
+            sw_incoming( idx ) = sw_incoming( idx ) .* (142.857/163.666);
+            lw_incoming( idx ) = lw_incoming( idx ) .* (142.857/163.666);
+            sw_outgoing( idx ) = sw_outgoing( idx ) .* (142.857/163.666);
+            lw_outgoing( idx ) = lw_outgoing( idx ) .* (142.857/163.666);
+            
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+            % Cal applied in program after Dec 28
+            idx =  decimal_day < 362.5;
+            Par_Avg( idx ) = Par_Avg( idx ) .* 1000 ./ 5.25;
             
         elseif year_arg == 2014
             %RJL added on 01/15/2014 per Marcy because calibration factor was
             %incorrect from 05/02/2013 through 01/15/2014
-            idx = find(decimal_day > 0.0 & decimal_day < 15.5);
-            sw_incoming(idx) = sw_incoming(idx) ...
-                .*(142.857/163.666);
-            sw_outgoing(idx) = sw_outgoing(idx) ...
-                .*(142.857/163.666);
-            lw_incoming(idx) = lw_incoming(idx) ...
-                .*(142.857/163.666);
-            lw_outgoing(idx) = lw_outgoing(idx) ...
-                .*(142.857/163.666);
-            % radiation values apparently already calibrated and unit-converted
-            % in progarm for valles sites
-            % temperature correction just for long-wave
-            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing, idx);
-            % calibration for par-lite sensor
-            % calibration for par-lite sensor???????????????????????????
-            % Par_Avg(find(decimal_day > 0.0 & decimal_day < 15.5)) = ...
-            %  Par_Avg(find(decimal_day > 0.0 & decimal_day < 15.5)).*1000./5.25
-            Par_Avg = Par_Avg;
+%             idx = find(decimal_day > 0.0 & decimal_day < 15.5);
+%             sw_incoming(idx) = sw_incoming(idx) ...
+%                 .*(142.857/163.666);
+%             sw_outgoing(idx) = sw_outgoing(idx) ...
+%                 .*(142.857/163.666);
+%             lw_incoming(idx) = lw_incoming(idx) ...
+%                 .*(142.857/163.666);
+%             lw_outgoing(idx) = lw_outgoing(idx) ...
+%                 .*(142.857/163.666);
+%             % radiation values apparently already calibrated and unit-converted
+%             % in progarm for valles sites
+%             % temperature correction just for long-wave
+%             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing, idx);
+%             % calibration for par-lite sensor
+%             % calibration for par-lite sensor???????????????????????????
+%             % Par_Avg(find(decimal_day > 0.0 & decimal_day < 15.5)) = ...
+%             %  Par_Avg(find(decimal_day > 0.0 & decimal_day < 15.5)).*1000./5.25
+%             Par_Avg = Par_Avg;
+            % Above does not seem to work - Calibration for CNR1 was too
+            % aggressive ( FIXME - check cal values and dates ) and lw 
+            % was not corrected - GEM
+            % This works:
+            
+            idx = decimal_day > 0.0 & decimal_day <= 15.6;
+            sw_incoming( idx ) = sw_incoming( idx ) .* (142.857/163.666);
+            lw_incoming( idx ) = lw_incoming( idx ) .* (142.857/163.666);
+            sw_outgoing( idx ) = sw_outgoing( idx ) .* (142.857/163.666);
+            lw_outgoing( idx ) = lw_outgoing( idx ) .* (142.857/163.666);
+            
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+            % Cal applied in program after Dec 28
+%             idx =  decimal_day < 362.5;
+%             Par_Avg( idx ) = Par_Avg( idx ) .* 1000 ./ 5.25;
             
         end
         
