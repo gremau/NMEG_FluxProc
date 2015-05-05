@@ -88,15 +88,17 @@ plot(timestamp, Par_Avg, '.', 'Color', [ 0.6 0.6 0.6 ] );
 hold on;
 plot( timestamp, Par_Avg * .48, 'o', 'Color', parin_c );
 plot( timestamp, sw_incoming, '.', 'Color', swin_c );
+% xlim([ min( timestamp ), max( timestamp ) ]);
+% datetick( 'x', 'mmm dd', 'keepticks' );
 plot( noon_dnums, yr_swinpot, '.-', 'Color', swinpot_c );
 legend( 'raw PPFD (umol m^{-2} s^{-2})', 'scaled PPFD (W/m2)', ...
     'SWin (W/m2)', 'SWin\_{pot} (Max @ top of atmos.)', 'Location',...
     'SouthWest' );
 xlabel( 'Timestamp');
 ylabel( 'Radiation' );
-ylim( [-10, 1500] );
-xlim([ min( timestamp ) max( timestamp ) ]);
-datetick('x','mmm dd', 'keepticks');
+ylim( [-100, 1500] );
+xlim([ min( timestamp ), max( timestamp ) ]);
+datetick( 'x', 'mmm dd', 'keepticks', 'keeplimits' );
 
 
 % ============================ FIGURE 2 =================================
