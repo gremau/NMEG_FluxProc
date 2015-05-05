@@ -111,10 +111,10 @@ xlim([ min( timestamp ) max( timestamp ) ]);
 datetick('x','mmm dd', 'keepticks');
 
 h_ax( 3 ) = subplot( 6, 1, 5 );
-plot( timestamp, precip, ':', 'Color', precip_c );
+plot( timestamp, precip, '-', 'Color', [ 0.2 0.2 0.2 ] );
 %plotyy( timestamp, RH_hmp, '--', timestamp, VPD, ':' ); 
 if precip2
-    plot( timestamp, precip2, ':', 'Color', 'Black' );
+    plot( timestamp, precip2, '-', 'Color', [ 0.5 0.5 0.5 ] );
     legend( 'RH (hmp 1)', 'RH (hmp 2)', 'Location', 'SouthWest' );
 end
 ylabel( {'Precip', '( mm )'} );
@@ -122,8 +122,10 @@ ylabel( {'Precip', '( mm )'} );
 xlim([ min( timestamp ) max( timestamp ) ]);
 datetick('x','mmm dd', 'keepticks');
 
+PRISM_precip = UNM_parse_PRISM_met_data( sitecode, year );
+
 h_ax( 4 ) = subplot( 6, 1, 6 );
-%plot( timestamp, precip_prism, ':', 'Color', precip_c );
+plot( PRISM_precip.timestamp, PRISM_precip.Precip, '-', 'Color', precip_c );
 xlabel( 'Timestamp');
 ylabel( {'PRISM', '( mm )'} );
 %ylim( [-5, 102] );

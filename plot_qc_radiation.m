@@ -178,7 +178,7 @@ xlabel( 'Timestamp');
 ylabel( 'Radiation' );
 ylim( [-250, 1500] );
 xlim([ min( timestamp ) max( timestamp ) ]);
-datetick('x','mmm dd', 'keepticks');
+datetick('x','mmm dd', 'keepticks', 'keeplimits' );
 
 %=============================== FIGURE 4 =============================
 % Net radiation and 4 components in each month of the year
