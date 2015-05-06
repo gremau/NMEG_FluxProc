@@ -190,12 +190,26 @@ switch sitecode
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for par-lite
             Par_Avg = Par_Avg.*1000./5.48;
+            % Make a small correction for a wierd calibration problem
+            % at start of 2009
+            if year_arg == 2009
+                idx = decimal_day > 20.4 & decimal_day < 33.7;
+                Par_Avg( idx ) = Par_Avg( idx ) + 133;
+            end
+            % Outgoing longwave was messed up for a couple periods in 2013,
+            % remove it.
+            if year_arg == 2013
+                idx1 = decimal_day > 185.6 & decimal_day < 205.65;
+                idx2 = decimal_day > 241.45 & decimal_day < 295.5;
+                lw_outgoing( idx1 | idx2 ) = NaN;
+            end
+                
             
         elseif year_arg >= 2014
             % calibration and unit conversion into W per m^2 for CNR1 variables
             % convert into W per m^2
             % Fixed in dat logger programs on 01/17/2014
-            idx = find(decimal_day < 17.5);
+            idx = find(decimal_day < 10.38);
             sw_incoming(idx) = ...
                 sw_incoming(idx)./163.666.*(1000./6.9);
             sw_outgoing(idx) = ...
@@ -204,12 +218,19 @@ switch sitecode
                 lw_incoming(idx)./163.666.*(1000./6.9);
             lw_outgoing(idx) = ...
                 lw_outgoing(idx)./163.666.*(1000./6.9);
-            % temperature correction for long-wave
-            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming,...
-                lw_outgoing, idx);
             % calibration for par-lite
             Par_Avg(idx) = ...
                 Par_Avg(idx).*1000./5.48;
+            % temperature correction for long-wave
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing );
+            % LW outgoing and LW incoming need to be cleaned up
+            idx1 = decimal_day > 144.4 & decimal_day < 175.5;
+            idx2 = decimal_day >= 175.5 & decimal_day < 211.5;
+            lw_incoming( idx1 | idx2 ) = NaN;
+            lw_outgoing( idx2 ) = NaN;
+            % SW_incoming has some noise
+            idx = sw_incoming > 1150;
+            sw_incoming( idx ) = NaN;
         end
         
         % all cnr1 variables for jsav need to be (value/163.666)*144.928???

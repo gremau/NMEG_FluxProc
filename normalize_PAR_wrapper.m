@@ -71,9 +71,10 @@ if ismember( sitecode, [ UNM_sites.GLand, ...
 end
 
 % fix calibration problem at JSav 2009
-if ( sitecode == 3 ) & ( year_arg == 2009 )
-    Par_Avg( 1:1554 ) = Par_Avg( 1:1554 ) + 133;
-end
+% Moved this to UNM_RBD_apply_radiation_calibration_factors.m
+% if ( sitecode == 3 ) & ( year_arg == 2009 )
+%     Par_Avg( 1:1554 ) = Par_Avg( 1:1554 ) + 133;
+% end
 Par_Avg( Par_Avg < -50 ) = NaN;
 
 % ------------------------------------------------------------

@@ -2790,8 +2790,9 @@ end
 % if ( sitecode == 2 ) && ( year == 2012 )
 %    co2_conc_filter_exceptions( DOYidx( 323.2 ) : DOYidx( 323.8 ) ) = true;
 % end
+% Shortening this - this low [CO2] seems to result in erroneous NEE uptake.
 if ( sitecode == 3 ) && ( year == 2011 )
-    co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 52.7 ) ) = true;
+    co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 46.5 ) ) = true;
 end
 if ( sitecode == 4 ) && ( year == 2011 )
     % IRGA calibration drifts but fluxes are fine during this period
