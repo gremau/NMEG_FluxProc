@@ -163,12 +163,14 @@ switch sitecode
             lw_outgoing(idx) = ...
                 lw_outgoing(idx)./136.99.*(1000./12.34);
             % temperature correction just for long-wave
-            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming,...
-                lw_outgoing, idx);
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing );
             % calibration correction for the li190 (? - maybe it should be
             % different for the kz par_lite)
             Par_Avg(idx) = ...
                 Par_Avg(idx).*1000./(6.94*0.604);
+            % Fix one spiky period
+            idx = decimal_day > 257 & decimal_day < 267 & Par_Avg > 2100;
+            Par_Avg(idx) = NaN;
         end
         
         %%%%%%%%%%%%%%%%% juniper savanna

@@ -67,13 +67,14 @@ elseif site_code == 11     % New_Gland
 % There were some issues with the SLand gauge for while, but data before
 % 2014 are now filled in with other sites.
 elseif site_code == 2      %SLand
-    warning(' Evaluate whether SLand precip is any good' );
-    return
-%     idx = ( year == 2011 );
-%     if any( idx )
-%         pcp_fixed( idx ) = -9999;
-%         % now fill in precip record from Sevilleta meteo station 49 
-%     end
+    % Early 2014 has one period that appears to need filling, but there is
+    % are zeroes and a crazy large precip event there. Change to Nans so
+    % this gets filled.
+    Apr13 = datenum( 2014, 4, 13 ) - datenum( 2014, 1, 1 ) + 1;
+    idx = find( ( year == 2014 ) & ( doy <= Apr13 ) );
+    if not( isempty( idx ) )
+        pcp_fixed( idx ) = NaN;
+    end
     
 
 %-------------------------
