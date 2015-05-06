@@ -621,8 +621,8 @@ end
 precip( precip > 1000 ) = NaN;
 
 % In 2009 at GLand and SLand, LiCor PAR sensors (Par_Avg) are scaled to
-% Kipp & Zonen sensors (Par_lite)
-if ismember( sitecode, [ 1, 2 ] ) & year(2) == 2009
+% Kipp & Zonen sensors (Par_lite). Par_lite favored thereafter.
+if ismember( sitecode, [ 1, 2 ] ) & year_arg == 2009
     Par_Avg = combine_PARavg_PARlite( headertext, data );
 end
 
@@ -1696,10 +1696,10 @@ if sitecode == 1 & year == 2010
 end
 
 if args.Results.draw_plots > 1
-    h_fps = RBD_plot_fingerprints( sitecode, year_arg, decimal_day, ...
-        sw_incoming, rH, Tair, NEE, LE, ...
-        H_dry, ...
-        'fingerprint plots' );
+%     h_fps = RBD_plot_fingerprints( sitecode, year_arg, decimal_day, ...
+%         sw_incoming, rH, Tair, NEE, LE, ...
+%         H_dry, ...
+%         'fingerprint plots' );
 end
 
 filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );

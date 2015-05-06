@@ -25,11 +25,12 @@ function result = combine_PARavg_PARlite(headertext, data)
 %
 % author: Timothy W. Hilton, UNM, Apr 2012
 
-lite_col = find( strcmp( 'par_lite_avg', lower( headertext ) ) );
-avg_col = find( strcmp( 'par_face_up_avg', lower( headertext ) ) );
+lite_col = find( strcmp( 'par_face_up_avg', lower( headertext ) ) );
+licor_col = find( strcmp( 'par_licor', lower( headertext ) ) );
 
-par_lite = data( :, lite_col - 1 );
-par_avg = data( :, avg_col - 1 );
+% Not sure why this had the -1
+par_lite = data( :, lite_col );
+par_avg = data( :, licor_col );
 
 % find rows containing NaN in either
 nan_idx = any( isnan( [ par_lite, par_avg ] ), 2 );

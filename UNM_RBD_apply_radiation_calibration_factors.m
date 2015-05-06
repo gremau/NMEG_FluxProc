@@ -142,8 +142,12 @@ switch sitecode
             lw_outgoing = lw_outgoing./136.99.*(1000./12.34);
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
-            % calibration correction for the li190
+            % Using PAR_lite sensor 2009-2014. This works, but not sure
+            % it is the right calibration (could be li-190, instead of kz
+            % par_lite)
             Par_Avg = Par_Avg.*1000./(6.94*0.604);
+            % It might be something more like:
+            %Par_Avg = Par_Avg .* 1000 ./ 5.25;
             
         elseif year_arg >= 2014
             % calibration and unit conversion into W per m^2 for CNR1 variables
@@ -161,7 +165,8 @@ switch sitecode
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming,...
                 lw_outgoing, idx);
-            % calibration correction for the li190
+            % calibration correction for the li190 (? - maybe it should be
+            % different for the kz par_lite)
             Par_Avg(idx) = ...
                 Par_Avg(idx).*1000./(6.94*0.604);
         end
@@ -179,6 +184,7 @@ switch sitecode
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for par-lite
             Par_Avg = Par_Avg.*1000./5.48;
+            
         elseif year_arg >= 2008 & year_arg <= 2013
             % calibration and unit conversion into W per m^2 for CNR1 variables
             % convert into W per m^2
