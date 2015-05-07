@@ -26,8 +26,8 @@ h2o_hmp_mean_Avg,h2o_hmp_Avg,,
 h2o_mm_m_Avg,h2o_m_mol_Avg,,
 Hs,,,
 Hc,,,
-par_facedown_Avg,par_face_down_Avg,par_upwelling_Avg,par_Avg_2
-par_faceup_Avg,par_face_up_Avg,par_incoming_Avg,par_Avg_1
+par_facedown_Avg,par_upwelling_Avg,par_Avg_2,
+par_faceup_Avg,par_incoming_Avg,par_Avg_1,par_Avg
 Rad_long_Dn__Avg,Rad_long_Dn_Avg,,
 Rad_long_Up__Avg,Rad_long_Up_Avg,,
 rho_a_mean_Avg,rho_a_Avg,,

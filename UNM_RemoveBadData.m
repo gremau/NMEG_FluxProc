@@ -2350,9 +2350,9 @@ switch sitecode
         
     case UNM_sites.New_GLand
         switch year
-            % FIXME - Explanation?
-            case 2010
-                sw_incoming( DOYidx( 355 ) : end ) = NaN;
+            % This doesn't seem necessary at all - GEM
+%             case 2010
+%                 sw_incoming( DOYidx( 355 ) : end ) = NaN;
             case 2014
                 % The precip gauge was miswired from Jan 17 to April 2 2014
                 precip( DOYidx( 17 ) : DOYidx( 92 ) ) = NaN;

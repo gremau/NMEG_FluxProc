@@ -586,10 +586,12 @@ switch sitecode
             Par_Avg = Par_Avg.*1000./(6.4*0.604);
             % calibration and unit conversion into W per m^2 for CNR1 variables
             % and adjust for program error
-            sw_incoming = sw_incoming./136.99.*(1000./8.49);
-            sw_outgoing = sw_outgoing./136.99.*(1000./8.49);
-            lw_incoming = lw_incoming./136.99.*(1000./8.49);
-            lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
+            
+            % These make already low sw_incoming lower - seems wrong - GEM
+%             sw_incoming = sw_incoming./136.99.*(1000./8.49);
+%             sw_outgoing = sw_outgoing./136.99.*(1000./8.49);
+%             lw_incoming = lw_incoming./136.99.*(1000./8.49);
+%             lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             
@@ -602,12 +604,14 @@ switch sitecode
             Par_Avg(cal_idx) = Par_Avg(cal_idx) .* 1000 ./ (6.4 * 0.604);
             % calibration and unit conversion into W per m^2 for CNR1 variables
             % and adjust for program error
-            sw_incoming(cal_idx) = sw_incoming(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
-            sw_outgoing(cal_idx) = sw_outgoing(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
-            lw_incoming(cal_idx) = lw_incoming(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
-            lw_outgoing(cal_idx) = lw_outgoing(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
+            % This is clearly a different calibration factor than what was
+            % entered into the datalogger program
+%             sw_incoming(cal_idx) = sw_incoming(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
+%             sw_outgoing(cal_idx) = sw_outgoing(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
+%             lw_incoming(cal_idx) = lw_incoming(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
+%             lw_outgoing(cal_idx) = lw_outgoing(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
             % temperature correction just for long-wave
-            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing, cal_idx);
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
         end
 end
 

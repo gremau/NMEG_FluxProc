@@ -27,7 +27,7 @@ h2o_mm_m_Avg,h2o_m_mol_Avg,h2o_m_mol_Avg,h2o_m_mol_Avg,h2o_m_mol_Avg,h2o_m_mol_A
 Hs,current,current,current,current,current,current,current,dne,dne,dne
 Hc,dne,dne,dne,dne,dne,dne,dne,current,current,current
 par_facedown_Avg,dne,dne,dne,par_Avg_2,par_Avg_2,par_Avg_2,par_upwelling_Avg,current,current,current
-par_faceup_Avg,dne,dne,dne,par_Avg_1,par_Avg_1,par_Avg_1,par_incoming_Avg,current,current,current
+par_faceup_Avg,par_Avg,par_Avg,par_Avg,par_Avg_1,par_Avg_1,par_Avg_1,par_incoming_Avg,current,current,current
 Rad_long_Dn__Avg,current,current,current,current,current,current,current,current,current,current
 Rad_long_Up__Avg,current,current,current,current,current,current,current,current,current,current
 rho_a_mean_Avg,rho_a_Avg,rho_a_Avg,rho_a_Avg,rho_a_Avg,rho_a_Avg,rho_a_Avg,rho_a_Avg,current,current,current
