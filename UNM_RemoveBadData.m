@@ -632,6 +632,21 @@ if sitecode == 10
     rH = thmp_and_h2ohmp_2_rhhmp( air_temp_hmp, h2o_hmp ) ./ 100.0;
 end
 
+% Calculate VPD in millibars (hPa) using Teten's equation - GEM 5/2015
+% see here:
+% https://en.wikipedia.org/wiki/Clausius-Clapeyron_relation#Meteorology_and_climatology
+% or here:
+% http://andrewsforest.oregonstate.edu/data/studies/ms01/dewpt_vpd_calculations.pdf
+tair_K = Tdry; %air_temp_hmp + 273.15;
+rh_100 = rH * 100;
+es = 6.1078 .* exp( (17.269 .* tair_K )./(237.3 + tair_K) );
+vpd = es - ( rh_100 .* es ./ 100 );
+
+% vpd = 6.1078 * (1 - rH) .* exp(17.08085*tair_temp./(234.175+tair_temp));
+%es = 0.6108*exp(17.27*air_temp_hmp./(air_temp_hmp+237.3));
+%ea = rH .* es ;
+%vpd2 = ea - es;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Site-specific steps for soil temperature
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -824,6 +839,7 @@ plot_qc_meteorology( sitecode, ...
     timestamp, ...
     air_temp_hmp, ...
     rH, ...
+    vpd, ...
     Tdry, ...
     H2O_mean, ...
     precip )
@@ -1588,6 +1604,8 @@ end
 
 % remove days 295 to 320 for GLand 2010 for several variables -- the reported
 % values look weirdly bogus -- TWH 9 Apr 2012
+% FIXME - Not sure why this is removed - there is alread a big FC gap from
+% what I can see
 if sitecode == 1 & year(2) == 2010
     bogus_idx = ( decimal_day >= 294 ) & ( decimal_day <= 320 );
     HL_wpl_massman( bogus_idx ) = NaN;
@@ -1606,6 +1624,7 @@ if ( sitecode == 7 ) & ( year( 2 ) == 2008 )
     u_star( u_star > 200 ) = NaN;
 end
 
+% JSav 2009
 if ( sitecode == 3 ) & ( year( 2 ) == 2009 )
     u_star( decimal_day < 34 ) = NaN;
     wnd_dir_compass( decimal_day < 34 ) = NaN;
@@ -1645,13 +1664,6 @@ LE = HL_wpl_massman;
 H_dry = HSdry_massman;
 %H_dry(dd_idx) = -9999;
 Tair = Tdry - 273.15;
-
-% Calculate VPD Greg Maurer 8/22/2014
-% tair_temp = Tdry - 273.15;
-% vpd = 6.1078 * (1 - rH) .* exp(17.08085*tair_temp./(234.175+tair_temp));
-%es = 0.6108*exp(17.27*air_temp_hmp./(air_temp_hmp+237.3));
-%ea = rH .* es ;
-%vpd2 = ea - es;
 
 if draw_plots > 2
     figure('Name', 'NEE vs wind direction' );
@@ -1698,15 +1710,17 @@ if draw_plots > 2
     linkaxes( [ ax1, ax2, ax3, ax4 ], 'x' );
 end
 
+% GLand temperature - fill in the missing periods with hmp temp (I think)
+% This doesn't run as it is now (array logic).
 if sitecode == 1 & year == 2010
     Tair( 12993:end ) = Tair_TOA5(  12993:end );
 end
 
 if args.Results.draw_plots > 1
-%     h_fps = RBD_plot_fingerprints( sitecode, year_arg, decimal_day, ...
-%         sw_incoming, rH, Tair, NEE, LE, ...
-%         H_dry, ...
-%         'fingerprint plots' );
+    h_fps = RBD_plot_fingerprints( sitecode, year_arg, decimal_day, ...
+        sw_incoming, rH, Tair, NEE, LE, ...
+        H_dry, ...
+        'fingerprint plots' );
 end
 
 filename = sprintf( '%s_flux_all_%d', char( sitecode ), year_arg );

@@ -81,27 +81,26 @@ switch sitecode
             % This works for now, but it not the right calibration 
             % (probably for the li-190, instead of k&z
             % par_lite)
-            Par_Avg = Par_Avg.*1000./(5.7*0.604);
+            Par_Avg = Par_Avg .* 1000 ./ (5.7 * 0.604);
             % It might be something more like:
             %Par_Avg = Par_Avg .* 1000 ./ 5.25;
             
-        elseif year_arg >= 2014
+        elseif year_arg == 2014
             % calibration and unit conversion into W per m^2 for CNR1 variables
             % and adjust for program error
             % Fixed in dat logger programs on 01/17/2014
-            idx = find(decimal_day < 17.5);
+            idx = find( decimal_day < 17.7 );
             sw_incoming(idx) = sw_incoming(idx) ./ 136.99 .* (1000 ./ 8.49);
             sw_outgoing(idx) = sw_outgoing(idx) ./ 136.99 .* (1000 ./ 8.49);
             lw_incoming(idx) = lw_incoming(idx) ./ 136.99 .* (1000 ./ 8.49);
             lw_outgoing(idx) = lw_outgoing(idx) ./ 136.99 .* (1000 ./ 8.49);
             % temperature correction just for long-wave
-            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming,...
-                lw_outgoing, idx);
+            [lw_incoming, lw_outgoing] = lw_correct( lw_incoming, lw_outgoing );
             % Calibration correction for the li190 - Temporary - we need
             % the cal for the par_lite sensor, but this works ok now since
             % the PAR data is normalized anyways.
-            Par_Avg(idx) = Par_Avg(idx) .* 1000 ./ (5.7 * 0.604);
-            
+            %Par_Avg( idx ) = Par_Avg( idx ) .* 1000 ./ (5.7 * 0.604);
+            Par_Avg( idx ) = Par_Avg( idx ) .* 1000 ./ 4.5;
         end
         
         %%%%%%%%%%%%%%%%% shrubland

@@ -3,6 +3,7 @@ function diagFig1 = plot_qc_meteorology(  sitecode, ...
     timestamp, ...
     Tair_hmp, ...
     RH_hmp, ...
+    VPD, ...
     Tair_sonic, ...
     H2O_irga, ...
     precip,...
@@ -99,20 +100,24 @@ ylim( [-30, 40] );
 xlim([ min( timestamp ) max( timestamp ) ]);
 
 h_ax( 2 ) = subplot( 6, 1, 3:4 );
-plot( timestamp, RH_hmp, ':', 'Color', rhhmp1_c );
-%plotyy( timestamp, RH_hmp, '--', timestamp, VPD, ':' ); 
+[yy_ax, h_line1, h_line2 ] = plotyy( timestamp, RH_hmp, timestamp, VPD );
+set( h_line1, 'Color', rhhmp1_c );
+set( h_line2, 'Color', 'Black', 'LineStyle', ':');
 if hmp2
-    plot( timestamp, RH_hmp2, ':', 'Color', rhhmp2_c );
-    legend( 'RH (hmp 1)', 'RH (hmp 2)', 'Location', 'SouthWest' );
+    plot( yy_ax( 1 ), timestamp, RH_hmp2, ':', 'Color', rhhmp2_c );
+    legend( 'RH (hmp 1)', 'VPD', 'RH (hmp 2)', 'Location', 'NorthWest' );
+else
+    legend( 'RH', 'VPD', 'Location', 'NorthWest' );
 end
-ylabel( 'RH ( % )' );
-ylim( [-2, 102] );
-xlim([ min( timestamp ) max( timestamp ) ]);
+%ylabel( 'RH ( % )' );
+ylim( yy_ax( 1 ), [-2, 102] );
+ylim( yy_ax( 2 ), [0, 1e5] );
+xlim( yy_ax( 1 ), [ min( timestamp ) max( timestamp ) ]);
+xlim( yy_ax( 2 ), [ min( timestamp ) max( timestamp ) ]);
 datetick('x','mmm dd', 'keepticks');
 
 h_ax( 3 ) = subplot( 6, 1, 5 );
 plot( timestamp, precip, '-', 'Color', [ 0.2 0.2 0.2 ] );
-%plotyy( timestamp, RH_hmp, '--', timestamp, VPD, ':' ); 
 if precip2
     plot( timestamp, precip2, '-', 'Color', [ 0.5 0.5 0.5 ] );
     legend( 'RH (hmp 1)', 'RH (hmp 2)', 'Location', 'SouthWest' );
