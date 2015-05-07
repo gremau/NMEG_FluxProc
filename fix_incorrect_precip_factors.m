@@ -67,15 +67,14 @@ elseif site_code == 11     % New_Gland
 % There were some issues with the SLand gauge for while, but data before
 % 2014 are now filled in with other sites.
 elseif site_code == 2      %SLand
-    % Early 2014 has one period that appears to need filling, but there is
-    % are zeroes and a crazy large precip event there. Change to Nans so
-    % this gets filled.
-    Apr13 = datenum( 2014, 4, 13 ) - datenum( 2014, 1, 1 ) + 1;
-    idx = find( ( year == 2014 ) & ( doy <= Apr13 ) );
+    % Early 2014 has one period that needs filling, but there are
+    % zeroes and a crazy large precip event there (due to site visit).
+    % Change to Nans so this gets filled.
+    Apr3 = datenum( 2014, 4, 3 ) - datenum( 2014, 1, 1 ) + 1;
+    idx = find( ( year == 2014 ) & ( doy < Apr3 ) );
     if not( isempty( idx ) )
         pcp_fixed( idx ) = NaN;
     end
-    
 
 %-------------------------
 % fix JSav

@@ -78,8 +78,12 @@ switch sitecode
             lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
-            % calibration correction for the li190
+            % This works for now, but it not the right calibration 
+            % (probably for the li-190, instead of k&z
+            % par_lite)
             Par_Avg = Par_Avg.*1000./(5.7*0.604);
+            % It might be something more like:
+            %Par_Avg = Par_Avg .* 1000 ./ 5.25;
             
         elseif year_arg >= 2014
             % calibration and unit conversion into W per m^2 for CNR1 variables
@@ -93,8 +97,11 @@ switch sitecode
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming,...
                 lw_outgoing, idx);
-            % calibration correction for the li190
+            % Calibration correction for the li190 - Temporary - we need
+            % the cal for the par_lite sensor, but this works ok now since
+            % the PAR data is normalized anyways.
             Par_Avg(idx) = Par_Avg(idx) .* 1000 ./ (5.7 * 0.604);
+            
         end
         
         %%%%%%%%%%%%%%%%% shrubland
@@ -142,12 +149,12 @@ switch sitecode
             lw_outgoing = lw_outgoing./136.99.*(1000./12.34);
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
-            % Using PAR_lite sensor 2009-2014. This works, but not sure
-            % it is the right calibration (could be li-190, instead of kz
+            % Using PAR_lite sensor 2009-2014. This works but pretty sure
+            % it is the wrong calibration ( for the li-190 instead of k&z
             % par_lite)
             Par_Avg = Par_Avg.*1000./(6.94*0.604);
             % It might be something more like:
-            %Par_Avg = Par_Avg .* 1000 ./ 5.25;
+            % Par_Avg = Par_Avg .* 1000 ./ 5.25;
             
         elseif year_arg >= 2014
             % calibration and unit conversion into W per m^2 for CNR1 variables
@@ -164,8 +171,8 @@ switch sitecode
                 lw_outgoing(idx)./136.99.*(1000./12.34);
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing );
-            % calibration correction for the li190 (? - maybe it should be
-            % different for the kz par_lite)
+            % calibration correction for the li190 (? - should probably be
+            % different for the k&z par_lite)
             Par_Avg(idx) = ...
                 Par_Avg(idx).*1000./(6.94*0.604);
             % Fix one spiky period
