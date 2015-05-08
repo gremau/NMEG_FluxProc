@@ -344,6 +344,10 @@ switch sitecode
         end
         lw_incoming = linfit_var(lw_incoming, slp, icpt);
         
+        % Fix some strange PAR drops in 2014
+        idx = decimal_day > 50 & decimal_day < 77 & Par_Avg < -1;
+        Par_Avg( idx ) = NaN;
+        
         %%%%%%%%%%%%%%%%% ponderosa pine
     case UNM_sites.PPine
         if year_arg == 2007
