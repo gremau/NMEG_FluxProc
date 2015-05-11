@@ -1,7 +1,5 @@
-function [ diagFig1, diagFig2 ] = plot_fixed_datalogger_timestamps( ...
-                                                      sitecode, year, ...
-                                                      dataOrig, ...
-                                                      dataShifted )
+function plot_fixed_datalogger_timestamps( sitecode, year, ...
+                                           dataOrig, dataShifted )
 % plot_fixed_datalogger_timestamps - makes 2 diagnostic figures showing the
 % data shifts between original and shifted datalogger tables.
 %
@@ -146,8 +144,6 @@ for i = 1:2
         titleStrings{ i }, year );
 end % End fig 1
 
-diagFig1 = h_fig1;
-
 %=============================== FIGURE 2 =============================
 % Diurnal curves of Rg and Fc for the first week of each month. Useful for
 % assessing shifts between solar events and ecosystem fluxes, which may
@@ -222,8 +218,6 @@ for i = 1:max( fullMonthsPresent )
         ylabel( hAx( 2 ), 'Fc\_raw\_massman\_ourwpl' );
     end
 end
-
-diagFig2 = h_fig2;
 
 %=====================================================================
 % Data functions

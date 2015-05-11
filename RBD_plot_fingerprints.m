@@ -50,8 +50,7 @@ ax2 = subplot( 2, 3, 2 );
 %     rH_max = 100;
 % else
 % DAN K
-
-    rH_max = 1.0;
+rH_max = 100.0;
 
 plot_fingerprint( decimal_day, rH, ...
                   sprintf( '%s %d RH fingerprint', ...

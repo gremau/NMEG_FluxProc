@@ -64,8 +64,13 @@ thisData = fillTstamps( thisData, thisData.timestamp );
 % We need to parse YAML config files to do this
 
 configFileName = 'MetFill.yaml';
-
 thisConfig = parse_yaml_site_config( configFileName, sitecode, year );
+
+%--------------------------------------------------
+% VPD will need to be recalculated for the Tair and
+% RH gaps that are filled - make an index
+
+recalcVPD = [];
 
 %--------------------------------------------------
 % Now we are going to fill selected met variables in thisData
@@ -117,8 +122,13 @@ for i = 1:length( fillVars )
     end
     % Remove bad values from the now filled variables
     if strcmp( fillVars{ i }, 'rH' )
-        thisData.rH( thisData.rH > 1.0 ) = 1.0;
+        thisData.rH( thisData.rH > 100.0 ) = 100.0;
         thisData.rH( thisData.rH < 0.0 ) = 0.0;
+        % Add filled indices to the vpd refill index
+        recalcVPD = [ recalcVPD ; filledIdx1 ; filledIdx2 ];
+    elseif strcmp( fillVars{ i }, 'Tair' );
+        % Add filled indices to the vpd refill index
+        recalcVPD = [ recalcVPD ; filledIdx1 ; filledIdx2 ];
     elseif strcmp( fillVars{ i }, 'Rg' )
         thisData.Rg( thisData.Rg < -50 ) = NaN;
     elseif strcmp( fillVars{ i }, 'Precip' )
@@ -132,7 +142,13 @@ for i = 1:length( fillVars )
         sitecode, year );
     end
 end
-    
+
+% Recalculate VPD
+recalcVPD = unique( recalcVPD );
+es = 6.1078 .* exp( (17.269 .* thisData.Tair )./(237.3 + thisData.Tair) );
+vpd_temp = es - ( thisData.rH .* es ./ 100 );
+thisData.VPD( recalcVPD ) = vpd_temp( recalcVPD );
+
 % Replace NaNs with -9999
 foo = table2array( thisData );
 foo( isnan( foo ) ) = -9999;
@@ -352,9 +368,9 @@ result = 0;
         T = T_in( : , {'timestamp', TairVar, rhVar, RgVar, PrecVar } );
         T.Properties.VariableNames = { 'timestamp', 'Tair', 'rH', 'Rg', 'Precip' };
         
-        % Convert rH from [ 0, 100 ] to [ 0, 1 ]
-        if nanmax(T.rH > 2)
-            T.rH = T.rH ./ 100.0;
+        % Convert rH from [ 0, 1 ] to [ 0, 100 ]
+        if nanmax(T.rH < 1.5)
+            T.rH = T.rH * 100.0;
         end
         % Convert precip to mm
         if prec_conv
@@ -390,7 +406,7 @@ result = 0;
         
         % filter out bogus values
         T.Tair( abs( T.Tair ) > 100 ) = NaN;
-        T.rH( T.rH > 1.0 ) = NaN;
+        T.rH( T.rH > 100.0 ) = NaN;
         T.rH( T.rH < 0.0 ) = NaN;
         T.Rg( T.Rg < -20.0 ) = NaN;
         

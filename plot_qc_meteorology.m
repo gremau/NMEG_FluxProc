@@ -1,4 +1,4 @@
-function diagFig1 = plot_qc_meteorology(  sitecode, ...
+function plot_qc_meteorology(  sitecode, ...
     year, ...
     timestamp, ...
     Tair_hmp, ...
@@ -111,7 +111,7 @@ else
 end
 %ylabel( 'RH ( % )' );
 ylim( yy_ax( 1 ), [-2, 102] );
-ylim( yy_ax( 2 ), [0, 1e5] );
+ylim( yy_ax( 2 ), [0, 100] );
 xlim( yy_ax( 1 ), [ min( timestamp ) max( timestamp ) ]);
 xlim( yy_ax( 2 ), [ min( timestamp ) max( timestamp ) ]);
 datetick('x','mmm dd', 'keepticks');
@@ -146,7 +146,7 @@ linkaxes( h_ax, 'x' );
 h_fig2 = figure( 'Name', ...
     sprintf('%s %d Met diagnostics 2/2', ...
     get_site_name( sitecode ), year ), ...
-    'Position', [100 100 1250 950], 'Visible', 'on' )
+    'Position', [100 100 1250 950], 'Visible', 'on' );
 
 % Arrays of data and labels
 xLabelList = { 'January', 'February', 'March', 'April', 'May', 'June', ...
@@ -191,5 +191,3 @@ for i = 1:max( fullMonthsPresent )
         ylabel( hAx( 1 ), 'Tair ( degrees )');
     end
 end
-
-diagFig1 = h_fig2;
