@@ -127,7 +127,13 @@ ylabel( {'Precip', '( mm )'} );
 xlim([ min( timestamp ) max( timestamp ) ]);
 datetick('x','mmm dd', 'keepticks');
 
-PRISM_precip = UNM_parse_PRISM_met_data( sitecode, year );
+% Load the PRISM precip for this year if it is available
+try
+    PRISM_precip = UNM_parse_PRISM_met_data( sitecode, year );
+catch
+    PRISM_precip = table( timestamp, precip * NaN, ...
+        'VariableNames', { 'timestamp', 'Precip' } );
+end
 
 h_ax( 4 ) = subplot( 6, 1, 6 );
 plot( PRISM_precip.timestamp, PRISM_precip.Precip, '-', 'Color', precip_c );
