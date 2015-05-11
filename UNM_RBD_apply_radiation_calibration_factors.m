@@ -585,36 +585,44 @@ switch sitecode
         
         %%%%%%%%%%%%%%%%% New Grassland
     case UNM_sites.New_GLand
+        % Current multiplier for CNR1
+        cnr1_sensitivity = 5.09; % from current program
+        cnr1_mult = 1000 / cnr1_sensitivity;
+        % Pre-2014 multiplier to be corrected
+        cnr1_mult_old = 163.66;
+        
+        % PAR multipliers
+        PAR_up_sensitivity = 6.4; % From the current program
+        % PAR_dn_sensitivity = 6.32; 
+        PAR_up_mult = 1000 / (PAR_up_sensitivity  * 0.604 );
+        
         if year_arg <= 2013
             % calibration correction for the li190
-            Par_Avg = Par_Avg.*1000./(6.4*0.604);
-            % calibration and unit conversion into W per m^2 for CNR1 variables
-            % and adjust for program error
-            
-            % These make already low sw_incoming lower - seems wrong - GEM
-%             sw_incoming = sw_incoming./136.99.*(1000./8.49);
-%             sw_outgoing = sw_outgoing./136.99.*(1000./8.49);
-%             lw_incoming = lw_incoming./136.99.*(1000./8.49);
-%             lw_outgoing = lw_outgoing./136.99.*(1000./8.49);
-            % temperature correction just for long-wave
+            Par_Avg = Par_Avg * PAR_up_mult;
+            % Calibration and unit conversion into W per m^2 for CNR1
+            % variables. First correct for the old datalogger program
+            % that had the wrong CNR1 sensitivity.
+            sw_incoming = sw_incoming ./ cnr1_mult_old .* cnr1_mult;
+            sw_outgoing = sw_outgoing ./ cnr1_mult_old .* cnr1_mult;
+            lw_incoming = lw_incoming ./ cnr1_mult_old .* cnr1_mult;
+            lw_outgoing = lw_outgoing ./ cnr1_mult_old .* cnr1_mult;
+            % Temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             
         elseif year_arg == 2014
-            % RJL added on 01/20/2014 per Marcy, stop all correction 01/17/2014
-            % because added to new data logger programs
-            % calibration correction for the li190
-            % Per Marcy, changed from (5.7*0.604) to (6.4*0.604)
-            cal_idx = find(decimal_day > 0.0 & decimal_day < 17.5);
-            Par_Avg(cal_idx) = Par_Avg(cal_idx) .* 1000 ./ (6.4 * 0.604);
-            % calibration and unit conversion into W per m^2 for CNR1 variables
-            % and adjust for program error
-            % This is clearly a different calibration factor than what was
-            % entered into the datalogger program
-%             sw_incoming(cal_idx) = sw_incoming(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
-%             sw_outgoing(cal_idx) = sw_outgoing(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
-%             lw_incoming(cal_idx) = lw_incoming(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
-%             lw_outgoing(cal_idx) = lw_outgoing(cal_idx) ./ 136.99 .* (1000 ./ 8.49);
-            % temperature correction just for long-wave
+            % Datalogger program changed on Jan 17m 2014 to include the
+            % correct radiation calibrations - correct to this data only
+            cal_idx = find( decimal_day > 0.0 & decimal_day < 17.5 );
+            Par_Avg( cal_idx ) = Par_Avg( cal_idx ) * PAR_up_mult;
+            sw_incoming( cal_idx ) = ...
+                sw_incoming( cal_idx ) ./ cnr1_mult_old .* cnr1_mult;
+            sw_outgoing( cal_idx ) = ...
+                sw_outgoing( cal_idx ) ./ cnr1_mult_old .* cnr1_mult;
+            lw_incoming( cal_idx ) = ...
+                lw_incoming( cal_idx ) ./ cnr1_mult_old .* cnr1_mult;
+            lw_outgoing( cal_idx ) = ...
+                lw_outgoing( cal_idx ) ./ cnr1_mult_old .* cnr1_mult;
+            % Temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
         end
 end
