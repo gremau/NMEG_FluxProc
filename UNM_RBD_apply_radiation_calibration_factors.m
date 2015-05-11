@@ -37,6 +37,20 @@ function [sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, Par_Avg ] = ...
 %%%%%%%%%%%%%%%%% grassland
 switch sitecode
     case UNM_sites.GLand
+        % Current multiplier for CNR1
+        cnr1_sensitivity = 8.49; % from current program
+        cnr1_mult = 1000 / cnr1_sensitivity;
+        % Pre-2014 multiplier to be corrected
+        cnr1_mult_old = 136.99;
+        
+        % PAR multipliers
+        PAR_KZ_new_up_sens = 8.6; % New sensor - from the current program
+        PAR_KZ_old_up_sens = 4.9; % New sensor - from the current program
+        PAR_KZ_dn_sens = 8.68; % K&Z from the current program
+        PAR_LI_old_sens = 7.7; % Multiply by .604 if used
+        PAR_KZ_new_up_mult = 1000 / PAR_KZ_new_up_sens;
+        PAR_KZ_old_up_mult = 1000 / PAR_KZ_old_up_sens;
+        
         if year_arg == 2007
             % calibration and unit conversion into W per m^2 for CNR1 variables
             % >> for first couple of weeks the program had one incorrect
@@ -90,10 +104,10 @@ switch sitecode
             % and adjust for program error
             % Fixed in dat logger programs on 01/17/2014
             idx = find( decimal_day < 17.7 );
-            sw_incoming(idx) = sw_incoming(idx) ./ 136.99 .* (1000 ./ 8.49);
-            sw_outgoing(idx) = sw_outgoing(idx) ./ 136.99 .* (1000 ./ 8.49);
-            lw_incoming(idx) = lw_incoming(idx) ./ 136.99 .* (1000 ./ 8.49);
-            lw_outgoing(idx) = lw_outgoing(idx) ./ 136.99 .* (1000 ./ 8.49);
+            sw_incoming( idx ) = sw_incoming(idx) ./ 136.99 .* (1000 ./ 8.49);
+            sw_outgoing( idx ) = sw_outgoing(idx) ./ 136.99 .* (1000 ./ 8.49);
+            lw_incoming( idx ) = lw_incoming(idx) ./ 136.99 .* (1000 ./ 8.49);
+            lw_outgoing( idx ) = lw_outgoing(idx) ./ 136.99 .* (1000 ./ 8.49);
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct( lw_incoming, lw_outgoing );
             % Calibration correction for the li190 - Temporary - we need
