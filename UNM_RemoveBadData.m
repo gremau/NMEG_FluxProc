@@ -812,6 +812,19 @@ end
     wnd_spd, ...
     CNR1TempK );
 
+% These next 2 removals were formerly in 
+% UNM_RBD_apply_radiation_calibration_factors 
+
+% Applies to all sites and all years
+% remove negative Rg_out values
+sw_outgoing( sw_outgoing < -50 ) = NaN;
+
+isnight = ( Par_Avg < 20.0 ) | ( sw_incoming < 20 );
+%remove nighttime Rg and RgOut values outside of [ -5, 5 ]
+% added 13 May 2013 in response to problems noted by Bai Yang
+sw_incoming( isnight & ( abs( sw_incoming ) > 5 ) ) = NaN;
+sw_outgoing( isnight & ( abs( sw_outgoing ) > 5 ) ) = NaN;
+
 [ NR_sw, NR_lw, NR_tot ] = ...
     UNM_RBD_calculate_net_radiation( sitecode, year_arg, ...
     sw_incoming, sw_outgoing, ...
