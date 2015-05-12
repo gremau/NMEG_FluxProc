@@ -820,7 +820,7 @@ end
 
 % normalize PAR to account for calibration problems at some sites
 Par_Avg = normalize_PAR_wrapper( sitecode, year_arg, decimal_day, Par_Avg, ...
-    draw_plots > 1 );
+    draw_plots >= 0 );
 
 % Diagnostic plot for checking corrected radiation data
 plot_qc_radiation( sitecode, ...
