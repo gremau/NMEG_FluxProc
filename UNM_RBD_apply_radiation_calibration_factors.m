@@ -538,19 +538,15 @@ elseif year_arg == 2008
         
         %%%%%%%%%%%%%%%%% mixed conifer
     case UNM_sites.MCon
-                % Current multiplier for CNR1
-        % Damaged, removed 11/13/12 for repair, prior to repair sens = 6.11
-        cnr1_sensitivity = 6.11;
+        % Current multiplier for CNR1
+        cnr1_sensitivity = 9.96;
         cnr1_mult = 1000 / cnr1_sensitivity;
-        % recalibrated, and reinstalled 5/02/13, new sens = 7.00
-        % There was also a CNR2 briefly (see below in 2012 case for 
-        % details)
 
         % PAR multipliers - see the current datalogger program
-        PAR_KZ_new_up_sens = 8.69; % New Par_lite sensors
-        PAR_KZ_new_dn_sens = 8.37;
-        PAR_KZ_old_up_sens = 5.25; % Older Par_lite
-        PAR_LI_old_dn_sens = 6.75; % Licor down ( Multiply by .604 )
+        PAR_KZ_new_up_sens = 8.17; % New Par_lite sensors
+        PAR_KZ_new_dn_sens = 8.74;
+        PAR_KZ_old_up_sens = 5.65; % Older Par_lite
+        PAR_LI_old_dn_sens = 6.33; % Licor down ( Multiply by .604 )
         
         PAR_KZ_old_up_mult = 1000 / PAR_KZ_old_up_sens;
         PAR_LI_old_dn_mult = 1000 / PAR_LI_old_dn_sens * .604;
@@ -563,13 +559,11 @@ elseif year_arg == 2008
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             
-        elseif year_arg >= 2008 & year_arg <= 2012
-            % radiation values apparently already calibrated and
-            % unit-converted in datalogger prog. for valles sites
+        elseif year_arg >= 2008 & year_arg < 2012
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for par-lite sensor
-            Par_Avg = Par_Avg .* 1000 ./ 5.65;
+            Par_Avg = Par_Avg * PAR_KZ_old_up_mult;
             
         elseif year_arg == 2012
             % There are a bunch of "stuck" PPFD periods to remove
@@ -581,36 +575,22 @@ elseif year_arg == 2008
             sw_incoming( rem_idx ) = NaN;
             sw_outgoing( rem_idx ) = NaN;
             NR_tot( rem_idx ) = NaN;
-            % radiation values apparently already calibrated and unit-converted
-            % in progarm for valles sites
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for par-lite sensor
-            Par_Avg = Par_Avg .* 1000 ./ 5.65;
+            Par_Avg = Par_Avg * PAR_KZ_old_up_mult;
             
         elseif year_arg == 2013
-            % radiation values apparently already calibrated and unit-converted
-            % in progarm for valles sites
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
-            % calibration for par-lite sensor
-            Par_Avg(find(decimal_day > 0.0 & decimal_day < 122.5)) = ...
-                Par_Avg(find(decimal_day > 0.0 & decimal_day < 122.5)).*1000./5.65;
+            % calibration for par-lite sensor, after this it is in
+            % datalogger program
+            idx = decimal_day > 0.0 & decimal_day < 122.5;
+            Par_Avg( idx ) = Par_Avg( idx ) * PAR_KZ_old_up_mult;
             
         elseif year_arg == 2014
-            % RJL added on 01/15/2014 per Marcy, stop all correction 01/14/2014
-            % because added to new data logger programs
-            % radiation values apparently already calibrated and unit-converted
-            % in progarm for valles sites
-            % temperature correction just for long-wave
-            
-            % Most of this is not necessary - GEM
-%             idx = find(decimal_day > 0.0 & decimal_day < 14.5);
-%             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing, idx);
+            % temperature correction just for long-wave;
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
-            % calibration for par-lite sensor
-%             Par_Avg(find(decimal_day > 0.0 & decimal_day < 14.5)) = ...
-%                 Par_Avg(find(decimal_day > 0.0 & decimal_day < 14.5)).*1000./5.65;
             % Bad PPFD values early in 2014 - GEM
             Par_Avg(find(decimal_day > 52.0 & decimal_day < 107.0)) = NaN;
         end
