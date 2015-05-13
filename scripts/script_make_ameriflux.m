@@ -1,18 +1,19 @@
 %close all;
 %clear all;
 %
-% sitelist = { UNM_sites.PPine, UNM_sites.MCon, ...
-%     UNM_sites.JSav, UNM_sites.PJ, UNM_sites.PJ_girdle ...
-%      UNM_sites.SLand, UNM_sites.GLand, UNM_sites.New_GLand};
-sitelist = {UNM_sites.GLand};
-%sitelist = {UNM_sites.PJ_girdle};
+sitelist = { UNM_sites.PPine, UNM_sites.MCon, ...
+    UNM_sites.JSav, UNM_sites.PJ, UNM_sites.PJ_girdle ...
+     UNM_sites.SLand, UNM_sites.GLand};
 %sitelist = {UNM_sites.New_GLand};
 
-yearlist = 2012;
-partmethod = 'eddyproc';%'Reddyproc'
-% Make daily files? All (desired) AF files should be in
-% $FLUXROOT$/Ameriflux_files
+% Years to create files for
+yearlist = 2009:2014;
+% Partitioned data source
+partmethod = 'eddyproc'; %'Reddyproc'
+% Make daily files? All AF files should be in $FLUXROOT$/Ameriflux_files
 make_daily = false;
+write_files = true;
+process_soil = false;
 
 for i = 1:length(sitelist);
     close all;
@@ -23,11 +24,13 @@ for i = 1:length(sitelist);
         
         if strcmp(partmethod, 'eddyproc');
         
-            UNM_Ameriflux_File_Maker(sitecode, year,...
-                'write_daily_file', make_daily, 'process_soil_data', false);
+            UNM_Ameriflux_File_Maker( sitecode, year, ...
+                'write_files', write_files, ...
+                'write_daily_file', make_daily, ...
+                'process_soil_data', process_soil );
             
         elseif strcmp(partmethod, 'Reddyproc');
-            
+            error( ' not implemented yet ' );
             UNM_Ameriflux_File_Maker(sitecode, year,...
                 'write_daily_file', make_daily);
             

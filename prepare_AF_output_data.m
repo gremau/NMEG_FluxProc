@@ -305,9 +305,9 @@ amflx_gaps = [ amflx_gaps, ecb_tbl ];
 
 % Hide [CO2] for GLand 2009, 2010 -- the calibrations are
 % really bad. FIXME - should we unhide this?
-if ( sitecode == 1 ) && ismember( year, [ 2009, 2010 ] )
-    qc_tbl.CO2_mean( : ) = dummy;
-end
+% if ( sitecode == 1 ) && ismember( year, [ 2009, 2010 ] )
+%     qc_tbl.CO2_mean( : ) = dummy;
+% end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Soil stuff

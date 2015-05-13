@@ -65,14 +65,15 @@ switch site
   case UNM_sites.PPine
     switch yr
       case 2011
-        
         % the gapfiller/partitioner diagnosed curiously low RE between days 27
         % and 48.  Raise  that spike to 6.  (as per conversation with Marcy
         % 16 Apr 2013).  The fix must be applied to NEE because GPP will be
         % recalculated as NEE - RE to ensure carbon balance.
+        % FIXME - need to audit this and see if it is necessary
+        warning( 'Funky correction to gapfilled/partitioned NEE' );
         idx = ( data_in.NEE_HBLR > 0.0 ) & ...
               ( data_in.julday >= 27 ) & ...
-              ( data_in.julday <= 48 );
+              ( data_in.julday <= 51.5 );
         data_corrected.NEE_HBLR( idx ) = data_in.NEE_HBLR( idx ) .* ...
             ( 8 / max( data_in.NEE_HBLR( idx ) ) );
         fprintf( 'Fixing PPine 2011 GPP\n' );
@@ -106,15 +107,19 @@ switch site
         % the gapfiller/partitioner put in a big RE spike between days 300
         % and 335.  Dampen that spike to 2 (as per conversation with Marcy 17
         % Apr 2013)
-        idx = DOYidx( 300 ) : DOYidx( 335 );
-        data_corrected.Reco_HBLR( idx ) = data_in.Reco_HBLR( idx ) .* ...
-            ( 2 / max( data_in.Reco_HBLR( idx ) ) );
+          % Commenting this because the gapfiller no longer does this, so
+          % this code actually creates a spike now. GEM 5/13/2015
+%         idx = DOYidx( 300 ) : DOYidx( 335 );
+%         data_corrected.Reco_HBLR( idx ) = data_in.Reco_HBLR( idx ) .* ...
+%             ( 2 / max( data_in.Reco_HBLR( idx ) ) );
       case 2012
-        % the gapfiller/partitioner put in a big RE spike between days 120
-        % and 133.  Dampen that spike to 6.
-        idx = DOYidx( 120 ) : DOYidx( 133 );
-        data_corrected.Reco_HBLR( idx ) = data_in.Reco_HBLR( idx ) .* ...
-            ( 6 / max( data_in.Reco_HBLR( idx ) ) );
+          % the gapfiller/partitioner put in a big RE spike between days
+          % 120 and 133.  Dampen that spike to 6.
+          % Commenting this because the gapfiller no longer does this, so
+          % this code actually creates a spike now. GEM 5/13/2015
+%         idx = DOYidx( 120 ) : DOYidx( 133 );
+%         data_corrected.Reco_HBLR( idx ) = data_in.Reco_HBLR( idx ) .* ...
+%             ( 6 / max( data_in.Reco_HBLR( idx ) ) );
     end
 
   case UNM_sites.PJ_girdle
@@ -123,11 +128,14 @@ switch site
           % the gapfiller/partitioner put in large RE and GPP spike between
           % days 335 and 360 - replace the GPP with that from days 306.25 to
           % 316, recycled to the appropriate length.
-          fill_idx = DOYidx( 306.25 ) : DOYidx( 316 );
-          replace_idx = DOYidx( 335 ) : DOYidx( 360 );
-          filler = data_in.Reco_HBLR( fill_idx );
-          filler = repmat( filler, 3, 1 );
-          filler = filler( 1 : numel( replace_idx ) );
-          data_corrected.Reco_HBLR( replace_idx ) = filler;
+          % Commenting this because the gapfiller no longer does this, so
+          % this code actually reduces what may be a valuable spike now. 
+          % GEM 5/13/2015
+%           fill_idx = DOYidx( 306.25 ) : DOYidx( 316 );
+%           replace_idx = DOYidx( 335 ) : DOYidx( 360 );
+%           filler = data_in.Reco_HBLR( fill_idx );
+%           filler = repmat( filler, 3, 1 );
+%           filler = filler( 1 : numel( replace_idx ) );
+%           data_corrected.Reco_HBLR( replace_idx ) = filler;
     end
 end

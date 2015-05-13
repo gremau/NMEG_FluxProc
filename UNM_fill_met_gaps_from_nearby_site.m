@@ -118,7 +118,8 @@ for i = 1:length( fillVars )
             'There is not enough ancillary met data available \n' ...
             'Filled file not written. \n' ]);
         result = 1;
-        return
+        error( 'Met gapfilling failed' );
+        
     end
     % Remove bad values from the now filled variables
     if strcmp( fillVars{ i }, 'rH' )
@@ -369,7 +370,7 @@ result = 0;
         T.Properties.VariableNames = { 'timestamp', 'Tair', 'rH', 'Rg', 'Precip' };
         
         % Convert rH from [ 0, 1 ] to [ 0, 100 ]
-        if nanmax(T.rH < 1.5)
+        if nanmax( T.rH ) < 1.5
             T.rH = T.rH * 100.0;
         end
         % Convert precip to mm
