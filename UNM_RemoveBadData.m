@@ -2281,7 +2281,8 @@ switch sitecode
         switch year
             case 2009
                 % FIXME - Explanation?
-                sw_incoming( DOYidx( 342 ) : end ) = NaN;
+                % I think this is unnecessary - GEM
+                % sw_incoming( DOYidx( 342 ) : end ) = NaN;
             case 2010
                 % FIXME - Explanation?
                 idx = DOYidx( 134.4 ) : DOYidx( 146.5 );

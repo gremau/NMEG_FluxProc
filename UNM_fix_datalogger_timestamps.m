@@ -407,9 +407,8 @@ end
 %==========================================================================
 % Diagnostic plots
 if debug
-    diagnosticFig = plot_fixed_datalogger_timestamps( sitecode, year, ...
-                                                      dataTable, ...
-                                                      dataTableShifted );
+    plot_fixed_datalogger_timestamps( sitecode, year, ...
+                                      dataTable, dataTableShifted );
     if save_figs
         save_dir = fullfile( getenv( 'PLOTS' ), 'Rad_Fingerprints' );
         is_folder = 7; % exist returns 7 if argument is a directory
@@ -417,12 +416,12 @@ if debug
             mkdir( getenv( 'PLOTS' ), 'Rad_Fingerprints' );
         end
         
-        fname = fullfile( save_dir, ...
-            sprintf( '%s_%d_Rg_fingerprints.eps', ...
-            char( sitecode ), year ) );
-        
-        fprintf( 'saving %s\n', fname );
-        figure_2_eps( diagnosticFig, fname );
+%         fname = fullfile( save_dir, ...
+%             sprintf( '%s_%d_Rg_fingerprints.eps', ...
+%             char( sitecode ), year ) );
+%         
+%         fprintf( 'saving %s\n', fname );
+%         figure_2_eps( diagnosticFig, fname );
     end
 end
 
