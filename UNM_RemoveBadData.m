@@ -1580,6 +1580,8 @@ HL_wpl_massman( LH_maxmin_flag | LH_night_flag | LH_day_flag ) = NaN;
 Tdry_flag = find(Tdry > Tdry_max | Tdry < Tdry_min);
 removed_Tdry = length(Tdry_flag);
 Tdry(Tdry_flag) = NaN;
+% Also remove VPD
+vpd(Tdry_flag) = NaN;
 
 % QC for Tsoil
 
@@ -1587,6 +1589,8 @@ Tdry(Tdry_flag) = NaN;
 rH_flag = find(rH > rH_max | rH < rH_min);
 removed_rH = length(rH_flag);
 rH(rH_flag) = NaN;
+% Also remove VPD
+vpd(rH_flag) = NaN;
 
 % QC for h2o mean values
 h2o_flag = ( H2O_mean > h2o_max ) | ( H2O_mean < h2o_min );
@@ -2238,8 +2242,9 @@ switch sitecode
             case 2008
                 % FIXME - Explanation?
                 fc_raw_massman_wpl( DOYidx( 260 ) : DOYidx( 290 ) ) = NaN;
-                rH( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;  %these observation are way
-                %too small
+                %these observation are way too small
+                rH( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;
+                vpd( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;
                 E_wpl_massman( E_wpl_massman > 200 ) = NaN;
             case 2009
                 % There is a period of bad flux data here that looks

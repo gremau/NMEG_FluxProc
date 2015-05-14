@@ -86,9 +86,9 @@ amflx_gaps = amflx_gf;
 % temperature. See issue 12
 TA_flag = verify_gapfilling( pt_tbl.Tair_f, qc_tbl.Tdry - 273.15, 1e-5 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.Tair_f, ...
-                     { 'TA_f' }, { 'degrees C' }, TA_flag );
+                     { 'TA_f' }, { 'deg C' }, TA_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.Tdry - 273.15, ...
-                       { 'TA' }, { 'degrees C' } );
+                       { 'TA' }, { 'deg C' } );
 
 % RH
 rH_flag = verify_gapfilling( pt_tbl.rH, qc_tbl.rH, 1e-5 );
@@ -106,15 +106,15 @@ amflx_gaps = add_cols( amflx_gaps, VPD, { 'VPD' }, { 'kPa' } );
 % Rg - pyrranometer
 Rg_flag = verify_gapfilling( pt_tbl.Rg_f, qc_tbl.sw_incoming, 1e-4 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.Rg_f, ...
-                     { 'Rg_f' }, { 'W/m2' }, Rg_flag ); %SW_IN_F
+                     { 'Rg_f' }, { 'W/m2' }, Rg_flag ); %SW_IN_f
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.sw_incoming, ...
                        { 'Rg' }, { 'W/m2' } );                   
 
 % Precip
 % Gapfilled precip should be found in MPI files
 P_flag = verify_gapfilling( pt_tbl.Precip, qc_tbl.precip, 1e-5 );
-amflx_gf = add_cols( amflx_gf, pt_tbl.Precip, ... % P_F
-    { 'PRECIP_F' }, { 'mm' }, P_flag );
+amflx_gf = add_cols( amflx_gf, pt_tbl.Precip, ... % P_f
+    { 'PRECIP_f' }, { 'mm' }, P_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.precip, { 'PRECIP' }, { 'mm' } );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
