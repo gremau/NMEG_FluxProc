@@ -47,19 +47,15 @@ fname_suffix = args.Results.fname_suffix;
 email = args.Results.email;
 outdir = args.Results.outdir;
 
-% now create and write the output file
+% Now create and write the output file
 result = 1;
 
-% We can now fill in the 'TIMESTAMP' and remove 'timestamp'
+% We can now remove 'timestamp'
 if any( strcmp( 'timestamp', af_tbl.Properties.VariableNames ) )
-    af_tbl.TIMESTAMP = str2num( ...
-        datestr( af_tbl.timestamp, 'YYYYmmDDHHMMSS' ));
     af_tbl.timestamp = [];
-else
-    error( 'Time columns not properly configured!' );
 end
 
-%use a default if no output directory specified
+% Use a default if no output directory specified
 if strcmp( outdir, '' )
     outdir = get_out_directory( sitecode );
 end
@@ -83,7 +79,7 @@ fprintf( fid, 'Site name: %s\n', aflx_site_name );
 fprintf( fid, 'Email: %s\n', email );
 fprintf( fid, 'Created: %s\n', datestr( now() ) );
 
-%% write variables name and unit headers
+% Write variables name and unit headers
 tok_str = sprintf( '%s%%s', delim );
 fmt = [ '%s', repmat( tok_str, 1, ncol-1 ), '\n' ];
 var_names = af_tbl.Properties.VariableNames;
@@ -94,12 +90,23 @@ fprintf( fid, fmt, var_names{:} );
 units = af_tbl.Properties.VariableUnits;
 fprintf( fid, fmt, units{:} );
 
+% This could work, but fmt would have to be specified for each column
+% Also, it is SLOWER than dlmwrite
+% dat_str = sprintf( '%s%%f', delim );
+% fmt = [ '%s', repmat( dat_str, 1, ncol-1 ), '\n' ];
+% for i = 1:height( af_tbl );
+%    y = table2cell( af_tbl( i, : ) );
+%    fprintf( fid, fmt, y{:} );
+% end
+
 fclose( fid );
 
+
 % Beware of ints when converting table to array!
+% Use high precision so TIMESTAMP is represented correctly
 data = table2array( af_tbl );
 data( isnan( data ) ) = -9999;
 dlmwrite( fname, data, '-append', ...
           'Delimiter', delim, ...
-          'Precision', 7 );
+          'Precision', 14 );
 

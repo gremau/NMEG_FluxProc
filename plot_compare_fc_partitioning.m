@@ -1,4 +1,4 @@
-function fighandle = plot_compare_fc_partitioning( site, yr, ...
+function fighandle = plot_compare_fc_partitioning( sitecode, yr, ...
                                                    data_in, varargin )
 % PLOT_COMPARE_FC_PARTITIONING - makes diagnostic figures showing the
 % output of several different NEE partitioning methods.
@@ -7,7 +7,7 @@ function fighandle = plot_compare_fc_partitioning( site, yr, ...
 % FIXME - documentation
 %
 % INPUTS
-%    site: UNM_sites object; specifies the site to show
+%    sitecode: UNM_sites object; specifies the site to show
 %    yr: four-digit year: specifies the year to show
 %    data_in: MATLAB table: array including partitioned flux columns
 %    keenan: boolean; flag to toggle plotting of keenan partitioned data
@@ -26,15 +26,15 @@ function fighandle = plot_compare_fc_partitioning( site, yr, ...
 % define inputs, with defaults and type checking
 % -----
 args = inputParser;
-args.addRequired( 'site', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'yr', ...
     @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
 args.addRequired( 'data_in', @istable );
 args.addParameter( 'keenan', false, @islogical );
 
 % Parse optional inputs
-args.parse( site, yr, data_in, varargin{ : } );
-site = args.Results.site;
+args.parse( sitecode, yr, data_in, varargin{ : } );
+sitecode = args.Results.sitecode;
 yr = args.Results.yr;
 af_tbl = args.Results.data_in; % Contains partitioned NEE values
 keenan = args.Results.keenan;
@@ -45,7 +45,7 @@ gpp_vars = { 'GPP_f_MR2005', 'GPP_GL2010', 'GPP_f_TK201X' };
 
 % Set up figure window
 fighandle = figure( 'Name',...
-    sprintf('NEE partitioning comparison, %s %d', site, yr),...
+    sprintf('NEE partitioning comparison, %s %d', sitecode, yr),...
     'Units', 'centimeters', 'Position', [2, 2, 34, 22] );
 
 % Four subplots
@@ -69,12 +69,13 @@ ax( 4 ) = subplot( 2, 3, 6 );
 h = compare_cumulative_series( 'GPP', ax( 4 ), af_tbl, keenan );
 
 title( ax( 1 ), sprintf('Partitioning Comparison: %s %d', ...
-    get_site_name( site ), yr ));
+    get_site_name( sitecode ), yr ));
 linkaxes( ax, 'x' );
 
-% figname = fullfile(getenv('FLUXROOT'), 'QAQC_analyses', 'partitioning_comparison',...
-%     sprintf('part_compare_%s_%d.pdf', get_site_name(sitecode), yr(1)));
-% print(partition_comp_fig, '-dpdf', figname );
+figname = fullfile( getenv( 'FLUXROOT' ), 'QAQC_analyses', ...
+    'partitioning_comparison', sprintf( 'part_compare_%s_%d.pdf', ...
+    get_site_name( sitecode ), yr( 1 ) ));
+print( fighandle, '-dpdf', figname );
 
 %----------------------------------------------------------------------
 % SUBFUNCTIONS
