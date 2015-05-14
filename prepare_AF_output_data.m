@@ -62,18 +62,24 @@ dummy = repmat( -9999, size( qc_tbl, 1 ), 1 );
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 timestamp = qc_tbl.timestamp; % Will be stripped later
-TIMESTAMP = dummy; % This will be a string, so fill it in later
+% Create an ISO standardized timestamp and convert to numeric.
+% Need to use hig precision when writing this to file.
+TIMESTAMP = str2num( datestr( timestamp, 'YYYYmmDDHHMMSS' ));
 [ YEAR, ~, ~ ] = datevec( timestamp );
 DTIME = timestamp - datenum( YEAR, 1, 1 ) + 1;
 amflx_gf = table( timestamp, TIMESTAMP, YEAR, DTIME );
 amflx_gf.Properties.VariableUnits = { '--', 'YYYYMMDDHHMMSS', ...
-    'YYYY', 'D.D' };
+    'YYYY', 'DDD.D' };
 
 amflx_gaps = amflx_gf;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Add GAPFILLED met and radiation variables
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Only Tair, VPD, and Rg are filled by the MPI gapfiller
+% These + RH and precip are filled with nearby met data
+% The verify gapfilling step checks all these.
 
 % Tair
 % FIXME - this is sonic temperature (Tdry - 273.15), not hmp
@@ -90,15 +96,12 @@ amflx_gf = add_cols( amflx_gf, pt_tbl.rH, { 'RH_f' }, { '%' }, rH_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.rH, { 'RH' }, { '%' } );
 
 % VPD
-% Get VPD from MPI output
-VPD_f = pt_tbl.VPD_f ./ 10; % convert to kPa
-% Flag any VPD values as true because all our VPD data is calculated
-% from our Tair and rH data by the MPI tool ( we don't send them VPD )
-VPD_flag = ~isnan( VPD_f ); %repmat( 1, size( VPD_f, 1 ), 1 );
-warning( 'VPD data in Ameriflux files is all filled from MPI' );
+VPD_flag = verify_gapfilling( pt_tbl.VPD_f, qc_tbl.VPD, 1e-5 );
+% Convert to kPa
+VPD = qc_tbl.VPD ./ 10;
+VPD_f = pt_tbl.VPD_f ./ 10;
 amflx_gf = add_cols( amflx_gf, VPD_f, { 'VPD_f' }, { 'kPa' }, VPD_flag );
-% Add dummy data to with_gaps table
-amflx_gaps = add_cols( amflx_gaps, dummy, { 'VPD' }, { 'kPa' } );
+amflx_gaps = add_cols( amflx_gaps, VPD, { 'VPD' }, { 'kPa' } );
 
 % Rg - pyrranometer
 Rg_flag = verify_gapfilling( pt_tbl.Rg_f, qc_tbl.sw_incoming, 1e-4 );
