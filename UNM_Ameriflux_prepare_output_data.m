@@ -547,10 +547,11 @@ amflux_gf = replace_badvals( amflux_gf, -9999, fp_tol );
             sol = get_solar_elevation( UNM_sites( sitecode ), tstamp );
             idx = ( sol < -10 ) & ( Rg < Rg_threshold ) & ( GPPout > 0.1 );
             fprintf( '# of positive nighttime GPP: %d\n', numel( find( idx ) ) );
-            % take nighttime positive GPP out of RE
+            % Subtract nighttime positive GPP from RE
             REout( idx ) = REout( idx ) - GPPout( idx );
             GPPout( idx ) = 0.0;
-            
+            % Change NEE and RE to zero any time there are 
+            % negative RE values
             idx_RE_negative = REout < 0.0;
             REout( idx_RE_negative ) = 0.0;
             NEEout( idx_RE_negative ) = 0.0;
