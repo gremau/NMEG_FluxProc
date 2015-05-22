@@ -78,6 +78,8 @@ ds_in2 = ds_in2( keep_idx2, : );
 ds_in2.( tvar2 ) = ts2;
 
 %% combine timestamps & remove duplicates 
+% FIXME - ts_all will not include t_start and perhaps not t_end
+% Therefore, the full timeseries requested will not be filled in
 ts_all = union( ts1, ts2 );
 
 %% fill both datasets so that they contain complete 30-minute timeseries

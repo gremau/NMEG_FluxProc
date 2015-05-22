@@ -19,6 +19,8 @@ function changed_idx = fix_PPine_2009_forgapfilling()
 %
 % author: Timothy W. Hilton, UNM, Oct 2012
 
+% I don't see these purported problems anymore, with the possible exception
+% of the >2 fluxes days 330-365 (can be taken care of elsewhere anyways)
 error('Should this script be running????');
 
 fgf = parse_forgapfilling_file( UNM_sites.PPine, 2009 );

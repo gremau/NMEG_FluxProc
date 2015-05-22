@@ -10,6 +10,7 @@ function success = fix_MCon_2012_forgapfilling()
 %
 % author: Timothy W. Hilton, UNM, Oct 2012
 
+% Gapfiller doesn't seem to create this spike anymore
 error('Should this script be running????');
 
 fgf = parse_forgapfilling_file( UNM_sites.MCon, 2012, true );

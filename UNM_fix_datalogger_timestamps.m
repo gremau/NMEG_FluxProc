@@ -88,13 +88,20 @@ switch sitecode
     case UNM_sites.GLand
         switch year
             case 2007
-                data = shift_data( data, -1.0 );
-                row_idx = DOYidx( 38 ) : DOYidx( 69 );
-                % FIXME - Column indexes like this are total BS
-                col_idx = [ 1:144, 146:size( data, 2 ) ]; % all but SW_in
-                data( row_idx, : ) = shift_data( data( row_idx, : ), ...
-                    -1.0, col_idx );
-                data = shift_data( data, -0.5, all10hzCols );
+                preClockSet = 1 : DOYidx( 308.17 );
+                data( preClockSet, : ) = ...
+                    shift_data( data( preClockSet, : ), 1.5, allCols );
+                % Data for rest of year need to be shifted 1.5 hours
+                postClockSet = DOYidx( 308.19 ) : size( data, 1 );
+                data( postClockSet, : ) = ...
+                    shift_data( data( postClockSet, : ), 0.5, allCols );
+%                 data = shift_data( data, -1.0 );
+%                 row_idx = DOYidx( 38 ) : DOYidx( 69 );
+%                 % FIXME - Column indexes like this are total BS
+%                 col_idx = [ 1:144, 146:size( data, 2 ) ]; % all but SW_in
+%                 data( row_idx, : ) = shift_data( data( row_idx, : ), ...
+%                     -1.0, col_idx );
+%                 data = shift_data( data, -0.5, all10hzCols );
             case 2008
                 data = shift_data( data, -1.0, all30MinCols );
                 data = shift_data( data, -0.5, all10hzCols );

@@ -540,7 +540,7 @@ methods
 
     % --------------------------------------------------
 
-    function write_fluxall( obj, fluxall_data )
+    function write_fluxall( obj, fluxall_data, varargin )
         % write CDP fluxall data to a tab-delimited text fluxall file.
         %
         % Called automatically from update_fluxall, so the only time
@@ -553,13 +553,18 @@ methods
 
         [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
         t_str = datestr( now(), 'yyyymmdd_HHMM' );
-        fname = sprintf( '%s_FLUX_all_%d.txt', ...
-            char( obj.sitecode ), ...
-            year );
+        if length( varargin ) > 0
+            ext = varargin{1};
+            fname = sprintf( '%s_FLUX_all_%d_%s.txt', ...
+                char( obj.sitecode ), year, ext );
+        else
+            fname = sprintf( '%s_FLUX_all_%d.txt', ...
+                char( obj.sitecode ), year );
+        end
 
         full_fname = fullfile( get_site_directory( obj.sitecode ), ...
             fname );
-
+        
         if exist( full_fname )
             bak_fname = regexprep( full_fname, '\.txt', '_bak.txt' );
             fprintf( 'backing up %s\n', fname );
