@@ -1394,7 +1394,33 @@ if iteration > 4
         yyu(i*2)=(mean_conc(i)+(2*conc_std_bin(i)));
         
     end
+    % Standard deviation filter analysis - this is a new way to do it
+    std_filter_testing( sitecode, year_arg, ...
+        fc_raw_massman_wpl( idx_NEE_good ));
+    
+    fc_raw_massman_wpl_good = fc_raw_massman_wpl;
+    fc_raw_massman_wpl_good(~idx_NEE_good) = NaN;
+    
+    days1 = 1.5;
+    days2 = 3;
+    
+    std_devs = 3;
+    
+    % First filter (days1)
+    [ series_days1, test1 ] = filterseries(fc_raw_massman_wpl_good, ...
+        'sigma', 48*days1, std_devs, true );
+    % Second filter (days2)
+    [ ~, test2 ] = filterseries(series_days1, 'sigma', 48*days2, std_devs, true );
+    
+    test = test1 | test2;
+    
+    % Change bad values in idx_NEE_good
+    % use the old way:
     idx_NEE_good( stdflag ) = false;
+    % use the new way
+    %stdflag = test;
+    %idx_NEE_good( test ) = false;
+    
     decimal_day_nan(stdflag) = NaN;
     record(stdflag) = NaN;
     removed_outofstdnan = numel( find (stdflag ) );
