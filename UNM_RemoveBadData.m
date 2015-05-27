@@ -158,6 +158,8 @@ elseif sitecode == UNM_sites.PJ; % Pinyon Juniper
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
+    sd_filter_windows = [ 1.5, 3, 5 ];
+    sd_filter_thresh = 3;
     co2_min_by_month = -10;
     co2_max_by_month = 6;
     Tdry_min = 240; Tdry_max = 310;
@@ -173,6 +175,8 @@ elseif sitecode == UNM_sites.PJ_girdle; % Pinyon Juniper girdle
     ustar_lim = 0.16;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+    sd_filter_windows = [ 1.5, 3, 5 ];
+    sd_filter_thresh = 3;
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
     Tdry_min = 240; Tdry_max = 310;
     HS_min = -100; HS_max = 640;
@@ -1395,31 +1399,22 @@ if iteration > 4
         
     end
     % Standard deviation filter analysis - this is a new way to do it
-    std_filter_testing( sitecode, year_arg, ...
-        fc_raw_massman_wpl( idx_NEE_good ));
+%     std_filter_testing( sitecode, year_arg, ...
+%         fc_raw_massman_wpl( idx_NEE_good ));
     
     fc_raw_massman_wpl_good = fc_raw_massman_wpl;
     fc_raw_massman_wpl_good(~idx_NEE_good) = NaN;
     
-    days1 = 1.5;
-    days2 = 3;
-    
-    std_devs = 3;
-    
     % First filter (days1)
-    [ series_days1, test1 ] = filterseries(fc_raw_massman_wpl_good, ...
-        'sigma', 48*days1, std_devs, true );
-    % Second filter (days2)
-    [ ~, test2 ] = filterseries(series_days1, 'sigma', 48*days2, std_devs, true );
-    
-    test = test1 | test2;
+    [ series_new, new_stdflag ] = stddev_filter(fc_raw_massman_wpl_good, ...
+        sd_filter_windows, sd_filter_thresh, sitecode, year_arg );
     
     % Change bad values in idx_NEE_good
-    % use the old way:
-    idx_NEE_good( stdflag ) = false;
     % use the new way
-    %stdflag = test;
-    %idx_NEE_good( test ) = false;
+    new_idx_NEE_good = idx_NEE_good;
+    new_idx_NEE_good( new_stdflag ) = false;
+    % OR use the old way:
+    idx_NEE_good( stdflag ) = false;
     
     decimal_day_nan(stdflag) = NaN;
     record(stdflag) = NaN;
@@ -1506,6 +1501,20 @@ if draw_plots > 0
         endbin, startbin, bin_ceil, ...
         bin_floor, mean_flux );
     shg;  %bring current window to front
+    
+    % Same plot with the new std flag
+        [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
+        sitecode, ...
+        year, ...
+        decimal_day, ...
+        fc_raw_massman_wpl, ...
+        new_idx_NEE_good, ustarflag, ...
+        precipflag, nightnegflag, ...
+        windflag, maxminflag, ...
+        lowco2flag, highco2flag, ...
+        nanflag, new_stdflag, n_bins, ...
+        endbin, startbin, bin_ceil, ...
+        bin_floor, mean_flux );
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
