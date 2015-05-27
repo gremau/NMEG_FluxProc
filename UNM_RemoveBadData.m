@@ -117,6 +117,8 @@ if sitecode == UNM_sites.GLand; % grassland
     co2_min_by_month = -15; co2_max_by_month = 7.25;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+    sd_filter_windows = [ 1, 3 ];
+    sd_filter_thresh = 3;
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
@@ -130,6 +132,8 @@ elseif sitecode == UNM_sites.SLand; % shrubland
     co2_min_by_month = -15; co2_max_by_month = 6;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+    sd_filter_windows = [ 1, 3 ];
+    sd_filter_thresh = 3;
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
@@ -144,6 +148,8 @@ elseif sitecode == UNM_sites.JSav; % Juniper savanna
     co2_max_by_month = [ repmat( 5, 1, 6 ), repmat( 10, 1, 6 ) ];
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+    sd_filter_windows = [ 1, 3, 5 ];
+    sd_filter_thresh = 3;
     wind_min = 15; wind_max = 75; % these are given a sonic_orient = 225;
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 550;
@@ -193,6 +199,8 @@ elseif sitecode == UNM_sites.New_GLand; % new Grassland
     ustar_lim = 0.06;
     n_SDs_filter_hi = 4.5; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+    sd_filter_windows = [ 1, 3 ];
+    sd_filter_thresh = 3;
     co2_min_by_month = -15; co2_max_by_month = 7.25;
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
@@ -212,6 +220,8 @@ elseif sitecode == UNM_sites.PPine; % Ponderosa Pine
     ustar_lim = 0.2;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+    sd_filter_windows = [ 2, 4, 7 ];
+    sd_filter_thresh = 3;
     wind_min = 119; wind_max = 179; % these are given a sonic_orient = 329;
     Tdry_min = 240; Tdry_max = 310;
     HS_min = -200; HS_max = 800;
@@ -225,6 +235,8 @@ elseif sitecode == UNM_sites.MCon; % Mixed conifer
     co2_max_by_month = 6;
     n_SDs_filter_hi = 2.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+    sd_filter_windows = [ 1, 3, 6 ];
+    sd_filter_thresh = 3;
     wind_min = 153; wind_max = 213; % these are given a sonic_orient = 333;
     Tdry_min = 250; Tdry_max = 300;
     HS_min = -200; HS_max = 800;
@@ -1304,7 +1316,7 @@ if iteration > 4
     idx_NEE_good( nanflag ) = false;
     idx_NEE_good( ~good_co2 ) = false;
     %    idx_NEE_good( idx_std_removed ) = false;
-    stdflag = repmat( false, size( idx_NEE_good ) );
+    old_stdflag = repmat( false, size( idx_NEE_good ) );
     
     % figure();
     % idx_ax = axes();
@@ -1331,8 +1343,8 @@ if iteration > 4
             fc_raw_massman_wpl > bin_ceil( i ) );
         stdflag_thisbin_low = ( this_bin & ...
             fc_raw_massman_wpl < bin_floor( i ) );
-        stdflag = stdflag | stdflag_thisbin_hi | stdflag_thisbin_low;
-        stdflag( find( std_exc_flag ) ) = false;
+        old_stdflag = old_stdflag | stdflag_thisbin_hi | stdflag_thisbin_low;
+        old_stdflag( find( std_exc_flag ) ) = false;
         
         % %plot each SD window and its mean and SD
         % figure()
@@ -1351,6 +1363,7 @@ if iteration > 4
         % end
         % title( sprintf( 'SD filter, window %d/%d', i, n_bins ) );
         
+        % CO2 concentration bin calculations?
         elementstouse_c = find(conc_record > startbin( i ) & ...
             conc_record <= endbin( i ) & ...
             isnan(conc_record) == 0);
@@ -1398,23 +1411,25 @@ if iteration > 4
         yyu(i*2)=(mean_conc(i)+(2*conc_std_bin(i)));
         
     end
-    % Standard deviation filter analysis - this is a new way to do it
-%     std_filter_testing( sitecode, year_arg, ...
-%         fc_raw_massman_wpl( idx_NEE_good ));
     
+    % Standard deviation filter analysis
+    % std_filter_testing( sitecode, year_arg, ...
+    %     fc_raw_massman_wpl( idx_NEE_good ));
+
+    % Only filter values that haven't already been removed
     fc_raw_massman_wpl_good = fc_raw_massman_wpl;
     fc_raw_massman_wpl_good(~idx_NEE_good) = NaN;
     
-    % First filter (days1)
-    [ series_new, new_stdflag ] = stddev_filter(fc_raw_massman_wpl_good, ...
+    % Get the values flagged for std deviation
+    [ ~, stdflag ] = stddev_filter(fc_raw_massman_wpl_good, ...
         sd_filter_windows, sd_filter_thresh, sitecode, year_arg );
     
     % Change bad values in idx_NEE_good
     % use the new way
-    new_idx_NEE_good = idx_NEE_good;
-    new_idx_NEE_good( new_stdflag ) = false;
-    % OR use the old way:
     idx_NEE_good( stdflag ) = false;
+    % OR use the old way:
+    old_idx_NEE_good = idx_NEE_good;
+    old_idx_NEE_good( old_stdflag ) = false;
     
     decimal_day_nan(stdflag) = NaN;
     record(stdflag) = NaN;
@@ -1501,20 +1516,21 @@ if draw_plots > 0
         endbin, startbin, bin_ceil, ...
         bin_floor, mean_flux );
     shg;  %bring current window to front
-    
-    % Same plot with the new std flag
-        [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
+        
+    % Plot with the old std flag
+    [ h_fig_flux, ax_NEE, ax_flags ] = plot_NEE_with_QC_results( ...
         sitecode, ...
         year, ...
         decimal_day, ...
         fc_raw_massman_wpl, ...
-        new_idx_NEE_good, ustarflag, ...
+        old_idx_NEE_good, ustarflag, ...
         precipflag, nightnegflag, ...
         windflag, maxminflag, ...
         lowco2flag, highco2flag, ...
-        nanflag, new_stdflag, n_bins, ...
+        nanflag, old_stdflag, n_bins, ...
         endbin, startbin, bin_ceil, ...
         bin_floor, mean_flux );
+    set( h_fig_flux, 'Name', 'OLD METHOD SD filter' );
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
