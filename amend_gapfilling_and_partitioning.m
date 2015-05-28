@@ -1,6 +1,6 @@
-function data_corrected = correct_AF_gapfilling( site, yr, data_in )
-% CORRECT_AF_GAPFILLING - fix or remove periods where gapfilled fluxes fail
-% or are ridiculous
+function data_corrected = amend_gapfilling_and_partitioning( site, yr, data_in )
+% AMEND_GAPFILLING_AND_PARTITIONING - fix or remove periods where 
+% gapfilled and partitioned fluxes fail or are ridiculous
 %
 % FIXME: documentation
 %

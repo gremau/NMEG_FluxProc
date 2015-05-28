@@ -155,7 +155,7 @@ end
 % Remove periods where gapfilling fails or is ridiculous
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pt_tbl = correct_AF_gapfilling( sitecode, year, pt_tbl );
+pt_tbl = amend_gapfilling_and_partitioning( sitecode, year, pt_tbl );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create Ameriflux output table and write to ASCII files
