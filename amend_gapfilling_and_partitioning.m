@@ -124,6 +124,25 @@ switch site
 
   case UNM_sites.PJ_girdle
     switch yr
+        case 2009
+            % 2 periods with abnormally high respiration this year. Amend
+            % as per Marcy's request
+            idx = DOYidx( 194.5 ) : DOYidx( 202.75 );
+            data_corrected.Reco_HBLR( idx ) = ...
+                norm( data_in.Reco_HBLR( idx ), 3 );
+            idx2 = DOYidx( 224.25 ) : DOYidx( 228.8 );
+            data_corrected.Reco_HBLR( idx2 ) = ...
+                norm( data_in.Reco_HBLR( idx2 ), 2 );
+            dfig = plot_correction( data_in, data_corrected, ...
+                'Reco_HBLR', site, yr );
+        case 2010
+            % 1 period with abnormally high respiration this year. Amend
+            % as per Marcy's request
+            idx = DOYidx( 184.25 ) : DOYidx( 188.7 );
+            data_corrected.Reco_HBLR( idx ) = ...
+                norm( data_in.Reco_HBLR( idx ), 2.5 );
+            dfig = plot_correction( data_in, data_corrected, ...
+                'Reco_HBLR', site, yr );
         case 2011
           % the gapfiller/partitioner put in large RE and GPP spike between
           % days 335 and 360 - replace the GPP with that from days 306.25 to
@@ -137,5 +156,47 @@ switch site
 %           filler = repmat( filler, 3, 1 );
 %           filler = filler( 1 : numel( replace_idx ) );
 %           data_corrected.Reco_HBLR( replace_idx ) = filler;
-    end
+      end
+    
+  case UNM_sites.PJ
+    switch yr
+        case 2009
+          % 1 period with abnormally high respiration this year. Amend
+          % as per Marcy's request
+          idx = DOYidx( 178.25 ) : DOYidx( 182 );
+          data_corrected.Reco_HBLR( idx ) = ...
+              norm( data_in.Reco_HBLR( idx ), 2.75 );
+          dfig = plot_correction( data_in, data_corrected, ...
+              'Reco_HBLR', site, yr );
+        case 2011
+          % 2 periods with abnormally high respiration this year. Amend
+          % as per Marcy's request
+          idx = DOYidx( 241.25 ) : DOYidx( 246.8 );
+          data_corrected.Reco_HBLR( idx ) = ...
+              norm( data_in.Reco_HBLR( idx ), 3.5 );
+          idx2 = DOYidx( 349 ) : DOYidx( 356.75 );
+          data_corrected.Reco_HBLR( idx2 ) = ...
+              norm( data_in.Reco_HBLR( idx2 ), 3 );
+          dfig = plot_correction( data_in, data_corrected, ...
+              'Reco_HBLR', site, yr );
+      end
 end
+
+function data_norm = norm( in, norm_to_max )
+    minval = min( in );
+    maxval = norm_to_max;
+    data_norm = normalize_vector(in, minval, maxval );
+    
+
+function fig = plot_correction( in, corrected, varname, site, yr )
+    fig = figure( 'Name', ...
+        sprintf( '%s %d Amendments to gapfill/partitioning', ...
+        get_site_name( site ), yr ));
+    doy = in.timestamp - datenum( yr, 1, 0);
+    plot( doy, in.NEE_f, ':', 'Color', [0.7, 0.7, 0.7]);
+    hold on;
+    plot( doy, in.( varname ), '.r');
+    plot( doy, corrected.( varname ), '.b');
+    varname = strrep( varname, '_', '\_' );
+    legend( 'NEE_f', varname, [ 'Corr. ' varname ]);
+
