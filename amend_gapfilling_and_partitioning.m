@@ -121,7 +121,18 @@ switch site
 %         data_corrected.Reco_HBLR( idx ) = data_in.Reco_HBLR( idx ) .* ...
 %             ( 6 / max( data_in.Reco_HBLR( idx ) ) );
     end
-
+  case UNM_sites.GLand
+    switch yr
+        case 2012
+            % 1 period with abnormally high respiration this year. Amend
+            % as per Marcy's request
+            idx = DOYidx( 192.5 ) : DOYidx( 217.4 );
+            data_corrected.Reco_HBLR( idx ) = ...
+                norm( data_in.Reco_HBLR( idx ), 1.55 );
+            dfig = plot_correction( data_in, data_corrected, ...
+                'Reco_HBLR', site, yr );
+    end
+            
   case UNM_sites.PJ_girdle
     switch yr
         case 2009
@@ -141,6 +152,14 @@ switch site
             idx = DOYidx( 184.25 ) : DOYidx( 188.7 );
             data_corrected.Reco_HBLR( idx ) = ...
                 norm( data_in.Reco_HBLR( idx ), 2.5 );
+            dfig = plot_correction( data_in, data_corrected, ...
+                'Reco_HBLR', site, yr );
+        case 2012
+            % 1 period with abnormally high respiration this year. Amend
+            % as per Marcy's request
+            idx = DOYidx( 263.55 ) : DOYidx( 299.9 );
+            data_corrected.Reco_HBLR( idx ) = ...
+                norm( data_in.Reco_HBLR( idx ), 2.6 );
             dfig = plot_correction( data_in, data_corrected, ...
                 'Reco_HBLR', site, yr );
         case 2011
