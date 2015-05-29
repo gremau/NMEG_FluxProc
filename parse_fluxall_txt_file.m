@@ -30,7 +30,7 @@ args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'year', ...
                @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
-args.addParamValue( 'file', '', @ischar );
+args.addParameter( 'file', '', @ischar );
 args.parse( sitecode, year, varargin{ : } );
 
 sitecode = args.Results.sitecode;

@@ -17,12 +17,30 @@
 
 %UNM_30min_flux_processor_v2.1
 
-function [] = UNM_30min_flux_processor_Tim(sitecode,year,first_row,last_row)
+function data_out = fill_30min_flux_processor( data_in, ...
+                                               sitecode, year, ...
+                                               first_row, last_row, ...
+                                               varargin )
 
-% sitecode=7;
-% year=2008;
-% first_row=10228;
-% last_row=10707;
+[ this_year, ~, ~ ] = datevec( now );
+                                           
+args = inputParser;
+args.addRequired( 'data_in', @(x) isa( x, 'dataset' ) );
+args.addRequired( 'sitecode', @(x) ( isintval( x ) | ...
+                                     isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'year', @(x) ( isintval( x ) & ( x >= 2006 ) & ...
+                    ( x <= this_year ) ) );
+args.addRequired( 'first_row', @(x)  isintval( x ) );
+args.addRequired( 'last_row', @(x)  isintval( x ) );
+args.addParameter( 'write_file', false, @islogical );
+args.parse( data_in, sitecode, year, first_row, last_row, varargin{ : } );
+
+data_in = args.Results.data_in;
+sitecode = args.Results.sitecode;
+year = args.Results.year;
+first_row = args.Results.first_row;
+last_row = args.Results.last_row;
+write_file = args.Results.write_file;
 
 % MF:
 % Flux-All File Columns used to index the input data range.
@@ -38,8 +56,9 @@ function [] = UNM_30min_flux_processor_Tim(sitecode,year,first_row,last_row)
 %   data2c1 = "jday" (Julian day)
 %   data2c2 = "w_mean" (last column of "MATLAB processed" section)
 
-
-newfile_ext = '30minfill';
+if write_file
+    newfile_ext = '30minfill';
+end
 
 if sitecode == 1
     site = 'GLand';
@@ -258,52 +277,14 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if year <= 2008
-    filename = strcat(site,'_flux_all_',num2str(year))
-    filein = strcat('C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\',site,'\',filename); % assemble path to file
-    datarange = strcat(data1c1,num2str(first_row),':',data1c2,num2str(last_row)); % specify what portion of spreadsheet to read in
-    headerrange = strcat(data1c1,'2:',data1c2,'2'); % specify portion of spreadsheet that is headers
+    error('Warning - this might not work');
 
-    [num text] = xlsread(filein,headerrange); % read in the text in the header
-    headertext = text; % assign column headers to header text array
-
-    [num text]=xlsread(filein,datarange);  %does not read in first column because its text!!!!!!!!
-    data = num; % assign data to data array
-
-    datarange2 = strcat(data2c1,num2str(first_row),':',data2c2,num2str(last_row));
-    [num text]=xlsread(filein,datarange2);
-    DATA_IN = num;
-
-    % timestamps are text so read them in separately
-    [num text] = xlsread(filein,strcat(timestamp_col,num2str(first_row),':',timestamp_col,num2str(last_row)));
-    timestamp = text; % assign timestamp array
-
-    % added by MF
-    try
-        [year2 month day hour minute second] = datevec(timestamp); % ,'dd/mm/yyyy HH:MM:SS'); %break timestamp into usable data and time variables
-                                                                   %[year month day hour minute second] = datevec(timestamp); %break timestamp into usable data and time variables
-    catch err
-        error('timestamp value found does not seem to be a date; check that correct column is being used for this input file');
-    end
-
-    bad_v = NaN(nrows);
-    [num text] = xlsread(filein,strcat(bad_variance_col,num2str(first_row),':',bad_variance_col,num2str(last_row))); % 
 else
-    
-    % Look for an already filled fluxall to use
-    fname = sprintf( '%s_FLUX_all_%d_%s.txt', site, year, newfile_ext );
-    filled_fname = fullfile( get_site_directory( sitecode ), fname );
-    % Check if file exists
-    if exist( filled_fname )
-        ds = UNM_parse_fluxall_txt_file( UNM_sites( sitecode ), year, ...
-            'file', filled_fname );
-    % If it doesn't exist use the original fluxall file
-    else
-        ds = UNM_parse_fluxall_txt_file( UNM_sites( sitecode ), year );
-    end
+    ds = data_in;
     
     [ year2 month day hour minute second ] = datevec( ds.timestamp );
     timestamp = ds.timestamp;
-    ds.timestamp = [];
+    %ds.timestamp = [];
     headertext = ds.Properties.VarNames;
     data = double( ds( first_row:last_row, : ) );
 end    
@@ -942,17 +923,22 @@ ds.rhoa_dry_air_molar_density( first_row : last_row ) = rhoa_out';
 ds.rhov_dry_air_molar_density( first_row : last_row ) = rhov_out';
 ds.rhoc_dry_air_molar_density( first_row : last_row ) = rhoc_out';
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Write fluxes back out to flux_all file
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if year >= 2009
+data_out = ds;
+
+if year >= 2009 && write_file
+    ds.timestamp = [];
     cdp = card_data_processor( UNM_sites( sitecode ), ...
                                'date_start', datenum( year, 1, 1 ), ...
                                'date_end', datenum( year, 12, 31, ...
                                                     23, 59, 59 ) );
     cdp.write_fluxall( ds, newfile_ext );
-else
+elseif year <=2008 && write_file
+    ds.timestamp = [];
     error( ['fluxall xls writeout not implemented for years < 2012 -- TWH, ' ...
             '31 Oct 2012' ] );
     fileout = filein;

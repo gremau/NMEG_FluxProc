@@ -1,4 +1,4 @@
-function [] = UNM_30_min_spooler(sitecode,year)
+function output = fill_30min_flux_spooler( data_in, sitecode, year )
 
 %This is a little spooling program to run all the 30-min processing chunks
 %for a given site and year at the same time.  
@@ -20,6 +20,7 @@ function [] = UNM_30_min_spooler(sitecode,year)
 % 10 = PJ_girdle, PJG_test
 % 11 = new grassland
 
+output = data_in;
 
 if sitecode == 1 % GLand
     if year == 2006
@@ -46,13 +47,14 @@ if sitecode == 1 % GLand
 %         UNM_30min_flux_processor_071610(1,2009,9627,9779);
 %         UNM_30min_flux_processor_071610(1,2009,10601,10780);
 %         UNM_30min_flux_processor_071610(1,2009,14478,15929);
-        UNM_30min_flux_processor_Tim(1,2009,1221,2282);
+        output = fill_30min_flux_processor( output, 1, 2009, 1221, 2282 );
         % UNM_30min_flux_processor_071610(1,2009,2443,2439);
-        UNM_30min_flux_processor_Tim(1,2009,4297,4321);
-        UNM_30min_flux_processor_Tim(1,2009,6002,6079);
-        UNM_30min_flux_processor_Tim(1,2009,9627,9779);
-        UNM_30min_flux_processor_Tim(1,2009,10601,10780);
-        UNM_30min_flux_processor_Tim(1,2009,14478,15929);  
+        output = fill_30min_flux_processor( output, 1,2009,4297,4321 );
+        output = fill_30min_flux_processor( output, 1,2009,6002,6079 );
+        output = fill_30min_flux_processor( output, 1,2009,9627,9779 );
+        output = fill_30min_flux_processor( output, 1,2009,10601,10780 );
+        output = fill_30min_flux_processor( output, 1,2009,14478,15929, ...
+            'write_file', true);  
     elseif year == 2010
         UNM_30min_flux_processor_071610(1,2010,4743,4840);
         UNM_30min_flux_processor_071610(1,2010,5084,5697);
