@@ -63,20 +63,60 @@ switch site
     end
     
   case UNM_sites.PPine
+    % Several periods with abnormally high respiration at PPine. Amend
+    % as per Marcy's request
     switch yr
+      case 2009
+        idx = DOYidx( 15.25 ) : DOYidx( 26.75 );
+        data_corrected.Reco_HBLR( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 3.85 );
+        idx2 = DOYidx( 45.05 ) : DOYidx( 49 );
+        data_corrected.Reco_HBLR( idx2 ) = ...
+            norm( data_in.Reco_HBLR( idx2 ), 2.15 );
+        idx3 = DOYidx( 243 ) : DOYidx( 249 );
+        data_corrected.Reco_HBLR( idx3 ) = ...
+            norm( data_in.Reco_HBLR( idx3 ), 5 );
+        idx4 = DOYidx( 317 ) : DOYidx( 320.85 );
+        data_corrected.Reco_HBLR( idx4 ) = ...
+            norm( data_in.Reco_HBLR( idx4 ), 5 );
+        dfig = plot_correction( data_in, data_corrected, ...
+            'Reco_HBLR', site, yr );
+      case 2010
+        idx = DOYidx( 219.3 ) : DOYidx( 222.8 );
+        data_corrected.Reco_HBLR( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 6 ); 
+        idx2 = DOYidx( 350 ) : DOYidx( 366 );
+        data_corrected.Reco_HBLR( idx2 ) = ...
+            norm( data_in.Reco_HBLR( idx2 ), 4.3 );
+        dfig = plot_correction( data_in, data_corrected, ...
+            'Reco_HBLR', site, yr );
       case 2011
-        % the gapfiller/partitioner diagnosed curiously low RE between days 27
-        % and 48.  Raise  that spike to 6.  (as per conversation with Marcy
-        % 16 Apr 2013).  The fix must be applied to NEE because GPP will be
-        % recalculated as NEE - RE to ensure carbon balance.
-        % FIXME - need to audit this and see if it is necessary
-        warning( 'Funky correction to gapfilled/partitioned NEE' );
-        idx = ( data_in.NEE_HBLR > 0.0 ) & ...
-              ( data_in.julday >= 27 ) & ...
-              ( data_in.julday <= 51.5 );
-        data_corrected.NEE_HBLR( idx ) = data_in.NEE_HBLR( idx ) .* ...
-            ( 8 / max( data_in.NEE_HBLR( idx ) ) );
-        fprintf( 'Fixing PPine 2011 GPP\n' );
+        idx = DOYidx( 27.25 ) : DOYidx( 59 );
+        data_corrected.Reco_HBLR( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 3.5 );
+        dfig = plot_correction( data_in, data_corrected, ...
+            'Reco_HBLR', site, yr );
+      case 2012
+        idx = DOYidx( 321.1 ) : DOYidx( 328 );
+        data_corrected.Reco_HBLR( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 5 );
+        idx2 = DOYidx( 345.35 ) : DOYidx( 350.9 );
+        data_corrected.Reco_HBLR( idx2 ) = ...
+            norm( data_in.Reco_HBLR( idx2 ), 3.5 );
+        dfig = plot_correction( data_in, data_corrected, ...
+            'Reco_HBLR', site, yr );
+      case 2013
+        idx = DOYidx( 325.3 ) : DOYidx( 350.75 );
+        data_corrected.Reco_HBLR( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 3.2 );
+        dfig = plot_correction( data_in, data_corrected, ...
+            'Reco_HBLR', site, yr );
+      case 2014
+        idx = DOYidx( 235.2 ) : DOYidx( 240.75 );
+        data_corrected.Reco_HBLR( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 6.2 );
+        dfig = plot_correction( data_in, data_corrected, ...
+            'Reco_HBLR', site, yr );
     end
         
   case UNM_sites.MCon
