@@ -320,6 +320,10 @@ else
         'file', fullfile( pathname, fname ));
     data_orig = parse_fluxall_txt_file( sitecode, year_arg, 'file', ...
         fullfile( pathname, fname ));
+    
+    % Fill fluxes with 30 minute data?
+    disp( 'WARNING: Filling fluxes with 30min data');
+    data = fill_30min_flux_spooler( data, sitecode, year_arg );
 end
 
 outfolder = fullfile( get_site_directory( sitecode ), ...

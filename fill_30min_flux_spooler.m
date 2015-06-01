@@ -205,13 +205,13 @@ elseif sitecode == 4 % PJ_control
         output = fill_30min_flux_processor( output, 4,2011,17078,17156);
         output = fill_30min_flux_processor( output, 4,2011,17449,17521);
     elseif year == 2012
-        output = fill_30min_flux_processor( output, 4,2011,2,27);
-        output = fill_30min_flux_processor( output, 4,2011,313,336);
-        output = fill_30min_flux_processor( output, 4,2011,12289,12357);
-        output = fill_30min_flux_processor( output, 4,2011,16176,16296);
-        output = fill_30min_flux_processor( output, 4,2011,16516,16546);  
+        output = fill_30min_flux_processor( output, 4,2012,2,27);
+        output = fill_30min_flux_processor( output, 4,2012,313,336);
+        output = fill_30min_flux_processor( output, 4,2012,12289,12357);
+        output = fill_30min_flux_processor( output, 4,2012,16176,16296);
+        output = fill_30min_flux_processor( output, 4,2012,16516,16546);  
     elseif year == 2013
-        output = fill_30min_flux_processor( output, 4,2011,16600,16630);
+        output = fill_30min_flux_processor( output, 4,2012,16600,16630);
     end
         
 elseif sitecode == 5 % PPine
@@ -251,7 +251,7 @@ elseif sitecode == 5 % PPine
     elseif year == 2011
         output = fill_30min_flux_processor( output, 5,2011,1233,2243);
     elseif year == 2012
-        output = fill_30min_flux_processor( output, 5,2011,9724,11164);
+        output = fill_30min_flux_processor( output, 5,2012,9724,11164);
     elseif year == 2013
         output = fill_30min_flux_processor( output, 5,2013,2,24);
         output = fill_30min_flux_processor( output, 5,2013,15287, 15477);
