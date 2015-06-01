@@ -20,6 +20,8 @@ function output = fill_30min_flux_spooler( data_in, sitecode, year )
 % 10 = PJ_girdle, PJG_test
 % 11 = new grassland
 
+plot_diagnostic = true;
+
 output = data_in;
 
 if sitecode == 1 % GLand
@@ -47,27 +49,31 @@ if sitecode == 1 % GLand
 %         output = fill_30min_flux_processor( output, 1,2009,9627,9779);
 %         output = fill_30min_flux_processor( output, 1,2009,10601,10780);
 %         output = fill_30min_flux_processor( output, 1,2009,14478,15929);
-        output = fill_30min_flux_processor( output, 1, 2009, 1221, 2282 );
+        %output = fill_30min_flux_processor( output, 1, 2009, 1218, 1467 );
+        % IRGA clearly down in second part of this period
+        output = fill_30min_flux_processor( output, 1, 2009, 1218, 2282 );
         %output = fill_30min_flux_processor( output, 1,2009,2443,2439);
-        output = fill_30min_flux_processor( output, 1,2009,4297,4321 );
-        output = fill_30min_flux_processor( output, 1,2009,6002,6079 );
-        output = fill_30min_flux_processor( output, 1,2009,9627,9779 );
-        output = fill_30min_flux_processor( output, 1,2009,10601,10780 );
+        % output = fill_30min_flux_processor( output, 1,2009,4297,4321 );
+        % output = fill_30min_flux_processor( output, 1,2009,6002,6079 );
+        output = fill_30min_flux_processor( output, 1,2009,9645,9779 );
+        output = fill_30min_flux_processor( output, 1,2009,10601,10780 );    
         output = fill_30min_flux_processor( output, 1,2009,14478,15929, ...
             'write_file', true);  
     elseif year == 2010
-        output = fill_30min_flux_processor( output, 1,2010,4743,4840);
-        output = fill_30min_flux_processor( output, 1,2010,5084,5697);
-        output = fill_30min_flux_processor( output, 1,2010,10676,10907);
-        output = fill_30min_flux_processor( output, 1,2010,12993,17524);
+        output = fill_30min_flux_processor( output, 1,2010,4740,4837);
+        output = fill_30min_flux_processor( output, 1,2010,5081,5694);
+        output = fill_30min_flux_processor( output, 1,2010,10673,10904);
+        output = fill_30min_flux_processor( output, 1,2010,12990,13271);
+        output = fill_30min_flux_processor( output, 1,2010,14089,15671);
     elseif year == 2011
-%        output = fill_30min_flux_processor( output, 1,2011,1899,1999);
-        output = fill_30min_flux_processor( output, 1,2011,10587,10588);
+        % output = fill_30min_flux_processor( output, 1,2011,1899,1999);
+        output = fill_30min_flux_processor( output, 1,2011,9055,9957);
+        % output = fill_30min_flux_processor( output, 1,2011,10587,10588);
     elseif year == 2012
-        output = fill_30min_flux_processor( output, 1,2012, DOYidx( 196 ), DOYidx( 216 ) );
-        output = fill_30min_flux_processor( output, 1,2012, DOYidx( 226 ), DOYidx( 241 ) );
+        %output = fill_30min_flux_processor( output, 1,2012, DOYidx( 196 ), DOYidx( 216 ) );
+        %output = fill_30min_flux_processor( output, 1,2012, DOYidx( 226 ), DOYidx( 241 ) );
     elseif year == 2013
-        output = fill_30min_flux_processor( output, 1,2013, DOYidx( 148.9 ), DOYidx( 149.6 ) );
+        %output = fill_30min_flux_processor( output, 1,2013, DOYidx( 148.9 ), DOYidx( 149.6 ) );
     end
     
 elseif sitecode == 2 % SLand
@@ -91,18 +97,22 @@ elseif sitecode == 2 % SLand
         UNM_30min_flux_processor(2,2008,8783,9153);
    
     elseif year == 2009
-        output = fill_30min_flux_processor( output, 2,2009,4386,4420);
-        output = fill_30min_flux_processor( output, 2,2009,6076,7758);
+        %output = fill_30min_flux_processor( output, 2,2009,4386,4420);
+        output = fill_30min_flux_processor( output, 2,2009,7006,7317);
+        %output = fill_30min_flux_processor( output, 2,2009,6076,7758);
         
     elseif year == 2010
         output = fill_30min_flux_processor( output, 2,2010,16805,16814);     
         
     elseif year == 2011
-        output = fill_30min_flux_processor( output, 2,2011,1901,2002);    
-        output = fill_30min_flux_processor( output, 2,2011,8669,8759); 
+        %output = fill_30min_flux_processor( output, 2,2011,1901,2002);    
+        %output = fill_30min_flux_processor( output, 2,2011,8669,8759); 
     
-    elseif year == 2012
-        output = fill_30min_flux_processor( output, 2,2012,16704,17568);
+    elseif year == 2012 % Leap year
+        output = fill_30min_flux_processor( output, 2,2012,16680,16766);
+        output = fill_30min_flux_processor( output, 2,2012,16832,16862);
+        output = fill_30min_flux_processor( output, 2,2012,17238,17249);
+        output = fill_30min_flux_processor( output, 2,2012,17324,17344);
     elseif year == 2013
         % For some reason 1 day/month of 10hz data is missing at this site
         output = fill_30min_flux_processor( output, 2, 2013, DOYidx(1), DOYidx(2.36));
@@ -123,43 +133,48 @@ elseif sitecode == 3 % JSav
         UNM_30min_flux_processor(3,2008,10207,10228);
         UNM_30min_flux_processor(3,2008,10923,10948);
     elseif year == 2009
+        % Irga data is garbage during this time
         output = fill_30min_flux_processor( output, 3,2009,987,3106);
-        output = fill_30min_flux_processor( output, 3,2009,6746,7962);
-        output = fill_30min_flux_processor( output, 3,2009,14716,16737);
+        % IRGA ok
+        output = fill_30min_flux_processor( output, 3,2009,6742,7958);
+        %output = fill_30min_flux_processor( output, 3,2009,14716,16737);
     elseif year == 2010
-        output = fill_30min_flux_processor( output, 3,2010,10581,10586);
-        output = fill_30min_flux_processor( output, 3,2010,10629,10637);
-        output = fill_30min_flux_processor( output, 3,2010,10640,10642);
-        output = fill_30min_flux_processor( output, 3,2010,10644,10646);
-        output = fill_30min_flux_processor( output, 3,2010,10648,10674);
-        output = fill_30min_flux_processor( output, 3,2010,10676,10689);
-        output = fill_30min_flux_processor( output, 3,2010,10695,10702);
-        output = fill_30min_flux_processor( output, 3,2010,10723,10746);
-        output = fill_30min_flux_processor( output, 3,2010,10819,10825);
-        output = fill_30min_flux_processor( output, 3,2010,10868,10877);
-        output = fill_30min_flux_processor( output, 3,2010,10967,10969);
+%         output = fill_30min_flux_processor( output, 3,2010,10581,10586);
+%         output = fill_30min_flux_processor( output, 3,2010,10629,10637);
+%         output = fill_30min_flux_processor( output, 3,2010,10640,10642);
+%         output = fill_30min_flux_processor( output, 3,2010,10644,10646);
+%         output = fill_30min_flux_processor( output, 3,2010,10648,10674);
+%         output = fill_30min_flux_processor( output, 3,2010,10676,10689);
+%         output = fill_30min_flux_processor( output, 3,2010,10695,10702);
+%         output = fill_30min_flux_processor( output, 3,2010,10723,10746);
+%         output = fill_30min_flux_processor( output, 3,2010,10819,10825);
+%         output = fill_30min_flux_processor( output, 3,2010,10868,10877);
+%         output = fill_30min_flux_processor( output, 3,2010,10967,10969);
     elseif year == 2011 % added by MF
         output = fill_30min_flux_processor( output, 3,2011,1541,1613);
 
     elseif year == 2012 % added by TWH
-        output = fill_30min_flux_processor( output, 3,2012,4211,5119);
-        output = fill_30min_flux_processor( output, 3,2012,10540,12691);
-        output = fill_30min_flux_processor( output, 3,2012,16512,17567);
+        output = fill_30min_flux_processor( output, 3,2012,5090,5120);
+        output = fill_30min_flux_processor( output, 3,2012,11570,11602);
+        % No data at end of year...
+        output = fill_30min_flux_processor( output, 3,2012,16503,16527);
     elseif year == 2013
         output = fill_30min_flux_processor( output, 3, 2013, DOYidx(79.125), DOYidx(79.375));
-        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(80), DOYidx(80.313));
-        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(81.063), DOYidx(83.396));
-        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(83.979), DOYidx(85.313));
-        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(86.771), DOYidx(93.313));
-        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(99.604), DOYidx(100.44));
-        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(103.66), DOYidx(105.27));
-        output = fill_30min_flux_processor( output, 3, 2013, 9633, 9827);
-        output = fill_30min_flux_processor( output, 3, 2013, 15842, 15889);
+        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(80.020), DOYidx(80.437));
+        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(81.063), DOYidx(95.479));
+        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(96.042), DOYidx(107.396));
+        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(111.333), DOYidx(112));
+        output = fill_30min_flux_processor( output, 3, 2013, DOYidx(201.718), DOYidx(205.708));
+        output = fill_30min_flux_processor( output, 3, 2013, 12626, 12640);
+        output = fill_30min_flux_processor( output, 3, 2013, 15605, 15763);
+
     end    
 elseif sitecode == 4 % PJ_control
     if year == 2009
-        UNM_30min_flux_processor_062909(4,2009,10354,10372);
+        %output = fill_30min_flux_processor( output, 4,2009,10354,10372);
     elseif year == 2010
+        % Many of these small filled periods seem fairly noisy. Could be
+        % good to just let a gapfiller do it.
         output = fill_30min_flux_processor( output, 4,2010,1025,1035);
         output = fill_30min_flux_processor( output, 4,2010,1076,1082);
         output = fill_30min_flux_processor( output, 4,2010,1313,1323);
@@ -179,9 +194,24 @@ elseif sitecode == 4 % PJ_control
         output = fill_30min_flux_processor( output, 4,2010,6429,6442);
         output = fill_30min_flux_processor( output, 4,2010,9132,9139);
     elseif year == 2011
-        output = fill_30min_flux_processor( output, 4,2011,2819,2907);
-        output = fill_30min_flux_processor( output, 4,2011,9976,11031);
-        
+        output = fill_30min_flux_processor( output, 4,2011,13301,13316);
+        output = fill_30min_flux_processor( output, 4,2011,13426,13447);
+        output = fill_30min_flux_processor( output, 4,2011,14347,14362);
+        output = fill_30min_flux_processor( output, 4,2011,16076,16084);
+        output = fill_30min_flux_processor( output, 4,2011,16230,16238);
+        output = fill_30min_flux_processor( output, 4,2011,16762,16778);
+        output = fill_30min_flux_processor( output, 4,2011,16836,16869);
+        output = fill_30min_flux_processor( output, 4,2011,16884,17063);
+        output = fill_30min_flux_processor( output, 4,2011,17078,17156);
+        output = fill_30min_flux_processor( output, 4,2011,17449,17521);
+    elseif year == 2012
+        output = fill_30min_flux_processor( output, 4,2011,2,27);
+        output = fill_30min_flux_processor( output, 4,2011,313,336);
+        output = fill_30min_flux_processor( output, 4,2011,12289,12357);
+        output = fill_30min_flux_processor( output, 4,2011,16176,16296);
+        output = fill_30min_flux_processor( output, 4,2011,16516,16546);  
+    elseif year == 2013
+        output = fill_30min_flux_processor( output, 4,2011,16600,16630);
     end
         
 elseif sitecode == 5 % PPine
@@ -198,25 +228,36 @@ elseif sitecode == 5 % PPine
         UNM_30min_flux_processor(5,2008,11713,11723);
         UNM_30min_flux_processor(5,2008,13251,13258);
     elseif year == 2009
-        output = fill_30min_flux_processor( output, 5,2009,7491,7599);
-        output = fill_30min_flux_processor( output, 5,2009,7971,8060);
-        output = fill_30min_flux_processor( output, 5,2009,8115,8158);
+        output = fill_30min_flux_processor( output, 5,2009,7218,7287);
+        output = fill_30min_flux_processor( output, 5,2009,7314,7336);
+        output = fill_30min_flux_processor( output, 5,2009,7412,7449);
+        output = fill_30min_flux_processor( output, 5,2009,7453,7598);
+        output = fill_30min_flux_processor( output, 5,2009,7621,7637);
+        output = fill_30min_flux_processor( output, 5,2009,7951,8059);
+        output = fill_30min_flux_processor( output, 5,2009,8082,8157);
+        output = fill_30min_flux_processor( output, 5,2009,14048,14065);
     elseif year == 2010
         %output = fill_30min_flux_processor( output, 5,2010,12437,12471);
         %output = fill_30min_flux_processor( output, 5,2010,12476,13420);
         %output = fill_30min_flux_processor( output, 5,2010,13433,14147);
         %output = fill_30min_flux_processor( output, 5,2010,14148,14331);
-        output = fill_30min_flux_processor( output, 5,2010,14427,15277);
-        output = fill_30min_flux_processor( output, 5,2010,15688,16758);
-        output = fill_30min_flux_processor( output, 5,2010,16858,16873);
-        output = fill_30min_flux_processor( output, 5,2010,16878,16885);
-        output = fill_30min_flux_processor( output, 5,2010,16930,17044);
-        output = fill_30min_flux_processor( output, 5,2010,17063,17524);
+        %output = fill_30min_flux_processor( output, 5,2010,14427,15277);
+        %output = fill_30min_flux_processor( output, 5,2010,15688,16758);
+        output = fill_30min_flux_processor( output, 5,2010,16779,16790);
+        output = fill_30min_flux_processor( output, 5,2010,16871,16901);
+        output = fill_30min_flux_processor( output, 5,2010,16904,16928);
+        output = fill_30min_flux_processor( output, 5,2010,17031,17064);
+        output = fill_30min_flux_processor( output, 5,2010,17401,17467);
     elseif year == 2011
-        output = fill_30min_flux_processor( output, 5,2011,1236,2246);
+        output = fill_30min_flux_processor( output, 5,2011,1233,2243);
+    elseif year == 2012
+        output = fill_30min_flux_processor( output, 5,2011,9724,11164);
     elseif year == 2013
-        output = fill_30min_flux_processor( output, 5,2013,DOYidx(319.45), DOYidx(323.65));
-        output = fill_30min_flux_processor( output, 5,2013,DOYidx(330.6), DOYidx(331.42));
+        output = fill_30min_flux_processor( output, 5,2013,2,24);
+        output = fill_30min_flux_processor( output, 5,2013,15287, 15477);
+        output = fill_30min_flux_processor( output, 5,2013,15553, 15558);
+        output = fill_30min_flux_processor( output, 5,2013,15598, 15611);
+        output = fill_30min_flux_processor( output, 5,2013,15823, 15861);
     end
 
 elseif sitecode == 6 % MCon
@@ -239,32 +280,35 @@ elseif sitecode == 6 % MCon
         UNM_30min_flux_processor(6,2008,1195,1211);
         UNM_30min_flux_processor(6,2008,1805,1828);
     elseif year == 2009
-        output = fill_30min_flux_processor( output, 6,2009,1968,1995);
-        output = fill_30min_flux_processor( output, 6,2009,3435,3493);
-        output = fill_30min_flux_processor( output, 6,2009,6801,6864);
-        output = fill_30min_flux_processor( output, 6,2009,15971,15995);
-        output = fill_30min_flux_processor( output, 6,2009,17137,17165);
-        output = fill_30min_flux_processor( output, 6,2009,17426,17453);
+        output = fill_30min_flux_processor( output, 6,2009,3420,3489);
+        output = fill_30min_flux_processor( output, 6,2009,15963,15984);
+        output = fill_30min_flux_processor( output, 6,2009,17133,17162);
+        output = fill_30min_flux_processor( output, 6,2009,17422,17450);
     elseif year == 2010 % added by Mike Fuller, Feb 23, 2011
-        output = fill_30min_flux_processor( output, 6,2010,1090,1176);
-        output = fill_30min_flux_processor( output, 6,2010,1177,2238);
-        output = fill_30min_flux_processor( output, 6,2010,12420,12717);
-        output = fill_30min_flux_processor( output, 6,2010,12722,14066);
-        output = fill_30min_flux_processor( output, 6,2010,14068,14081);
-        output = fill_30min_flux_processor( output, 6,2010,14087,14130);
-        output = fill_30min_flux_processor( output, 6,2010,14146,14178);
-        output = fill_30min_flux_processor( output, 6,2010,14192,14335);
-        output = fill_30min_flux_processor( output, 6,2010,14435,16498);
-        output = fill_30min_flux_processor( output, 6,2010,16503,16862);
-        output = fill_30min_flux_processor( output, 6,2010,16963,17524);
+        output = fill_30min_flux_processor( output, 6,2010,1087,1184);
+        output = fill_30min_flux_processor( output, 6,2010,14154,14175);
+        output = fill_30min_flux_processor( output, 6,2010,16748,16776);
+        output = fill_30min_flux_processor( output, 6,2010,16880,16917);
+        output = fill_30min_flux_processor( output, 6,2010,17473,17499);
+        output = fill_30min_flux_processor( output, 6,2010,17509,17521);
     elseif year == 2011 % added by Mike Fuller
-        output = fill_30min_flux_processor( output, 6, 2011, 1530,1609);
-        output = fill_30min_flux_processor( output, 6, 2011, 1781,2236);
-        output = fill_30min_flux_processor( output, 6, 2011, 10778, 11369);
+        output = fill_30min_flux_processor( output, 6, 2011, 1,25);
+        output = fill_30min_flux_processor( output, 6, 2011, 1527,1606);
+        % Filled data look pretty bad here
+        output = fill_30min_flux_processor( output, 6, 2011, 10775, 11366);
+    elseif year == 2012
+        output = fill_30min_flux_processor( output, 6, 2012,769,791);
+        output = fill_30min_flux_processor( output, 6, 2012,1675,1721);
+        output = fill_30min_flux_processor( output, 6, 2012, 5037,5064);
+        output = fill_30min_flux_processor( output, 6, 2012, 16631,16657);
+        output = fill_30min_flux_processor( output, 6, 2012, 16748,16773);
+        output = fill_30min_flux_processor( output, 6, 2012, 17230,17260);
+        output = fill_30min_flux_processor( output, 6, 2012, 17558,17569);
     elseif year == 2013 % added by Mike Fuller
         output = fill_30min_flux_processor( output, 6, 2013, DOYidx(1),DOYidx(1.53));
         output = fill_30min_flux_processor( output, 6, 2013, DOYidx(29.75),DOYidx(30.33));
         output = fill_30min_flux_processor( output, 6, 2013, DOYidx(52.9),DOYidx(53.46));
+        output = fill_30min_flux_processor( output, 6, 2013, DOYidx(324.9),DOYidx(325.375));
     end
 
 elseif sitecode == 7 % TX_savanna
@@ -331,21 +375,37 @@ elseif sitecode == 9 % TX_grassland
     end
     
 elseif sitecode == 10 % PJ_girdle
-    if year == 2010
-        output = fill_30min_flux_processor( output, 10,2010,1309,1322);
-        output = fill_30min_flux_processor( output, 10,2010,1340,1353);
-        output = fill_30min_flux_processor( output, 10,2010,1620,1635);
-        output = fill_30min_flux_processor( output, 10,2010,1958,1983);
-        output = fill_30min_flux_processor( output, 10,2010,2544,2565);
+    if year==2009
+        output = fill_30min_flux_processor( output, 10,2009,7593,7663);
+        % These don't look good
+        output = fill_30min_flux_processor( output, 10,2009,10780,10825);
+        output = fill_30min_flux_processor( output, 10,2009,10831,10961);
+        output = fill_30min_flux_processor( output, 10,2009,10983,11112);
+    elseif year == 2010
+        output = fill_30min_flux_processor( output, 10,2010,1307,1318);
+        output = fill_30min_flux_processor( output, 10,2010,1338,1349);
+        output = fill_30min_flux_processor( output, 10,2010,1618,1631);
+        output = fill_30min_flux_processor( output, 10,2010,1956,1979);
+        output = fill_30min_flux_processor( output, 10,2010,2542,2561);
     elseif year == 2011
-      %output = fill_30min_flux_processor( output, 10,2011,1537,1607);
-      %output = fill_30min_flux_processor( output, 10,2011,2814,2906);
-      output = fill_30min_flux_processor( output, 10,2011,10660,11026);
+      output = fill_30min_flux_processor( output, 10,2011,1533,1604);
+      output = fill_30min_flux_processor( output, 10,2011,14346,14373);
+      output = fill_30min_flux_processor( output, 10,2011,16759,16776);
+      output = fill_30min_flux_processor( output, 10,2011,17089,17114);
     elseif year == 2012
-        output = fill_30min_flux_processor( output, 10,2012,DOYidx(220.4), DOYidx( 242.5));
+        output = fill_30min_flux_processor( output, 10,2012,DOYidx(220.4), DOYidx( 221));
+        output = fill_30min_flux_processor( output, 10,2012,11640,11714);
+        output = fill_30min_flux_processor( output, 10,2012,11914,11947);
+        %output = fill_30min_flux_processor( output, 10,2012,12286,12322);
+        output = fill_30min_flux_processor( output, 10,2012,12454,12519);
+        output = fill_30min_flux_processor( output, 10,2012,12599,12762);
+        output = fill_30min_flux_processor( output, 10,2012,13262,13303);
+        output = fill_30min_flux_processor( output, 10,2012,13717,13769);
+        output = fill_30min_flux_processor( output, 10,2012,13796,14123);
+        output = fill_30min_flux_processor( output, 10,2012,14178,14485);
+        output = fill_30min_flux_processor( output, 10,2012,16274,16306);
     elseif year == 2013
-        % For some reason 1 day/month of 10hz data is missing at this site
-        output = fill_30min_flux_processor( output, 10, 2013, DOYidx(114.7), DOYidx(119.4));
+        output = fill_30min_flux_processor( output, 10,2013,5459,5686);
     end   
     
 elseif sitecode == 11 % New GLand
@@ -356,10 +416,55 @@ elseif sitecode == 11 % New GLand
         %             UNM_30min_flux_processor_MFedit(11,2011,3125,3220);
         %             UNM_30min_flux_processor_MFedit(11,2011,8148,8294);
         %             UNM_30min_flux_processor_MFedit(11,2011,8339,8356);
-        output = fill_30min_flux_processor( output, 11,2011,6303,8330);
+        %output = fill_30min_flux_processor( output, 11,2011,6303,8330);
+    elseif year == 2012
+        fill_30min_flux_processor( output, 11,2012,10482,10538);
     end 
     
 end
 
+if plot_diagnostic
+    
+    figure( 'Name', 'Fill 30min flux output', ...
+        'Position', [100, 100, 1200, 800] );
+    
+    ch_idx = data_in.Fc_raw_massman_ourwpl ~= output.Fc_raw_massman_ourwpl;
+    
+    ax( 1 ) = subplot( 4, 1, 1 );
+    plot( data_in.timestamp, data_in.CO2_mean, 'ok' );
+    hold on;
+    plot( output.timestamp, output.CO2_mean, '.b' );
+    plot( output.timestamp( ch_idx ), output.CO2_mean( ch_idx ), '.r' );
+    datetick( 'x', 'mmm-yy', 'keeplimits', 'keepticks' );
+    ylabel( 'CO2\_mean' );
+    ylim( [-60000, 50000]);
+    
+    ax( 2 ) = subplot( 4, 1, 2 );
+    plot( data_in.timestamp, data_in.Fc_raw_massman_ourwpl, 'ok' );
+    hold on;
+    plot( output.timestamp, output.Fc_raw_massman_ourwpl, '.b' );
+    plot( output.timestamp( ch_idx ), output.Fc_raw_massman_ourwpl( ch_idx ), '.r' );
+    datetick( 'x', 'mmm-yy', 'keeplimits', 'keepticks' );
+    ylabel( 'Fc\_raw\_massman\_ourwpl' );
+    ylim( [-100, 100]);
+    
+    ax( 3 ) = subplot( 4, 1, 3 );
+    plot( data_in.timestamp, data_in.LatentHeat_wpl_massman, 'ok' );
+    hold on;
+    plot( output.timestamp, output.LatentHeat_wpl_massman, '.b' );
+    plot( output.timestamp( ch_idx ), output.LatentHeat_wpl_massman( ch_idx ), '.r' );
+    datetick( 'x', 'mmm-yy', 'keeplimits', 'keepticks' );
+    ylabel( 'LatentHeat\_wpl\_massman' );
+    
+    ax( 4 ) = subplot( 4, 1, 4 );
+    plot( data_in.timestamp, data_in.HSdry_massman, 'ok' );
+    hold on;
+    plot( output.timestamp, output.HSdry_massman, '.b' );
+    plot( output.timestamp( ch_idx ), output.HSdry_massman( ch_idx ), '.r' );
+    linkaxes( ax, 'x' );
+    datetick( 'x', 'mmm-yy', 'keeplimits', 'keepticks' );
+    ylabel( 'HSdry\_massman' );
+    
+end
 
 disp('All done')
