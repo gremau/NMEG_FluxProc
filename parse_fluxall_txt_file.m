@@ -95,7 +95,7 @@ inYearRecords = tbl.year == year_arg ;
 %years = unique( tbl.year( 1:end-1 ));
 if sum( inYearRecords ) < ( nRows - 1 );
     inYearIdx = find( inYearRecords );
-    keep = min( inYearIdx ) : (max( inYearIdx ) + 1 ) ;
+    keep = min( inYearIdx ) : ( max( inYearIdx ) + 1 ) ;
     tbl = tbl( keep, : );
     warning( 'Removing data outside of requested year' )
 end

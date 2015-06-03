@@ -118,7 +118,7 @@ if sitecode == UNM_sites.GLand; % grassland
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     sd_filter_windows = [ 1, 3 ];
-    sd_filter_thresh = 3;
+    sd_filter_thresh = 3.5;
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
@@ -133,7 +133,7 @@ elseif sitecode == UNM_sites.SLand; % shrubland
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     sd_filter_windows = [ 1, 3 ];
-    sd_filter_thresh = 3;
+    sd_filter_thresh = 3.5;
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
     HS_min = -100; HS_max = 450;
@@ -144,7 +144,7 @@ elseif sitecode == UNM_sites.SLand; % shrubland
     
 elseif sitecode == UNM_sites.JSav; % Juniper savanna
     ustar_lim = 0.11;
-    co2_min_by_month = -15;
+    co2_min_by_month = -11;
     co2_max_by_month = [ repmat( 5, 1, 6 ), repmat( 10, 1, 6 ) ];
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -200,7 +200,7 @@ elseif sitecode == UNM_sites.New_GLand; % new Grassland
     n_SDs_filter_hi = 4.5; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     sd_filter_windows = [ 1, 3 ];
-    sd_filter_thresh = 3;
+    sd_filter_thresh = 4;
     co2_min_by_month = -15; co2_max_by_month = 7.25;
     wind_min = 330; wind_max = 30; % these are given a sonic_orient = 180;
     Tdry_min = 240; Tdry_max = 320;
@@ -2187,7 +2187,7 @@ switch sitecode
                 sw_incoming( DOYidx( 7 ) : DOYidx( 9 ) ) = NaN;
                 
             case 2010
-                % IRGA problems
+                % IRGA problems - seems to affect latent only
                 idx = DOYidx( 102 ) : DOYidx( 119.5 );
                 E_wpl_massman( idx ) = NaN;
                 E_raw_massman( idx ) = NaN;
@@ -2198,6 +2198,10 @@ switch sitecode
                 H2O_mean( DOYidx( 85.5 ) : DOYidx( 102.5 ) ) = NaN;
                 
                 fc_raw_massman_wpl( DOYidx( 327 ) : DOYidx( 328 ) ) = NaN;
+                
+                % Bad sonic temperature (fluxes bad during this time too)
+                Tdry( DOYidx( 295 ) : DOYidx( 319.6 ) ) = NaN;
+                vpd( DOYidx( 295 ) : DOYidx( 319.6 ) ) = NaN;
                 
             case 2011
                 
@@ -2276,6 +2280,10 @@ switch sitecode
                 % didn't look like it affects fluxes.
 %                 CO2_mean( DOYidx( 131.4 ) : DOYidx( 141.5 ) ) = NaN;
 %                 CO2_mean( DOYidx( 284 ) : DOYidx( 293.65 ) ) = NaN;
+            case 2013
+                % Bad sonic temperature (fluxes bad during this time too)
+                Tdry( DOYidx( 114.7 ) : DOYidx( 120.5 ) ) = NaN;
+                vpd( DOYidx( 114.7 ) : DOYidx( 120.5 ) ) = NaN;
             case 2014
                 % There looks to be an IRGA problem on these dates - 
                 % [CO2] drops then shows a steep declining pattern.
@@ -2361,6 +2369,8 @@ switch sitecode
                 HL_wpl_massman( idx ) = NaN;
                 HSdry( idx ) = NaN;
                 HSdry_massman( idx ) = NaN;
+                Tdry( idx ) = NaN;
+                vpd( idx ) = NaN;
                 % Our pcp gauge shows huge pcp on DOY 80 and 309, while the nearby
                 % met station (Redondo-Redonito) shows none.
                 precip( DOYidx( 80 ):DOYidx( 81 ) ) = 0.0;
@@ -2892,6 +2902,9 @@ end
 % Shortening this - this low [CO2] seems to result in erroneous NEE uptake.
 if ( sitecode == 3 ) && ( year == 2011 )
     co2_conc_filter_exceptions( DOYidx( 41.6 ) : DOYidx( 46.5 ) ) = true;
+end
+if ( sitecode == 3 ) && ( year == 2010 )
+    co2_conc_filter_exceptions( DOYidx( 212.75 ) : DOYidx( 214.6 ) ) = true;
 end
 if ( sitecode == 4 ) && ( year == 2011 )
     % IRGA calibration drifts but fluxes are fine during this period
