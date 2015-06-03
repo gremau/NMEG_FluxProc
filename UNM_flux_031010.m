@@ -76,6 +76,14 @@ function [ CO2OUT, H2OOUT, FCO2, FH2O, HSENSIBLE, HLATENT, RHOM, TDRY, OKNUM, ..
 
 % OUTPUTS
 
+
+% Calculate a datenum from inputs to check against time periods that
+% require corrections (PJ_girdle 2009 only at this point)
+ts_date = datenum( year_ts, month_ts, day_ts );
+
+% PJ_girdle correction end date
+ pjg_2009_date = datenum( 2009, 9, 1 );
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Calculate covariance matrix of sonic measurements
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -349,6 +357,8 @@ elseif rotation == sonic_rotation.planar
             k(3) = 0.999822687;
                
         elseif sitecode == 10 % pinyon juniper - girdled _UPDATED_ Febuary 2010
+            
+            
             if speed >= 5
                 b0 = -0.0344557038769674;
                 b1 = -0.0128424391588686;
@@ -656,10 +666,10 @@ else
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 %%% Corrections for bad IRGA prior to 1 Sept 2009 Developed March 2010 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     if sitecode == 10
-%         HL_raw = (HL_raw.*1.1484)+3.6589; % Correction based on regression in Futher_flux_corrections .xls file
-%         E_raw = ((HL_raw./Lv)./18.016).*1000;
-%     end
+    if sitecode == 10 && ts_date < pjg_2009_date
+        HL_raw = (HL_raw.*1.1484)+3.6589; % Correction based on regression in Futher_flux_corrections .xls file
+        E_raw = ((HL_raw./Lv)./18.016).*1000;
+    end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % UNCORRECTED CO2 FLUX 
@@ -696,9 +706,10 @@ else
 %%% Corrections for bad IRGA prior to 1 Sept 2009 Developed March 2010 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-%    if sitecode == 10
-%        Fc_raw=(Fc_raw.*1.1623)-0.096; % Correction based on regression in Futher_flux_corrections .xls file
-%    end
+   if sitecode == 10 && ts_date < pjg_2009_date
+       % Correction based on regression in Futher_flux_corrections .xls file
+       Fc_raw=(Fc_raw.*1.1623)-0.096; 
+   end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % SENSIBLE HEAT FLUX (W/m^2)
