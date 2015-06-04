@@ -152,10 +152,12 @@ if ~isempty( pt_TK_tbl )
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Remove periods where gapfilling fails or is ridiculous
+% Amend periods where gapfilling fails or is ridiculous
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pt_tbl = amend_gapfilling_and_partitioning( sitecode, year, pt_tbl );
+
+% This adds an Reco_HBLR_amended column
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % create Ameriflux output table and write to ASCII files
