@@ -140,16 +140,18 @@ fprintf( 'done (%d seconds)\n', t_run ); %done sychronizing timestamps
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % If we have data from the keenan synthesis put it in pt_tbl
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 keenan = false;
-if ~isempty( pt_TK_tbl )
-    [ pt_TK_tbl, data ] = merge_tables_by_datenum( pt_TK_tbl, data, ...
-        'timestamp', 'timestamp', 3, t_min, t_max );
-    pt_TK_tbl = table_fill_timestamps( pt_TK_tbl, 'timestamp', ...
-        't_min', Jan1, 't_max', Dec31 );
-    pt_tbl.GPP_f_TK201X = pt_TK_tbl.GPP_f;
-    pt_tbl.RE_f_TK201X = pt_TK_tbl.RE_f;
-    keenan = true;
-end
+
+% if ~isempty( pt_TK_tbl )
+%     [ pt_TK_tbl, data ] = merge_tables_by_datenum( pt_TK_tbl, data, ...
+%         'timestamp', 'timestamp', 3, t_min, t_max );
+%     pt_TK_tbl = table_fill_timestamps( pt_TK_tbl, 'timestamp', ...
+%         't_min', Jan1, 't_max', Dec31 );
+%     pt_tbl.GPP_f_TK201X = pt_TK_tbl.GPP_f;
+%     pt_tbl.RE_f_TK201X = pt_TK_tbl.RE_f;
+%     keenan = true;
+% end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Amend periods where gapfilling fails or is ridiculous

@@ -101,7 +101,8 @@ classdef UNM_Ameriflux_daily_aggregator
             % AGGREGATE_DAILY 
             
             % carbon fluxes: integrate umol m-2 s-1 to gC m-2
-            vars_Cfluxes = { 'FC_f', 'GPP_GL2010_ecb', 'RE_GL2010_ecb' };
+            vars_Cfluxes = { 'FC_f',...
+                'GPP_GL2010_amended_ecb', 'RE_GL2010_amended_ecb' };
             units_Cfluxes = repmat( { 'gC m-2 d' }, 1, numel( vars_Cfluxes ) );
             % variables to be aggregated by daily mean
             vars_mean = { 'USTAR', 'WS', 'PA', 'CO2', 'VPD_f', 'H2O', 'TA_f' };
