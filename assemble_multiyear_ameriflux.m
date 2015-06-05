@@ -82,6 +82,10 @@ else   % parse ASCII Ameriflux files
                           fname );
         if exist( fname )
             this_data = parse_ameriflux_file( fname );
+            
+            % Get the timestamp for the dataset
+            this_data = ameriflux_dataset_get_tstamp( this_data );
+            
             all_data{ end+1 } = this_data;
             clear this_data;
         else
@@ -111,7 +115,7 @@ else   % parse ASCII Ameriflux files
     
     % insert matlab datenum timestamps
     fprintf( 'verifying timestamps\n' );
-    ds = ameriflux_dataset_get_tstamp( ds );
+    %ds = ameriflux_dataset_get_tstamp( ds );
     ds = dataset_fill_timestamps( ...
         ds, ...
         'timestamp', ...

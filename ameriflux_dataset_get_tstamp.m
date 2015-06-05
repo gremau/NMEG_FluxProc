@@ -28,7 +28,11 @@ function  ds  = ameriflux_dataset_get_timestamp( ds )
 %
 % author: Timothy W. Hilton, UNM, 2012
     
-if max( ds.YEAR ) < 2010
+if ismember('TIMESTAMP', ds.Properties.VarNames)
+    
+    ds.timestamp = datenum( num2str( ds.TIMESTAMP ), 'YYYYmmDDHHMMSS' );
+    
+else % The old files have no timestamp
     previous_year_31Dec = datenum( ds.YEAR, 1, 0 );
     hours_per_day = 24;
     minutes_per_day = 24 * 60;
@@ -37,6 +41,4 @@ if max( ds.YEAR ) < 2010
         ds.DOY + ...
         ( floor( ds.HRMIN / 100 ) / hours_per_day ) + ...
         ( mod( ds.HRMIN, 100 ) / minutes_per_day );
-else
-    ds.timestamp = datenum( num2str( ds.TIMESTAMP ), 'YYYYmmDDHHMMSS' );
 end
