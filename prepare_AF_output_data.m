@@ -84,7 +84,7 @@ amflx_gaps = amflx_gf;
 % Tair
 % FIXME - this is sonic temperature (Tdry - 273.15), not hmp
 % temperature. See issue 12
-TA_flag = verify_gapfilling( pt_tbl.Tair_f, qc_tbl.Tdry - 273.15, 1e-5 );
+TA_flag = verify_gapfilling( pt_tbl.Tair_f, qc_tbl.Tdry - 273.15, 1e-4 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.Tair_f, ...
                      { 'TA_f' }, { 'deg C' }, TA_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.Tdry - 273.15, ...
@@ -200,11 +200,13 @@ clear headers units;
 
 % Make a large table of partitioned values first
 part_mat = [ pt_tbl.GPP_f, pt_tbl.Reco, ...
-             pt_tbl.GPP_HBLR, pt_tbl.Reco_HBLR ];
+             pt_tbl.GPP_HBLR, pt_tbl.Reco_HBLR, ...
+             pt_tbl.Reco_HBLR_amended, pt_tbl.amended_flag ];
 headers =  {'GPP_f_MR2005', 'RE_MR2005', ...
-            'GPP_GL2010', 'RE_GL2010' };
+            'GPP_GL2010', 'RE_GL2010', ...
+            'RE_GL2010_amended', 'amended_flag' };
 units =    { 'mumol/m2/s', 'mumol/m2/s', ...
-             'mumol/m2/s', 'mumol/m2/s' };
+             'mumol/m2/s', 'mumol/m2/s', 'mumol/m2/s', '--' };
 
 % Keenan 201X partitioning
 if keenan
@@ -230,15 +232,15 @@ clear headers units;
 % modelled RE. So set GPP to zero and add difference to RE.
 
 MR2005_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
-    'RE_MR2005', 'FC_f', 'Rg_f', true );
+    'RE_MR2005', 'FC_f', 'Rg_f', false );
 
 GL2010_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
-    'RE_GL2010', 'FC_f', 'Rg_f', true );
+    'RE_GL2010_amended', 'FC_f', 'Rg_f', false );
 
 TK201X_ecb_tbl = table(); % Intitialize empty table
 if keenan
     TK201X_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
-        'RE_f_TK201X', 'FC_f', 'Rg_f', true );
+        'RE_f_TK201X', 'FC_f', 'Rg_f', false );
 end
 
 % Join ecb tables together
