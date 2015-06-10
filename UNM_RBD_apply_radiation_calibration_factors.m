@@ -415,7 +415,16 @@ elseif year_arg == 2008
         PAR_LI_dn_mult = 1000 / PAR_LI_dn_sens * .604;
         
         % Correct longwave
-        [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+        if year_arg==2009
+            % Temperature correction happened correctly for the first part
+            % of 2009, but not for the second part.
+            idx = decimal_day > 113.5 & decimal_day <= 366.0;
+            [lw_incoming, lw_outgoing] = ...
+                lw_correct(lw_incoming, lw_outgoing, idx );
+        else
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+        end
+        
         % Apply a linear correction to lw_incoming because the sensor is
         % off a little from the PJ control site
         if year_arg == 2009

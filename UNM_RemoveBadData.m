@@ -812,11 +812,25 @@ precip = fix_incorrect_precip_factors( sitecode, year_arg, ...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % In 2010 the thermocouple in the CNR1 at GLand failed. Use air temp.
-if sitecode == 1 & year_arg >= 2010 & year_arg <= 2011;
+if sitecode == 1 & year_arg==2010;;
     CNR1TempK = air_temp_hmp + 273.15;
+% In 2014 the thermocouple in the CNR1 at NewGLand failed for a while in 
+% the spring. Use air temp.
+elseif sitecode == 11 & year_arg==2014;
+    CNR1TempK = CNR1TK;
+    idx = DOYidx( 17.645 ):DOYidx( 63.335 );
+    CNR1TempK( idx ) = air_temp_hmp( idx ) + 273.15;
+% In 2013 the thermocouple in the CNR1 at PJ failed for a while in 
+% the fall. Use air temp.
+elseif sitecode == 4 & year_arg==2013;
+    CNR1TempK = CNR1TK;
+    idx = DOYidx( 240.53 ):DOYidx( 282.53 );
+    CNR1TempK( idx ) = air_temp_hmp( idx ) + 273.15;  
 else
     CNR1TempK = CNR1TK;
 end
+
+
 
 [ sw_incoming, sw_outgoing, ...
     lw_incoming, lw_outgoing, Par_Avg ] = ...
