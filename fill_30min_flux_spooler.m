@@ -128,10 +128,10 @@ elseif sitecode == 3 % JSav
         UNM_30min_flux_processor(3,2007,7582,7615);
         UNM_30min_flux_processor(3,2007,11099,11114);
     elseif year == 2008    
-        UNM_30min_flux_processor(3,2008,9176,9182);
-        UNM_30min_flux_processor(3,2008,9863,9892);
-        UNM_30min_flux_processor(3,2008,10207,10228);
-        UNM_30min_flux_processor(3,2008,10923,10948);
+        output = fill_30min_flux_processor( output, 3,2008,9176,9182);
+        output = fill_30min_flux_processor( output, 3,2008,9863,9892);
+        output = fill_30min_flux_processor( output, 3,2008,10207,10228);
+        output = fill_30min_flux_processor( output, 3,2008,10923,10948);
     elseif year == 2009
         % Irga data is garbage during this time
         output = fill_30min_flux_processor( output, 3,2009,987,3106);

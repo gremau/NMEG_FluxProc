@@ -277,7 +277,13 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if year <= 2008
-    error('Warning - this might not work');
+    warning('Warning - this might not work');
+    ds = data_in;
+    [ year2 month day hour minute second ] = datevec( ds.timestamp );
+    timestamp = ds.timestamp;
+    %ds.timestamp = [];
+    headertext = ds.Properties.VarNames;
+    data = double( ds( first_row:last_row, : ) );
 
 else
     ds = data_in;

@@ -1697,10 +1697,37 @@ if ( sitecode == 7 ) & ( year( 2 ) == 2008 )
     u_star( u_star > 200 ) = NaN;
 end
 
-% JSav 2009
+% JSav 2009 - bad Fc gapfilling due to missing data at start of the year. 
+% Fill this gap with data from the end of 2009.
 if ( sitecode == 3 ) & ( year( 2 ) == 2009 )
     u_star( decimal_day < 34 ) = NaN;
     wnd_dir_compass( decimal_day < 34 ) = NaN;
+    warning( 'JSav 2009 - Missing start of year filled with end of year data' );
+    n_days = 7;
+    fc_raw_massman_wpl_new = fc_raw_massman_wpl;
+    fc_raw_massman_wpl_new( 1:n_days*48 + 1 ) = ...
+        fc_raw_massman_wpl( end-(n_days*48):end );
+    figure( 'Name', 'JSav 2009 FC backfill' );
+    plot( fc_raw_massman_wpl_new, '.r' );
+    hold on;
+    plot( fc_raw_massman_wpl, '.b' );
+    fc_raw_massman_wpl = fc_raw_massman_wpl_new;
+end
+
+% PJ_girdle 2009 - bad Fc gapfilling due to missing data at start of the
+% year. Fill this gap with data from PJ (same time period).
+if ( sitecode == 10 ) & ( year( 2 ) == 2009 )
+    warning( 'PJ_girdle 2009 - Missing start of year filled with end of year data' );
+    n_days = 7;
+    pj = parse_forgapfilling_file( UNM_sites.PJ, 2009, 'use_filled', false );
+    fc_raw_massman_wpl_new = fc_raw_massman_wpl;
+    fc_raw_massman_wpl_new( 1:n_days*48 ) = ...
+        pj.NEE( 1:n_days*48 );
+    figure( 'Name', 'PJ_girdle 2009 FC backfill' );
+    plot( fc_raw_massman_wpl_new, '.r' );
+    hold on;
+    plot( fc_raw_massman_wpl, '.b' );
+    fc_raw_massman_wpl = fc_raw_massman_wpl_new;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
