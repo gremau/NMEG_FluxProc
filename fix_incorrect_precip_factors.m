@@ -109,20 +109,27 @@ elseif site_code == 4     % PJ
     if not( isempty( idx ) )
         pcp_fixed( idx ) = pcp_in( idx ) * 0.394;
     end
-end
+
 
 %-------------------------
 % fix MCon
 % After the fire a new set of sensors was installed. The precip gauge was
 % not working properly until late 2014
-if site_code == 6     % MCon
+elseif site_code == 6     % MCon
     start2013fire = 122.5;
     beforeGaugeFixed = 305;
-    idx = find( year > 2012 & year < 2015 );
+    idx = find( year >= 2012 & year < 2015 );
     if year_in == 2013;
         idx = find( ( year == 2013 ) & ( doy >= start2013fire ) );
     elseif year_in == 2014;
         idx = find( ( year == 2014 ) & ( doy <= beforeGaugeFixed ) );
+    % There were a couple days in 2012 with very high precip. They seem
+    % within the range of normal, but summed up over the day these are VERY
+    % high amounts of precip. Using gapfilling for now.
+    elseif year_in == 2012
+        idx1 = find( ( year == 2012 ) & ( doy > 77 ) & (doy < 79 ) );
+        idx2 = find( ( year == 2012 ) & ( doy > 146 ) & (doy < 148 ) );
+        idx = [idx1 ; idx2];
     end
     if not( isempty( idx ) )
         pcp_fixed( idx ) = NaN;
