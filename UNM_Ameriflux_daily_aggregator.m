@@ -8,8 +8,8 @@ classdef UNM_Ameriflux_daily_aggregator
 % variables aggregated by max: TA
 % variables aggregated by sum: PRECIP
 % variables aggregated by integrated sum (radiation): RNET, PAR, PAR_out,
-%                                                     Rg, Rg_out, Rlong_in,
-%                                                     Rlong_out
+%                                                     SW_IN, SW_OUT, LW_IN,
+%                                                     LW_OUT
 % variables aggregated by integrated sum (C fluxes): FC, GPP, RE
 %
 % USAGE:
@@ -101,26 +101,25 @@ classdef UNM_Ameriflux_daily_aggregator
             % AGGREGATE_DAILY 
             
             % carbon fluxes: integrate umol m-2 s-1 to gC m-2
-            vars_Cfluxes = { 'FC_f',...
-                'GPP_GL2010_amended_ecb', 'RE_GL2010_amended_ecb' };
+            vars_Cfluxes = { 'FC_F', 'GPP', 'RECO' };
             units_Cfluxes = repmat( { 'gC m-2 d' }, 1, numel( vars_Cfluxes ) );
             % variables to be aggregated by daily mean
-            vars_mean = { 'USTAR', 'WS', 'PA', 'CO2', 'VPD_f', 'H2O', 'TA_f' };
+            vars_mean = { 'USTAR', 'WS', 'PA', 'CO2', 'VPD_F', 'H2O', 'TA_F' };
             units_mean = { 'm s-1', 'm s-1', 'Pa', 'ppm', 'kPa', 'mmol mol-1', 'deg C' };
             % variables to be aggregated by daily min / max
-            vars_min = { 'TA_f', 'VPD_f' };
-            vars_max = { 'TA_f', 'VPD_f' };
+            vars_min = { 'TA_F', 'VPD_F' };
+            vars_max = { 'TA_F', 'VPD_F' };
             % Have to make new varnames for these
-            varnames_min = { 'TA_f_min', 'VPD_f_min' };
-            varnames_max = { 'TA_f_max', 'VPD_f_max' };
+            varnames_min = { 'TA_F_min', 'VPD_F_min' };
+            varnames_max = { 'TA_F_max', 'VPD_F_max' };
             units_minmax = { 'deg C', 'kPa' };
             % variables to be aggregated by daily sum
-            vars_sum = { 'PRECIP_f' };
+            vars_sum = { 'P_F' };
             units_sum = { 'mm' };
             % radiation variables: aggregate by W m-2 to J m-2
             % FIXME - missing PAR_out (need to add to qc files)
-            vars_rad = { 'RNET', 'PAR', 'Rg_f', 'Rg_out', 'Rlong_in', ...
-                'Rlong_out', 'LE_f', 'H_f' };
+            vars_rad = { 'RNET', 'PAR', 'SW_IN_F', 'SW_OUT', 'LW_IN', ...
+                'LW_OUT', 'LE_F', 'H_F' };
             units_rad = repmat( { 'J m-2' }, 1, numel( vars_rad ) );
             
             t_30min = double( [ obj.aflx_data.YEAR, obj.aflx_data.DOY ] );
