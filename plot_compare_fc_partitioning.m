@@ -40,8 +40,8 @@ af_tbl = args.Results.data_in; % Contains partitioned NEE values
 keenan = args.Results.keenan;
 
 % These are the partitioned flux variables to be plotted
-re_vars = { 'RE_MR2005', 'RE_GL2010', 'RE_f_TK201X' };
-gpp_vars = { 'GPP_f_MR2005', 'GPP_GL2010', 'GPP_f_TK201X' };
+re_vars = { 'RECO_MR2005', 'RECO_GL2010', 'RECO_F_TK201X' };
+gpp_vars = { 'GPP_F_MR2005', 'GPP_GL2010', 'GPP_F_TK201X' };
 
 % Set up figure window
 fighandle = figure( 'Name',...
@@ -50,7 +50,7 @@ fighandle = figure( 'Name',...
 
 % Four subplots
 ax( 1 ) = subplot( 2, 3, 1:2 );
-h = compare_timeseries( 'RE', ax( 1 ), af_tbl, keenan );
+h = compare_timeseries( 'RECO', ax( 1 ), af_tbl, keenan );
 if keenan
     legend( 'filled NEE', 'Reichstein', 'Lasslop', 'Keenan x 100', ...
         'Location','northwest' )
@@ -60,7 +60,7 @@ else
 end
 
 ax( 2 ) = subplot( 2, 3, 3 );
-h = compare_cumulative_series( 'RE', ax( 2 ), af_tbl, keenan );
+h = compare_cumulative_series( 'RECO', ax( 2 ), af_tbl, keenan );
 
 ax( 3 ) = subplot( 2, 3, 4:5 );
 h = compare_timeseries( 'GPP', ax( 3 ), af_tbl, keenan );
@@ -82,7 +82,7 @@ print( fighandle, '-dpdf', figname );
 
 % Plot the timeseries from all partitioning methods
     function handles = compare_timeseries( var, axis, tbl, keen )
-        if strcmp( var, 'RE' )
+        if strcmp( var, 'RECO' )
             tbl_vars = re_vars;
             ylimit = [ -2, max( tbl.( tbl_vars{ 2 } )) ];
             sc = 1; % RE should have a positive sign convention
@@ -91,7 +91,7 @@ print( fighandle, '-dpdf', figname );
             ylimit = [ -max( tbl.( tbl_vars{ 2 } )), 5 ];
             sc = -1; % GPP has a negative sign convention
         end
-        plot( axis, tbl.timestamp, tbl.FC_f, ':', ...
+        plot( axis, tbl.timestamp, tbl.FC_F, ':', ...
             'color', [ 0.7,0.7,0.7 ] );
         hold on;
         plot( axis, tbl.timestamp, tbl.( tbl_vars{ 1 } ) * sc, '-k' );
@@ -108,7 +108,7 @@ print( fighandle, '-dpdf', figname );
 
 % Plot the cumulative series
     function handles = compare_cumulative_series( var, axis, tbl, keen )
-        if strcmp( var, 'RE' )
+        if strcmp( var, 'RECO' )
             tbl_vars = re_vars;
             sc = 1; % RE should have a positive sign convention
         elseif strcmp( var, 'GPP' )

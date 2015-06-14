@@ -16,8 +16,8 @@ tstamp = in_tbl.timestamp;
 
 % Make new header cellarrays
 RE_str_new = [ RE_str, '_ecb' ];
-GPP_str_new = regexprep( RE_str_new, 'RE', 'GPP' );
-NEE_str_new = regexprep( RE_str_new, 'RE', 'NEE' );
+GPP_str_new = regexprep( RE_str_new, 'RECO', 'GPP' );
+NEE_str_new = regexprep( RE_str_new, 'RECO', 'NEE' );
 new_headers = { GPP_str_new, RE_str_new, NEE_str_new };
 unit_headers = { 'mumol/m2/s', 'mumol/m2/s', 'mumol/m2/s' };
 

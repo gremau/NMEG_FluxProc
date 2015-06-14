@@ -86,13 +86,13 @@ amflx_gaps = amflx_gf;
 % temperature. See issue 12
 TA_flag = verify_gapfilling( pt_tbl.Tair_f, qc_tbl.Tdry - 273.15, 1e-4 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.Tair_f, ...
-                     { 'TA_f' }, { 'deg C' }, TA_flag );
+                     { 'TA_F' }, { 'deg C' }, TA_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.Tdry - 273.15, ...
                        { 'TA' }, { 'deg C' } );
 
 % RH
 rH_flag = verify_gapfilling( pt_tbl.rH, qc_tbl.rH, 1e-5 );
-amflx_gf = add_cols( amflx_gf, pt_tbl.rH, { 'RH_f' }, { '%' }, rH_flag );
+amflx_gf = add_cols( amflx_gf, pt_tbl.rH, { 'RH_F' }, { '%' }, rH_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.rH, { 'RH' }, { '%' } );
 
 % VPD
@@ -100,22 +100,22 @@ VPD_flag = verify_gapfilling( pt_tbl.VPD_f, qc_tbl.VPD, 1e-5 );
 % Convert to kPa
 VPD = qc_tbl.VPD ./ 10;
 VPD_f = pt_tbl.VPD_f ./ 10;
-amflx_gf = add_cols( amflx_gf, VPD_f, { 'VPD_f' }, { 'kPa' }, VPD_flag );
+amflx_gf = add_cols( amflx_gf, VPD_f, { 'VPD_F' }, { 'kPa' }, VPD_flag );
 amflx_gaps = add_cols( amflx_gaps, VPD, { 'VPD' }, { 'kPa' } );
 
 % Rg - pyrranometer
 Rg_flag = verify_gapfilling( pt_tbl.Rg_f, qc_tbl.sw_incoming, 1e-4 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.Rg_f, ...
-                     { 'Rg_f' }, { 'W/m2' }, Rg_flag ); %SW_IN_f
+                     { 'SW_IN_F' }, { 'W/m2' }, Rg_flag ); %SW_IN_F
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.sw_incoming, ...
-                       { 'Rg' }, { 'W/m2' } );                   
+                       { 'SW_IN' }, { 'W/m2' } );                   
 
 % Precip
 % Gapfilled precip should be found in MPI files
 P_flag = verify_gapfilling( pt_tbl.Precip, qc_tbl.precip, 1e-5 );
-amflx_gf = add_cols( amflx_gf, pt_tbl.Precip, ... % P_f
-    { 'PRECIP_f' }, { 'mm' }, P_flag );
-amflx_gaps = add_cols( amflx_gaps, qc_tbl.precip, { 'PRECIP' }, { 'mm' } );
+amflx_gf = add_cols( amflx_gf, pt_tbl.Precip, ... % P_F
+    { 'P_F' }, { 'mm' }, P_flag );
+amflx_gaps = add_cols( amflx_gaps, qc_tbl.precip, { 'P' }, { 'mm' } );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Add NON-GAPFILLED met and radiation variables
@@ -129,8 +129,8 @@ met_nongf = [ qc_tbl.u_star, qc_tbl.wnd_dir_compass, qc_tbl.wnd_spd, ...
               qc_tbl.lw_outgoing ];
 headers = { 'USTAR', 'WD', 'WS', ...
             'PA', 'PAR', ...%'PAR_out', ...
-            'RNET', 'Rg_out', 'Rlong_in', ...
-            'Rlong_out' };
+            'RNET', 'SW_OUT', 'LW_IN', ...
+            'LW_OUT' };
 units = { 'm/s', 'deg', 'm/s', ...
           'kPa', 'mumol/m2/s', ...% 'mumol/m2/s', ...
           'W/m2', 'W/m2', 'W/m2', ...
@@ -153,19 +153,19 @@ clear headers units;
 FC_flag = verify_gapfilling( pt_tbl.NEE_f, qc_tbl.fc_raw_massman_wpl, ...
     1e-5 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.NEE_f, ...
-    { 'FC_f' }, { 'mumol/m2/s' }, FC_flag );
+    { 'FC_F' }, { 'mumol/m2/s' }, FC_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.fc_raw_massman_wpl, ...
     { 'FC' }, { 'mumol/m2/s' } );
 
 LE_flag = verify_gapfilling( pt_tbl.LE_f, qc_tbl.HL_wpl_massman, 1e-4 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.LE_f, ...
-    { 'LE_f' }, { 'W/m2' }, LE_flag );
+    { 'LE_F' }, { 'W/m2' }, LE_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.HL_wpl_massman, ...
     { 'LE' }, { 'W/m2' } );
 
 H_flag = verify_gapfilling( pt_tbl.H_f, qc_tbl.HSdry_massman, 1e-4 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.H_f, ...
-    { 'H_f' }, { 'W/m2' }, H_flag );
+    { 'H_F' }, { 'W/m2' }, H_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.HSdry_massman, ...
     { 'H' }, { 'W/m2' } );
 
@@ -202,16 +202,16 @@ clear headers units;
 part_mat = [ pt_tbl.GPP_f, pt_tbl.Reco, ...
              pt_tbl.GPP_HBLR, pt_tbl.Reco_HBLR, ...
              pt_tbl.Reco_HBLR_amended, pt_tbl.amended_flag ];
-headers =  {'GPP_f_MR2005', 'RE_MR2005', ...
-            'GPP_GL2010', 'RE_GL2010', ...
-            'RE_GL2010_amended', 'amended_flag' };
+headers =  {'GPP_F_MR2005', 'RECO_MR2005', ...
+            'GPP_GL2010', 'RECO_GL2010', ...
+            'RECO_GL2010_amended', 'amended_flag' };
 units =    { 'mumol/m2/s', 'mumol/m2/s', ...
              'mumol/m2/s', 'mumol/m2/s', 'mumol/m2/s', '--' };
 
 % Keenan 201X partitioning
 if keenan
     part_mat = [ part_mat, pt_tbl.GPP_f_TK201X, pt_tbl.RE_f_TK201X ];
-    headers = [ headers, 'GPP_f_TK201X', 'RE_f_TK201X' ];
+    headers = [ headers, 'GPP_F_TK201X', 'RECO_F_TK201X' ];
     units = [ units, 'mumol/m2/s', 'mumol/m2/s' ];
 end
 
@@ -232,15 +232,15 @@ clear headers units;
 % modelled RE. So set GPP to zero and add difference to RE.
 
 MR2005_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
-    'RE_MR2005', 'FC_f', 'Rg_f', false );
+    'RECO_MR2005', 'FC_F', 'SW_IN_F', false );
 
 GL2010_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
-    'RE_GL2010_amended', 'FC_f', 'Rg_f', false );
+    'RECO_GL2010_amended', 'FC_F', 'SW_IN_F', false );
 
 TK201X_ecb_tbl = table(); % Intitialize empty table
 if keenan
     TK201X_ecb_tbl = ensure_partitioned_C_balance( sitecode, amflx_gf, ...
-        'RE_f_TK201X', 'FC_f', 'Rg_f', false );
+        'RECO_F_TK201X', 'FC_F', 'SW_IN_F', false );
 end
 
 % Join ecb tables together

@@ -201,6 +201,29 @@ end
 % write gapfilled and with_gaps Ameriflux files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Note that sometimes we don't want to export all the GPP/RECO columns
+% Select what we want and remove the ones we don't want...
+if sitecode==UNM_sites.MCon || sitecode==UNM_sites.PPine
+    amflux_gf.GPP = amflux_gf.GPP_MR2005_ecb;
+    amflux_gf.RECO = amflux_gf.RECO_MR2005_ecb;
+    amflux_gaps.GPP = amflux_gaps.GPP_MR2005_ecb;
+    amflux_gaps.RECO = amflux_gaps.RECO_MR2005_ecb;
+    
+else
+    amflux_gf.GPP = amflux_gf.GPP_GL2010_amended_ecb;
+    amflux_gf.RECO = amflux_gf.RECO_GL2010_amended_ecb;
+    amflux_gaps.GPP = amflux_gaps.GPP_GL2010_amended_ecb;
+    amflux_gaps.RECO = amflux_gaps.RECO_GL2010_amended_ecb;
+    
+end
+
+amflux_gf.Properties.VariableUnits{end} = 'mumol/m2/s';
+amflux_gf.Properties.VariableUnits{end-1} = 'mumol/m2/s';
+amflux_gaps.Properties.VariableUnits{end} = 'mumol/m2/s';
+amflux_gaps.Properties.VariableUnits{end-1} = 'mumol/m2/s';
+amflux_gf( :, [ 32:44 ] ) = [];
+amflux_gaps( :, [ 24:35 ] ) = [];
+
 if args.Results.write_files
     UNM_Ameriflux_write_file( sitecode, year, amflux_gf, ...
         'mlitvak@unm.edu', 'gapfilled' );
