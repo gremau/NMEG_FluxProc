@@ -204,7 +204,7 @@ part_mat = [ pt_tbl.GPP_f, pt_tbl.Reco, ...
              pt_tbl.Reco_HBLR_amended, pt_tbl.amended_flag ];
 headers =  {'GPP_F_MR2005', 'RECO_MR2005', ...
             'GPP_GL2010', 'RECO_GL2010', ...
-            'RECO_GL2010_amended', 'amended_flag' };
+            'RECO_GL2010_amended', 'amended_FLAG' };
 units =    { 'mumol/m2/s', 'mumol/m2/s', ...
              'mumol/m2/s', 'mumol/m2/s', 'mumol/m2/s', '--' };
 
@@ -368,7 +368,7 @@ amflx_gf = replace_badvals( amflx_gf, -9999, fp_tol );
         if ~isempty( varargin ) && islogical( varargin{ 1 })
             gaps = varargin{ 1 };
             % and then append the flag to the end of the table
-            headers{ end + 1 } = [ headers{ 1 } '_flag' ];
+            headers{ end + 1 } = [ headers{ 1 } '_FLAG' ];
             units{ end + 1 } = '--';
             prep_add_mat = [ add_mat, gaps ];
         else
