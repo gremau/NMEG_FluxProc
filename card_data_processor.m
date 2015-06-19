@@ -553,12 +553,14 @@ methods
 
         [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
         t_str = datestr( now(), 'yyyymmdd_HHMM' );
+        % Sometimes we want to add an extension to the fluxall filename.
+        % Make this possible when extension passed to this subfunction.
         if length( varargin ) > 0
             ext = varargin{1};
-            fname = sprintf( '%s_FLUX_all_%d_%s.txt', ...
+            fname = sprintf( '%s_%d_fluxall_%s.txt', ...
                 char( obj.sitecode ), year, ext );
         else
-            fname = sprintf( '%s_FLUX_all_%d.txt', ...
+            fname = sprintf( '%s_%d_fluxall.txt', ...
                 char( obj.sitecode ), year );
         end
 
