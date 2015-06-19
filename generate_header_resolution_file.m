@@ -123,8 +123,10 @@ fprintf(1, fopenmessage );
 changes = readtable( headerChangesFile );
 [ numHeaders, numPrev ] = size( changes );
 % Assign current and previous header columns
-current = changes{ :, 1 };
-previous = changes{ :, 2:end };
+current = changes.current;
+prev_index = cellfun(@(x) ~isempty(strfind(x, 'previous')), ...
+    changes.Properties.VariableNames);
+previous = changes{ :, prev_index };
 
 %Check for sensor swaps file and open if found
 swapflag = 0;
