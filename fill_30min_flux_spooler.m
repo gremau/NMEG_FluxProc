@@ -25,22 +25,35 @@ plot_diagnostic = true;
 output = data_in;
 
 if sitecode == 1 % GLand
-    if year == 2006
-    elseif year == 2007
-        UNM_30min_flux_processor(1,2007,8213,8260);
-        UNM_30min_flux_processor(1,2007,8549,8596);
-        UNM_30min_flux_processor(1,2007,8885,8932);
-        UNM_30min_flux_processor(1,2007,9892,9940);
-        UNM_30min_flux_processor(1,2007,11135,11154);
-        UNM_30min_flux_processor(1,2007,11157,11188);
-        UNM_30min_flux_processor(1,2007,11237,11284);
+    if year == 2007
+        %fill_30min_flux_processor( output, 1,2007,8213,8260);
+        %fill_30min_flux_processor( output, 1,2007,8549,8596);
+        %fill_30min_flux_processor( output, 1,2007,8885,8932);
+        output = fill_30min_flux_processor( output, 1,2007,9542,9763);
+        output = fill_30min_flux_processor( output, 1,2007,10435,10457);
+        output = fill_30min_flux_processor( output, 1,2007,10489,10503);
+        output = fill_30min_flux_processor( output, 1,2007,10536,10552);
+        output = fill_30min_flux_processor( output, 1,2007,10583,10605);
+        output = fill_30min_flux_processor( output, 1,2007,10625,10650);
+        output = fill_30min_flux_processor( output, 1,2007,10675,10697);
+        output = fill_30min_flux_processor( output, 1,2007,10720,10756);
+        output = fill_30min_flux_processor( output, 1,2007,10768,10809);
+        output = fill_30min_flux_processor( output, 1,2007,10815,10857);
+        output = fill_30min_flux_processor( output, 1,2007,10864,10903);
+        output = fill_30min_flux_processor( output, 1,2007,10910,11259); 
+        %fill_30min_flux_processor( output, 1,2007,11135,11154);
+        %fill_30min_flux_processor( output, 1,2007,11157,11188);
+        %fill_30min_flux_processor( output, 1,2007,11237,11284);
     elseif year == 2008
-        UNM_30min_flux_processor(1,2008,330,357);
-        UNM_30min_flux_processor(1,2008,624,628);
-        UNM_30min_flux_processor(1,2008,1673,1686);
-        UNM_30min_flux_processor(1,2008,3536,4428);
-        UNM_30min_flux_processor(1,2008,8428,9148);
-        UNM_30min_flux_processor(1,2008,13345,13358);
+        output = fill_30min_flux_processor( output, 1,2008,1669,1682);
+        output = fill_30min_flux_processor( output, 1,2008,3532,4426);
+        output = fill_30min_flux_processor( output, 1,2008,8446,8471);
+        output = fill_30min_flux_processor( output, 1,2008,8486,8518);
+        output = fill_30min_flux_processor( output, 1,2008,8530,8571);
+        output = fill_30min_flux_processor( output, 1,2008,8579,8612);
+        output = fill_30min_flux_processor( output, 1,2008,8626,9147);
+        output = fill_30min_flux_processor( output, 1,2008,13343,13365);
+        output = fill_30min_flux_processor( output, 1,2008,13832,13842);
     elseif year == 2009
 %         output = fill_30min_flux_processor( output, 1,2009,1221,2282);
 %         output = fill_30min_flux_processor( output, 1,2009,2443,2439);

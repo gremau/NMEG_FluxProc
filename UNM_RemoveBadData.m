@@ -2213,25 +2213,34 @@ switch sitecode
     case UNM_sites.GLand
         switch year
             case 2007
+                % Precip data was bad this entire year
+                precip(1:end) = NaN;
                 
                 % IRGA problems
-                idx = DOYidx( 156 ) : DOYidx( 163 );
-                fc_raw_massman_wpl( idx ) = NaN;
-                E_wpl_massman( idx ) = NaN;
-                E_raw_massman( idx ) = NaN;
-                E_heat_term_massman( idx ) = NaN;
-                HL_wpl_massman( idx ) = NaN;
-                CO2_mean( idx  ) = NaN;
-                H2O_mean( idx ) = NaN;
-                atm_press( idx ) = NaN;
+                % I think the irga looks fine here - GEM
+%                 idx = DOYidx( 156 ) : DOYidx( 163 );
+%                 fc_raw_massman_wpl( idx ) = NaN;
+%                 E_wpl_massman( idx ) = NaN;
+%                 E_raw_massman( idx ) = NaN;
+%                 E_heat_term_massman( idx ) = NaN;
+%                 HL_wpl_massman( idx ) = NaN;
+%                 CO2_mean( idx  ) = NaN;
+%                 H2O_mean( idx ) = NaN;
+%                 atm_press( idx ) = NaN;
                 
-                % IRGA problems here -- big jump in [CO2] and suspicious looking fluxes
-                idx = DOYidx( 228.5 ) : DOYidx( 235.5 );
-                fc_raw_massman_wpl( idx ) = NaN;
-                H2O_mean( idx ) = NaN;
+                % IRGA problems here ---
+                % big jump in [CO2] and suspicious looking fluxes
+                % Coarse filter catches this though (<350ppm) - GEM
+%                 idx = DOYidx( 228.5 ) : DOYidx( 235.5 );
+%                 fc_raw_massman_wpl( idx ) = NaN;
+%                 H2O_mean( idx ) = NaN;
                 
             case 2008
-                sw_incoming( DOYidx( 7 ) : DOYidx( 9 ) ) = NaN;
+                % Pretty sure the precip gauge was not functioning up until
+                % Aug 30
+                precip( 1 : DOYidx( 244 ) ) = NaN;
+                % Dont see problem here - GEM
+                %sw_incoming( DOYidx( 7 ) : DOYidx( 9 ) ) = NaN;
                 
             case 2010
                 % IRGA problems - seems to affect latent only
@@ -2518,8 +2527,9 @@ end
 switch sitecode
     case UNM_sites.GLand
         switch year
-            case 2007
-                DOY_co2_max( 1 : DOYidx( 15 ) ) = 1.25;
+            % No data at this time - can comment out
+            %case 2007
+            %    DOY_co2_max( 1 : DOYidx( 15 ) ) = 1.25;
             case 2008
                 idx = DOYidx( 184 ) : DOYidx( 186.5 );
                 DOY_co2_max( idx ) = 15;
@@ -2913,7 +2923,9 @@ function co2_conc_filter_exceptions = ...
 % measurements.
 
 if ( sitecode == 1 ) && ( year == 2007 )
+    % There were calibration issues here, but some fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
+    co2_conc_filter_exceptions( DOYidx( 224 ) : DOYidx( 228 ) ) = true;
 end
 
 % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the

@@ -40,58 +40,54 @@ switch sitecode
         % Current multiplier for CNR1
         cnr1_sensitivity = 8.49; % from current program
         cnr1_mult = 1000 / cnr1_sensitivity;
-        % Pre-2014 multiplier to be corrected
-        cnr1_mult_old = 136.99;
+        % Pre-2014 multipliers to be corrected
+        cnr1_mult_old1 = 163.66;
+        cnr1_mult_old2 = 136.99;
         
         % PAR multipliers - see the current datalogger program
         PAR_KZ_new_up_sens = 8.6; % New Par_lite sensor
         PAR_KZ_old_up_sens = 4.9; % Plder Par_lite - starting ~5/7/2009
         PAR_KZ_dn_sens = 8.68; % K&Z down
-        PAR_LI_old_sens = 7.7; % LiCor, 2007-5/7/2009 ( Multiply by .604 )
+        % PAR_LI_old_sens = 7.7; % LiCor, 2007-5/7/2009 ( Multiply by .604 )
+        PAR_LI_old_sens = 5.7; % LiCor, 2007-5/7/2009 ( Multiply by .604 )
         PAR_KZ_new_up_mult = 1000 / PAR_KZ_new_up_sens;
         PAR_KZ_old_up_mult = 1000 / PAR_KZ_old_up_sens;
-        PAR_LI_old_mult = 1000 / PAR_LI_old_sens * .604;
+        PAR_LI_old_mult = 1000 / (PAR_LI_old_sens * .604);
         
         if year_arg == 2007
-            % calibration and unit conversion into W per m^2 for CNR1 variables
-            % >> for first couple of weeks the program had one incorrect
+            % Calibration and unit conversion into W per m^2 for 
+            % CNR1 variables and adjust for incorrect cal factor in
+            % dataloger program
+            % For first couple of weeks the program had one incorrect
             % conversion factor (163.666)
-            cal_1_idx = find(decimal_day > 156.71 & decimal_day < 162.52);
-            sw_incoming(cal_1_idx) = sw_incoming(cal_1_idx) ./ 163.666...
-                .* (1000 ./ 8.49);
-            sw_outgoing(cal_1_idx) = sw_outgoing(cal_1_idx) ...
-                ./163.666.*(1000./8.49);
-            lw_incoming(cal_1_idx) = lw_incoming(cal_1_idx) ...
-                ./163.666.*(1000./8.49);
-            lw_outgoing(cal_1_idx) = lw_outgoing(cal_1_idx) ...
-                ./163.666.*(1000./8.49);
+            idx1 = find(decimal_day > 156.71 & decimal_day < 162.52);
+            sw_incoming(idx1) = sw_incoming(idx1) ./ cnr1_mult_old1 .* cnr1_mult;
+            sw_outgoing(idx1) = sw_outgoing(idx1) ./ cnr1_mult_old1 .* cnr1_mult;
+            lw_incoming(idx1) = lw_incoming(idx1) ./ cnr1_mult_old1 .* cnr1_mult;
+            lw_outgoing(idx1) = lw_outgoing(idx1) ./ cnr1_mult_old1 .* cnr1_mult;
             % then afterward it had a different one (136.99)
-            cal_2_idx = find(decimal_day >= 162.52);
-            sw_incoming(cal_2_idx) = sw_incoming(cal_2_idx)...
-                ./136.99.*(1000./8.49);
-            sw_outgoing(cal_2_idx) = sw_outgoing(cal_2_idx)...
-                ./136.99.*(1000./8.49);
-            lw_incoming(cal_2_idx) = lw_incoming(cal_2_idx)...
-                ./136.99.*(1000./8.49);
-            lw_outgoing(cal_2_idx) = lw_outgoing(cal_2_idx)...
-                ./136.99.*(1000./8.49);
+            idx2 = find(decimal_day >= 162.52);
+            sw_incoming(idx2) = sw_incoming(idx2) ./ cnr1_mult_old2 .* cnr1_mult;
+            sw_outgoing(idx2) = sw_outgoing(idx2) ./ cnr1_mult_old2 .* cnr1_mult;
+            lw_incoming(idx2) = lw_incoming(idx2) ./ cnr1_mult_old2 .* cnr1_mult;
+            lw_outgoing(idx2) = lw_outgoing(idx2) ./ cnr1_mult_old2 .* cnr1_mult;
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
-            
-            Par_Avg(find(decimal_day > 162.14)) = ...
-                Par_Avg(find(decimal_day > 162.14)).*1000./(5.7*0.604);
-            % estimate par from sw_incoming
+            % Until PAR sensor online, estimate par from sw_incoming
             Par_Avg(find(decimal_day < 162.15)) = ...
                 sw_incoming(find(decimal_day < 162.15)).*2.025 + 4.715;
+            % After PAR sensor operational use old licor calibration
+            Par_Avg(find(decimal_day > 162.14)) = ...
+                Par_Avg(find(decimal_day > 162.14)) * PAR_LI_old_mult;
             
         elseif year_arg == 2008
             % Calibration and unit conversion into W per m^2 for 
             % CNR1 variables and adjust for incorrect cal factor in
             % dataloger program
-            sw_incoming = sw_incoming ./ cnr1_mult_old .* cnr1_mult;
-            sw_outgoing = sw_outgoing ./ cnr1_mult_old .* cnr1_mult;
-            lw_incoming = lw_incoming ./ cnr1_mult_old .* cnr1_mult;
-            lw_outgoing = lw_outgoing ./ cnr1_mult_old .* cnr1_mult;
+            sw_incoming = sw_incoming ./ cnr1_mult_old2 .* cnr1_mult;
+            sw_outgoing = sw_outgoing ./ cnr1_mult_old2 .* cnr1_mult;
+            lw_incoming = lw_incoming ./ cnr1_mult_old2 .* cnr1_mult;
+            lw_outgoing = lw_outgoing ./ cnr1_mult_old2 .* cnr1_mult;
             % Temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = ...
                 lw_correct( lw_incoming, lw_outgoing );
@@ -102,10 +98,10 @@ switch sitecode
             % Calibration and unit conversion into W per m^2 for 
             % CNR1 variables and adjust for incorrect cal factor in
             % dataloger program
-            sw_incoming = sw_incoming ./ cnr1_mult_old .* cnr1_mult;
-            sw_outgoing = sw_outgoing ./ cnr1_mult_old .* cnr1_mult;
-            lw_incoming = lw_incoming ./ cnr1_mult_old .* cnr1_mult;
-            lw_outgoing = lw_outgoing ./ cnr1_mult_old .* cnr1_mult;
+            sw_incoming = sw_incoming ./ cnr1_mult_old2 .* cnr1_mult;
+            sw_outgoing = sw_outgoing ./ cnr1_mult_old2 .* cnr1_mult;
+            lw_incoming = lw_incoming ./ cnr1_mult_old2 .* cnr1_mult;
+            lw_outgoing = lw_outgoing ./ cnr1_mult_old2 .* cnr1_mult;
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = ...
                 lw_correct( lw_incoming, lw_outgoing );
@@ -118,13 +114,13 @@ switch sitecode
             % Calibration added to datalogger programs on 01/17/2014
             idx = find( decimal_day < 17.7 );
             sw_incoming( idx ) = ...
-                sw_incoming(idx) ./ cnr1_mult_old .* cnr1_mult;
+                sw_incoming(idx) ./ cnr1_mult_old2 .* cnr1_mult;
             sw_outgoing( idx ) = ...
-                sw_outgoing(idx) ./ cnr1_mult_old .* cnr1_mult;
+                sw_outgoing(idx) ./ cnr1_mult_old2 .* cnr1_mult;
             lw_incoming( idx ) = ...
-                lw_incoming(idx) ./ cnr1_mult_old .* cnr1_mult;
+                lw_incoming(idx) ./ cnr1_mult_old2 .* cnr1_mult;
             lw_outgoing( idx ) = ...
-                lw_outgoing(idx) ./ cnr1_mult_old .* cnr1_mult;
+                lw_outgoing(idx) ./ cnr1_mult_old2 .* cnr1_mult;
             % Temperature correction just for long-wave
             % FIXME - drop and use CG3CO vars?
             [lw_incoming, lw_outgoing] = ...
@@ -148,7 +144,7 @@ switch sitecode
         PAR_LI_old_sens = 6.94; % LiCor, 2007-2009? ( Multiply by .604 )
         PAR_KZ_new_up_mult = 1000 / PAR_KZ_new_up_sens;
         PAR_KZ_old_up_mult = 1000 / PAR_KZ_old_up_sens;
-        PAR_LI_old_mult = 1000 / PAR_LI_old_sens * .604;
+        PAR_LI_old_mult = 1000 / (PAR_LI_old_sens * .604);
         
         if year_arg == 2007
             % calibration and unit conversion into W per m^2 for CNR1 variables
