@@ -107,22 +107,8 @@ switch sitecode
                 clockSet3 = DOYidx( 307.17 ) : size( data, 1 );
                 data( clockSet3, : ) = ...
                     shift_data( data( clockSet3, : ), 0.5, allCols );
+                
             case 2009
-%                 idx = 1 : DOYidx( 58 );
-%                 data( idx, : ) = shift_data( data( idx, : ),  -1.0, ...
-%                     all30MinCols );
-%                 idx = DOYidx( 82 ) : size( data, 1 );
-%                 data( idx, : ) = shift_data( data( idx, : ),  -0.5, ...
-%                     all30MinCols );
-%                 
-%                 idx = DOYidx( 295 ) : DOYidx( 330 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -2.0, ...
-%                     all10hzCols );
-%                 idx = DOYidx( 27 ) : DOYidx( 50 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -1.0, ...
-%                     all10hzCols );
-%                 
-%                 data = shift_data( data, 0.5, all10hzCols );
                 % There was a .5 hour shift and then it looks like clock
                 % was set to DST on day 66
                 preClockSet = 1 : DOYidx( 66.57 );
@@ -135,9 +121,7 @@ switch sitecode
                 
             case { 2010, 2011 }
                 data = shift_data( data, 1.5, allCols );
-%             case 2011
-%                 data = shift_data( data, 1.0, all30MinCols );
-%                 data = shift_data( data, 0.5, all10hzCols );
+
             case 2012
                 % Clock change on Dec 07 at 12:55
                 clockSet = datenum( 2012, 12, 7, 12, 55, 0 ) - ...
@@ -153,32 +137,16 @@ switch sitecode
     case UNM_sites.SLand
         switch year
             case 2007
-                % idx = 1: DOYidx( 150 );
-                % data( idx, : ) = shift_data( data( idx, : ), 0.5, ...
-                %   all10hzCols );
-                % col_idx = [ 76:145, 147:size( data, 2 ) ]
-                % data( idx, : ) = shift_data( data( idx, : ), -0.5, ...
-                %   col_idx );
-                % idx = DOYidx( 45 ) : DOYidx( 60 );
-                % col_idx = [ 1:144, 146:size( data, 2 ) ];
-                % data( idx, : ) = shift_data( data( idx, : ), -1.0, ...
-                %   col_idx);
-            case 2008
-                % idx = [ 1: DOYidx( 5 ), DOYidx( 20 ) : size( data, 1 ) ];
-                % data( idx, : ) = shift_data( data( idx, : ), 1.0, ...
-                %   all30MinCols );
-                data = shift_data( data, -1.0, all30MinCols );
-                data = shift_data( data, -0.5, all10hzCols );
-%             case 2009
-%                 idx = 1 : DOYidx( 64 );
-%                 data( idx, : ) = shift_data( data( idx, : ),  -1.0, ...
-%                     all30MinCols );
-            case { 2009 2010 2011 2012 2013 2014 }
+                preClockSet = 1 : DOYidx( 308.17 );
+                data( preClockSet, : ) = shift_data( ...
+                    data( preClockSet, : ), 1.5, allCols );
+                postClockSet = DOYidx( 308.19 ) : size( data, 1 );
+                data( postClockSet, : ) = shift_data( ...
+                    data( postClockSet, : ), 0.5, allCols );
+
+            case { 2008, 2009 2010 2011 2012 2013 2014 }
                 data = shift_data( data, 0.5, allCols );
-%             case 2011
-%                 idx = DOYidx( 137 ) : DOYidx( 165 );
-%                 data( idx, : ) = shift_data( data( idx, : ),  -0.5, ...
-%                     all30MinCols );
+
         end
         
     case UNM_sites.JSav

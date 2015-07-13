@@ -2289,8 +2289,10 @@ switch sitecode
     case UNM_sites.SLand
         switch year
             case 2007
-                NR_tot( DOYidx( 143 ) : DOYidx( 151 ) ) = NaN;
-                sw_outgoing( DOYidx( 150 ) : DOYidx( 162 ) ) = NaN;
+                % Precip gauge seems to be stuck much of this year
+                precip(1:end) = NaN;
+                %NR_tot( DOYidx( 143 ) : DOYidx( 151 ) ) = NaN;
+                %sw_outgoing( DOYidx( 150 ) : DOYidx( 162 ) ) = NaN;
             case 2009
                 % FIXME - Explanation?
                 CO2_mean( DOYidx( 139 ) : DOYidx( 142 ) ) = NaN;
