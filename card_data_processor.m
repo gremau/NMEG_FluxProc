@@ -322,8 +322,10 @@ methods
                 obj.date_end, ...
                 obj.sitecode, ...
                 'TOB1' );
-            tstamps = cellfun( @get_TOA5_TOB1_file_date, tob1_files );
-            obj.date_end = min( max( tstamps ), obj.date_end );
+            % Not sure why this is here. It truncates the data if there
+            % are missing TOB1 files at end of year - GEM
+            %tstamps = cellfun( @get_TOA5_TOB1_file_date, tob1_files );
+            %obj.date_end = min( max( tstamps ), obj.date_end );
 
             [ this_year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
             fname = fullfile( 'C:\Research_Flux_Towers\FluxOut\TOB1_data\', ...
@@ -332,7 +334,7 @@ methods
                 this_year ) );
             load( fname );
             all_data.date = str2num( all_data.date );
-            all_data = all_data( all_data.timestamp < obj.date_end, : );
+            all_data = all_data( all_data.timestamp <= obj.date_end, : );
             obj.data_10hz_avg = all_data;
         else
 
@@ -422,7 +424,7 @@ methods
                 % complete the 'reading fluxall...' message from UNM_parse_fluxall
                 fprintf( 'not found.\nBuilding fluxall from scratch\n' );
                 flux_all = [];
-                obj.date_start = datenum( year, 1, 1);
+                obj.date_start = datenum( year, 1, 1, 0, 30, 0);
             else
                 % display all other errors as usual
                 rethrow( err );
