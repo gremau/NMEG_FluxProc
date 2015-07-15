@@ -146,10 +146,12 @@ elseif sitecode == 2 % SLand
 
 elseif sitecode == 3 % JSav
     if year == 2007
-        UNM_30min_flux_processor(3,2007,963,988);
-        UNM_30min_flux_processor(3,2007,7244,7261);
-        UNM_30min_flux_processor(3,2007,7582,7615);
-        UNM_30min_flux_processor(3,2007,11099,11114);
+        output = fill_30min_flux_processor( output, 3,2007,16489,16504);
+        output = fill_30min_flux_processor( output, 3,2007,17025,17040);
+%         output = fill_30min_flux_processor( output, 3,2007,963,988);
+%         output = fill_30min_flux_processor( output, 3,2007,7244,7261);
+%         output = fill_30min_flux_processor( output, 3,2007,7582,7615);
+%         output = fill_30min_flux_processor( output, 3,2007,11099,11114);
     elseif year == 2008    
         output = fill_30min_flux_processor( output, 3,2008,9176,9182);
         output = fill_30min_flux_processor( output, 3,2008,9863,9892);

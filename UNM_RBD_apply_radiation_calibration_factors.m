@@ -262,7 +262,7 @@ elseif year_arg == 2008
             % temperature correction for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for par-lite
-            Par_Avg = Par_Avg.*1000./5.48;
+            Par_Avg = Par_Avg .* PAR_KZ_old_up_mult;
             
         elseif year_arg >= 2008 & year_arg <= 2013
             % calibration and unit conversion into W per m^2 for CNR1 variables

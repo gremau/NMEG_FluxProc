@@ -152,11 +152,22 @@ switch sitecode
     case UNM_sites.JSav
         switch year
             case 2007
-                doy_col = 8;  % day of year column in JSav_FluxAll_2007.xls
-                idx = find( ( data( :, doy_col ) >= 324 ) & ...
-                    ( data( :, doy_col ) <= 335 ) );
-                data( idx, : ) = shift_data( data( idx, : ),  1.0, ...
-                    all30MinCols );
+                clockSet1 = 1 : DOYidx( 152.5 );
+                data( clockSet1, : ) = shift_data( ...
+                    data( clockSet1, : ), 0.5, allCols );
+                
+                clockSet2 = DOYidx( 152.52 ) : DOYidx( 334.5 );
+                data( clockSet2, : ) = shift_data( ...
+                    data( clockSet2, : ), 1.5, allCols );
+                
+                clockSet3 = DOYidx( 334.52 ) : DOYidx( 347.65 );
+                data( clockSet3, : ) = shift_data( ...
+                    data( clockSet3, : ), 0.5, allCols );
+                
+                clockSet4 = DOYidx( 347.67 ) : size( data, 1 );
+                data( clockSet4, : ) = shift_data( ...
+                    data( clockSet4, : ), 1.5, allCols );
+                
             case { 2009, 2010, 2011, 2012, 2013, 2014 }
                 data = shift_data( data, 0.5, allCols );
         end
