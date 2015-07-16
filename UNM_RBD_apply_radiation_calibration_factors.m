@@ -247,10 +247,10 @@ elseif year_arg == 2008
         PAR_KZ_new_up_sens = 8.97; % New Par_lite sensor
         PAR_KZ_old_up_sens = 5.48; % Older Par_lite
         PAR_KZ_dn_sens = 8.35; % Par_lite down
-        PAR_LI_old_sens = 5.75; % LiCor, 2007-2009? ( Multiply by .604 )
+        PAR_LI_old_sens = 5.75; % LiCor, 2007-2008? ( Multiply by .604 )
         PAR_KZ_new_up_mult = 1000 / PAR_KZ_new_up_sens;
         PAR_KZ_old_up_mult = 1000 / PAR_KZ_old_up_sens;
-        PAR_LI_old_mult = 1000 / PAR_LI_old_sens * .604;
+        PAR_LI_old_mult = 1000 / (PAR_LI_old_sens * .604);
         
         if year_arg == 2007
             % calibration and unit conversion into W per m^2 for CNR1 variables
@@ -261,10 +261,30 @@ elseif year_arg == 2008
             lw_outgoing = lw_outgoing ./ cnr1_mult_old .* cnr1_mult;
             % temperature correction for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
-            % calibration for par-lite
-            Par_Avg = Par_Avg .* PAR_KZ_old_up_mult;
+            % calibration for LiCor PAR
+            Par_Avg = Par_Avg .* PAR_LI_old_mult;
             
-        elseif year_arg >= 2008 & year_arg <= 2013
+        elseif year_arg == 2008
+            % calibration and unit conversion into W per m^2 for CNR1 variables
+            % convert into W per m^2
+            sw_incoming = sw_incoming ./ cnr1_mult_old .* cnr1_mult;
+            sw_outgoing = sw_outgoing ./ cnr1_mult_old .* cnr1_mult;
+            lw_incoming = lw_incoming ./ cnr1_mult_old .* cnr1_mult;
+            lw_outgoing = lw_outgoing ./ cnr1_mult_old .* cnr1_mult;
+            % temperature correction for long-wave
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+            % calibration for LiCor PAR
+            idx = decimal_day <= 164.022;
+            Par_Avg(idx) = Par_Avg(idx) .* PAR_LI_old_mult;
+            % calibration for par-lite
+            idx2 = decimal_day > 164.022;
+            Par_Avg(idx2) = Par_Avg(idx2) .* PAR_KZ_old_up_mult;
+            % Make a small correction for a wierd calibration problem
+            % in fall 2008
+            idx = decimal_day > 296.5 & decimal_day < 332;
+            Par_Avg( idx ) = Par_Avg( idx ) + 133;
+            
+        elseif year_arg >= 2009 & year_arg <= 2013
             % calibration and unit conversion into W per m^2 for CNR1 variables
             % convert into W per m^2
             sw_incoming = sw_incoming ./ cnr1_mult_old .* cnr1_mult;

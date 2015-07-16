@@ -167,6 +167,15 @@ switch sitecode
                 clockSet4 = DOYidx( 347.67 ) : size( data, 1 );
                 data( clockSet4, : ) = shift_data( ...
                     data( clockSet4, : ), 1.5, allCols );
+            
+            case 2008
+                clockSet1 = 1 : DOYidx( 331.6 );
+                data( clockSet1, : ) = shift_data( ...
+                    data( clockSet1, : ), 1.5, allCols );
+                
+                clockSet2 = DOYidx( 331.62 ) : size( data, 1 );
+                data( clockSet2, : ) = shift_data( ...
+                    data( clockSet2, : ), 0.5, allCols );
                 
             case { 2009, 2010, 2011, 2012, 2013, 2014 }
                 data = shift_data( data, 0.5, allCols );
