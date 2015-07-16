@@ -890,10 +890,9 @@ plot_qc_meteorology( sitecode, ...
     Tdry, ...
     H2O_mean, ...
     precip );
-
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
-    sprintf( '%s_%d_after_radiation.mat', ...
-    char( sitecode ), year(1) ) );
+sprintf( '%s_%d_after_radiation.mat', ...
+char( sitecode ), year(1) ) );
 save( save_fname );
 fprintf( 'saved %s\n', save_fname );
 
@@ -2333,6 +2332,19 @@ switch sitecode
                 vpd( ( Tdry < C_to_K( -8 ) ) & ( doy > 37 ) & ( doy < 38 ) ) = NaN;
         end
         
+    case UNM_sites.PJ
+        switch year
+            case 2008
+                % Until June 19 sw sensors reported all zeros and lw
+                % sensors reported NaNs
+                idx = DOYidx( 171.5 );
+                %sw_incoming( 1:idx ) = NaN; % This gets calulated from PAR
+                sw_outgoing( 1:idx ) = NaN;
+                lw_incoming( 1:idx ) = NaN;
+                lw_outgoing( 1:idx ) = NaN;
+                NR_tot( 1:idx ) = NaN;
+        end
+                
     case UNM_sites.PJ_girdle
         switch year
             case 2009

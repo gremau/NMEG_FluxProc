@@ -369,37 +369,41 @@ elseif year_arg == 2008
             sw_incoming = Par_Avg.*0.4577 - 1.8691;
             
         elseif year_arg == 2008
+            % CNR1 not functioning until June 19
+            preCNR1_idx = decimal_day <= 171.5;
+            CNR1idx = find(decimal_day > 171.5);
             % this is the wind correction factor for the Q*7
-            NR_tot(find(decimal_day < 172 & NR_tot < 0)) = ...
-                NR_tot(find(decimal_day < 172 & NR_tot < 0)).*10.74 ...
-                .*((0.00174.*wnd_spd(find(decimal_day < 172 & NR_tot < 0))) + 0.99755);
-            NR_tot(find(decimal_day < 172 & NR_tot > 0)) = ...
-                NR_tot(find(decimal_day < 172 & NR_tot > 0)).*8.65 ...
-                .*(1 + (0.066.*0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0))) ...
-                ./(0.066 + (0.2.*wnd_spd(find(decimal_day < 172 & NR_tot > 0)))));
-            % now correct pars
-            Par_Avg(find(decimal_day < 42.6)) = ...
-                NR_tot(find(decimal_day < 42.6)).*2.7828 + 170.93;
+            NR_idx_1 = find(preCNR1_idx & NR_tot < 0);
+            NR_tot(NR_idx_1) = NR_tot(NR_idx_1).*10.74 ...
+                .*((0.00174.*wnd_spd(NR_idx_1)) + 0.99755);
+            NR_idx_2 = find(preCNR1_idx & NR_tot > 0);
+            NR_tot(NR_idx_2) = NR_tot(NR_idx_2).*8.65 ...
+                .*(1 + (0.066.*0.2.*wnd_spd(NR_idx_2)) ...
+                ./(0.066 + (0.2.*wnd_spd(NR_idx_2))));
+            % Now correct pars
+            % There doesn't seem to be any NR_tot data prior to day 42, so
+            % I am just setting it to NaN - GEM
+            Par_Avg(find(decimal_day < 42.6)) = NaN; %...
+%                 NR_tot(find(decimal_day < 42.6)).*2.7828 + 170.93;
             % calibration for par-lite installed on 2/11/08
             Par_Avg(find(decimal_day > 42.6)) = ...
                 Par_Avg(find(decimal_day > 42.6)) .* PAR_KZ_old_up_mult;
-            sw_incoming(find(decimal_day < 172)) = ...
-                Par_Avg(find(decimal_day < 172)).*0.4577 - 1.8691;
-            % temperature correction just for long-wave
-            lw_incoming(find(decimal_day > 171.5)) = ...
-                lw_incoming(find(decimal_day > 171.5)) + 0.0000000567 ...
-                .*(CNR1TK(find(decimal_day > 171.5))).^4;
-            lw_outgoing(find(decimal_day > 171.5)) = ...
-                lw_outgoing(find(decimal_day > 171.5)) + 0.0000000567 ...
-                .*(CNR1TK(find(decimal_day > 171.5))).^4;
-            hour_0700 =  7.0 / 24.0;
-            hour_1730 = 17.5 / 24.0;
-            frac_day = decimal_day - floor( decimal_day );
-            early_year_is_night = ( decimal_day < 42.6 ) & ...
-                ( ( frac_day < hour_0700 ) | ( frac_day > hour_1730 ) );
-            sw_incoming( early_year_is_night & ( abs( sw_incoming ) > 5 ) ) = NaN;
-            sw_outgoing( early_year_is_night & ( abs( sw_incoming ) > 5 ) ) = NaN;
-            Par_Avg( early_year_is_night & ( abs( sw_incoming ) > 5 ) ) = NaN;
+            % Prior to fixed CNR1, estimate SW_IN from PAR
+            sw_incoming(find(preCNR1_idx)) = ...
+                Par_Avg(find(preCNR1_idx)).*0.4577 - 1.8691;
+            % Temperature correction just for long-wave
+            [lw_incoming, lw_outgoing] = ...
+                lw_correct(lw_incoming, lw_outgoing, CNR1idx);
+
+            %What is this?
+%             hour_0700 =  7.0 / 24.0;
+%             hour_1730 = 17.5 / 24.0;
+%             frac_day = decimal_day - floor( decimal_day );
+%             early_year_is_night = ( decimal_day < 42.6 ) & ...
+%                 ( ( frac_day < hour_0700 ) | ( frac_day > hour_1730 ) );
+%             sw_incoming( early_year_is_night & ( abs( sw_incoming ) > 5 ) ) = NaN;
+%             sw_outgoing( early_year_is_night & ( abs( sw_incoming ) > 5 ) ) = NaN;
+%             Par_Avg( early_year_is_night & ( abs( sw_incoming ) > 5 ) ) = NaN;
             
         elseif year_arg >= 2009 & year_arg <= 2013
             % Calibrate par-lite installed on 2/11/08

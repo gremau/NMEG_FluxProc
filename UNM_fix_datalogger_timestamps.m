@@ -183,7 +183,7 @@ switch sitecode
         
     case UNM_sites.PJ
         switch year
-            case { 2009, 2010, 2011 }
+            case { 2008, 2009, 2010, 2011 }
                 data = shift_data( data, 1.5, allCols );
                 % data = shift_data( data, 0.5, all10hzCols );
             case 2012

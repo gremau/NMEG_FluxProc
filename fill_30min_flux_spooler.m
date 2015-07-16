@@ -193,7 +193,10 @@ elseif sitecode == 3 % JSav
         output = fill_30min_flux_processor( output, 3, 2013, DOYidx(326.104), DOYidx(329.354));
     end    
 elseif sitecode == 4 % PJ_control
-    if year == 2009
+    if year == 2008
+        output = fill_30min_flux_processor( output, 4,2008,13789,13808);
+        output = fill_30min_flux_processor( output, 4,2008,16472,16489);
+    elseif year == 2009
         %output = fill_30min_flux_processor( output, 4,2009,10354,10372);
     elseif year == 2010
         % Many of these small filled periods seem fairly noisy. Could be
