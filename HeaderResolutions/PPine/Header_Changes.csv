@@ -1,12 +1,12 @@
-current,previous1,previous2,previous3,
+current,previous1,previous2,previous3,previous4
 AirTC_1p35_Avg,,,,
 AirTC_8p65_Avg,AirTC_4p5_Avg,AirTC_2_Avg,AirTC_4p95_Avg,
 AirTC_16_Avg,,,,
 AirTC_24_Avg,AirTC_Avg,AirTC_21p65_Avg,,
 RH_1p35_Avg,,,,
-RH_8p65_Avg,RH_4p5_Avg,RH_2_Avg,RH_4p95_Avg,
+RH_8p65_Avg,RH_4p5_Avg,RH_2_Avg,RH_4p95_Avg,RH_2
 RH_16_Avg,,,,
-RH_24_Avg,RH_Avg,RH_21p65_Avg,,
+RH_24_Avg,RH_Avg,RH_21p65_Avg,RH,
 co2_mean_Avg,co2_Avg,,,
 co2_um_m_Avg,co2_u_mol_Avg,,,
 stdev_Ts,cov_Ts_Ts,,,

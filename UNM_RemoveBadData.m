@@ -2339,7 +2339,7 @@ switch sitecode
                 % sensors reported NaNs
                 idx = DOYidx( 171.5 );
                 %sw_incoming( 1:idx ) = NaN; % This gets calulated from PAR
-                sw_outgoing( 1:idx ) = NaN;
+                sw_outgoing( 1:idx ) = NaN; 
                 lw_incoming( 1:idx ) = NaN;
                 lw_outgoing( 1:idx ) = NaN;
                 NR_tot( 1:idx ) = NaN;
@@ -2375,12 +2375,26 @@ switch sitecode
     case UNM_sites.PPine
         switch year
             case 2008
-                % FIXME - Explanation?
-                fc_raw_massman_wpl( DOYidx( 260 ) : DOYidx( 290 ) ) = NaN;
-                %these observation are way too small
+                % There were some IRGA calibration problems during this
+                % time (see logs) and the IRGA was briefly returned to
+                % the lab.
+                idx = DOYidx( 264 ) : DOYidx( 311 );
+                fc_raw_massman_wpl( idx ) = NaN;
+                HL_wpl_massman( idx ) = NaN;
+                E_wpl_massman( idx ) = NaN;
+                E_wpl_massman( E_wpl_massman > 200 ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
+                % RH sensor reads far too low for a long period in 2008
                 rH( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;
                 vpd( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;
-                E_wpl_massman( E_wpl_massman > 200 ) = NaN;
+                
+                % ???
+                %E_wpl_massman( E_wpl_massman > 200 ) = NaN;
+                
+                %^This is done in apply_radiation_cal script for now.
+                %Par_Avg( DOYidx( 99.5 ) : DOYidx( 190.5 ) ) = NaN;
+                %Par_Avg( DOYidx( 210 ) : DOYidx( 223 ) ) = NaN;
             case 2009
                 % There is a period of bad flux data here that looks
                 % like it should be removed - probably an IRGA issue
@@ -2725,11 +2739,11 @@ switch sitecode
     case UNM_sites.PPine
         switch year
             case 2007
-                DOY_co2_max( DOYidx( 185 ) : DOYidx( 259.99 ) ) = 10.0;
-                DOY_co2_max( DOYidx( 240 ) : DOYidx( 276 ) ) = 5.5;
-                DOY_co2_max( DOYidx( 276 ) : DOYidx( 277 ) ) = 5.0;
-                DOY_co2_max( DOYidx( 277 ) : DOYidx( 279 ) ) = 10.0;
-                DOY_co2_max( DOYidx( 280 ) : end ) = 5.0;
+                %DOY_co2_max( DOYidx( 185 ) : DOYidx( 259.99 ) ) = 10.0;
+                %DOY_co2_max( DOYidx( 240 ) : DOYidx( 276 ) ) = 5.5;
+                %DOY_co2_max( DOYidx( 276 ) : DOYidx( 277 ) ) = 5.0;
+                %DOY_co2_max( DOYidx( 277 ) : DOYidx( 279 ) ) = 10.0;
+                %DOY_co2_max( DOYidx( 280 ) : end ) = 5.0;
                 
 %            case 2009
 %                 DOY_co2_max( : ) = 10;

@@ -242,17 +242,48 @@ elseif sitecode == 4 % PJ_control
         
 elseif sitecode == 5 % PPine
     if year == 2007
-        UNM_30min_flux_processor(5,2007,1491,1527);
-        UNM_30min_flux_processor(5,2007,3941,3946);
-        UNM_30min_flux_processor(5,2007,4000,4011);
-        UNM_30min_flux_processor(5,2007,15669,15692);
-        UNM_30min_flux_processor(5,2007,16422,16435);
+        output = fill_30min_flux_processor( output, 5,2007,1019,1044);
+        output = fill_30min_flux_processor( output, 5,2007,1440,1523);
+        output = fill_30min_flux_processor( output, 5,2007,1998,2008);
+        output = fill_30min_flux_processor( output, 5,2007,2129,2175);
+        output = fill_30min_flux_processor( output, 5,2007,2404,2431);
+        output = fill_30min_flux_processor( output, 5,2007,3836,3857);
+        output = fill_30min_flux_processor( output, 5,2007,3956,4007);
+        output = fill_30min_flux_processor( output, 5,2007,4671,4692);
+        output = fill_30min_flux_processor( output, 5,2007,4858,4874);
+        output = fill_30min_flux_processor( output, 5,2007,4905,4927);
+        output = fill_30min_flux_processor( output, 5,2007,5817,5838);
+        output = fill_30min_flux_processor( output, 5,2007,6144,6167);
+        output = fill_30min_flux_processor( output, 5,2007,11700,11722);
+        output = fill_30min_flux_processor( output, 5,2007,12749,12773);
+        output = fill_30min_flux_processor( output, 5,2007,15647,15688);
+        output = fill_30min_flux_processor( output, 5,2007,16031,16044);
+        output = fill_30min_flux_processor( output, 5,2007,16373,16431);
+%         output = fill_30min_flux_processor( output, 5,2007,1491,1527);
+%         output = fill_30min_flux_processor( output, 5,2007,3941,3946);
+%         output = fill_30min_flux_processor( output, 5,2007,4000,4011);
+%         output = fill_30min_flux_processor( output, 5,2007,15669,15692);
+%         output = fill_30min_flux_processor( output, 5,2007,16422,16435);
     elseif year == 2008
-        UNM_30min_flux_processor(5,2008,774,792);
-        UNM_30min_flux_processor(5,2008,1739,1748);
-        UNM_30min_flux_processor(5,2008,10992,10999);
-        UNM_30min_flux_processor(5,2008,11713,11723);
-        UNM_30min_flux_processor(5,2008,13251,13258);
+        output = fill_30min_flux_processor( output, 5,2008,323,338);
+        output = fill_30min_flux_processor( output, 5,2008,770,788);
+        output = fill_30min_flux_processor( output, 5,2008,1651,1661);
+        output = fill_30min_flux_processor( output, 5,2008,1735,1744);
+        output = fill_30min_flux_processor( output, 5,2008,2539,2569);
+        output = fill_30min_flux_processor( output, 5,2008,4787,4793);
+        output = fill_30min_flux_processor( output, 5,2008,11699,11719);
+        output = fill_30min_flux_processor( output, 5,2008,13080,13100);
+        output = fill_30min_flux_processor( output, 5,2008,13332,13367);
+        output = fill_30min_flux_processor( output, 5,2008,13729,13766);
+        output = fill_30min_flux_processor( output, 5,2008,13796,13822);
+        output = fill_30min_flux_processor( output, 5,2008,14188,14738);
+        output = fill_30min_flux_processor( output, 5,2008,14812,14875);
+        output = fill_30min_flux_processor( output, 5,2008,16801,16877);
+%         output = fill_30min_flux_processor( output, 5,2008,774,792);
+%         output = fill_30min_flux_processor( output, 5,2008,1739,1748);
+%         output = fill_30min_flux_processor( output, 5,2008,10992,10999);
+%         output = fill_30min_flux_processor( output, 5,2008,11713,11723);
+%         output = fill_30min_flux_processor( output, 5,2008,13251,13258);
     elseif year == 2009
         output = fill_30min_flux_processor( output, 5,2009,7218,7287);
         output = fill_30min_flux_processor( output, 5,2009,7314,7336);

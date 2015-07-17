@@ -4,9 +4,9 @@ AirTC_8p65_Avg,dne,AirTC_2_Avg,AirTC_2_Avg,AirTC_2_Avg,AirTC_2_Avg,AirTC_2_Avg,A
 AirTC_16_Avg,dne,dne,dne,dne,dne,dne,dne,current,current,current,current,current,current,current
 AirTC_24_Avg,dne,AirTC_Avg,AirTC_Avg,AirTC_Avg,AirTC_Avg,AirTC_Avg,AirTC_21p65_Avg,current,current,current,current,current,current,current
 RH_1p35_Avg,dne,dne,dne,dne,dne,dne,dne,dne,dne,dne,dne,dne,dne,current
-RH_8p65_Avg,dne,dne,dne,RH_2_Avg,RH_2_Avg,RH_2_Avg,RH_4p95_Avg,RH_4p5_Avg,RH_4p5_Avg,RH_4p5_Avg,RH_4p5_Avg,RH_4p5_Avg,RH_4p5_Avg,current
+RH_8p65_Avg,dne,RH_2,RH_2,RH_2_Avg,RH_2_Avg,RH_2_Avg,RH_4p95_Avg,RH_4p5_Avg,RH_4p5_Avg,RH_4p5_Avg,RH_4p5_Avg,RH_4p5_Avg,RH_4p5_Avg,current
 RH_16_Avg,dne,dne,dne,dne,dne,dne,dne,current,current,current,current,current,current,current
-RH_24_Avg,dne,dne,dne,RH_Avg,RH_Avg,RH_Avg,RH_21p65_Avg,current,current,current,current,current,current,current
+RH_24_Avg,dne,RH,RH,RH_Avg,RH_Avg,RH_Avg,RH_21p65_Avg,current,current,current,current,current,current,current
 co2_mean_Avg,dne,co2_Avg,co2_Avg,co2_Avg,co2_Avg,co2_Avg,co2_Avg,co2_Avg,current,current,current,current,current,current
 co2_um_m_Avg,dne,co2_u_mol_Avg,co2_u_mol_Avg,co2_u_mol_Avg,co2_u_mol_Avg,co2_u_mol_Avg,co2_u_mol_Avg,co2_u_mol_Avg,current,current,current,current,current,current
 stdev_Ts,dne,cov_Ts_Ts,cov_Ts_Ts,cov_Ts_Ts,cov_Ts_Ts,cov_Ts_Ts,cov_Ts_Ts,cov_Ts_Ts,current,current,current,current,current,current

@@ -488,10 +488,10 @@ elseif year_arg == 2008
         PAR_KZ_new_up_sens = 8.69; % New Par_lite sensors
         PAR_KZ_new_dn_sens = 8.37;
         PAR_KZ_old_up_sens = 5.25; % Older Par_lite
-        PAR_LI_old_dn_sens = 6.75; % Licor down ( Multiply by .604 )
+        PAR_LI_old_sens = 6.75; % Licor down ( Multiply by .604 )
         
         PAR_KZ_old_up_mult = 1000 / PAR_KZ_old_up_sens;
-        PAR_LI_old_dn_mult = 1000 / PAR_LI_old_dn_sens * .604;
+        PAR_LI_old_mult = 1000 / (PAR_LI_old_sens * .604);
         
         % NOTE: For the most part PPine radiation values are calibrated and
         % unit converted in the datalogger programs, but they should be
@@ -499,22 +499,24 @@ elseif year_arg == 2008
         
         if year_arg == 2007
             % temperature correction just for long-wave
-            lw_incoming = lw_incoming + 0.0000000567.*(CNR1TK).^4;
-            lw_outgoing = lw_outgoing + 0.0000000567.*(CNR1TK).^4;
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % Apply correct calibration value 7.37, SA190 manual section 3-1
-            Par_Avg=Par_Avg.*225;
-            % Apply correction to bring in line with Par-lite from mid 2008
-            Par_Avg=Par_Avg+(0.2210.*sw_incoming);
+            Par_Avg  =Par_Avg .* PAR_LI_old_mult;
             
         elseif year_arg == 2008
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for Licor sesor
+            idx = decimal_day > 99.5 & decimal_day < 190.5;
+            Par_Avg( idx ) = NaN;
+            idx = decimal_day > 210 & decimal_day < 223;
+            Par_Avg( idx ) = NaN;
             % Apply correct calibration value 7.37, SA190 manual section 3-1
-            Par_Avg(1:10063)=Par_Avg(1:10063).*225;
-            Par_Avg(1:10063)=Par_Avg(1:10063)+(0.2210.*sw_incoming(1:10063));
+            idx = decimal_day < 224.75;
+            Par_Avg( idx ) = Par_Avg( idx ) .* PAR_LI_old_mult;
             % calibration for par-lite sensor
-            Par_Avg(10064:end) = Par_Avg(10064:end) .* PAR_KZ_old_up_mult; 
+            idx = decimal_day >= 224.75;
+            Par_Avg( idx ) = Par_Avg( idx ) .* PAR_KZ_old_up_mult; 
 
         elseif year_arg >= 2009 & year_arg <= 2012
             % CNR1 multiplier was good in these years

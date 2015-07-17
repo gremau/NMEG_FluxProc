@@ -185,7 +185,6 @@ switch sitecode
         switch year
             case { 2008, 2009, 2010, 2011 }
                 data = shift_data( data, 1.5, allCols );
-                % data = shift_data( data, 0.5, all10hzCols );
             case 2012
                 % Looks like datalogger clock was reset around day 342
                 preResetIdx = 1 : DOYidx( 342.625 );
@@ -207,29 +206,16 @@ switch sitecode
     case UNM_sites.PPine
         switch year
             case 2007
-                idx = DOYidx( 156.12 ) : DOYidx( 177.5 );
-                % FIXME - Why shift just sonic temp?
-                Tdry_col = 14;  %shift temperature record
-                data( idx, : ) = shift_data( data( idx, : ), -1.5, ...
-                    Tdry_col );
-            case { 2009 2010 }
+                clockSet1 = 1 : DOYidx( 155.79 );
+                data( clockSet1, : ) = shift_data( ...
+                    data( clockSet1, : ), 7.5, allCols );
+                
+                clockSet2 = DOYidx( 155.81 ) : size( data, 1 );
+                data( clockSet2, : ) = shift_data( ...
+                    data( clockSet2, : ), 1.5, allCols );
+
+            case { 2008, 2009, 2010 }
                 data = shift_data( data, 1.5, allCols );
-                % No idea why all this is below - GEM
-%                 idx = DOYidx( 261 ) : DOYidx( 267 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -2.5, ...
-%                     all30MinCols );
-%                 idx = DOYidx( 267 ) : ( DOYidx( 268 ) - 1 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -3.0, ...
-%                     all30MinCols );
-%                 idx = DOYidx( 268 ) : DOYidx( 283 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -3.5, ...
-%                     all30MinCols );
-%                 idx = DOYidx( 283.0 ) : DOYidx( 293.5 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -4.5, ...
-%                     all30MinCols );
-%                 
-%             case 2010
-%                 data = shift_data( data, 1.0, all30MinCols );
                 
             case 2011
                 % Looks like datalogger clock was reset around day 54
