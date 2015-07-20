@@ -46,7 +46,8 @@ site = get_site_name( sitecode );
 
 % if no file specified, use default
 if isempty( args.Results.file )
-    fname = sprintf( '%s_FLUX_all_%d.txt', site, year_arg );
+    %fname = sprintf( '%s_FLUX_all_%d.txt', site, year_arg );
+    fname = sprintf( '%s_%d_fluxall.txt', site, year_arg );
     full_fname = fullfile( get_site_directory( sitecode ), fname );
 else
     % Check if file exists
