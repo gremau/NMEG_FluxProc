@@ -3,7 +3,7 @@
 %sitelist = {UNM_sites.SLand, UNM_sites.JSav, ...
 %    UNM_sites.GLand, UNM_sites.PPine, UNM_sites.MCon,...
 %   UNM_sites.PJ, UNM_sites.PJ_girdle};
-sitelist = {UNM_sites.PJ};
+sitelist = {UNM_sites.MCon};
 yearlist = 2008:2009;
 
 for i = 1:length(sitelist);
