@@ -248,15 +248,15 @@ switch sitecode
         
     case UNM_sites.MCon
         switch year
-            case 2008
-                idx = DOYidx( 341.0 ) : size( data, 1 );
-                data( idx, : ) = shift_data( data( idx, : ), 1.0, ...
-                    all30MinCols );
-                idx = 1 : DOYidx( 155 );
-                data( idx, : ) = shift_data( data( idx, : ), -0.5, ...
-                    all30MinCols );
-                
-            case 2009
+            case 2007
+                idx = 1 : DOYidx( 250.687 );
+                data( idx, : ) = ...
+                    shift_data( data( idx, : ), 7.5, allCols );
+                idx = DOYidx( 250.7 ) : size( data, 1 );
+                data( idx, : ) = ...
+                    shift_data( data( idx, : ), 1.5, allCols );
+
+            case {2008, 2009}
                 data = shift_data( data, 1.5, allCols );
                 
             case 2010

@@ -489,7 +489,6 @@ elseif year_arg == 2008
         PAR_KZ_new_dn_sens = 8.37;
         PAR_KZ_old_up_sens = 5.25; % Older Par_lite
         PAR_LI_old_sens = 6.75; % Licor down ( Multiply by .604 )
-        
         PAR_KZ_old_up_mult = 1000 / PAR_KZ_old_up_sens;
         PAR_LI_old_mult = 1000 / (PAR_LI_old_sens * .604);
         
@@ -588,7 +587,7 @@ elseif year_arg == 2008
         % unit converted in the datalogger programs, but they should be
         % checked
         
-        if year_arg == 2006 || year_arg == 2007
+        if year_arg >= 2006 & year_arg <= 2007
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             

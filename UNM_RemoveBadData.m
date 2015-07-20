@@ -313,8 +313,11 @@ if use_xls_fluxall
     data = UNM_parse_fluxall_xls_file( sitecode, year_arg, ...
         'file', fullfile( pathname, fname ));
 else
+%     fname = sprintf( '%s_FLUX_all_%d.txt', get_site_name( sitecode ), ...
+%         year_arg );
     fname = sprintf( '%s_FLUX_all_%d.txt', get_site_name( sitecode ), ...
         year_arg );
+
     data = UNM_parse_fluxall_txt_file( sitecode, year_arg, ...
         'file', fullfile( pathname, fname ));
     data_orig = parse_fluxall_txt_file( sitecode, year_arg, 'file', ...
@@ -2771,24 +2774,13 @@ switch sitecode
     case UNM_sites.MCon
         switch year
             case 2007
-                idx = DOYidx( 120.35 ) : DOYidx( 120.55 );
-                std_exc_flag( idx ) = true;
-                DOY_co2_min( idx ) = -15;
-                std_exc_flag( DOYidx( 292.4 ) : DOYidx( 294.5 ) ) = true;
-                std_exc_flag( DOYidx( 293.5 ) : DOYidx( 293.6 ) ) = true;
-                std_exc_flag( DOYidx( 301.5 ) : DOYidx( 301.7 ) ) = true;
-                
+                % Get rid of some noisy looking data
                 DOY_co2_max( DOYidx( 75 ) : DOYidx( 86 ) ) = 2.0;
-                DOY_co2_max( DOYidx( 176 ) : DOYidx( 206 ) ) = 3.5;
-                DOY_co2_max( DOYidx( 207 ) : DOYidx( 297 ) ) = 4.0;
-                DOY_co2_min( DOYidx( 327 ) : end ) = -2.0;
+                DOY_co2_max( DOYidx( 175 ) : DOYidx( 297 ) ) = 4.0;
+                DOY_co2_min( DOYidx( 327 ) : DOYidx( 345 ) ) = -2.0;
                 
             case 2008
-                std_exc_flag( DOYidx( 43.5 ) : DOYidx( 43.6 ) ) = true;
-                std_exc_flag( DOYidx( 88 ) : DOYidx( 93 ) ) = true;
-                std_exc_flag( DOYidx( 121 ) : DOYidx( 122 ) ) = true;
-                
-                DOY_co2_min( 1 : DOYidx( 106 ) ) = -2.0;
+                DOY_co2_min( DOYidx( 70 ) : DOYidx( 106 ) ) = -2.0;
                 DOY_co2_max( DOYidx( 125 ) : DOYidx( 155 ) ) = 3.0;
                 
 %             case 2009
