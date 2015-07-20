@@ -294,8 +294,7 @@ elseif sitecode == UNM_sites.TX_grass;
     LH_min = -150; LH_max = 550;
     rH_min = 0; rH_max = 1;
     h2o_max = 35; h2o_min = 0;
-    press_min = 70; press_max = 130;
-    
+    press_min = 70; press_max = 130; 
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -314,8 +313,11 @@ if use_xls_fluxall
     data = UNM_parse_fluxall_xls_file( sitecode, year_arg, ...
         'file', fullfile( pathname, fname ));
 else
+%     fname = sprintf( '%s_FLUX_all_%d.txt', get_site_name( sitecode ), ...
+%         year_arg );
     fname = sprintf( '%s_FLUX_all_%d.txt', get_site_name( sitecode ), ...
         year_arg );
+
     data = UNM_parse_fluxall_txt_file( sitecode, year_arg, ...
         'file', fullfile( pathname, fname ));
     data_orig = parse_fluxall_txt_file( sitecode, year_arg, 'file', ...
@@ -533,6 +535,7 @@ for i=1:numel( headertext );
             strcmp('par_Avg(1)', headertext{i}) == 1 | ...
             strcmp('par_Avg_1', headertext{i}) == 1 | ...
             strcmp('par_Avg', headertext{i}) == 1 | ...
+            strcmp('par_licor', headertext{i}) == 1 | ...
             strcmp('par_up_Avg', headertext{i}) == 1 | ...
             strcmp('par_face_up_Avg', headertext{i}) == 1 | ...
             strcmp('par_faceup_Avg', headertext{i}) == 1 | ...
@@ -890,10 +893,9 @@ plot_qc_meteorology( sitecode, ...
     Tdry, ...
     H2O_mean, ...
     precip );
-
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
-    sprintf( '%s_%d_after_radiation.mat', ...
-    char( sitecode ), year(1) ) );
+sprintf( '%s_%d_after_radiation.mat', ...
+char( sitecode ), year(1) ) );
 save( save_fname );
 fprintf( 'saved %s\n', save_fname );
 
@@ -2213,25 +2215,34 @@ switch sitecode
     case UNM_sites.GLand
         switch year
             case 2007
+                % Precip data was bad this entire year
+                precip(1:end) = NaN;
                 
                 % IRGA problems
-                idx = DOYidx( 156 ) : DOYidx( 163 );
-                fc_raw_massman_wpl( idx ) = NaN;
-                E_wpl_massman( idx ) = NaN;
-                E_raw_massman( idx ) = NaN;
-                E_heat_term_massman( idx ) = NaN;
-                HL_wpl_massman( idx ) = NaN;
-                CO2_mean( idx  ) = NaN;
-                H2O_mean( idx ) = NaN;
-                atm_press( idx ) = NaN;
+                % I think the irga looks fine here - GEM
+%                 idx = DOYidx( 156 ) : DOYidx( 163 );
+%                 fc_raw_massman_wpl( idx ) = NaN;
+%                 E_wpl_massman( idx ) = NaN;
+%                 E_raw_massman( idx ) = NaN;
+%                 E_heat_term_massman( idx ) = NaN;
+%                 HL_wpl_massman( idx ) = NaN;
+%                 CO2_mean( idx  ) = NaN;
+%                 H2O_mean( idx ) = NaN;
+%                 atm_press( idx ) = NaN;
                 
-                % IRGA problems here -- big jump in [CO2] and suspicious looking fluxes
-                idx = DOYidx( 228.5 ) : DOYidx( 235.5 );
-                fc_raw_massman_wpl( idx ) = NaN;
-                H2O_mean( idx ) = NaN;
+                % IRGA problems here ---
+                % big jump in [CO2] and suspicious looking fluxes
+                % Coarse filter catches this though (<350ppm) - GEM
+%                 idx = DOYidx( 228.5 ) : DOYidx( 235.5 );
+%                 fc_raw_massman_wpl( idx ) = NaN;
+%                 H2O_mean( idx ) = NaN;
                 
             case 2008
-                sw_incoming( DOYidx( 7 ) : DOYidx( 9 ) ) = NaN;
+                % Pretty sure the precip gauge was not functioning up until
+                % Aug 30
+                precip( 1 : DOYidx( 244 ) ) = NaN;
+                % Dont see problem here - GEM
+                %sw_incoming( DOYidx( 7 ) : DOYidx( 9 ) ) = NaN;
                 
             case 2010
                 % IRGA problems - seems to affect latent only
@@ -2280,8 +2291,10 @@ switch sitecode
     case UNM_sites.SLand
         switch year
             case 2007
-                NR_tot( DOYidx( 143 ) : DOYidx( 151 ) ) = NaN;
-                sw_outgoing( DOYidx( 150 ) : DOYidx( 162 ) ) = NaN;
+                % Precip gauge seems to be stuck much of this year
+                precip(1:end) = NaN;
+                %NR_tot( DOYidx( 143 ) : DOYidx( 151 ) ) = NaN;
+                %sw_outgoing( DOYidx( 150 ) : DOYidx( 162 ) ) = NaN;
             case 2009
                 % FIXME - Explanation?
                 CO2_mean( DOYidx( 139 ) : DOYidx( 142 ) ) = NaN;
@@ -2322,6 +2335,19 @@ switch sitecode
                 vpd( ( Tdry < C_to_K( -8 ) ) & ( doy > 37 ) & ( doy < 38 ) ) = NaN;
         end
         
+    case UNM_sites.PJ
+        switch year
+            case 2008
+                % Until June 19 sw sensors reported all zeros and lw
+                % sensors reported NaNs
+                idx = DOYidx( 171.5 );
+                %sw_incoming( 1:idx ) = NaN; % This gets calulated from PAR
+                sw_outgoing( 1:idx ) = NaN; 
+                lw_incoming( 1:idx ) = NaN;
+                lw_outgoing( 1:idx ) = NaN;
+                NR_tot( 1:idx ) = NaN;
+        end
+                
     case UNM_sites.PJ_girdle
         switch year
             case 2009
@@ -2352,12 +2378,26 @@ switch sitecode
     case UNM_sites.PPine
         switch year
             case 2008
-                % FIXME - Explanation?
-                fc_raw_massman_wpl( DOYidx( 260 ) : DOYidx( 290 ) ) = NaN;
-                %these observation are way too small
+                % There were some IRGA calibration problems during this
+                % time (see logs) and the IRGA was briefly returned to
+                % the lab.
+                idx = DOYidx( 264 ) : DOYidx( 311 );
+                fc_raw_massman_wpl( idx ) = NaN;
+                HL_wpl_massman( idx ) = NaN;
+                E_wpl_massman( idx ) = NaN;
+                E_wpl_massman( E_wpl_massman > 200 ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
+                % RH sensor reads far too low for a long period in 2008
                 rH( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;
                 vpd( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;
-                E_wpl_massman( E_wpl_massman > 200 ) = NaN;
+                
+                % ???
+                %E_wpl_massman( E_wpl_massman > 200 ) = NaN;
+                
+                %^This is done in apply_radiation_cal script for now.
+                %Par_Avg( DOYidx( 99.5 ) : DOYidx( 190.5 ) ) = NaN;
+                %Par_Avg( DOYidx( 210 ) : DOYidx( 223 ) ) = NaN;
             case 2009
                 % There is a period of bad flux data here that looks
                 % like it should be removed - probably an IRGA issue
@@ -2518,8 +2558,9 @@ end
 switch sitecode
     case UNM_sites.GLand
         switch year
-            case 2007
-                DOY_co2_max( 1 : DOYidx( 15 ) ) = 1.25;
+            % No data at this time - can comment out
+            %case 2007
+            %    DOY_co2_max( 1 : DOYidx( 15 ) ) = 1.25;
             case 2008
                 idx = DOYidx( 184 ) : DOYidx( 186.5 );
                 DOY_co2_max( idx ) = 15;
@@ -2701,11 +2742,11 @@ switch sitecode
     case UNM_sites.PPine
         switch year
             case 2007
-                DOY_co2_max( DOYidx( 185 ) : DOYidx( 259.99 ) ) = 10.0;
-                DOY_co2_max( DOYidx( 240 ) : DOYidx( 276 ) ) = 5.5;
-                DOY_co2_max( DOYidx( 276 ) : DOYidx( 277 ) ) = 5.0;
-                DOY_co2_max( DOYidx( 277 ) : DOYidx( 279 ) ) = 10.0;
-                DOY_co2_max( DOYidx( 280 ) : end ) = 5.0;
+                %DOY_co2_max( DOYidx( 185 ) : DOYidx( 259.99 ) ) = 10.0;
+                %DOY_co2_max( DOYidx( 240 ) : DOYidx( 276 ) ) = 5.5;
+                %DOY_co2_max( DOYidx( 276 ) : DOYidx( 277 ) ) = 5.0;
+                %DOY_co2_max( DOYidx( 277 ) : DOYidx( 279 ) ) = 10.0;
+                %DOY_co2_max( DOYidx( 280 ) : end ) = 5.0;
                 
 %            case 2009
 %                 DOY_co2_max( : ) = 10;
@@ -2733,24 +2774,13 @@ switch sitecode
     case UNM_sites.MCon
         switch year
             case 2007
-                idx = DOYidx( 120.35 ) : DOYidx( 120.55 );
-                std_exc_flag( idx ) = true;
-                DOY_co2_min( idx ) = -15;
-                std_exc_flag( DOYidx( 292.4 ) : DOYidx( 294.5 ) ) = true;
-                std_exc_flag( DOYidx( 293.5 ) : DOYidx( 293.6 ) ) = true;
-                std_exc_flag( DOYidx( 301.5 ) : DOYidx( 301.7 ) ) = true;
-                
+                % Get rid of some noisy looking data
                 DOY_co2_max( DOYidx( 75 ) : DOYidx( 86 ) ) = 2.0;
-                DOY_co2_max( DOYidx( 176 ) : DOYidx( 206 ) ) = 3.5;
-                DOY_co2_max( DOYidx( 207 ) : DOYidx( 297 ) ) = 4.0;
-                DOY_co2_min( DOYidx( 327 ) : end ) = -2.0;
+                DOY_co2_max( DOYidx( 175 ) : DOYidx( 297 ) ) = 4.0;
+                DOY_co2_min( DOYidx( 327 ) : DOYidx( 345 ) ) = -2.0;
                 
             case 2008
-                std_exc_flag( DOYidx( 43.5 ) : DOYidx( 43.6 ) ) = true;
-                std_exc_flag( DOYidx( 88 ) : DOYidx( 93 ) ) = true;
-                std_exc_flag( DOYidx( 121 ) : DOYidx( 122 ) ) = true;
-                
-                DOY_co2_min( 1 : DOYidx( 106 ) ) = -2.0;
+                DOY_co2_min( DOYidx( 70 ) : DOYidx( 106 ) ) = -2.0;
                 DOY_co2_max( DOYidx( 125 ) : DOYidx( 155 ) ) = 3.0;
                 
 %             case 2009
@@ -2913,7 +2943,9 @@ function co2_conc_filter_exceptions = ...
 % measurements.
 
 if ( sitecode == 1 ) && ( year == 2007 )
+    % There were calibration issues here, but some fluxes look ok
     co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
+    co2_conc_filter_exceptions( DOYidx( 224 ) : DOYidx( 228 ) ) = true;
 end
 
 % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the

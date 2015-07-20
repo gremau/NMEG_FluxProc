@@ -91,36 +91,24 @@ switch sitecode
                 preClockSet = 1 : DOYidx( 308.17 );
                 data( preClockSet, : ) = ...
                     shift_data( data( preClockSet, : ), 1.5, allCols );
-                % Data for rest of year need to be shifted 1.5 hours
+                % Data for rest of year need to be shifted 0.5 hours
                 postClockSet = DOYidx( 308.19 ) : size( data, 1 );
                 data( postClockSet, : ) = ...
                     shift_data( data( postClockSet, : ), 0.5, allCols );
-%                 data = shift_data( data, -1.0 );
-%                 row_idx = DOYidx( 38 ) : DOYidx( 69 );
-%                 % FIXME - Column indexes like this are total BS
-%                 col_idx = [ 1:144, 146:size( data, 2 ) ]; % all but SW_in
-%                 data( row_idx, : ) = shift_data( data( row_idx, : ), ...
-%                     -1.0, col_idx );
-%                 data = shift_data( data, -0.5, all10hzCols );
+
             case 2008
-                data = shift_data( data, -1.0, all30MinCols );
-                data = shift_data( data, -0.5, all10hzCols );
+                clockSet1 = 1 : DOYidx( 74.56 );
+                data( clockSet1, : ) = ...
+                    shift_data( data( clockSet1, : ), 0.5, allCols );
+                clockSet2 = DOYidx( 74.58 ) : DOYidx( 307.17 );
+                data( clockSet2, : ) = ...
+                    shift_data( data( clockSet2, : ), 1.5, allCols );
+                % Data for rest of year need to be shifted 0.5 hours
+                clockSet3 = DOYidx( 307.17 ) : size( data, 1 );
+                data( clockSet3, : ) = ...
+                    shift_data( data( clockSet3, : ), 0.5, allCols );
+                
             case 2009
-%                 idx = 1 : DOYidx( 58 );
-%                 data( idx, : ) = shift_data( data( idx, : ),  -1.0, ...
-%                     all30MinCols );
-%                 idx = DOYidx( 82 ) : size( data, 1 );
-%                 data( idx, : ) = shift_data( data( idx, : ),  -0.5, ...
-%                     all30MinCols );
-%                 
-%                 idx = DOYidx( 295 ) : DOYidx( 330 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -2.0, ...
-%                     all10hzCols );
-%                 idx = DOYidx( 27 ) : DOYidx( 50 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -1.0, ...
-%                     all10hzCols );
-%                 
-%                 data = shift_data( data, 0.5, all10hzCols );
                 % There was a .5 hour shift and then it looks like clock
                 % was set to DST on day 66
                 preClockSet = 1 : DOYidx( 66.57 );
@@ -133,9 +121,7 @@ switch sitecode
                 
             case { 2010, 2011 }
                 data = shift_data( data, 1.5, allCols );
-%             case 2011
-%                 data = shift_data( data, 1.0, all30MinCols );
-%                 data = shift_data( data, 0.5, all10hzCols );
+
             case 2012
                 % Clock change on Dec 07 at 12:55
                 clockSet = datenum( 2012, 12, 7, 12, 55, 0 ) - ...
@@ -151,51 +137,54 @@ switch sitecode
     case UNM_sites.SLand
         switch year
             case 2007
-                % idx = 1: DOYidx( 150 );
-                % data( idx, : ) = shift_data( data( idx, : ), 0.5, ...
-                %   all10hzCols );
-                % col_idx = [ 76:145, 147:size( data, 2 ) ]
-                % data( idx, : ) = shift_data( data( idx, : ), -0.5, ...
-                %   col_idx );
-                % idx = DOYidx( 45 ) : DOYidx( 60 );
-                % col_idx = [ 1:144, 146:size( data, 2 ) ];
-                % data( idx, : ) = shift_data( data( idx, : ), -1.0, ...
-                %   col_idx);
-            case 2008
-                % idx = [ 1: DOYidx( 5 ), DOYidx( 20 ) : size( data, 1 ) ];
-                % data( idx, : ) = shift_data( data( idx, : ), 1.0, ...
-                %   all30MinCols );
-                data = shift_data( data, -1.0, all30MinCols );
-                data = shift_data( data, -0.5, all10hzCols );
-%             case 2009
-%                 idx = 1 : DOYidx( 64 );
-%                 data( idx, : ) = shift_data( data( idx, : ),  -1.0, ...
-%                     all30MinCols );
-            case { 2009 2010 2011 2012 2013 2014 }
+                preClockSet = 1 : DOYidx( 308.17 );
+                data( preClockSet, : ) = shift_data( ...
+                    data( preClockSet, : ), 1.5, allCols );
+                postClockSet = DOYidx( 308.19 ) : size( data, 1 );
+                data( postClockSet, : ) = shift_data( ...
+                    data( postClockSet, : ), 0.5, allCols );
+
+            case { 2008, 2009 2010 2011 2012 2013 2014 }
                 data = shift_data( data, 0.5, allCols );
-%             case 2011
-%                 idx = DOYidx( 137 ) : DOYidx( 165 );
-%                 data( idx, : ) = shift_data( data( idx, : ),  -0.5, ...
-%                     all30MinCols );
+
         end
         
     case UNM_sites.JSav
         switch year
             case 2007
-                doy_col = 8;  % day of year column in JSav_FluxAll_2007.xls
-                idx = find( ( data( :, doy_col ) >= 324 ) & ...
-                    ( data( :, doy_col ) <= 335 ) );
-                data( idx, : ) = shift_data( data( idx, : ),  1.0, ...
-                    all30MinCols );
+                clockSet1 = 1 : DOYidx( 152.5 );
+                data( clockSet1, : ) = shift_data( ...
+                    data( clockSet1, : ), 0.5, allCols );
+                
+                clockSet2 = DOYidx( 152.52 ) : DOYidx( 334.5 );
+                data( clockSet2, : ) = shift_data( ...
+                    data( clockSet2, : ), 1.5, allCols );
+                
+                clockSet3 = DOYidx( 334.52 ) : DOYidx( 347.65 );
+                data( clockSet3, : ) = shift_data( ...
+                    data( clockSet3, : ), 0.5, allCols );
+                
+                clockSet4 = DOYidx( 347.67 ) : size( data, 1 );
+                data( clockSet4, : ) = shift_data( ...
+                    data( clockSet4, : ), 1.5, allCols );
+            
+            case 2008
+                clockSet1 = 1 : DOYidx( 331.6 );
+                data( clockSet1, : ) = shift_data( ...
+                    data( clockSet1, : ), 1.5, allCols );
+                
+                clockSet2 = DOYidx( 331.62 ) : size( data, 1 );
+                data( clockSet2, : ) = shift_data( ...
+                    data( clockSet2, : ), 0.5, allCols );
+                
             case { 2009, 2010, 2011, 2012, 2013, 2014 }
                 data = shift_data( data, 0.5, allCols );
         end
         
     case UNM_sites.PJ
         switch year
-            case { 2009, 2010, 2011 }
+            case { 2008, 2009, 2010, 2011 }
                 data = shift_data( data, 1.5, allCols );
-                % data = shift_data( data, 0.5, all10hzCols );
             case 2012
                 % Looks like datalogger clock was reset around day 342
                 preResetIdx = 1 : DOYidx( 342.625 );
@@ -217,29 +206,16 @@ switch sitecode
     case UNM_sites.PPine
         switch year
             case 2007
-                idx = DOYidx( 156.12 ) : DOYidx( 177.5 );
-                % FIXME - Why shift just sonic temp?
-                Tdry_col = 14;  %shift temperature record
-                data( idx, : ) = shift_data( data( idx, : ), -1.5, ...
-                    Tdry_col );
-            case { 2009 2010 }
+                clockSet1 = 1 : DOYidx( 155.79 );
+                data( clockSet1, : ) = shift_data( ...
+                    data( clockSet1, : ), 7.5, allCols );
+                
+                clockSet2 = DOYidx( 155.81 ) : size( data, 1 );
+                data( clockSet2, : ) = shift_data( ...
+                    data( clockSet2, : ), 1.5, allCols );
+
+            case { 2008, 2009, 2010 }
                 data = shift_data( data, 1.5, allCols );
-                % No idea why all this is below - GEM
-%                 idx = DOYidx( 261 ) : DOYidx( 267 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -2.5, ...
-%                     all30MinCols );
-%                 idx = DOYidx( 267 ) : ( DOYidx( 268 ) - 1 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -3.0, ...
-%                     all30MinCols );
-%                 idx = DOYidx( 268 ) : DOYidx( 283 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -3.5, ...
-%                     all30MinCols );
-%                 idx = DOYidx( 283.0 ) : DOYidx( 293.5 );
-%                 data( idx, : ) = shift_data( data( idx, : ), -4.5, ...
-%                     all30MinCols );
-%                 
-%             case 2010
-%                 data = shift_data( data, 1.0, all30MinCols );
                 
             case 2011
                 % Looks like datalogger clock was reset around day 54
@@ -272,15 +248,15 @@ switch sitecode
         
     case UNM_sites.MCon
         switch year
-            case 2008
-                idx = DOYidx( 341.0 ) : size( data, 1 );
-                data( idx, : ) = shift_data( data( idx, : ), 1.0, ...
-                    all30MinCols );
-                idx = 1 : DOYidx( 155 );
-                data( idx, : ) = shift_data( data( idx, : ), -0.5, ...
-                    all30MinCols );
-                
-            case 2009
+            case 2007
+                idx = 1 : DOYidx( 250.687 );
+                data( idx, : ) = ...
+                    shift_data( data( idx, : ), 7.5, allCols );
+                idx = DOYidx( 250.7 ) : size( data, 1 );
+                data( idx, : ) = ...
+                    shift_data( data( idx, : ), 1.5, allCols );
+
+            case {2008, 2009}
                 data = shift_data( data, 1.5, allCols );
                 
             case 2010
