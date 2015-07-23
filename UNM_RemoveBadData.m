@@ -2219,7 +2219,7 @@ switch sitecode
                 precip(1:end) = NaN;
                 
                 % IRGA problems
-                % I think the irga looks fine here - GEM
+                % There is a [CO2] jump, but the flux looks OK here - GEM
 %                 idx = DOYidx( 156 ) : DOYidx( 163 );
 %                 fc_raw_massman_wpl( idx ) = NaN;
 %                 E_wpl_massman( idx ) = NaN;
@@ -2296,11 +2296,15 @@ switch sitecode
                 %NR_tot( DOYidx( 143 ) : DOYidx( 151 ) ) = NaN;
                 %sw_outgoing( DOYidx( 150 ) : DOYidx( 162 ) ) = NaN;
             case 2009
-                % FIXME - Explanation?
-                CO2_mean( DOYidx( 139 ) : DOYidx( 142 ) ) = NaN;
-                CO2_mean( DOYidx( 287.5 ) : DOYidx( 290.8 ) ) = NaN;
+                % Not sure why these are needed - they seem to be hiding
+                % some small calibration blips, but I don't see the point
+                % of doing this
+%                 CO2_mean( DOYidx( 139 ) : DOYidx( 142 ) ) = NaN;
+%                 CO2_mean( DOYidx( 287.5 ) : DOYidx( 290.8 ) ) = NaN;
             case 2011
-                % FIXME - Explanation?
+                % Not sure what the explanation is here, but the fluxes
+                % look quite funky at this time period. Nothing in log
+                % really except a calibration about a month prior.
                 idx = DOYidx( 342 ) : DOYidx( 348 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
@@ -2558,10 +2562,9 @@ end
 switch sitecode
     case UNM_sites.GLand
         switch year
-            % No data at this time - can comment out
-            %case 2007
-            %    DOY_co2_max( 1 : DOYidx( 15 ) ) = 1.25;
             case 2008
+                % There is a big respiration spike here. Not sure of the
+                % explanation, but it is also visible at Shrub
                 idx = DOYidx( 184 ) : DOYidx( 186.5 );
                 DOY_co2_max( idx ) = 15;
                 std_exc_flag( idx ) = true;
@@ -2623,8 +2626,8 @@ switch sitecode
     case UNM_sites.SLand
         switch year
             case 2008
-                DOY_co2_min( 1 : DOYidx( 50 ) ) = -0.5;
-                
+                % There is a big respiration spike here. Not sure of the
+                % explanation, but it is also visible at GLand
                 idx = DOYidx( 184 ) : DOYidx( 190 );
                 DOY_co2_max( idx ) = 20;
                 std_exc_flag( idx ) = true;
@@ -2671,8 +2674,9 @@ switch sitecode
     case UNM_sites.JSav
         switch year
             case 2008
-                idx = DOYidx( 215 ) : DOYidx( 240 );
-                DOY_co2_min( idx ) = -12.0;
+                % Too restrictive - GEM
+%                 idx = DOYidx( 215 ) : DOYidx( 240 );
+%                 DOY_co2_min( idx ) = -12.0;
                 
             case 2009
                 DOY_co2_max( 1 : DOYidx( 125 ) ) = 2.25;
@@ -2717,8 +2721,9 @@ switch sitecode
         switch year
             case 2008
                 DOY_co2_max( 1 : DOYidx( 185 ) ) = 3.0;
-                DOY_co2_min( DOYidx( 260 ) : DOYidx( 290 ) ) = -18.0;
-                DOY_co2_min( DOYidx( 335 ) : DOYidx( 365 ) ) = -6.5;
+                % SD filter takes care of these now - GEM
+%                 DOY_co2_min( DOYidx( 260 ) : DOYidx( 290 ) ) = -18.0;
+%                 DOY_co2_min( DOYidx( 335 ) : DOYidx( 365 ) ) = -6.5;
                 
 %             case 2009
 %                 % Commented by GEM March 2015
@@ -2947,7 +2952,6 @@ if ( sitecode == 1 ) && ( year == 2007 )
     co2_conc_filter_exceptions( DOYidx( 214 ) : DOYidx( 218 ) ) = true;
     co2_conc_filter_exceptions( DOYidx( 224 ) : DOYidx( 228 ) ) = true;
 end
-
 % keep index 5084 to 5764 in 2010 - these CO2 obs are bogus but the
 % fluxes look OK.  TWH 27 Mar 2012
 if ( sitecode == 1 ) && ( year == 2010 )
@@ -2974,7 +2978,8 @@ if ( sitecode == 1 ) && ( year == 2014 )
 end
 if ( sitecode == 2 ) && ( year == 2007 )
     % days 253:257 -- bogus [CO2] but fluxes look ok
-    co2_conc_filter_exceptions( DOYidx( 253 ) : DOYidx( 257 ) ) = true;
+    % I think it looks bad - GEM
+    % co2_conc_filter_exceptions( DOYidx( 253 ) : DOYidx( 257 ) ) = true;
 end
 % Not needed? GEM
 % if ( sitecode == 2 ) && ( year == 2012 )
