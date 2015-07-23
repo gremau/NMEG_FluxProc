@@ -477,6 +477,9 @@ methods
         else
             flux_all = insert_new_data_into_fluxall( new_data, flux_all );
         end
+        
+        flux_all = dataset_fill_timestamps( flux_all, 'timestamp', ...
+            't_min', obj.date_start, 't_max', obj.date_end);
 
         % remove timestamp columns -- they're redundant (because there are
         % already year, month, day, hour, min, sec columns), serial datenumbers
