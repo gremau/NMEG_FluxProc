@@ -151,7 +151,8 @@ elseif sitecode == 3 % JSav
         output = fill_30min_flux_processor( output, 3, 2013, DOYidx(111.313), DOYidx(111.979));
         output = fill_30min_flux_processor( output, 3, 2013, DOYidx(201.688), DOYidx(205.688));
         output = fill_30min_flux_processor( output, 3, 2013, DOYidx(326.104), DOYidx(329.354));
-    end    
+    end
+    
 elseif sitecode == 4 % PJ_control
     if year == 2008
         output = fill_30min_flux_processor( output, 4,2008,13789,13808);
