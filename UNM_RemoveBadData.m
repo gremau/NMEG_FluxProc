@@ -2219,7 +2219,11 @@ switch sitecode
                 precip(1:end) = NaN;
                 
                 % IRGA problems
+<<<<<<< HEAD
                 % There is a [CO2] jump, but the flux looks OK here - GEM
+=======
+                % I think the irga looks fine here - GEM
+>>>>>>> early_years_data
 %                 idx = DOYidx( 156 ) : DOYidx( 163 );
 %                 fc_raw_massman_wpl( idx ) = NaN;
 %                 E_wpl_massman( idx ) = NaN;
@@ -2291,8 +2295,13 @@ switch sitecode
     case UNM_sites.SLand
         switch year
             case 2007
+<<<<<<< HEAD
                 % Precip gauge seems to be stuck up till late Nov 
                 precip( 1:DOYidx(331) ) = NaN;
+=======
+                % Precip gauge seems to be stuck much of this year
+                precip(1:end) = NaN;
+>>>>>>> early_years_data
                 %NR_tot( DOYidx( 143 ) : DOYidx( 151 ) ) = NaN;
                 %sw_outgoing( DOYidx( 150 ) : DOYidx( 162 ) ) = NaN;
             case 2009
@@ -2562,6 +2571,12 @@ end
 switch sitecode
     case UNM_sites.GLand
         switch year
+<<<<<<< HEAD
+=======
+            % No data at this time - can comment out
+            %case 2007
+            %    DOY_co2_max( 1 : DOYidx( 15 ) ) = 1.25;
+>>>>>>> early_years_data
             case 2008
                 % There is a big respiration spike here. Not sure of the
                 % explanation, but it is also visible at Shrub
