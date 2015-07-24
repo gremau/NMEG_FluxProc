@@ -80,7 +80,7 @@ elseif year_arg==2014
                                   decimal_day( 1:norm_end ), ...
                                   draw_plots, ...
                                   par_max );
-        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ]
+        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ];
 %     elseif sitecode == UNM_sites.NewGLand
 %         par_max = 2250;
 %         norm_end = DOYidx( 167.5 );
@@ -98,7 +98,7 @@ elseif year_arg==2014
                                   decimal_day( 1:norm_end ), ...
                                   draw_plots, ...
                                   par_max );
-        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ]
+        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ];
     elseif sitecode == UNM_sites.JSav
         par_max = 2270;
         norm_end = DOYidx( 132.5 );
@@ -107,7 +107,7 @@ elseif year_arg==2014
                                   decimal_day( 1:norm_end ), ...
                                   draw_plots, ...
                                   par_max );
-        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ]
+        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ];
 %     elseif sitecode == UNM_sites.PJ_girdle
 %         par_max = 2500;
 %         norm_end = DOYidx( 365 );
@@ -125,7 +125,7 @@ elseif year_arg==2014
                                   decimal_day( 1:norm_end ), ...
                                   draw_plots, ...
                                   par_max );
-        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ]
+        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ];
     elseif sitecode == UNM_sites.PPine
         par_max = 2250;
         norm_end = DOYidx( 130.5 );
@@ -134,7 +134,7 @@ elseif year_arg==2014
                                   decimal_day( 1:norm_end ), ...
                                   draw_plots, ...
                                   par_max );
-        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ]
+        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ];
     elseif sitecode == UNM_sites.MCon
         par_max = 2370;
         norm_end = DOYidx( 162.5 );
@@ -143,7 +143,7 @@ elseif year_arg==2014
                                   decimal_day( 1:norm_end ), ...
                                   draw_plots, ...
                                   par_max );
-        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ]
+        Par_Avg = [ Par_Avg1; Par_Avg( norm_end+1:end ) ];
     end
     
 else

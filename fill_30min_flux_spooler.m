@@ -180,16 +180,16 @@ elseif sitecode == 4 % PJ_control
         output = fill_30min_flux_processor( output, 4,2010,6426,6439);
         output = fill_30min_flux_processor( output, 4,2010,9129,9136);
     elseif year == 2011
-        output = fill_30min_flux_processor( output, 4,2011,13301,13316);
-        output = fill_30min_flux_processor( output, 4,2011,13426,13447);
-        output = fill_30min_flux_processor( output, 4,2011,14347,14362);
-        output = fill_30min_flux_processor( output, 4,2011,16076,16084);
-        output = fill_30min_flux_processor( output, 4,2011,16230,16238);
-        output = fill_30min_flux_processor( output, 4,2011,16762,16778);
-        output = fill_30min_flux_processor( output, 4,2011,16836,16869);
-        output = fill_30min_flux_processor( output, 4,2011,16884,17063);
-        output = fill_30min_flux_processor( output, 4,2011,17078,17156);
-        output = fill_30min_flux_processor( output, 4,2011,17449,17521);
+        output = fill_30min_flux_processor( output, 4,2011,13300,13315);
+        output = fill_30min_flux_processor( output, 4,2011,13425,13446);
+        output = fill_30min_flux_processor( output, 4,2011,14346,14361);
+        output = fill_30min_flux_processor( output, 4,2011,16075,16083);
+        output = fill_30min_flux_processor( output, 4,2011,16229,16237);
+        output = fill_30min_flux_processor( output, 4,2011,16761,16777);
+        output = fill_30min_flux_processor( output, 4,2011,16835,16868);
+        output = fill_30min_flux_processor( output, 4,2011,16883,17062);
+        output = fill_30min_flux_processor( output, 4,2011,17077,17155);
+        output = fill_30min_flux_processor( output, 4,2011,17448,17520);
     elseif year == 2012
         output = fill_30min_flux_processor( output, 4,2012,1,27);
         output = fill_30min_flux_processor( output, 4,2012,313,336);
@@ -326,21 +326,21 @@ elseif sitecode == 6 % MCon
         output = fill_30min_flux_processor( output, 6,2010,16748,16776);
         output = fill_30min_flux_processor( output, 6,2010,16880,16917);
         output = fill_30min_flux_processor( output, 6,2010,17473,17499);
-        output = fill_30min_flux_processor( output, 6,2010,17509,17521);
+        output = fill_30min_flux_processor( output, 6,2010,17509,17520);
     elseif year == 2011 % added by Mike Fuller
         output = fill_30min_flux_processor( output, 6, 2011, 1,25);
         output = fill_30min_flux_processor( output, 6, 2011, 1527,1606);
         % Filled data look pretty bad here
         output = fill_30min_flux_processor( output, 6, 2011, 10775, 11366);
     elseif year == 2012
-        output = fill_30min_flux_processor( output, 6, 2012,769,791);
-        output = fill_30min_flux_processor( output, 6, 2012,1675,1721);
-        output = fill_30min_flux_processor( output, 6, 2012,3309,3380);
-        output = fill_30min_flux_processor( output, 6, 2012, 5037,5064);
-        output = fill_30min_flux_processor( output, 6, 2012, 16631,16657);
-        output = fill_30min_flux_processor( output, 6, 2012, 16748,16773);
-        output = fill_30min_flux_processor( output, 6, 2012, 17230,17260);
-        output = fill_30min_flux_processor( output, 6, 2012, 17558,17569);
+        output = fill_30min_flux_processor( output, 6, 2012,768,790);
+        output = fill_30min_flux_processor( output, 6, 2012,1674,1720);
+        output = fill_30min_flux_processor( output, 6, 2012,3308,3379);
+        output = fill_30min_flux_processor( output, 6, 2012, 5036,5063);
+        output = fill_30min_flux_processor( output, 6, 2012, 16630,16656);
+        output = fill_30min_flux_processor( output, 6, 2012, 16747,16772);
+        output = fill_30min_flux_processor( output, 6, 2012, 17229,17259);
+        output = fill_30min_flux_processor( output, 6, 2012, 17557,17568);
     elseif year == 2013 % added by Mike Fuller
         output = fill_30min_flux_processor( output, 6, 2013, DOYidx(1),DOYidx(1.52));
         output = fill_30min_flux_processor( output, 6, 2013, DOYidx(29.75),DOYidx(30.33));

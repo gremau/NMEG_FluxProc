@@ -30,7 +30,7 @@ switch metstn
     case 'ESTANCIA'
         fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
             'MetData',...
-            sprintf( 'GHCND_ESTANCIA_DailySumm_20070101-20131231.csv' ));
+            sprintf( 'GHCND_ESTANCIA_DailySumm_20070101-20150630.csv' ));
         % Get data from the ESTANCIA - station is north of Hwy 60
         metData_T = readtable( fname, 'Delimiter', ',' );
         

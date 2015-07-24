@@ -2291,8 +2291,8 @@ switch sitecode
     case UNM_sites.SLand
         switch year
             case 2007
-                % Precip gauge seems to be stuck much of this year
-                precip(1:end) = NaN;
+                % Precip gauge seems to be stuck up till late Nov 
+                precip( 1:DOYidx(331) ) = NaN;
                 %NR_tot( DOYidx( 143 ) : DOYidx( 151 ) ) = NaN;
                 %sw_outgoing( DOYidx( 150 ) : DOYidx( 162 ) ) = NaN;
             case 2009

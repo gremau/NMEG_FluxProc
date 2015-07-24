@@ -1,7 +1,33 @@
 ---
 config_site: PJ
-config_year: 
+config_year:
     - year      : 2007
+      fillTair  :
+          - 
+            siteType    : nmeg
+            siteID      : 3    # Juniper Savanna (Before 2010)
+            linfit      : false
+      fillrH    :
+          - 
+            siteType    : nmeg
+            siteID      : 3    # Juniper Savanna (Before 2010)
+            linfit      : false
+      fillRg    : 
+          - 
+            siteType    : nmeg
+            siteID      : 3    # Juniper Savanna (Before 2010)
+            linfit      : true
+      fillPrecip:
+          - 
+            siteType    : ghcnd
+            siteID      : PROGRESSO
+            linfit      : false
+          - 
+            siteType    : prism
+            siteID      : PJ
+            linfit      : false
+
+    - year      : 2009
       fillTair  :
           - 
             siteType    : nmeg

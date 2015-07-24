@@ -28,7 +28,7 @@ config_year:
           - 
             siteType    : sev
             siteID      : 40    # Sev Deep Well station
-            linfit      : false
+            linfit      : true
       fillPrecip:
           - 
             siteType    : nmeg

@@ -1,7 +1,42 @@
 ---
 config_site: JSav
-config_year: 
+config_year:
     - year      : 2007
+      fillTair  :
+          - 
+            siteType    : nmeg
+            siteID      : 4    # PJ control
+            linfit      : true
+                # Not sure what to use for another site during
+                # This time period (can't find hourly stuff)
+                #          - 
+                #siteType    : ghcnd
+                #siteID      : ESTANCIA
+                #linfit      : false
+      fillrH    :
+          - 
+            siteType    : nmeg
+            siteID      : 4    # PJ control
+            linfit      : true
+
+      fillRg    : 
+          - 
+            siteType    : nmeg
+            siteID      : 4    # PJ control
+            linfit      : false
+
+      fillPrecip:
+          # PROGRESSO site ends 07/2012, then ESTANCIA is closest
+          - 
+            siteType    : ghcnd
+            siteID      : PROGRESSO
+            linfit      : false
+          - 
+            siteType    : prism
+            siteID      : JSav
+            linfit      : false
+
+    - year      : 2009
       fillTair  :
           - 
             siteType    : nmeg
@@ -32,6 +67,10 @@ config_year:
       fillPrecip:
           # PROGRESSO site ends 07/2012, then ESTANCIA is closest
           # For now use prism
+          - 
+            siteType    : ghcnd
+            siteID      : ESTANCIA
+            linfit      : false
           - 
             siteType    : prism
             siteID      : JSav

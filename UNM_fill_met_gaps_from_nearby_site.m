@@ -57,7 +57,7 @@ thisData = parse_forgapfilling_file( sitecode, year, ...
     'use_filled', filled_file_false );
 
 % Fill in missing timestamps for this data
-thisData = fillTstamps( thisData, thisData.timestamp );
+thisData = fillTstamps( thisData, thisData.timestamp, 1/48 );
 
 %--------------------------------------------------
 % Get Met gapfilling configuration
@@ -225,7 +225,7 @@ result = 0;
         end
         % Fill the timestamps in this dataset and put in fillSiteData
         filledStruct.( newFieldName ) = ...
-            fillTstamps( addData, thisData.timestamp );
+            fillTstamps( addData, thisData.timestamp, 1/48 );
         catch
             % Let missing data slide with a warning only in current year
             % and fill with NaNs. This is an error in earlier years
@@ -242,14 +242,15 @@ result = 0;
 %==========================================================================
 
     % Function to fill in timestamps of a new dataset
-    function filledTsData = fillTstamps( data, tStamps )
+    function filledTsData = fillTstamps( data, tStamps, delta )
         % Subset data
         data = data( ( data.timestamp >= min( tStamps ) & ...
             data.timestamp <= max( tStamps ) ), : );
         % Fill in timestamps
         filledTsData = table_fill_timestamps( data, 'timestamp', ...
             't_min', min( tStamps ), ...
-            't_max', max( tStamps ) );
+            't_max', max( tStamps ), ...
+            'delta_t', delta );
         filledTsData.timestamp = datenum( filledTsData.timestamp );
     end
 %==========================================================================
@@ -267,9 +268,13 @@ result = 0;
      
         n_missing = numel( find( isnan( fillDest.( varNameDest ) ) ) );
         
+        % Flag indicating no fill data available
+        nodata = 0;
+        
         % Check that there is valid data in the filling data
         if sum( ~isnan( source1.( varNameSource1 ))) == 0
-            error(sprintf('There is no valid data in %s source 1', ...
+            nodata = nodata + 1;
+            warning(sprintf('There is no valid data in %s source 1', ...
                 varNameSource1));
         end
         % Otherwise, get the index of data in fillDest to fill with
@@ -291,7 +296,8 @@ result = 0;
         idx2 = [];  %initialize to empty in case no second site provided
         if not( isempty( source2 ) )
             if sum( ~isnan( source2.( varNameSource2 ))) == 0
-                error(sprintf('There is no valid data in %s source 2', ...
+                nodata = nodata + 1;
+                warning(sprintf('There is no valid data in %s source 2', ...
                     varNameSource2));
             end
             idx2 = find( isnan( fillDest.( varNameDest ) ) & ...
@@ -307,6 +313,10 @@ result = 0;
             % Put the replacement data in the fill destination
             fillDest.( varNameDest )( idx2 ) = replacement( idx2 );
             
+        end
+        if nodata > 1
+            error(sprintf('No data found in %s source 1 or %s source 2',...
+                    varNameSource1, varNameSource2 ));
         end
         % Calculate and display number of filled data
         n_filled = numel( idx1 ) + numel( idx2 );
@@ -369,6 +379,9 @@ result = 0;
         T = T_in( : , {'timestamp', TairVar, rhVar, RgVar, PrecVar } );
         T.Properties.VariableNames = { 'timestamp', 'Tair', 'rH', 'Rg', 'Precip' };
         
+        % Fill in missing timestamps for this data
+        %T = fillTstamps( T, T.timestamp, 1/24 );
+        
         % Convert rH from [ 0, 1 ] to [ 0, 100 ]
         if nanmax( T.rH ) < 1.5
             T.rH = T.rH * 100.0;
@@ -394,10 +407,11 @@ result = 0;
                 Prec_interp, 'VariableNames', ...
                 { 'timestamp', 'rH', 'Tair', 'Rg', 'Precip' } ) );
         end
+        
         % Interp subfunction (may fail if there are duplicate timestamps)
         function varInterp = interp30min( dTable, tstamp, tstamp_30, varName )
             valid = find( ~isnan( dTable.( varName) ) );
-            if isempty( valid )
+            if length( valid ) < 2
                 varInterp = zeros( length( tstamp_30 ), 1) * nan;
             else
                 varInterp = interp1( tstamp( valid ), ...
