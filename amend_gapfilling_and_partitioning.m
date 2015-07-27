@@ -51,16 +51,14 @@ switch site
         % the gapfiller does some filling before the JSav tower was
         % operational (4 May 2007 15:30), but the filled data do not look
         % good (they are time-shifted).  Remove those data here.
-        row_idx = 1:DOYidx( 145 );
+        idx = 1:DOYidx( 124.56 );
         non_data_vars = { 'Day', 'Month', 'Year', 'Hour', ...
-                          'Minute', 'julday', 'Hr', 'timestamp' };
-        
-        data_cols = find( not( ismember( data_in.Properties.VariableNames, ...
-                                         non_data_vars ) ) );
-        temp_arr = table2array( data_in );
-        temp_arr( row_idx, data_cols ) = NaN;
-        data_amended = array2table( temp_arr, ...
-            'VariableNames', data_in.Properties.VariableNames);
+            'Minute', 'julday', 'Hr', 'timestamp' };
+        data_cols = find( not( ismember( ...
+            data_amended.Properties.VariableNames, non_data_vars ) ) );
+        data_amended{ idx, data_cols } = NaN;
+        dfig = plot_amended( data_in, data_amended, ...
+            'Reco_HBLR', site, yr );
     end
     
   case UNM_sites.PPine
@@ -165,14 +163,44 @@ switch site
 %         data_amended.Reco_HBLR( idx ) = data_in.Reco_HBLR( idx ) .* ...
 %             ( 6 / max( data_in.Reco_HBLR( idx ) ) );
     end
+    
   case UNM_sites.GLand
     switch yr
+        case 2007
+            % the gapfiller does some filling before the tower was
+            % operational (5 June 2007 18:00), but the filled data look
+            % bad. Remove those data here.
+            idx = 1:DOYidx( 156.7 );
+            non_data_vars = { 'Day', 'Month', 'Year', 'Hour', ...
+                'Minute', 'julday', 'Hr', 'timestamp' };
+            data_cols = find( not( ismember( ...
+                data_amended.Properties.VariableNames, non_data_vars ) ) );
+            data_amended{ idx, data_cols } = NaN;
+            dfig = plot_amended( data_in, data_amended, ...
+                'Reco_HBLR', site, yr );
+
         case 2012
             % 1 period with abnormally high respiration this year. Amend
             % as per Marcy's request
             idx = DOYidx( 192.5 ) : DOYidx( 217.4 );
             data_amended.Reco_HBLR_amended( idx ) = ...
                 norm( data_in.Reco_HBLR( idx ), 1.55 );
+            dfig = plot_amended( data_in, data_amended, ...
+                'Reco_HBLR', site, yr );
+    end
+    
+  case UNM_sites.SLand
+    switch yr
+        case 2007
+            % the gapfiller does some filling before the tower was
+            % operational (30 May 2007 18:00), but the filled data look
+            % bad. Remove those data here.
+            idx = 1:DOYidx( 150.72 );
+            non_data_vars = { 'Day', 'Month', 'Year', 'Hour', ...
+                'Minute', 'julday', 'Hr', 'timestamp' };
+            data_cols = find( not( ismember( ...
+                data_amended.Properties.VariableNames, non_data_vars ) ) );
+            data_amended{ idx, data_cols } = NaN;
             dfig = plot_amended( data_in, data_amended, ...
                 'Reco_HBLR', site, yr );
     end

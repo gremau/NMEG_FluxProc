@@ -2393,8 +2393,8 @@ switch sitecode
                 E_raw_massman( idx ) = NaN;
                 E_heat_term_massman( idx ) = NaN;
                 % RH sensor reads far too low for a long period in 2008
-                rH( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;
-                vpd( DOYidx( 100 ) : DOYidx( 187 ) ) = NaN;
+                rH( DOYidx( 99.58 ) : DOYidx( 187 ) ) = NaN;
+                vpd( DOYidx( 99.58 ) : DOYidx( 187 ) ) = NaN;
                 
                 % ???
                 %E_wpl_massman( E_wpl_massman > 200 ) = NaN;
