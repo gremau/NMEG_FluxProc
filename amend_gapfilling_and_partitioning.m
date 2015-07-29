@@ -170,14 +170,16 @@ switch site
             % the gapfiller does some filling before the tower was
             % operational (5 June 2007 18:00), but the filled data look
             % bad. Remove those data here.
-            idx = 1:DOYidx( 156.7 );
-            non_data_vars = { 'Day', 'Month', 'Year', 'Hour', ...
-                'Minute', 'julday', 'Hr', 'timestamp' };
-            data_cols = find( not( ismember( ...
-                data_amended.Properties.VariableNames, non_data_vars ) ) );
-            data_amended{ idx, data_cols } = NaN;
-            dfig = plot_amended( data_in, data_amended, ...
-                'Reco_HBLR', site, yr );
+            % NOT NEEDED - old fluxall data is now merged in during RBD
+            % processing
+%             idx = 1:DOYidx( 156.7 );
+%             non_data_vars = { 'Day', 'Month', 'Year', 'Hour', ...
+%                 'Minute', 'julday', 'Hr', 'timestamp' };
+%             data_cols = find( not( ismember( ...
+%                 data_amended.Properties.VariableNames, non_data_vars ) ) );
+%             data_amended{ idx, data_cols } = NaN;
+%             dfig = plot_amended( data_in, data_amended, ...
+%                 'Reco_HBLR', site, yr );
 
         case 2012
             % 1 period with abnormally high respiration this year. Amend
@@ -195,14 +197,16 @@ switch site
             % the gapfiller does some filling before the tower was
             % operational (30 May 2007 18:00), but the filled data look
             % bad. Remove those data here.
-            idx = 1:DOYidx( 150.72 );
-            non_data_vars = { 'Day', 'Month', 'Year', 'Hour', ...
-                'Minute', 'julday', 'Hr', 'timestamp' };
-            data_cols = find( not( ismember( ...
-                data_amended.Properties.VariableNames, non_data_vars ) ) );
-            data_amended{ idx, data_cols } = NaN;
-            dfig = plot_amended( data_in, data_amended, ...
-                'Reco_HBLR', site, yr );
+            % NOT NEEDED - old fluxall data is now merged in during RBD
+            % processing
+%             idx = 1:DOYidx( 150.72 );
+%             non_data_vars = { 'Day', 'Month', 'Year', 'Hour', ...
+%                 'Minute', 'julday', 'Hr', 'timestamp' };
+%             data_cols = find( not( ismember( ...
+%                 data_amended.Properties.VariableNames, non_data_vars ) ) );
+%             data_amended{ idx, data_cols } = NaN;
+%             dfig = plot_amended( data_in, data_amended, ...
+%                 'Reco_HBLR', site, yr );
     end
             
   case UNM_sites.PJ_girdle

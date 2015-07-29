@@ -61,7 +61,7 @@ switch sitecode
             % For first couple of weeks the program had one incorrect
             % conversion factor (163.666)
             idx1 = find(decimal_day > 156.71 & decimal_day < 162.52);
-            sw_incoming(idx1) = sw_incoming(idx1) ./ cnr1_mult_old1 .* cnr1_mult;
+            sw_incoming(idx1) = (sw_incoming(idx1) ./ cnr1_mult_old1) .* cnr1_mult;
             sw_outgoing(idx1) = sw_outgoing(idx1) ./ cnr1_mult_old1 .* cnr1_mult;
             lw_incoming(idx1) = lw_incoming(idx1) ./ cnr1_mult_old1 .* cnr1_mult;
             lw_outgoing(idx1) = lw_outgoing(idx1) ./ cnr1_mult_old1 .* cnr1_mult;
@@ -153,8 +153,7 @@ switch sitecode
             % datalogger program
             % For first couple of weeks the program had one incorrect
             % conversion factor (163.666)
-            %idx1 = find(decimal_day >= 150.75 & decimal_day < 162.44);
-            idx1 = find(decimal_day >= 126.4 & decimal_day < 162.44);
+            idx1 = find(decimal_day >= 150.75 & decimal_day < 162.44);
             sw_incoming( idx1 ) = sw_incoming( idx1 ) ...
                 ./ cnr1_mult_old1 .* cnr1_mult;
             sw_outgoing( idx1 ) = sw_outgoing( idx1 ) ...
@@ -173,6 +172,9 @@ switch sitecode
                 ./ cnr1_mult_old2 .* cnr1_mult;
             lw_outgoing( idx2 ) = lw_outgoing( idx2 ) ...
                 ./ cnr1_mult_old2 .* cnr1_mult;
+            % There was a strange spike on day 126
+            idx = find(decimal_day >= 126.4 & decimal_day < 126.9);
+            sw_incoming( idx ) = NaN;
             % temperature correction for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % Estimate par from sw_incoming prior to install of li 190

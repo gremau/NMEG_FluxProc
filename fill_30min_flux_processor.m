@@ -276,24 +276,13 @@ end
 % Set up files and read in data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if year <= 2008
-    warning('Warning - this might not work');
-    ds = data_in;
-    [ year2 month day hour minute second ] = datevec( ds.timestamp );
-    timestamp = ds.timestamp;
-    %ds.timestamp = [];
-    headertext = ds.Properties.VarNames;
-    data = double( ds( first_row:last_row, : ) );
+ds = data_in;
+[ year2 month day hour minute second ] = datevec( ds.timestamp );
+timestamp = ds.timestamp;
+%ds.timestamp = [];
+headertext = ds.Properties.VarNames;
+data = double( ds( first_row:last_row, : ) );
 
-else
-    ds = data_in;
-    
-    [ year2 month day hour minute second ] = datevec( ds.timestamp );
-    timestamp = ds.timestamp;
-    %ds.timestamp = [];
-    headertext = ds.Properties.VarNames;
-    data = double( ds( first_row:last_row, : ) );
-end    
 %bad_v = num; % assign bad_variance array
 
 jday = datenum(timestamp) - datenum( year2(1), 1, 0 );
