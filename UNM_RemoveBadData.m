@@ -330,6 +330,10 @@ else
     % files into the current dataset and proceed with the QC process.
     if (sitecode == 1 || sitecode == 2 ) && year_arg == 2007
         data = merge_2007_fluxall_files( data, sitecode );
+        % These old data have duplicated SW_IN measurements
+        data = replacedata( data, ...
+            interp_duplicated_radiation( double( data ), ...
+            data.Properties.VarNames, data.timestamp ) );
     end
     
     % Fill fluxes with 30 minute data?
