@@ -30,7 +30,7 @@ function precipDataT = UNM_parse_PRISM_met_data( sitecode, year )
 % author: Timothy W. Hilton, UNM, March 2012
 
 precipFname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
-    'MetData', sprintf( 'PRISM_DailyPrecip_%d.csv', year ));
+    'MetData', 'PRISM_daily', sprintf( 'PRISM_DailyPrecip_%d.csv', year ));
 
 % Get data
 precipDataT = readtable( precipFname, 'Delimiter', ',' );
