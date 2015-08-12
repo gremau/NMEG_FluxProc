@@ -3,14 +3,14 @@ classdef UNM_Ameriflux_daily_aggregator
 %
 % Applies mean, sum, and integrated sum where appropriate.
 %
-% variables aggregated by mean: UST, WS, PA, CO2, VPD, H20, TA
-% variables aggregated by min: TA
-% variables aggregated by max: TA
-% variables aggregated by sum: PRECIP
-% variables aggregated by integrated sum (radiation): RNET, PAR, PAR_out,
-%                                                     SW_IN, SW_OUT, LW_IN,
-%                                                     LW_OUT
-% variables aggregated by integrated sum (C fluxes): FC, GPP, RE
+% variables aggregated by mean: USTAR, WS, PA, CO2, VPD_F, H2O, 'TA_F',
+%                               RH_F
+% variables aggregated by min: TA_F, VPD_F
+% variables aggregated by max: TA_F, VPD_F
+% variables aggregated by sum: P_F
+% variables aggregated by integrated sum (radiation): RNET, PAR, SW_IN_F,
+%                              SW_OUT, LW_IN, LW_OUT, LE_F, H_F 
+% variables aggregated by integrated sum (C fluxes): FC_F, GPP, RECO
 %
 % USAGE:
 %     agg = UNM_Ameriflux_daily_aggregator( sitecode )
@@ -104,8 +104,10 @@ classdef UNM_Ameriflux_daily_aggregator
             vars_Cfluxes = { 'FC_F', 'GPP', 'RECO' };
             units_Cfluxes = repmat( { 'gC m-2 d' }, 1, numel( vars_Cfluxes ) );
             % variables to be aggregated by daily mean
-            vars_mean = { 'USTAR', 'WS', 'PA', 'CO2', 'VPD_F', 'H2O', 'TA_F' };
-            units_mean = { 'm s-1', 'm s-1', 'Pa', 'ppm', 'kPa', 'mmol mol-1', 'deg C' };
+            vars_mean = { 'USTAR', 'WS', 'PA', 'CO2', 'VPD_F', 'H2O',...
+                'TA_F', 'RH_F' };
+            units_mean = { 'm s-1', 'm s-1', 'Pa', 'ppm', 'kPa',...
+                'mmol mol-1', 'deg C', '%' };
             % variables to be aggregated by daily min / max
             vars_min = { 'TA_F', 'VPD_F' };
             vars_max = { 'TA_F', 'VPD_F' };
