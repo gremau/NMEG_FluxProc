@@ -74,7 +74,6 @@ if sitecode == 1 % GLand
     
 elseif sitecode == 2 % SLand
     if year == 2007
-        output = fill_30min_flux_processor( output,2,2007,6026,6046);
         output = fill_30min_flux_processor( output,2,2007,12141,12159);
         output = fill_30min_flux_processor( output,2,2007,12224,12262);
         output = fill_30min_flux_processor( output,2,2007,12632,12643);

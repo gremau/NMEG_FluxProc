@@ -88,13 +88,18 @@ switch sitecode
     case UNM_sites.GLand
         switch year
             case 2007
-                preClockSet = 1 : DOYidx( 308.17 );
-                data( preClockSet, : ) = ...
-                    shift_data( data( preClockSet, : ), 1.5, allCols );
+                % This is for old (pre-Litvak) fluxall data
+                clockSet1 = 1 : DOYidx( 156.73 );
+                data( clockSet1, : ) = ...
+                    shift_data( data( clockSet1, : ), -0.5, allCols );
+                % After site revamp data
+                clockSet2 = DOYidx( 156.75 ) : DOYidx( 308.17 );
+                data( clockSet2, : ) = ...
+                    shift_data( data( clockSet2, : ), 1.5, allCols );
                 % Data for rest of year need to be shifted 0.5 hours
-                postClockSet = DOYidx( 308.19 ) : size( data, 1 );
-                data( postClockSet, : ) = ...
-                    shift_data( data( postClockSet, : ), 0.5, allCols );
+                clockSet3 = DOYidx( 308.19 ) : size( data, 1 );
+                data( clockSet3, : ) = ...
+                    shift_data( data( clockSet3, : ), 0.5, allCols );
 
             case 2008
                 clockSet1 = 1 : DOYidx( 74.56 );
@@ -137,12 +142,17 @@ switch sitecode
     case UNM_sites.SLand
         switch year
             case 2007
-                preClockSet = 1 : DOYidx( 308.17 );
-                data( preClockSet, : ) = shift_data( ...
-                    data( preClockSet, : ), 1.5, allCols );
-                postClockSet = DOYidx( 308.19 ) : size( data, 1 );
-                data( postClockSet, : ) = shift_data( ...
-                    data( postClockSet, : ), 0.5, allCols );
+                % This is for old (pre-Litvak) fluxall data
+                clockSet1 = 1 : DOYidx( 150.73 );
+                data( clockSet1, : ) = ...
+                    shift_data( data( clockSet1, : ), 0.5, allCols );
+                % After site revamp
+                clockSet2 = DOYidx( 150.75 ) : DOYidx( 308.17 );
+                data( clockSet2, : ) = shift_data( ...
+                    data( clockSet2, : ), 1.5, allCols );
+                clockSet3 = DOYidx( 308.19 ) : size( data, 1 );
+                data( clockSet3, : ) = shift_data( ...
+                    data( clockSet3, : ), 0.5, allCols );
 
             case { 2008, 2009 2010 2011 2012 2013 2014 }
                 data = shift_data( data, 0.5, allCols );
