@@ -21,13 +21,13 @@ function [ vars, varargout ] = regexp_header_vars( arr, re )
 % Modified by Gregory E. Maurer, UNM, April 2015
 
 if isa( arr, 'dataset' )
-    vars = regexp( ds.Properties.VarNames, re, 'match' );
+    vars = regexp( arr.Properties.VarNames, re, 'match' );
     idx = find( ~cellfun( 'isempty', vars ) );
-    vars = ds.Properties.VarNames( idx );
+    vars = arr.Properties.VarNames( idx );
 elseif isa( arr, 'table' );
-    vars = regexp( ds.Properties.VariableNames, re, 'match' );
+    vars = regexp( arr.Properties.VariableNames, re, 'match' );
     idx = find( ~cellfun( 'isempty', vars ) );
-    vars = ds.Properties.VariableNames( idx );
+    vars = arr.Properties.VariableNames( idx );
 end
 
 varargout = { idx };

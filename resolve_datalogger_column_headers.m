@@ -58,6 +58,8 @@ fprintf( fOpenMessage );
 
 try
     Resolutions = readtable( resFilePathName );
+    % First three columns not used here - remove
+    Resolutions = Resolutions( :, 4:end );
 catch
     error( sprintf( '%s file does not load!', resFileName ));
 end

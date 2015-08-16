@@ -150,8 +150,9 @@ if exist( sensorRenameFile, 'file' )
     renames = readtable( sensorRenameFile );
 end
 
-% Initialize new resolution file
-T = table( current );
+% Initialize new resolution file. Includes af_
+T = changes( :, { 'af_mapping', 'qc_mapping', 'desc', 'current'} );
+currentCol = 4; % Location of current column
 
 for i = 1:numel( rawTables )
     % Get the raw, unresolved column names for each table in the array
@@ -277,7 +278,7 @@ end
 aff = { 'Y', 'y', 'YES', 'yes', 'Yes' };
 if  any( strcmp( str, aff ))
     % Strip '_rename' from all columns of header names
-    for i = 2:width( T )
+    for i = (currentCol + 1):width( T )
         T( :, i ) = regexprep( T{ :, i }, '_rename', '' );
     end
     % Make resolution file name
