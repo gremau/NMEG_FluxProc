@@ -1,18 +1,17 @@
 %close all;
 %clear all;
 %
-% sitelist = {UNM_sites.MCon, ...
-%     UNM_sites.JSav, UNM_sites.PJ, UNM_sites.PJ_girdle, ...
-%      UNM_sites.SLand, UNM_sites.GLand, UNM_sites.PPine};
- sitelist = {UNM_sites.New_GLand};
+sitelist = {UNM_sites.MCon, UNM_sites.JSav, UNM_sites.PJ, UNM_sites.PJ_girdle, ...
+    UNM_sites.SLand, UNM_sites.GLand, UNM_sites.PPine, UNM_sites.New_GLand};
+sitelist = {UNM_sites.New_GLand};
 
 % Years to create files for
-yearlist = 2010:2014;
+yearlist = 2011;
 % Partitioned data source
 partmethod = 'eddyproc'; %'Reddyproc'
 % Make daily files? All AF files should be in $FLUXROOT$/Ameriflux_files
-make_daily = false;
-write_files = true;
+make_daily = true;
+write_files = false;
 process_soil = false;
 
 for i = 1:length(sitelist);
