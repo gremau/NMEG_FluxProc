@@ -15,9 +15,9 @@ function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 %                                        'year', year )
 % INPUTS:
 %
-%    raw_swc: N by M matrix or dataset array; soil water content raw data
+%    raw_swc: N by M matrix or table array; soil water content raw data
 %        (microseconds)
-%    T_soil: N by 1 matrix or dataset array; soil temperature (C)
+%    T_soil: N by 1 matrix or table array; soil temperature (C)
 %
 % PARAMETER-VALUE PAIRS
 %    site_code: UNM_sites object; sitecode (only necessary if save_plots is true).
@@ -30,13 +30,13 @@ function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 %        year input parameters must be provided.
 %
 % OUTPUTS:
-%    vwc: N by M matrix or dataset array; non-temperature-corrected SWC (has
+%    vwc: N by M matrix or table array; non-temperature-corrected SWC (has
 %        same type as raw_swc)
-%    vwc_Tc: N by M matrix or dataset array; temperature-corrected SWC (has
+%    vwc_Tc: N by M matrix or table array; temperature-corrected SWC (has
 %        same type as T_soil)
 %
 % SEE ALSO
-%    dataset, UNM_sites
+%    table, UNM_sites
 %
 % author: Timothy W. Hilton, UNM, Apr 2012
 
@@ -45,14 +45,14 @@ function [ vwc, vwc_Tc ] = cs616_period2vwc( raw_swc, T_soil, varargin )
 % define optional inputs, with defaults and typechecking
 % -----
 args = inputParser;
-args.addRequired( 'raw_swc', @(x) isnumeric(x) | isa( x, 'dataset' ) );
-args.addRequired( 'T_soil',  @(x) isnumeric(x) | isa( x, 'dataset' ) );
-args.addParamValue( 'sitecode', ...
+args.addRequired( 'raw_swc', @(x) isnumeric(x) | isa( x, 'table' ) );
+args.addRequired( 'T_soil',  @(x) isnumeric(x) | isa( x, 'table' ) );
+args.addParameter( 'sitecode', ...
                     @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
-args.addParamValue( 'year', ...
+args.addParameter( 'year', ...
                     @(x) ( isintval( x ) & ( x >= 2006 ) ) );
-args.addParamValue( 'draw_plots', true, @islogical );
-args.addParamValue( 'save_plots', false, @islogical );
+args.addParameter( 'draw_plots', true, @islogical );
+args.addParameter( 'save_plots', false, @islogical );
 
 % parse optional inputs
 args.parse( raw_swc, T_soil, varargin{ : } );
@@ -60,20 +60,20 @@ raw_swc = args.Results.raw_swc;
 T_soil = args.Results.T_soil;
 
 % -----
-% convert arguments to double arrays if they were provided as dataset objects
+% convert arguments to double arrays if they were provided as table objects
 % -----
-swc_is_ds = isa( raw_swc, 'dataset' );
-if swc_is_ds
+swc_is_tbl = isa( raw_swc, 'table' );
+if swc_is_tbl
     raw_swc_input = raw_swc;
-    swc_depths = extract_Tsoil_depths( raw_swc.Properties.VarNames );
+    swc_depths = extract_Tsoil_depths( raw_swc.Properties.VariableNames );
     shallow = repmat( false, size( raw_swc ) );
-    shallow( :, swc_depths < 10.0 ) = true;
-    raw_swc = double( raw_swc );
+    shallow( :, cellfun(@(x) lt(x, 10),  swc_depths)' ) = true;
+    raw_swc = table2array( raw_swc );
 end
 
 % make sure T_soil is an array of doubles
-if isa( T_soil, 'dataset' )
-    T_soil = double( T_soil );
+if isa( T_soil, 'table' )
+    T_soil = table2array( T_soil );
 end
 
 % -----
@@ -98,46 +98,51 @@ vwc( is_cs616 ) = pd2vwc( raw_swc( is_cs616 ) );
 % perform temperature correction described in cs616 manual section 6.6 (p 33 )
 cs616_period_Tcorrect = @( pd, T )  pd +  ( ( 20 - T ) .* ...
                                             ( 0.526 - ( 0.052 .* pd ) + ...
-                                              ( 0.00136 .* pd .* pd ) ) );
+                                              ( 0.00136 .* (pd .* pd) ) ) );
 
 vwc_Tc = raw_swc;
 n_soil_T = size( T_soil, 2 ); %how many soil T observations?
 n_swc = size( raw_swc, 2 );   %how many soil water observations?
+% if there is a soil T observation for each SWC observation, use SoilT
+% corresponding by column order to correct each SWC
 if ( n_soil_T == n_swc )
-    % if there is a soil T observation for each SWC observation, use each
-    % soil T to correct its associated SWC
     vwc_Tc( is_cs616 ) = cs616_period_Tcorrect( raw_swc( is_cs616 ), ...
-                                                T_soil( is_cs616 ) );
+        T_soil( is_cs616 ) );
+% If there is only one soil T observation, it is shallow.  In this case
+% only perform T correction for the shallow SWC observations.
+elseif n_soil_T == 1
+    T_soil = repmat( T_soil, 1, n_swc );
+    vwc_Tc( is_cs616 & shallow ) = ...
+        cs616_period_Tcorrect( raw_swc( is_cs616 & shallow ), ...
+        T_soil( is_cs616 & shallow ) );
+    
 else
-    % if there is only one soil T observation, it is shallow.  In this case
-    % only perform T correction for the shallow SWC observations.
-    if n_soil_T > 1
-        error( sprintf( [ 'Number of soil T observations (%d) ', ...
-                          'is greater than one but not equal to the ', ...
-                          'number of soil water content obserations (%d)' ], ...
-                        n_soil_T, n_swc ) );
-    else
-        T_soil = repmat( T_soil, 1, n_swc );
-        vwc_Tc( is_cs616 & shallow ) = ...
-            cs616_period_Tcorrect( raw_swc( is_cs616 & shallow ), ...
-                                   T_soil( is_cs616 & shallow ) );
-    end
+    error( sprintf( [ 'Number of soil T observations (%d) ', ...
+        'is greater than one but not equal to the ', ...
+        'number of soil water content observations (%d)' ], ...
+        n_soil_T, n_swc ) );
 end
+
+% Convert period to vwc
 vwc_Tc( is_cs616 ) = pd2vwc( vwc_Tc( is_cs616 ) );
 
 % Remove any negative SWC values
 vwc( vwc < 0 ) = nan;
-vwc( vwc > 1 ) = nan;
+vwc( vwc > 0.5 ) = nan;
 vwc_Tc( vwc_Tc < 0 ) = nan;
-vwc_Tc( vwc_Tc > 1 ) = nan;
+vwc_Tc( vwc_Tc > 0.5 ) = nan;
 
 
-% if inputs were datasets, keep the same variable names and replace the values
+% if inputs were tables, keep the same variable names and replace the values
 % with the VWC and T-corrected VWC
-if swc_is_ds
-    vwc = replacedata( raw_swc_input, vwc );
-    vwc_Tc = replacedata( raw_swc_input, vwc_Tc );
+if swc_is_tbl
+    vwc = array2table( vwc,  ...
+        'VariableNames', raw_swc_input.Properties.VariableNames);
+    vwc_Tc = array2table( vwc_Tc,  ...
+        'VariableNames', raw_swc_input.Properties.VariableNames);
 end
+
+% ============================== PLOTS =================================
 
 if args.Results.draw_plots
     nrow = size( raw_swc, 1 );
@@ -153,10 +158,10 @@ if args.Results.draw_plots
                     'Units', 'Inches', ...
                     'Position', [ 0, 0, 8.5, 11 ] );
         ax1 = subplot( 4, 1, 1 );
-        h_vwc = plot( doy, vwc( :, i ), '.b' );
+        h_vwc = plot( doy, vwc{ :, i }, '.b' );
         hold on
-        h_vwc_tc = plot( doy, vwc_Tc( :, i ), 'ok' );
-        cov_num_depth = regexp( raw_swc_input.Properties.VarNames{ i }, ...
+        h_vwc_tc = plot( doy, vwc_Tc{ :, i }, 'ok' );
+        cov_num_depth = regexp( raw_swc_input.Properties.VariableNames{ i }, ...
                                 '_', 'split' );
         cov_num_depth = sprintf( 'VWC\\_%s\\_%s\\_%s', ...
                                  cov_num_depth{ 2 }, ...
@@ -178,8 +183,8 @@ if args.Results.draw_plots
         % set( ax, 'YLim', y_lim );
         
         subplot( 4, 1, 2 );
-        d_vwc = double( vwc( :, i ) ) - double( vwc_Tc( :, i ) );
-        d_vwc_percent = d_vwc ./ double( vwc( :, i ) );
+        d_vwc = table2array( vwc( :, i ) ) - table2array( vwc_Tc( :, i ) );
+        d_vwc_percent = d_vwc ./ table2array( vwc( :, i ) );
         [ ax2, h_d_vwc, h_vwc_pct ] = plotyy( doy, d_vwc, ...
                                               doy, d_vwc_percent );        
         set( h_d_vwc, 'LineStyle', 'none', ...
@@ -268,11 +273,16 @@ grp_vars = regexp( var_names, '_', 'split' ); % split on '_'
 grp_vars = vertcat( grp_vars{ : } ); 
 %depth is 4th '_'-delimited field
 if size( grp_vars, 2 ) >= 4
-    depths = grp_vars( :, 4 );
+    depths = grp_vars( :, 3 );
     depths = regexprep( depths, '([0-9])p([0-9])', '$1.$2' );
     depths = replace_hex_chars( depths );
     depths = regexprep( depths, '[Cc][Mm]', '' ); %get rid of "cm"
-    depths = cellfun( @str2num, depths );
+    depths = cellfun( @str2num, depths, 'UniformOutput', false );
+    emptyCells = cellfun(@isempty,depths);
+    if sum( emptyCells > 0 );
+        depths(emptyCells) = {NaN};
+    end
+    
 else
     depths = NaN;
 end
