@@ -1,6 +1,6 @@
 af_mapping,qc_mapping,desc,current,TOA5_PJ_girdle_2009_02_23_1530,TOA5_PJ_girdle_2009_04_28_1130,TOA5_PJ_girdle_2010_05_18_1500,TOA5_PJ_girdle_2013_07_03_1530,TOA5_PJ_girdle_2014_01_10_1530,TOA5_PJ_girdle_2014_03_26_1200
 NaN,,NaN,AirTC_6p85_Avg,t_hmp_Avg_1,t_hmp_Avg,t_hmp_Avg,t_hmp_Avg,AirTC_10_Avg,current
-NaN,,NaN,RH_6p85_Avg,dne,dne,dne,dne,RH_10_Avg,current
+NaN,,NaN,RH_6p85_Avg,H,H,H,H,RH_10_Avg,current
 NaN,,NaN,AirTC_3p7_Avg,dne,dne,dne,dne,current,dne
 NaN,,NaN,RH_3p7_Avg,dne,dne,dne,dne,current,dne
 NaN,,NaN,co2_mean_Avg,dne,co2_Avg,co2_Avg,co2_Avg,current,current
