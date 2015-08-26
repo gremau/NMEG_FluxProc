@@ -1,5 +1,5 @@
 function T_filled = table_fill_timestamps( T, t_var, varargin )    
-% table_FILL_TIMESTAMPS - fill in missing timestamps in a table containing a
+% TABLE_FILL_TIMESTAMPS - fill in missing timestamps in a table containing a
 % regularly-spaced time series and discard duplicate timestamps.  
 %
 % t_var specifies the name of the table variable containing the (unfilled)
@@ -41,7 +41,8 @@ function T_filled = table_fill_timestamps( T, t_var, varargin )
 % SEE ALSO
 %    table, datenum
 %
-% author: Timothy W. Hilton, UNM, Dec. 2011
+% author: Gregory E. Maurer, UNM, May 2015
+% based on dataset version by Timothy W. Hilton, UNM, Dec. 2011
 
 % -----
 % define optional inputs, with defaults
@@ -51,10 +52,10 @@ p.addRequired( 'T' ); %, @( x ) isa( x, 'table' ) );
 p.addRequired( 't_var', @ischar );
 p.addOptional( 'delta_t', ( 1 / 48), @isnumeric );
 p.addOptional( 'tstamps_as_strings', false, @islogical );
-p.addParamValue( 't_min', ...
+p.addParameter( 't_min', ...
                  NaN, ...
                  @( x ) isnumeric( x ) );
-p.addParamValue( 't_max', ...
+p.addParameter( 't_max', ...
                  NaN, ...
                  @( x ) isnumeric( x ) );
 % parse optional inputs

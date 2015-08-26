@@ -1,13 +1,10 @@
 function cr1000Data = get_MCon_cr1000_data( year )
-% MCON_CR1000_TO_DATASET - return all CR1000 data from a specified year
-% in a dataset array.
+% GET_MCON_CR1000_DATA - return all CR1000 data from a specified year
+% in a table array.
 %
-% FIXME - change output to table
-%
-% searches $FLUXROOT/Flux_Tower_Data_by_Site/MCon/precip_cr1000 for all
-% CR1000 met station data files from a specified year.  Year must be
-% greater than or equal to 2014.
-% Prior to 2014 this cr1000 did not exist.
+% searches $FLUXROOT/Flux_Tower_Data_by_Site/MCon/secondary_loggers/precip_cr1000/TOA5Processed
+% for all CR1000 met station data files from a specified year. Year must be
+% greater than or equal to 2014 since Prior to 2014 this cr1000 did not exist.
 %
 % USAGE:
 %     ds = get_MCon_cr1000_data( year );
@@ -30,9 +27,8 @@ if year < 2014
     return
 end
 
-dataDirectory = fullfile( getenv( 'FLUXROOT' ), ...
-    'Flux_Tower_Data_by_Site', ...
-    'MCon', 'precip_cr1000', 'TOA5Processed' );
+dataDirectory = fullfile( get_site_directory( UNM_sites.MCon ), ...
+    'secondary_loggers', 'precip_cr1000', 'TOA5Processed' );
 
 % IMPORTANT: Make sure the files have the format:
 % 'TOA5_49012.precip_out_YYYY_MM_DD_HHMM.dat'
@@ -64,9 +60,10 @@ if ~isempty( chooseFiles );
         'file_names', fileNames( chooseFiles ), ...
         'datalogger_type', 'cr1000', 'resolve_headers', false );
     % FIXME - changing var names so they don't conflict with tower ones
-    change = find( strcmp( 'RH', cr1000Data.Properties.VarNames ))
-    cr1000Data.Properties.VarNames{ change } = 'RH_cr1k';
+    change = find( strcmp( 'RH', cr1000Data.Properties.VariableNames ))
+    cr1000Data.Properties.VariableNames{ change } = 'RH_cr1k';
+    
 elseif isempty( chooseFiles )
     fprintf( 'No cr1000 data available for MCon in %d\n', year );
-    cr1000Data = dataset();
+    cr1000Data = table([]);
 end

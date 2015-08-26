@@ -1,5 +1,5 @@
 classdef card_data_processor
-% FIXME - make this rely on tables!
+
 properties
     sitecode;
     date_start;
@@ -41,15 +41,15 @@ methods
         %    'rotation': sonic_rotation object; specifies rotation.  Defaults
         %        to 3D.
         %    'lag': 0 or 1; lag for 10hz data processing. defaults to 0.
-        %    'data_10hz_avg': dataset array; Allows previously processed 10hz
+        %    'data_10hz_avg': table array; Allows previously processed 10hz
         %        data to be supplied for insertion into FluxAll file.  If
         %        unspecified the necessary 10-hz data files will be located
         %        and processed to 30-minute averages.
-        %    'data_30min': dataset array; Allows 30-minute data to be supplied
+        %    'data_30min': table array; Allows 30-minute data to be supplied
         %        for insertion into FluxAll file.  If unspecified all TOA5
         %        files containing data between date_start and date_end are
         %        parsed and combined.
-        %    'data_30min_secondary': dataset array; Allows 30-minute data from
+        %    'data_30min_secondary': table array; Allows 30-minute data from
         %        a secondary datalogger to be supplied for insertion into a
         %        FluxAll file. If unspecified, all data from the site's
         %        secondary loggers between date_start and date_end are parsed
@@ -66,9 +66,10 @@ methods
         %        the present year (as returned by now())
         %
         % SEE ALSO
-        %    sonic_rotation, UNM_sites, dataset, now, datenum
+        %    sonic_rotation, UNM_sites, table, now, datenum
         %
-        % author: Timothy W. Hilton, UNM, 2012
+        % author: Timothy W. Hilton, UNM, 2012, extensively modified by
+        %         Gregory Maurer, UNM, 2014-2015
 
         % -----
         % parse and typecheck arguments
@@ -88,14 +89,14 @@ methods
             0, ...
             @( x ) ismember( x, [ 0, 1 ] ) );
         p.addParameter( 'data_10hz_avg', ...
-            dataset([]), ...
-            @( x ) isa( x, 'dataset' ) );
+            table([]), ...
+            @( x ) isa( x, 'table' ) );
         p.addParameter( 'data_30min', ...
-            dataset([]), ...
-            @( x ) isa( x, 'dataset' ) );
+            table([]), ...
+            @( x ) isa( x, 'table' ) );
         p.addParameter( 'data_30min_secondary', ...
-            dataset([]), ...
-            @( x ) isa( x, 'dataset' ) );
+            table([]), ...
+            @( x ) isa( x, 'table' ) );
         p.addParameter( 'data_10hz_already_processed', ...
             false, ...
             @islogical );
@@ -242,7 +243,7 @@ methods
         % Year to get data for
         [ year, ~ ] = datevec( obj.date_start );
 
-        dataset_array = {};
+        table_array = {};
         for i = 1:numel( obj.secondary_data_config );
             conf = obj.secondary_data_config{ i };
             switch lower( conf.type )
@@ -274,16 +275,16 @@ methods
                         error( 'No external data for this site' );
                     end
             end
-            % Put in dataset array
-            dataset_array{ i } = i_data;
+            % Put in table array
+            table_array{ i } = i_data;
         end
-        % Loop through each dataset in dataset_array and merge into
-        % a 30min dataset to add to obj.data_30min_secondary
-        secondary_data = dataset_array{ 1 };
-        if numel( dataset_array ) > 1
-            for j = 1:numel( dataset_array )
-                secondary_data = dataset_foldin_data( ...
-                    secondary_data, dataset_array{ j });
+        % Loop through each table in table_array and merge into
+        % a 30min table to add to obj.data_30min_secondary
+        secondary_data = table_array{ 1 };
+        if numel( table_array ) > 1
+            for j = 1:numel( table_array )
+                secondary_data = table_foldin_data( ...
+                    secondary_data, table_array{ j });
             end
         end
         % There isn't always data available, but if there is
@@ -333,6 +334,10 @@ methods
                 char( obj.sitecode ), ...
                 this_year ) );
             load( fname );
+            if isa( all_data, 'dataset' )
+                warning(' Converting TOB1 data from dataset to table.');
+                all_data = dataset2table( all_data );
+            end
             all_data.date = str2num( all_data.date );
             % This data is always missing the last 30 minute period in the
             % year (only goes to Dec 31, 23:30)
@@ -419,7 +424,7 @@ methods
         [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
         fprintf( '---------- parsing fluxall file ----------\n' );
         try
-            flux_all = UNM_parse_fluxall_txt_file( obj.sitecode, year );
+            flux_all = parse_fluxall_txt_file( obj.sitecode, year );
         catch err
             % if flux_all file does not exist, build it starting 1 Jan
             if strcmp( err.identifier, 'MATLAB:FileIO:InvalidFid' )
@@ -441,7 +446,7 @@ methods
             fprintf( '--- concatenating secondary 30-minute data sources ---\n' );
             [ obj, secondary_data_files ] = get_secondary_data( obj );
             fprintf( '--- folding in 30-minute data from logger 2 ---\n' );
-            obj.data_30min = dataset_foldin_data(...
+            obj.data_30min = table_foldin_data(...
                 obj.data_30min, obj.data_30min_secondary );
         end
         if parse_10hz
@@ -470,7 +475,7 @@ methods
         idx_keep = ( new_data.timestamp >= obj.date_start ) & ...
             ( new_data.timestamp <= obj.date_end );
         new_data = new_data( idx_keep, : );
-        % Should there be a dataset_fill_timestamps call here????
+        % Should there be a table_fill_timestamps call here????
 
         if isempty( flux_all )
             flux_all = new_data;
@@ -482,7 +487,7 @@ methods
         % already year, month, day, hour, min, sec columns), serial datenumbers
         % aren't human-readable, and character string dates are a pain to parse
         % in matlab
-        [ tstamp_cols, t_idx ] = regexp_ds_vars( flux_all, 'timestamp.*' );
+        [ tstamp_cols, t_idx ] = regexp_header_vars( flux_all, 'timestamp.*' );
         flux_all( :, t_idx ) = [];
 
         fprintf( '---------- writing FLUX_all file ----------\n' );
@@ -509,7 +514,7 @@ methods
 
         save( 'cdp226.mat' );
         [ obj.data_30min, obj.data_10hz_avg ] = ...
-            merge_datasets_by_datenum( obj.data_30min, ...
+            merge_tables_by_datenum( obj.data_30min, ...
             obj.data_10hz_avg, ...
             'timestamp', ...
             'timestamp', ...
@@ -537,8 +542,17 @@ methods
             obj.data_10hz_avg.day * 1e2 + ...
             mod( obj.data_10hz_avg.year, 1000 ) );
         % -----
-
-        new_data = horzcat( obj.data_10hz_avg, obj.data_30min );
+        
+        % Check if timestamps for 10hz and 30min data are identical, then
+        % remove one or else MATLAB will complain
+        test = sum(obj.data_10hz_avg.timestamp == obj.data_30min.timestamp);
+        if test==size( obj.data_10hz_avg, 1 ) && ...
+                test==size( obj.data_30min, 1 )
+            obj.data_30min.timestamp = [];
+            new_data = [ obj.data_10hz_avg, obj.data_30min ];
+        else
+            error( 'Timestamp mismatch between 10hz and 30min data' );
+        end
 
     end
 
@@ -580,7 +594,7 @@ methods
         end
 
         fprintf( 'writing %s\n', full_fname );
-        export_dataset_tim( full_fname, fluxall_data )
+        export_table_greg( full_fname, fluxall_data )
 
     end   % write_fluxall
 

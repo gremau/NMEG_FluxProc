@@ -12,21 +12,22 @@ function fluxall = insert_new_data_into_fluxall( new_data, ...
 %    fluxall = insert_new_data_into_fluxall( new_data, fluxall );
 %
 % INPUTS
-%    new_data: dataset array: the data to be inserted to fluxall dataset
-%    fluxall: dataset array; existing fluxall data (may be output of
+%    new_data: table array: the data to be inserted to fluxall table
+%    fluxall: table array; existing fluxall data (may be output of
 %        UNM_parse_fluxall_txt_file) 
 %
 % OUTPUTS
 %    fluxall: fluxall input with new_data inserted.
 %
 % SEE ALSO
-%    dataset, UNM_parse_fluxall_txt_file
+%    table, UNM_parse_fluxall_txt_file
 %
 % author: Timothy W. Hilton, UNM, Oct 2012
+% Modified to use tables by Greg Maurer, 2015
 
 p = inputParser;
-p.addRequired( 'new_data', @( x ) isa( x, 'dataset' ) );
-p.addRequired( 'fluxall', @( x ) isa( x, 'dataset' ) );
+p.addRequired( 'new_data', @( x ) isa( x, 'table' ) );
+p.addRequired( 'fluxall', @( x ) isa( x, 'table' ) );
 p.addOptional( 'allow_NaNs', false, @islogical );
 p.parse( new_data, fluxall, varargin{ : } );
 
@@ -65,7 +66,7 @@ idx_replace = find( ( fluxall.timestamp >= t_new_min ) & ...
 % end
 
 fluxall( idx_replace, : ) = [];
-fluxall = dataset_append_common_vars( fluxall, new_data );
+fluxall = table_append_common_vars( fluxall, new_data );
 
 % resort fluxall timestamps
 [ ~, idx_sort ] = sort( fluxall.timestamp );

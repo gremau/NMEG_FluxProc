@@ -1,13 +1,13 @@
-function CombinedDataset = combine_and_fill_datalogger_files( varargin )
-% combine_and_fill_datalogger_files() -- combines multiple datalogger files into one matlab
-% dataset, fills in any missing 30-minute time stamps and discards duplicated or
-% erroneous timestamp.
+function CombinedTable = combine_and_fill_datalogger_files( varargin )
+% combine_and_fill_datalogger_files() -- combines multiple datalogger files
+% into one matlab table, fills in any missing 30-minute time stamps and
+% discards duplicated or erroneous timestamps.
 %
 % FIXME - documentation
 %
 % USAGE
-%    CombinedDataset = combine_and_fill_datalogger_files();
-%    CombinedDataset = combine_and_fill_datalogger_files( 'path\to\first\datalogger\file', ...
+%    CombinedTable = combine_and_fill_datalogger_files();
+%    CombinedTable = combine_and_fill_datalogger_files( 'path\to\first\datalogger\file', ...
 %                                      'path\to\second\datalogger\file', ... );
 %
 % INPUTS:
@@ -20,13 +20,14 @@ function CombinedDataset = combine_and_fill_datalogger_files( varargin )
 %        the column headers in the files.
 %
 % OUTPUTS
-%    CombinedDataset: Matlab dataset array; the combined and filled data
+%    CombinedTable: Matlab table array; the combined and filled data
 %
 % SEE ALSO
-%    dataset, uigetfile, UNM_assign_soil_data_labels,
-%    dataset_fill_timestamps, toa5_2_dataset, cr23x_2_table
+%    table, uigetfile, UNM_assign_soil_data_labels,
+%    table_fill_timestamps, toa5_2_table, cr23x_2_table
 %
-% Gregory E. Maurer, UNM, Oct, 2014
+% authors: Gregory E. Maurer, UNM, Oct, 2014. Based on 
+%          combine_and_fill_TOA5_files by Timothy W. Hilton, UNM, Dec 2011
 
 % -----
 % parse and typecheck inputs
@@ -71,7 +72,7 @@ fileNames = sort( fileNames );
 
 % Count number of files and initialize some arrays
 numFiles = length( fileNames );
-DatasetArray = cell( numFiles, 1 );
+TableArray = cell( numFiles, 1 );
 
 for i = 1:numFiles
     fprintf( 1, 'reading %s\n', fileNames{ i } );
@@ -83,22 +84,21 @@ for i = 1:numFiles
     else
         thisPath = pathName;
     end
-    % Add the dataset to the DatasetArray
-    % FIXME - switch away from datasets in this file
+    % Add the table to the TableArray
     if strcmpi( dataloggerType, 'main' ) || ...
             strcmpi( dataloggerType, 'cr1000' )
-        DatasetArray{ i } = toa5_2_dataset( ...
+        TableArray{ i } = toa5_2_table( ...
             fullfile( thisPath, fileNames{ i } ) );
     elseif strcmpi( dataloggerType, 'cr23x' )
-        DatasetArray{ i } = table2dataset(cr23x_2_table(...
-            fullfile( thisPath, fileNames{ i } ) ));
+        TableArray{ i } = cr23x_2_table(...
+            fullfile( thisPath, fileNames{ i } ) );
     end
 end
 % ================= HEADER RESOLUTION ==========================
 % Resolve the headers if asked. If not, processing
-% picks up at dataset_vertcat_fill_vars
+% picks up at table_vertcat_fill_vars
 if resolve
-    DatasetArray = resolve_datalogger_column_headers( DatasetArray,...
+    TableArray = resolve_datalogger_column_headers( TableArray,...
         fileNames, ...
         dataloggerType );
 else
@@ -109,28 +109,28 @@ else
 end
 %===============================================================
 
-%CombinedDataset = dataset_append_common_vars( DatasetArray{ : } );
-CombinedDataset = dataset_vertcat_fill_vars( DatasetArray{ : } );
+%CombinedTable = table_append_common_vars( TableArray{ : } );
+CombinedTable = table_vertcat_fill_vars( TableArray{ : } );
 
 fprintf( 1, 'filling missing timestamps\n' );
-CombinedDataset = dataset_fill_timestamps( CombinedDataset, ...
+CombinedTable = table_fill_timestamps( CombinedTable, ...
                               'timestamp', ... 
-                              't_min', min( CombinedDataset.timestamp ), ...
-                              't_max', max( CombinedDataset.timestamp ) );
+                              't_min', min( CombinedTable.timestamp ), ...
+                              't_max', max( CombinedTable.timestamp ) );
 
 % remove duplicated timestamps (e.g., in TX 2010)
 fprintf( 1, 'removing duplicate timestamps\n' );
-ts = datenum( CombinedDataset.timestamp( : ) );
+ts = datenum( CombinedTable.timestamp( : ) );
 oneminute = 1 / ( 60 * 24 ); %one minute expressed in units of days
 nonDuplicateIndex = find( diff( ts ) > oneminute );
-CombinedDataset = CombinedDataset( nonDuplicateIndex, : );
+CombinedTable = CombinedTable( nonDuplicateIndex, : );
 
 % to save to file, use e.g.:
 % fprintf( 1, 'saving csv file\n' );
-% idx = min( find( datenum(CombinedDataset.timestamp(:))>= datenum( 2012, 1, 1)));
-% tstamps_numeric = CombinedDataset.timestamp;
-% CombinedDataset.timestamp = datestr( CombinedDataset.timestamp, 'mm/dd/yyyy HH:MM:SS' );
-% export(CombinedDataset( idx:end, : ), 'FILE', ...
+% idx = min( find( datenum(CombinedTable.timestamp(:))>= datenum( 2012, 1, 1)));
+% tstamps_numeric = CombinedTable.timestamp;
+% CombinedTable.timestamp = datestr( CombinedTable.timestamp, 'mm/dd/yyyy HH:MM:SS' );
+% export(CombinedTable( idx:end, : ), 'FILE', ...
 %        fullfile( get_out_directory(), 'combined_TOA5.csv' ), ...
 %        'Delimiter', ',');
-% CombinedDataset.timestamp = tstamps_numeric;
+% CombinedTable.timestamp = tstamps_numeric;

@@ -1,12 +1,10 @@
 function cr23xData = get_PJ_cr23x_data( sitecode, year )
 % GET_PJ_CR23X_DATA - parse CR23X soil data for PJ or PJ_girdle.
 %
-% FIXME - change output to table
-%
-% Creates dataset of cr23x data for the PJ sites, including soil 
+% Creates table of cr23x data for the PJ sites, including soil 
 % temperature, soil water content, and soil heat flux. Dataset has a
 % complete 30-minute timestamp record and duplicate timestamps removed via
-% dataset_fill_timestamps.  When duplicate timestamps are detected, the 
+% table_fill_timestamps.  When duplicate timestamps are detected, the 
 % first is kept and subsequent duplicates are discarded.
 %
 % USAGE
@@ -17,11 +15,11 @@ function cr23xData = get_PJ_cr23x_data( sitecode, year )
 %    year: integer; year of data to preprocess
 %
 % OUTPUTS:
-%    cr23xData: matlab dataset array containing all observations from the
+%    cr23xData: matlab table array containing all observations from the
 %               cr23x logger in the specified year
 %
 % SEE ALSO
-%    dataset, dataset_fill_timestamps
+%    table, table_fill_timestamps
 %
 % author: Gregory E. Maurer, UNM, March 2015
 % based on code by: Timothy W. Hilton, Dec 2012 (PREPROCESS_PJ_SOIL_DATA)

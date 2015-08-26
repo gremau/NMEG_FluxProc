@@ -31,7 +31,6 @@ else
     fname = varargin{1};
 end
 
-
 [ var_names, var_units, file_lines, first_data_line, delim ] = ...
     parse_TOA5_file_headers( fname );
 

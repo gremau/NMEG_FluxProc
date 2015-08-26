@@ -1,19 +1,17 @@
 function Tmain = get_MCon_SAHRA_data( year )
 % GET_MCON_SAHRA_DATA - parse data collected at MCon by SAHRA station.
 %
-% FIXME - change output to table
-%
 % There was a SAHRA station at the MCon site that collected data between
 % 2006 and 2013. These data include from met, sapflow, and (1) soil
 % profile sensors. These data are parsed from
-% $FLUXROOT/Flux_Tower_Data_by_Site/MCon/soil/MCon_SAHRA_soil_all.dat.
+% $FLUXROOT/Flux_Tower_Data_by_Site/MCon/secondary_loggers/SAHRA_logger/MCon_SAHRA_soil_all.dat.
 % If this is not found, a new file must be created from the raw data,
 % which can be downloaded from the DRI/WRCC website at:
 % 
 % <http://www.wrcc.dri.edu/cgi-bin/rawMAIN.pl?nmvcnx>
 %
 % See further notes about this in the comments and the README.md file in
-% the MCon\soil directory.
+% the MCon\secondary_loggers\SAHRA_logger directory.
 %
 % INPUTS:
 %     year: four-digit year; specifies the year for data extraction
@@ -31,7 +29,8 @@ function Tmain = get_MCon_SAHRA_data( year )
 % Raw data from the SAHRA site can be downloaded from:
 % <http://www.wrcc.dri.edu/cgi-bin/rawMAIN.pl?nmvcnx>
 % This file contains all data from the SAHRA site at MCon:
-filePath = fullfile( get_site_directory( UNM_sites.MCon ), 'soil');
+filePath = fullfile( get_site_directory( UNM_sites.MCon ), ...
+    'secondary_loggers', 'SAHRA_logger' );
 fname1 = fullfile( filePath, 'MCon_SAHRA_data_20061001_20130601.dat' );
 fprintf( 'reading %s \n', fname1 );
 
@@ -84,7 +83,6 @@ Tmain = table_fill_timestamps( Tmain, ...
                                't_min', min( Tmain.timestamp ), ...
                                't_max', max( Tmain.timestamp ) );
                            
-Tmain = table2dataset( Tmain );
 
 % May be nice to remove negative SWC values... or not
 %arr = double( SWC );

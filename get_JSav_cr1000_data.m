@@ -1,8 +1,6 @@
 function cr1000data = get_JSav_cr1000_data( year )
-% JSAV_CR1000_TO_DATASET - return all CR1000 data from a specified year
-% in a dataset array.
-%
-% FIXME - change output to table
+% GET_JSAV_CR1000_DATA - return all CR1000 data from a specified year
+% in a table array.
 %
 % searches $FLUXROOT/Flux_Tower_Data_by_Site/JSav/soil for all CR1000 data
 % files from a specified year.  Year must be greater than or equal to 2012.
@@ -10,13 +8,13 @@ function cr1000data = get_JSav_cr1000_data( year )
 % 30-minute variables ( main datalogger ).
 %
 % USAGE:
-%     ds = get_JSav_cr1000_data( year );
+%     cr1000data = get_JSav_cr1000_data( year );
 %
 % INPUTS:
 %     year: four digit year >= 2012.
 %
 % OUTPUTS
-%     ds: dataset array; JSav soil data for the requested year
+%     cr1000data: MATLAB table; JSav soil data for the requested year
 %
 % SEE ALSO
 %     dataset
@@ -31,7 +29,7 @@ end
 
 dataDirectory = fullfile( getenv( 'FLUXROOT' ), ...
     'Flux_Tower_Data_by_Site', ...
-    'JSav', 'soil' );
+    'JSav', 'secondary_loggers' );
 
 % IMPORTANT: Make sure the files have the format:
 % 'TOA5_JSav_cr1000_YYYY_MM_DD_HHMM.dat'

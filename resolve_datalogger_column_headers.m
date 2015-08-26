@@ -1,17 +1,17 @@
-function DatasetArrayOut = resolve_datalogger_column_headers( ...
-    DatasetArrayIn, fileNames, dataloggerType )
+function TArray_Out = resolve_datalogger_column_headers( ...
+    TArray_In, fileNames, dataloggerType )
 % resolve_datalogger_column_headers() -- resolves changes in datalogger
 % file column headers using a header resolution file.
 %
 % FIXME - documentation
 %
 % USAGE
-%   DatasetArrayOut = resolve_datalogger_column_headers(DatasetArrayIn, ...
+%   TArray_Out = resolve_datalogger_column_headers(TArray_In, ...
 %                                                       sitecode, ...
 %                                                       dataloggerType);
 %
 % INPUTS:
-%   'DatasetArrayIn': cell array; a cell array of Matlab datasets, each
+%   'TArray_In': cell array; a cell array of Matlab tables, each
 %       containing data and headers from a datalogger file.
 %   'fileNames': cell array; array of strings indicating the data file
 %       names to resolve. Filename format must be
@@ -21,12 +21,12 @@ function DatasetArrayOut = resolve_datalogger_column_headers( ...
 %       Acceptable values are 'main', 'cr1000', and 'cr23x'
 %
 % OUTPUTS
-%    DatasetArrayOut: cell array; a cell array of Matlab datasets, as above,
+%    TArray_Out: cell array; a cell array of Matlab tables, as above,
 %       but with resolved headers
 %
 % SEE ALSO
-%    combine_and_fill_datalogger_files.m, dataset,
-%    dataset_fill_timestamps, toa5_2_dataset, cr23x_2_table
+%    combine_and_fill_datalogger_files.m, table,
+%    table_fill_timestamps, toa5_2_table, cr23x_2_table
 %
 % Gregory E. Maurer, UNM, Oct, 2014
 
@@ -44,7 +44,8 @@ end
 % -----
 % Use sitecode and dataloggerType find appropriate header resolution file
 resFileName = sprintf('%s_Header_Resolution.csv', dataloggerType);
-resFilePathName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), resFileName );
+resFilePathName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), ...
+    resFileName );
 % -----
 
 % == PREPROCESSING HEADER RESOLUTION ===
@@ -89,13 +90,13 @@ else
     fprintf( 'Beginning with headers from %s \n', resolveCol );
 end
 
-% Make a copy of the original dataset
-DatasetArrayOut = DatasetArrayIn;
+% Make a copy of the original table
+TArray_Out = TArray_In;
 
 %Initialize the loop
-for i = 1:numel( DatasetArrayIn )
+for i = 1:numel( TArray_In )
     toResolve = zeros( numHeaders, 1 );
-    dataFileHeader = DatasetArrayIn{ i }.Properties.VarNames;
+    dataFileHeader = TArray_In{ i }.Properties.VariableNames;
     % Get the name of the data file
     fnameTokens = regexp( fileNames{ i }, '\.', 'split' );
     dataFileName = fnameTokens{ 1 };
@@ -131,8 +132,8 @@ for i = 1:numel( DatasetArrayIn )
         end
     end
     
-    %Write the changes to the dataset parameter for headers
-    DatasetArrayOut{ i }.Properties.VarNames = dataFileHeader;
+    %Write the changes to the table parameter for headers
+    TArray_Out{ i }.Properties.VariableNames = dataFileHeader;
 end
 end
 

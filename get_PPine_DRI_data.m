@@ -2,10 +2,8 @@ function soilData = get_PPine_DRI_data( year )
 % GET_PPINE_DRI_DATA - parse DRI data for Ponderosa Pine site to dataset
 % array and extract the observations for a specified year.
 %
-% FIXME - change output to table
-%
 % The PPine soil data are parsed from
-% $FLUXROOT/Flux_Tower_Data_by_Site/PPine/soil/PPine_soil_data_20080101_20141118.dat.
+% $FLUXROOT/Flux_Tower_Data_by_Site/PPine/secondary_loggers/DRI_logger/PPine_soil_data_20080101_20141118.dat.
 %
 % If this is not found, and new file must be created from the raw data
 %
@@ -26,7 +24,7 @@ function soilData = get_PPine_DRI_data( year )
 % these are concatenated into file below by:
 % concatenate_all_PPine_soil_data.m
 fname = fullfile( get_site_directory( UNM_sites.PPine ), ...
-    'soil', ...
+    'secondary_loggers', 'DRI_logger', ...
     'PPine_soil_data_20080101_20141118.dat' );
 
 if exist( fname, 'file' )
@@ -64,7 +62,10 @@ soilData.Properties.VarNames = regexprep( soilData.Properties.VarNames, ...
 
 % return data for requested year
 [ datayear, ~, ~, ~, ~, ~ ] = datevec( soilData.timestamp );
-soilData = soilData( datayear == year, : );    
+soilData = soilData( datayear == year, : );
+
+warning('Compatibility check - Converting PPine data from dataset to table' );
+soilData = dataset2table( soilData );
 
 
 

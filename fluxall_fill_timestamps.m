@@ -8,22 +8,23 @@ function fluxall = fluxall_fill_timestamps( fluxall )
 % Begins each year's fluxall file at 00:30:00 on 1 Jan as per UNM convention.
 %  
 % INPUTS:
-%    fluxall: dataset array; parsed fluxall data (arbitrary site and year)
+%    fluxall: table array; parsed fluxall data (arbitrary site and year)
 %
 % OUTPUTS:
-%    fluxall: dataset array; fluxall data with complete record of 30-minute
+%    fluxall: table array; fluxall data with complete record of 30-minute
 %        timestamps 
 %
 % SEE ALSO:
-%     dataset_fill_timestamps
+%     table_fill_timestamps
 %
 % author: Timothy W. Hilton, UNM, Dec 2012
+% Modified to use tables by Greg Maurer, 2015
 
 year = mode( fluxall.year );
 
-fluxall = dataset_fill_timestamps( fluxall, ...
-                                   'timestamp', ...
-                                   't_min', datenum( year, 1, 1, 0, 30, 0 ) );
+fluxall = table_fill_timestamps( fluxall, ...
+                                 'timestamp', ...
+                                 't_min', datenum( year, 1, 1, 0, 30, 0 ) );
 
 t = fluxall.timestamp;
 [ fluxall.year, fluxall.month, fluxall.day, ...
