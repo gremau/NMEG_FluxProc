@@ -334,31 +334,31 @@ methods
                 char( obj.sitecode ), ...
                 this_year ) );
             load( fname );
-            if isa( all_data, 'dataset' )
-                warning(' Converting TOB1 data from dataset to table.');
-                all_data = dataset2table( all_data );
-            end
             all_data.date = str2num( all_data.date );
             % This data is always missing the last 30 minute period in the
             % year (only goes to Dec 31, 23:30)
             all_data = all_data( all_data.timestamp <= obj.date_end, : );
-            obj.data_10hz_avg = all_data;
         else
-
-            [ result, obj.data_10hz_avg ] = ...
+            [ result, all_data ] = ...
                 UNM_process_10hz_main( obj.sitecode, ...
                 obj.date_start, ...
                 obj.date_end, ...
                 'lag', obj.lag, ...
                 'rotation', obj.rotation);
         end
+        % Card_data_processor takes tables, so change if need be
+        if isa( all_data, 'dataset' )
+            warning(' Converting 10hz data from dataset to table.');
+            all_data = dataset2table( all_data );
+        end
+        % Add to cdp obj
+        obj.data_10hz_avg = all_data;
     end  % process_10hz_data
 
     % --------------------------------------------------
 
     function obj = process_data( obj )
         % Force reprocessing of all data between obj.date_start and obj.date_end.
-
         warning( 'This method not yet implemented\n' );
 
     end  % process_data
