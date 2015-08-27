@@ -1,51 +1,41 @@
-function ds_out =  soil_met_correct( sitecode, year, ...
-                                                  data, ds_qc )
-% SOIL_MET_CORRECT
-%   
+function soil_T_corr =  soil_met_correct( sitecode, year )
+% SOIL_MET_CORRECT - extracts soil water content (SWC), soil temperature,
+% and soil heat flux (SHF and TCAV) data from fluxall files corrects it.
+%
+% Depending on site and instrumentation this involves converting raw
+% sensor outputs to other units and making corrections to these data.
+% cs616 sensor period is converted to VWC and temperature corrected. Most
+% other sensors are left as is (for now).
 %   
 % USAGE
-%    ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data, precip );
+%    T_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, data, precip );
 %
 % INPUTS:
 %    sitecode: UNM_sites object; specifies the site
 %    year: four-digit year: specifies the year
-%    data: dataset array; parsed fluxall data.  Generally will be the output
-%        of UNM_parse_fluxall_txt_file or UNM_parse_fluxall_xls_file
-%    ds_qc: dataset array; parsed qc file data. Generally will be the output
-%        of UNM_parse_QC_txt_file
 %
 % OUTPUTS
-%    ds_out: dataset array: soil variables extracted from data
+%    T_out: MATLAB table: soil variables extracted from data
 %
 % SEE ALSO
-%    dataset, UNM_parse_fluxall_txt_file, UNM_parse_fluxall_xls_file
+%    table, parse_fluxall_txt_file
 %
-% author: (UNM_Ameriflux_prepare_soil_met Timothy W. Hilton, UNM, January
-% 2012)
+% author: Gregory E. Maurer, UNM, Aug 2015
+% adapted from UNM_Ameriflux_prepare_soil_met by Timothy W. Hilton
 
-% [ last_obs_row_data, ~, ~ ] = find( not( isnan( double( data( :, 2:end ) ) ) ) );
-% [ last_obs_row_qc, ~, ~ ] = find( not( isnan( double( ds_qc( :, 2:end ) ) ) ) );
-% last_obs_row = max( [ reshape( last_obs_row_data, 1, [] ), ...
-%                     reshape( last_obs_row_qc, 1, [] ) ] );
 
 sitecode = UNM_sites( sitecode );
-%SWC_smoothed = false; % will set to true after SWC data have been smoothed
 
-data = parse_fluxall_txt_file( sitecode, year);
-%ds_qc = parse_fluxall_qc_file( sitecode, year);
+fluxall_T = parse_fluxall_txt_file( sitecode, year);
 
 %t0 = now();
 
-% some site-years have non-descriptive labels for soil data columns.  Replace
-% these with descriptive labels.
-%data = UNM_assign_soil_data_labels( sitecode, year, data );
-
 % create a column of -9999s to place in the dataset where a site does not
 % record a particular variable
-%dummy = repmat( -9999, size( data, 1 ), 1 );
+%dummy = repmat( -9999, size( fluxall_T, 1 ), 1 );
 
 % find any soil heat flux columns within QC data
-%shf_vars = regexp_header_vars( data, '(SHF|soil_heat_flux|shf).*' );
+%shf_vars = regexp_header_vars( fluxall_T, '(SHF|soil_heat_flux|shf).*' );
 %SHF = [];
 %n_shf_vars = numel( shf_vars );  % how many SHF columns are there?    
 
@@ -56,7 +46,8 @@ data = parse_fluxall_txt_file( sitecode, year);
 % Get header resolution
 % Use sitecode and dataloggerType to find appropriate header resolution file
 resFileName = sprintf('%s_Header_Resolution.csv', 'main');
-resFilePathName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), resFileName );
+resFilePathName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), ...
+    resFileName );
 res = readtable( resFilePathName );
     
 % Get soil data from fluxall
@@ -64,35 +55,35 @@ res = readtable( resFilePathName );
 re_soil = '[Ss][Ww][Cc]|SOILT|SHF|TCAV';
 res_idx = find( ~cellfun( @isempty, regexp( res.qc_mapping, re_soil )));
 % Index CURRENT headers in fluxall that match these QC headers
-data_idx = ismember(res.current( res_idx ), data.Properties.VariableNames);
+fluxall_idx = ismember(res.current( res_idx ), fluxall_T.Properties.VariableNames);
 % Extract indexed soil columns from the fluxall table
-soil_data = data( :, res.current( res_idx( data_idx) ) );
+soil_T = fluxall_T( :, res.current( res_idx( fluxall_idx) ) );
 % Rename extracted soil columns with the qc_mapping names
-soil_data.Properties.VariableNames = res.qc_mapping( res_idx( data_idx) );
+soil_T.Properties.VariableNames = res.qc_mapping( res_idx( fluxall_idx) );
 
 % Separate SWC data
-[colnames_swc, ~] = regexp_header_vars( soil_data, 'SWC' );
-swc = soil_data( :, colnames_swc );
+[colnames_swc, ~] = regexp_header_vars( soil_T, 'SWC' );
+swc = soil_T( :, colnames_swc );
         
 % Remove echo probes from swc
-[colnames_echo, ~] = regexp_header_vars( soil_data, 'echo' );
+[colnames_echo, ~] = regexp_header_vars( soil_T, 'echo' );
 if length( colnames_echo ) > 0
-    echo_swc = soil_data( :, colnames_echo );
+    echo_swc = soil_T( :, colnames_echo );
     swc( :, colnames_echo ) = [];
 end
 
 % Separate SoilT data
-[colnames_ts, ~] = regexp_header_vars( soil_data, 'SOILT' );
-ts = soil_data( :, colnames_ts );
+[colnames_ts, ~] = regexp_header_vars( soil_T, 'SOILT' );
+ts = soil_T( :, colnames_ts );
 
 % Separate SHF and TCAV data
-[colnames_shf, ~] = regexp_header_vars( soil_data, 'SHF|TCAV' );
-shf = soil_data( :, colnames_shf );
+[colnames_shf, ~] = regexp_header_vars( soil_T, 'SHF|TCAV' );
+shf = soil_T( :, colnames_shf );
 
 switch sitecode
     % sites with cs616s
     case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, ...
-            UNM_sites.New_GLand }
+            UNM_sites.New_GLand, UNM_sites.MCon, UNM_sites.PPine }
         
         % Check for SOILT_AVG column. This column is (supposedly) a surface
         % level measurement that can be used to correct surface soil water
@@ -147,14 +138,17 @@ switch sitecode
             newdata( test ) = data( test );
             swc_tc = array2table( newdata,...
                 'VariableNames', swc_tc.Properties.VariableNames );
-            % Only the SOILT_AVG column present
+        % Only the SOILT_AVG column present
         elseif sum( strcmp( 'SOILT_AVG', who )) > 0
             [ swc_c, swc_tc ] = cs616_period2vwc( swc, SOILT_AVG,...
                 'draw_plots', false );
-            % Only matched SoilT sensor columns present
+        % Only matched SoilT sensor columns present
         elseif size( ts, 2 ) > 0
             [ swc_c, swc_tc ] = cs616_period2vwc( swc, ts_corr,...
                 'draw_plots', false );
+        else
+            swc_c = swc;
+            swc_tc = cell2table( cell( size( ts ) ));
         end
         
         % Rename columns to indicate calibration/corrections applied
@@ -164,21 +158,30 @@ switch sitecode
         swc_tc.Properties.VariableNames = ...
             cellfun(@(x) [x '_cal_tcor'], swc_tc.Properties.VariableNames,...
             'UniformOutput', false);
+        
+        % Now join swc_c and swc_tc into one table
+        swc_c = [swc_c, swc_tc];
+        
+    case { UNM_sites.PJ, UNM_sites.PJ_girdle }
+        % There were echo probes early on that mostly look like garbage.
+        % In early to mid 2009 the TDR system came online and data look
+        % better. This does not need a temperature correction.
+        swc_c = swc;
 end
-
 
 % Now concatenate the different tables. Some columns are duplicated and
 % this should be fixed
-soil_data_cal_corr = [swc_c, swc_tc, ts, shf];
+tstamps = fluxall_T( :, {'year', 'month', 'day', 'hour', 'min', 'second'});
+soil_T_corr = [ tstamps, swc_c, ts, shf ];
 if exist( 'echo_swc', 'var' )
-    soil_data_cal_corr = [ soil_data_cal_cor, echo_swc ];
+    soil_T_corr = [ soil_T_corr, echo_swc ];
 end
 
 %Export to soilmet_qc file
 outpath = fullfile( get_site_directory(sitecode), 'processed_soil\');
 fname = [outpath sprintf('%s_%d_soilmet_qc.txt', ...
     get_site_name(sitecode), year )];
-writetable( soil_data_cal_corr, fname, 'Delimiter', ',' );
+writetable( soil_T_corr, fname, 'Delimiter', ',' );
 %        
 %         t0 = now();
 %         cs616_pd_smoothed = UNM_soil_data_smoother( cs616_pd, 6, false );
