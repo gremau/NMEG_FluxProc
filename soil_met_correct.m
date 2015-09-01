@@ -144,13 +144,7 @@ switch sitecode
         else
             swc_c = cs616_period2vwc( T_soil( :, cols_swc ),...
                 'draw_plots', false );
-            swc_c_tc = cell2table( cell( size( T_soil( :, cols_ts_tcor ) ) ));
         end
-        
-        % Rename columns to indicate temperature corrections applied
-        swc_c_tc.Properties.VariableNames = ...
-            cellfun(@(x) [x '_tcor'], swc_c_tc.Properties.VariableNames,...
-            'UniformOutput', false);
         
     case { UNM_sites.PJ, UNM_sites.PJ_girdle }
         % There were echo probes early on that mostly look like garbage.
@@ -162,6 +156,10 @@ end
 % Now concatenate the different tables.
 T_soil_corr = [ swc_c T_soil( :, cols_ts ) T_soil( :, cols_shf ) ];
 if exist( 'swc_c_tc', 'var' )
+    % Rename columns to indicate temperature corrections applied
+    swc_c_tc.Properties.VariableNames = ...
+        cellfun(@(x) [x '_tcor'], swc_c_tc.Properties.VariableNames,...
+        'UniformOutput', false);
     T_soil_corr = [ T_soil_corr, swc_c_tc ];
 end
 if length( cols_echo ) > 0
@@ -176,46 +174,54 @@ if write_qc
     outpath = fullfile( get_site_directory( sitecode ), 'processed_soil\');
     fname = [outpath sprintf('%s_%d_soilmet_qc.txt', ...
         get_site_name( sitecode ), year )];
+    fprintf( 'Writing %s...\n', fname );
     writetable( [ tstamps T_soil_corr ], fname, 'Delimiter', ',' );
 end
 
 %========================REMOVE BAD DATA===============================
 
-% Get SWC column names
-[cols_swc_corr, swc_loc] = regexp_header_vars( T_soil_corr, 'SWC' );
+T_soil_rbd = T_soil_corr;
 
-% Remove SWC values > .45 and < 0
-data = table2array( T_soil_corr );
-subset = data( :, swc_loc );
-bad_swc = subset > 0.45 | subset < 0;
-subset( bad_swc ) = NaN;
-data( :, swc_loc ) = subset;
-T_soil_rbd = array2table( data, ...
-    'VariableNames', T_soil_corr.Properties.VariableNames );
-
-% Clean out columns that are all NaN
-allnan = sum( isnan( table2array( T_soil_rbd ))) >= ...
-    size( T_soil_rbd, 1 ) - 48;
-T_soil_rbd( :, allnan ) = [];
-
-% Now filter with the standard deviation filter
-sd_filter_windows = [ 1, 1, 1 ];
-sd_filter_thresh = 3;
-
-for i = 1:length( T_soil_rbd.Properties.VariableNames )
-    colname = T_soil_rbd.Properties.VariableNames{ i };
-    col = T_soil_rbd( :, colname );
-    % Get the values flagged for std deviation
-    [ filt_col, stdflag ] = stddev_filter( col, ...
-        sd_filter_windows, sd_filter_thresh, sitecode, year );
-    T_soil_rbd( :, colname ) = filt_col;
-end
+% If there is data to clean follow these steps
+if ~isempty( T_soil_rbd )
+    % Get SWC column names
+    [cols_swc_corr, swc_loc] = regexp_header_vars( T_soil_rbd, 'SWC' );
+    
+    % Remove SWC values > .45 and < 0
+    data = table2array( T_soil_rbd );
+    subset = data( :, swc_loc );
+    bad_swc = subset > 0.45 | subset < 0;
+    subset( bad_swc ) = NaN;
+    data( :, swc_loc ) = subset;
+    T_soil_rbd = array2table( data, ...
+        'VariableNames', T_soil_corr.Properties.VariableNames );
+    
+    % Clean out columns that are all NaN
+    allnan = sum( isnan( table2array( T_soil_rbd ))) >= ...
+        size( T_soil_rbd, 1 ) - 48;
+    T_soil_rbd( :, allnan ) = [];
+    
+    % Now filter with the standard deviation filter
+    sd_filter_windows = [ 1, 1, 1 ];
+    sd_filter_thresh = 3;
+    
+    for i = 1:length( T_soil_rbd.Properties.VariableNames )
+        colname = T_soil_rbd.Properties.VariableNames{ i };
+        col = T_soil_rbd( :, colname );
+        % Get the values flagged for std deviation
+        [ filt_col, stdflag ] = stddev_filter( col, ...
+            sd_filter_windows, sd_filter_thresh, sitecode, year );
+        T_soil_rbd( :, colname ) = filt_col;
+    end
+    
+end % if ~empty
 
 if write_rbd
     %Export to soilmet_qc file
     outpath = fullfile( get_site_directory( sitecode ), 'processed_soil\');
     fname = [ outpath sprintf('%s_%d_soilmet_qc_rbd.txt', ...
         get_site_name( sitecode ), year )];
+    fprintf( 'Writing %s...\n', fname );
     writetable( [tstamps T_soil_rbd], fname, 'Delimiter', ',' );
 end
 %        

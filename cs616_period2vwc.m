@@ -55,7 +55,15 @@ args.addParameter( 'save_plots', false, @islogical );
 % parse optional inputs
 T_correct = false;
 args.parse( raw_swc, varargin{ : } );
-raw_swc = args.Results.raw_swc;
+
+% If empty break and return empty table
+if ~isempty( args.Results.raw_swc )
+    raw_swc = args.Results.raw_swc;
+else
+    vwc = args.Results.raw_swc;
+    return
+end
+
 if ~isempty( args.Results.T_soil )
     T_soil = args.Results.T_soil;
     T_correct = true;
@@ -288,5 +296,5 @@ if size( grp_vars, 2 ) >= 4
     end
     
 else
-    depths = NaN;
+    depths = {NaN};
 end
