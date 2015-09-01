@@ -1,4 +1,4 @@
-function soil_T_corr =  soil_met_correct( sitecode, year )
+function T_soil_corr =  soil_met_correct( sitecode, year, write_qc, write_rbd )
 % SOIL_MET_CORRECT - extracts soil water content (SWC), soil temperature,
 % and soil heat flux (SHF and TCAV) data from fluxall files corrects it.
 %
@@ -23,24 +23,12 @@ function soil_T_corr =  soil_met_correct( sitecode, year )
 % author: Gregory E. Maurer, UNM, Aug 2015
 % adapted from UNM_Ameriflux_prepare_soil_met by Timothy W. Hilton
 
-
+% Load data
 sitecode = UNM_sites( sitecode );
-
-fluxall_T = parse_fluxall_txt_file( sitecode, year);
-
-%t0 = now();
-
-% create a column of -9999s to place in the dataset where a site does not
-% record a particular variable
-%dummy = repmat( -9999, size( fluxall_T, 1 ), 1 );
-
-% find any soil heat flux columns within QC data
-%shf_vars = regexp_header_vars( fluxall_T, '(SHF|soil_heat_flux|shf).*' );
-%SHF = [];
-%n_shf_vars = numel( shf_vars );  % how many SHF columns are there?    
+fluxall_T = parse_fluxall_txt_file( sitecode, year );  
 
 % -----
-% get soil water content and soil temperature data from fluxall data
+% Get soil water content and soil temperature data from fluxall data
 % -----
 
 % Get header resolution
@@ -57,131 +45,179 @@ res_idx = find( ~cellfun( @isempty, regexp( res.qc_mapping, re_soil )));
 % Index CURRENT headers in fluxall that match these QC headers
 fluxall_idx = ismember(res.current( res_idx ), fluxall_T.Properties.VariableNames);
 % Extract indexed soil columns from the fluxall table
-soil_T = fluxall_T( :, res.current( res_idx( fluxall_idx) ) );
+T_soil = fluxall_T( :, res.current( res_idx( fluxall_idx) ) );
 % Rename extracted soil columns with the qc_mapping names
-soil_T.Properties.VariableNames = res.qc_mapping( res_idx( fluxall_idx) );
+T_soil.Properties.VariableNames = res.qc_mapping( res_idx( fluxall_idx) );
 
-% Separate SWC data
-[colnames_swc, ~] = regexp_header_vars( soil_T, 'SWC' );
-swc = soil_T( :, colnames_swc );
+% Get SWC column names
+[cols_swc, ~] = regexp_header_vars( T_soil, 'SWC' );
         
-% Remove echo probes from swc
-[colnames_echo, ~] = regexp_header_vars( soil_T, 'echo' );
-if length( colnames_echo ) > 0
-    echo_swc = soil_T( :, colnames_echo );
-    swc( :, colnames_echo ) = [];
+% Separate 616/TDR and echo probe names
+[cols_echo, ~] = regexp_header_vars( T_soil, 'echo' );
+if length( cols_echo ) > 0
+    echotest = ismember( cols_swc, cols_echo );
+    cols_swc = cols_swc( ~echotest );
 end
 
-% Separate SoilT data
-[colnames_ts, ~] = regexp_header_vars( soil_T, 'SOILT' );
-ts = soil_T( :, colnames_ts );
+% Get SoilT column names
+[cols_ts, ~] = regexp_header_vars( T_soil, 'SOILT' );
 
-% Separate SHF and TCAV data
-[colnames_shf, ~] = regexp_header_vars( soil_T, 'SHF|TCAV' );
-shf = soil_T( :, colnames_shf );
+% Get SHF and TCAV data column names
+[cols_shf, ~] = regexp_header_vars( T_soil, 'SHF|TCAV' );
 
 switch sitecode
     % sites with cs616s
     case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, ...
             UNM_sites.New_GLand, UNM_sites.MCon, UNM_sites.PPine }
         
+        % If CS616s are present we need to convert period to VWC and 
+        % temperature correct them. Make arrays of matched SoilT and SWC 
+        % column names (by pit/depth) to send to cs616_period2vwc
+        cols_swc_tcor = cols_swc;
+        cols_ts_tcor = cols_ts;
+        
         % Check for SOILT_AVG column. This column is (supposedly) a surface
         % level measurement that can be used to correct surface soil water
         % measurements.
-        % If found extract data and remove from ts
-        [tf, loc] = ismember( 'SOILT_AVG', ts.Properties.VariableNames );
-        if tf
-            SOILT_AVG = ts( :, loc );
-            ts( :, loc ) = [];
+        % If found separate from other columns
+        [SOILT_AVG_col, loc] = ismember( 'SOILT_AVG', cols_ts_tcor);
+        if SOILT_AVG_col
+            cols_ts_tcor( loc ) = [];
         end
         
         % If there are remaining soil temperature columns, create a table of
         % soil temperature measurements in the order that matches the pit and
-        % depths in the swc table
-        if size( ts, 2 ) > 0
-            % Get the pit and depth info from column headers
-            tmp = regexp( swc.Properties.VariableNames, '_', 'split' );
-            swc_id = cellfun( @(x) [ x{2} '_' x{3} ], tmp,...
+        % depths in the swc616 table
+        if length( cols_ts_tcor ) > 0
+            
+            % Get the pit and depth info from 616 column headers
+            tmp = regexp( cols_swc_tcor, '_', 'split' );
+            id_616 = cellfun( @(x) [ x{2} '_' x{3} ], tmp,...
                 'UniformOutput', false );
-            % Now make an empty temperature table to fill with SoilT data
-            ts_corr = table();
-            for i = 1:length(swc_id)
-                % Get SWC depth/pit ie string from header
-                id = swc_id{ i };
-                % Look for this SoilT header
-                ts_id = ['SoilT_', id, '_Avg'];
-                find_in_ts = find( cellfun(@(x) strcmp(x, ts_id), ...
-                    ts.Properties.VariableNames ) );
-                if isempty( find_in_ts )
-                    % If not present fill matching column with NaN
-                    ts_corr( :, ts_id ) = table( repmat( NaN, size( ts, 1), 1 ));
-                else
-                    % Otherwise fill with temp data
-                    ts_corr = [ts_corr, ts( :, ts_id )];
-                end
-            end
+            % Get the pit and depth info from SoilT column headers
+            tmp = regexp( cols_ts_tcor, '_', 'split' );
+            id_ts = cellfun( @(x) [ x{2} '_' x{3} ], tmp,...
+                'UniformOutput', false );
+            
+            % Find and sort matched cs616 and SoilT sensors by pit/depth
+            [ ts_match, ts_loc ] = ismember( id_616, id_ts );
+            
+            % Subset and reorder columns so cs616 and SoilT columns match
+            cols_swc_tcor = cols_swc_tcor( ts_match );
+            cols_ts_tcor = cols_ts_tcor( ts_loc( ts_match ) );
+
         end
         
         % If there is a SOILT_AVG column it should be used for shallow sensors,
         % unless there are soil T sensors at all depths. Series of logic
         % statements to parse out the different possibilities
         %
-        % If both are present (Clunky - No exist function for tables?)
-        if sum( strcmp( 'SOILT_AVG', who )) > 0 && size( ts, 2 ) > 0
-            [ swc_c, swc_tc ] = cs616_period2vwc( swc, ts_corr,...
+        % If both are present
+        if SOILT_AVG_col && length( cols_swc_tcor ) > 0
+            swc_c = cs616_period2vwc( T_soil( :, cols_swc ),...
                 'draw_plots', false );
-            [ ~, swc_tc_a ] = cs616_period2vwc( swc, SOILT_AVG,...
-                'draw_plots', false );
-            data = table2array( swc_tc );
-            newdata = table2array( swc_tc_a );
-            test = ~isnan( data );
-            newdata( test ) = data( test );
-            swc_tc = array2table( newdata,...
-                'VariableNames', swc_tc.Properties.VariableNames );
+            swc_c_tc = cs616_period2vwc( T_soil( :, cols_swc_tcor ), ...
+                'T_soil', T_soil( :, cols_ts_tcor ), 'draw_plots', false );
+            swc_c_tc_a = cs616_period2vwc( T_soil( :, cols_swc ), ...
+                'T_soil', T_soil( :, 'SOILT_AVG' ), 'draw_plots', false );
+            % Use SOILT_AVG corrected data only where proper depth
+            % corrected data is NaN
+            tc_a_cols = swc_c_tc_a.Properties.VariableNames;
+            for i = 1:length( tc_a_cols );
+                test = isnan( swc_c_tc{ :, tc_a_cols{i} } );
+                swc_c_tc{ test, tc_a_cols{i} } = ...
+                    swc_c_tc_a{ test, tc_a_cols{i} };
+            end
         % Only the SOILT_AVG column present
-        elseif sum( strcmp( 'SOILT_AVG', who )) > 0
-            [ swc_c, swc_tc ] = cs616_period2vwc( swc, SOILT_AVG,...
+        elseif SOILT_AVG_col
+            swc_c = cs616_period2vwc( T_soil( :, cols_swc ),...
                 'draw_plots', false );
+            swc_c_tc = cs616_period2vwc( T_soil( :, cols_swc ), ...
+                'T_soil', T_soil( :, 'SOILT_AVG' ), 'draw_plots', false );
         % Only matched SoilT sensor columns present
-        elseif size( ts, 2 ) > 0
-            [ swc_c, swc_tc ] = cs616_period2vwc( swc, ts_corr,...
+        elseif length( cols_ts_tcor ) > 0
+            swc_c = cs616_period2vwc( T_soil( :, cols_swc ),...
                 'draw_plots', false );
+            swc_c_tc = cs616_period2vwc( T_soil( :, cols_swc_tcor ), ...
+                'T_soil', T_soil( :, cols_ts_tcor ), 'draw_plots', false );
+        % No SoilT data present
         else
-            swc_c = swc;
-            swc_tc = cell2table( cell( size( ts ) ));
+            swc_c = cs616_period2vwc( T_soil( :, cols_swc ),...
+                'draw_plots', false );
+            swc_c_tc = cell2table( cell( size( T_soil( :, cols_ts_tcor ) ) ));
         end
         
-        % Rename columns to indicate calibration/corrections applied
-        swc_c.Properties.VariableNames = ...
-            cellfun(@(x) [x '_cal'], swc_c.Properties.VariableNames,...
+        % Rename columns to indicate temperature corrections applied
+        swc_c_tc.Properties.VariableNames = ...
+            cellfun(@(x) [x '_tcor'], swc_c_tc.Properties.VariableNames,...
             'UniformOutput', false);
-        swc_tc.Properties.VariableNames = ...
-            cellfun(@(x) [x '_cal_tcor'], swc_tc.Properties.VariableNames,...
-            'UniformOutput', false);
-        
-        % Now join swc_c and swc_tc into one table
-        swc_c = [swc_c, swc_tc];
         
     case { UNM_sites.PJ, UNM_sites.PJ_girdle }
         % There were echo probes early on that mostly look like garbage.
         % In early to mid 2009 the TDR system came online and data look
         % better. This does not need a temperature correction.
-        swc_c = swc;
+        swc_c = T_soil( :, cols_swc );
 end
 
-% Now concatenate the different tables. Some columns are duplicated and
-% this should be fixed
+% Now concatenate the different tables.
+T_soil_corr = [ swc_c T_soil( :, cols_ts ) T_soil( :, cols_shf ) ];
+if exist( 'swc_c_tc', 'var' )
+    T_soil_corr = [ T_soil_corr, swc_c_tc ];
+end
+if length( cols_echo ) > 0
+    T_soil_corr = [ T_soil_corr T_soil( :, cols_echo ) ];
+end
+
+% Get timestamp for exporting data to file
 tstamps = fluxall_T( :, {'year', 'month', 'day', 'hour', 'min', 'second'});
-soil_T_corr = [ tstamps, swc_c, ts, shf ];
-if exist( 'echo_swc', 'var' )
-    soil_T_corr = [ soil_T_corr, echo_swc ];
+% Write file
+if write_qc
+    %Export to soilmet_qc file with timestamps
+    outpath = fullfile( get_site_directory( sitecode ), 'processed_soil\');
+    fname = [outpath sprintf('%s_%d_soilmet_qc.txt', ...
+        get_site_name( sitecode ), year )];
+    writetable( [ tstamps T_soil_corr ], fname, 'Delimiter', ',' );
 end
 
-%Export to soilmet_qc file
-outpath = fullfile( get_site_directory(sitecode), 'processed_soil\');
-fname = [outpath sprintf('%s_%d_soilmet_qc.txt', ...
-    get_site_name(sitecode), year )];
-writetable( soil_T_corr, fname, 'Delimiter', ',' );
+%========================REMOVE BAD DATA===============================
+
+% Get SWC column names
+[cols_swc_corr, swc_loc] = regexp_header_vars( T_soil_corr, 'SWC' );
+
+% Remove SWC values > .45 and < 0
+data = table2array( T_soil_corr );
+subset = data( :, swc_loc );
+bad_swc = subset > 0.45 | subset < 0;
+subset( bad_swc ) = NaN;
+data( :, swc_loc ) = subset;
+T_soil_rbd = array2table( data, ...
+    'VariableNames', T_soil_corr.Properties.VariableNames );
+
+% Clean out columns that are all NaN
+allnan = sum( isnan( table2array( T_soil_rbd ))) >= ...
+    size( T_soil_rbd, 1 ) - 48;
+T_soil_rbd( :, allnan ) = [];
+
+% Now filter with the standard deviation filter
+sd_filter_windows = [ 1, 1, 1 ];
+sd_filter_thresh = 3;
+
+for i = 1:length( T_soil_rbd.Properties.VariableNames )
+    colname = T_soil_rbd.Properties.VariableNames{ i };
+    col = T_soil_rbd( :, colname );
+    % Get the values flagged for std deviation
+    [ filt_col, stdflag ] = stddev_filter( col, ...
+        sd_filter_windows, sd_filter_thresh, sitecode, year );
+    T_soil_rbd( :, colname ) = filt_col;
+end
+
+if write_rbd
+    %Export to soilmet_qc file
+    outpath = fullfile( get_site_directory( sitecode ), 'processed_soil\');
+    fname = [ outpath sprintf('%s_%d_soilmet_qc_rbd.txt', ...
+        get_site_name( sitecode ), year )];
+    writetable( [tstamps T_soil_rbd], fname, 'Delimiter', ',' );
+end
 %        
 %         t0 = now();
 %         cs616_pd_smoothed = UNM_soil_data_smoother( cs616_pd, 6, false );
