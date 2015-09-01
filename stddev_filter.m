@@ -1,10 +1,14 @@
-function [ filtered_series, sdflag ] = stddev_filter( series_in, ...
-                                                      filter_windows, ...
-                                                      std_dev, varargin )
+function [ filtered_array, sdflag ] = stddev_filter( array_in, ...
+                                                     filter_windows, ...
+                                                     std_dev, varargin )
 
-% Initialize the output series and remove-data flag
-filtered_series = series_in;
-sdflag = repmat( false, length( series_in ), 1 );
+% Initialize the output array and remove-data flag
+if isa( array_in, 'table' );
+    filtered_array = table2array( array_in );
+else
+    filtered_array = array_in;
+end
+sdflag = repmat( false, length( filtered_array ), 1 );
 
 % Initialize the figure to plot to
 if length( varargin ) > 0
@@ -30,12 +34,12 @@ for i=1:length( filter_windows );
         std_dev = std_dev + .15;
     end
     
-    % Plot the previously filtered series for contrast and add legend
-    plot( 1:length( filtered_series ), filtered_series, colors{i} );
+    % Plot the previously filtered array for contrast and add legend
+    plot( 1:length( filtered_array ), filtered_array, colors{i} );
     leg_string{ i } = sprintf( '%1.1f Days, SD = %1.2f', window, std_dev );
     
-    % Filter the series
-    [ filtered_series, rem_idx ] = filterseries( filtered_series, ...
+    % Filter the array
+    [ filtered_array, rem_idx ] = filterseries( filtered_array, ...
         'sigma', 48*window, std_dev, true, false );
     
     % Add remove indices to std_flag
@@ -43,6 +47,12 @@ for i=1:length( filter_windows );
 end
     
 % Plot final points
-plot( 1:length( filtered_series ), filtered_series, '.k' );
+plot( 1:length( filtered_array ), filtered_array, '.k' );
 leg_string{ i + 1 } = 'Filtered data';
 legend( leg_string, 'Location', 'SouthWest' );
+
+% If needed, convert back to table
+if isa( array_in, 'table' );
+    filtered_array = array2table( filtered_array, ...
+        'VariableNames', array_in.Properties.VariableNames );
+end
