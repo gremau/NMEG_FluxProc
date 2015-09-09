@@ -51,12 +51,13 @@ T_soil.Properties.VariableNames = res.qc_mapping( res_idx( fluxall_idx) );
 
 % Get SWC column names
 [cols_swc, ~] = regexp_header_vars( T_soil, 'SWC' );
-        
-% Separate 616/TDR and echo probe names
-[cols_echo, ~] = regexp_header_vars( T_soil, 'echo' );
-if length( cols_echo ) > 0
-    echotest = ismember( cols_swc, cols_echo );
-    cols_swc = cols_swc( ~echotest );
+
+% Separate sensor data that is already converted to VWC,
+% Includes columns marked with "echo" or "conv"
+[cols_conv, ~] = regexp_header_vars( T_soil, 'SWC_echo|SWC_conv' );
+if length( cols_conv ) > 0
+    convtest = ismember( cols_swc, cols_conv );
+    cols_swc = cols_swc( ~convtest );
 end
 
 % Get SoilT column names
@@ -162,8 +163,8 @@ if exist( 'swc_c_tc', 'var' )
         'UniformOutput', false);
     T_soil_corr = [ T_soil_corr, swc_c_tc ];
 end
-if length( cols_echo ) > 0
-    T_soil_corr = [ T_soil_corr T_soil( :, cols_echo ) ];
+if length( cols_conv ) > 0
+    T_soil_corr = [ T_soil_corr T_soil( :, cols_conv ) ];
 end
 
 % Get timestamp for exporting data to file
@@ -215,6 +216,38 @@ if ~isempty( T_soil_rbd )
     end
     
 end % if ~empty
+
+%============ Individual site bad data removal ============
+% 
+ts = datenum( table2array( tstamps ) );
+%
+switch sitecode
+%   case UNM.sites.GLand
+%     switch year
+%       case 2009
+%           
+%                 
+%   case UNM_sites.SLand
+%     switch year
+%       case 2009
+%         temp = double( Tsoil );
+%         temp( 1:DOYidx( 201.5 ), : ) = NaN;
+%         Tsoil = replacedata( Tsoil, temp );
+%     end
+%
+  case UNM_sites.JSav
+  % From early 2012 to early 2014 there was no cs616 period logged for
+  % the SWC_J1_5 sensor. There was a datalogger converted VWC value
+  % though (SWC_conv_J1_5_AVG) . Copy this into the appropriate range
+  % in SWC_J1_5_AVG
+  if year > 2011 && year < 2015
+      idx = ts > datenum( 2012, 5, 2, 11, 0, 0 ) & ...
+          ts < datenum( 2014, 1, 10, 10, 30, 0 );
+      T_soil_rbd( idx, 'SWC_J1_5_AVG' ) = T_soil_rbd( idx, 'SWC_conv_J1_5_AVG' );
+  end
+end
+
+%===============Write file==================
 
 if write_rbd
     %Export to soilmet_qc file
