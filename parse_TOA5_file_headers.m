@@ -31,7 +31,7 @@ delim = detect_delimiter( fname );
 
 % read file one line at a time into a cell array of strings
 fid = fopen(fname, 'rt');
-file_lines = textscan(fid, '%s', 'delimiter', '\n', 'BufSize', 1e6);
+file_lines = textscan(fid, '%s', 'delimiter', '\n');
 fclose(fid);
 file_lines = file_lines{1,1};
 

@@ -1,5 +1,6 @@
 function  ds  = ameriflux_dataset_get_timestamp( ds )
-% AMERIFLUX_DATASET_GET_TIMESTAMP - add a timestamp field of Matlab serial datenumbers to a dataset containing parsed ameriflux data.
+% AMERIFLUX_DATASET_GET_TIMESTAMP - add a timestamp field of Matlab serial
+% datenumbers to a dataset containing parsed ameriflux data.
 %
 % Ameriflux files contain their timestamp information in these variables:
 % YEAR: integer four-digit year

@@ -57,6 +57,14 @@ newT = newT( not( short_lines ), : );
 
 T =  newT;
 
+% Beware that there is a problem with how cr23x dataloggers create date
+% strings. Midnight is (always?) logged as 24:00 of the preceding day.
+% MATLAB parses this as 00:00 of that day, meaning that midnight is moved
+% 24 hours back in time. Fix this by changing all 24:00 time periods to
+% 00:00 and incrementing the day.
+fix_cr23x_tstamp = T.Hour_Minute_RTM==2400;
+T.Hour_Minute_RTM( fix_cr23x_tstamp ) = 0;
+T.Day_RTM( fix_cr23x_tstamp ) = T.Day_RTM( fix_cr23x_tstamp ) + 1;
 % Add a timestamp
 hourminute_prepend = num2str( T.Hour_Minute_RTM, '%04i' );
 [ ~, ~, ~, hour, min ] = datevec( hourminute_prepend( :, : ), 'HHMM' );

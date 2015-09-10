@@ -34,7 +34,7 @@ function [ amflx_gaps, amflx_gf ] = prepare_AF_output_data( sitecode, ...
 % by: Gregory E. Maurer, UNM, April 2015
 %
 % Some code adapted from UNM_Ameriflux_prepare_output_data.m and 
-% make_AF_output_tables.m by Tim Hilton
+% make_AF_output_tables.m by Timothy Hilton
 
 args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isintval(x) | isa( x, 'UNM_sites' )));
