@@ -237,11 +237,11 @@ for i = 1:numel( rawTables )
     
     % ----------- Swap sensors if needed -----------------
     if exist( sensorSwapsFile, 'file' )
-        firstRenameDate = datenum( swaps.first, 'YYYY-mm-DD' );
-        lastRenameDate = datenum( swaps.last, 'YYYY-mm-DD' );
+        firstRenameDate = datenum( swaps.first, 'YYYY-mm-DD HH:MM' );
+        lastRenameDate = datenum( swaps.last, 'YYYY-mm-DD HH:MM' );
         % Which header changes are in this TOA5's date range
-        inDateRange = floor( fileDate ) >= firstRenameDate &...
-            floor( fileDate ) <= lastRenameDate;
+        inDateRange = fileDate >= firstRenameDate &...
+            fileDate <= lastRenameDate;
         % Get the original and changed header names
         changeFrom = swaps.changeFrom( inDateRange );
         changeTo = swaps.changeTo( inDateRange );
