@@ -45,11 +45,11 @@ af_mapping,qc_mapping,desc,current,previous1,previous2,previous3
 ,SWC_S1_22p5_AVG,,SWC_S1_22p5_Avg,soil_h2o_s1_22p5_Avg,cs616_wcr_Avg_8,cs616_wcr_8
 ,SWC_S1_37p5_AVG,,SWC_S1_37p5_Avg,soil_h2o_s1_37p5_Avg,cs616_wcr_Avg_9,cs616_wcr_9
 ,SWC_S1_52p5_AVG,,SWC_S1_52p5_Avg,soil_h2o_s1_52p5_Avg,cs616_wcr_Avg_10,cs616_wcr_10
-,SWC_O2_2p5_AVG,,SWC_O2_2p5_Avg,soil_h2o_o2_2p5_Avg,cs616_wcr_Avg_11,cs616_wcr_11
-,SWC_O2_12p5_AVG,,SWC_O2_12p5_Avg,soil_h2o_o2_12p5_Avg,cs616_wcr_Avg_12,cs616_wcr_12
+,SWC_O2_2p5_AVG,,SWC_O2_2p5_Avg,soil_h2o_o2_2p5_Avg,cs616_wcr_Avg_11,cs616_wcr_15
+,SWC_O2_12p5_AVG,,SWC_O2_12p5_Avg,soil_h2o_o2_12p5_Avg,cs616_wcr_Avg_12,cs616_wcr_11
 ,SWC_O2_22p5_AVG,,SWC_O2_22p5_Avg,soil_h2o_o2_22p5_Avg,cs616_wcr_Avg_13,cs616_wcr_13
 ,SWC_O2_37p5_AVG,,SWC_O2_37p5_Avg,soil_h2o_o2_37p5_Avg,cs616_wcr_Avg_14,cs616_wcr_14
-,SWC_O2_52p5_AVG,,SWC_O2_52p5_Avg,soil_h2o_o2_52p5_Avg,cs616_wcr_Avg_15,cs616_wcr_15
+,SWC_O2_52p5_AVG,,SWC_O2_52p5_Avg,soil_h2o_o2_52p5_Avg,cs616_wcr_Avg_15,cs616_wcr_12
 ,SWC_S2_2p5_AVG,,SWC_S2_2p5_Avg,soil_h2o_s2_2p5_Avg,cs616_wcr_Avg_16,cs616_wcr_16
 ,SWC_S2_12p5_AVG,,SWC_S2_12p5_Avg,soil_h2o_s2_12p5_Avg,cs616_wcr_Avg_17,cs616_wcr_17
 ,SWC_S2_22p5_AVG,,SWC_S2_22p5_Avg,soil_h2o_s2_22p5_Avg,cs616_wcr_Avg_18,cs616_wcr_18
