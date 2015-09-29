@@ -248,6 +248,11 @@ for i = 1:numel( rawTables )
         
         % Get the locations of headers to rename in fileChanges
         [ ~, loc ] = ismember( changeFrom, headerChanges.( fileName ) );
+        % if strings have been renamed we may need to try this
+        if sum( loc )==0 && exist( sensorRenameFile, 'file' )
+            [ ~, loc ] = ismember( strcat( changeFrom, '_rename' ), ...
+                headerChanges.( fileName ) );
+        end
         
         % Make the changes
         headerChanges.( fileName )( loc ) = changeTo;
