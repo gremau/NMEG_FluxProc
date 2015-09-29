@@ -236,6 +236,10 @@ ts = datenum( table2array( tstamps ) );
 switch sitecode
   case UNM_sites.GLand
     switch year
+      case {2007, 2008}
+          % G3 12p5 SWC is mostly bad data before 2009
+          idx = ts < datenum( 2008, 11, 15 );
+          T_soil_rbd{ idx, 'SWC_G3_12p5_AVG' } = NaN;
       case 2009
           % Most of 2009 SWC data after Feb is bad
           idx = ts > datenum( 2009, 2, 27, 12, 30, 0 );
@@ -246,6 +250,9 @@ switch sitecode
           idx = ts > datenum( 2011, 3, 21, 11, 0, 0 );
           [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SWC_echo_O1' );
           T_soil_rbd{ idx, cols_rbd } = NaN;
+      case {2012, 2013}
+          % All 2012 and 2013 SWC data from G1 52p5 is bad
+          T_soil_rbd{ :, 'SWC_G1_52p5_AVG' } = NaN;
       case 2014
           % There is a bad data period in 2014
           idx = ts > datenum( 2014, 1, 21, 14, 0, 0 ) & ...
@@ -253,19 +260,12 @@ switch sitecode
           [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_(G1|G2|O1|O2)' );
           T_soil_rbd{ idx, cols_rbd } = NaN;
     end
-    % MULTI-YEAR data removal
-    % Remove G3 pit 12.5 depth data
-    idx = ts < datenum( 2014, 12, 31, 24, 0, 0 );
-    T_soil_rbd{ idx, 'SWC_G3_12p5_AVG' } = NaN;
-    % Remove G1 52p5 data 2012-2013
-    idx = ts > datenum( 2012, 1, 1 ) & ts < datenum( 2013, 12, 31 );
-    T_soil_rbd{ idx, 'SWC_G1_52p5_AVG' } = NaN;
 
     
   case UNM_sites.New_GLand
     switch year
       case 2010
-        % Most of 2010 SWC from instal to May 12 is bad
+        % Most of 2010 SWC from install to May 12 is bad
           idx = ts < datenum( 2010, 5, 12, 17, 0, 0 );
           [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SWC_O|SWC_G' );
           T_soil_rbd{ idx, cols_rbd } = NaN;
@@ -274,14 +274,15 @@ switch sitecode
               ts < datenum( 2010, 7, 16, 15, 30, 0 );
           [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SWC_O|SWC_G' );
           T_soil_rbd{ idx, cols_rbd } = NaN;
-      case 2012
+          % 2 sensors with zero data
+          T_soil_rbd{ :, {'SOILT_G1_2p5_AVG', 'SOILT_G1_12p5_AVG'}} = NaN;
+      case 2011
+          % 2 sensors with zero data
+          idx = ts < datenum( 2011, 11, 17, 14, 0, 0 );
+          T_soil_rbd{ idx, {'SOILT_G1_2p5_AVG', 'SOILT_G1_12p5_AVG'}} = NaN;
+      case {2012, 2013}
           % Noisy winter data in SWC_G1_12p5 sensor
-          idx1 = ts > datenum( 2012, 11, 1 );
-          idx2 = T_soil_rbd.SWC_G1_12p5_AVG > .125;
-          T_soil_rbd.SWC_G1_12p5_AVG( idx1 & idx2 ) = NaN;
-      case 2013
-          % Noisy winter data in SWC_G1_12p5 sensor
-          idx1 = ts > datenum( 2013, 11, 1 );
+          idx1 = ts > datenum( year, 11, 1 );
           idx2 = T_soil_rbd.SWC_G1_12p5_AVG > .125;
           T_soil_rbd.SWC_G1_12p5_AVG( idx1 & idx2 ) = NaN;
       case 2014
@@ -290,27 +291,42 @@ switch sitecode
           idx2 = T_soil_rbd.SWC_G1_12p5_AVG > .125;
           T_soil_rbd.SWC_G1_12p5_AVG( idx1 & idx2 ) = NaN;
     end
-    % MULTI-YEAR data removal
-    idx = ts < datenum( 2011, 11, 17, 14, 0, 0 );
-    T_soil_rbd{ idx, {'SOILT_G1_2p5_AVG', 'SOILT_G1_12p5_AVG'}} = NaN;
+ 
     
   case UNM_sites.SLand
     switch year
+      case {2007, 2008}
+          T_soil_rbd{ :, {'SWC_O2_22p5_AVG', 'SWC_O2_52p5_AVG'} } = NaN;
       case 2009
-        % There is a bad SoilT data period in 2009
+          % There is a bad SoilT data period in 2009
           idx = ts < datenum( 2009, 7, 20, 14, 0, 0 );
           [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_[SO]' );
           T_soil_rbd{ idx, cols_rbd } = NaN;
+          % and still some bad data from O2
+          idx = ts < datenum( 2009, 5, 7, 13, 30, 0 );
+          T_soil_rbd{ idx, {'SWC_O2_22p5_AVG', 'SWC_O2_52p5_AVG'} } = NaN;
+          % O1 22p5 SoilT
+          T_soil_rbd{ :, 'SOILT_O1_22p5_AVG' } = NaN;
+      case 2010
+          % O1 22p5 SoilT
+          T_soil_rbd{ :, 'SOILT_O1_22p5_AVG' } = NaN;
       case 2011
           idx = ts > datenum( 2011, 5, 23, 9, 30, 0 ) & ...
               ts < datenum( 2011, 5, 24, 13, 00, 0 );
           [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_[SO]' );
           T_soil_rbd{ idx, cols_rbd } = NaN;
+          % O1 22p5 SoilT
+          T_soil_rbd{ :, 'SOILT_O1_22p5_AVG' } = NaN;
+      case 2012
+          % O1 22p5 SoilT
+          T_soil_rbd{ :, 'SOILT_O1_22p5_AVG' } = NaN;
       case 2013
           idx = ts > datenum( 2013, 2, 13, 09, 30, 0 ) & ...
               ts < datenum( 2013, 3, 19, 10, 30, 0 );
           [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_[SO]' );
           T_soil_rbd{ idx, cols_rbd } = NaN;
+          % O1 22p5 SoilT
+          T_soil_rbd{ :, 'SOILT_O1_22p5_AVG' } = NaN;
       case 2014
         % There are some level-shifted bits that need to be removed. These
         % don't appear to be sensor swaps
@@ -319,37 +335,62 @@ switch sitecode
           [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, ...
               'SWC_(O[12]_(12p5|37p5)|S[12]_(2p5|22p5))');
           T_soil_rbd{ idx, cols_rbd } = NaN;
+          % O1 22p5 SoilT
+          idx = ts < datenum( 2014, 10, 22, 09, 30, 0 );
+          T_soil_rbd{ idx, 'SOILT_O1_22p5_AVG' } = NaN;
     end
-    % MULTI-YEAR data removal
-    % Remove O2 pit 22.5 depth data
-    idx = ts < datenum( 2009, 5, 7, 13, 30, 0 );
-    T_soil_rbd{ idx, {'SWC_O2_22p5_AVG', 'SWC_O2_52p5_AVG'} } = NaN;
-    idx = ts < datenum( 2014, 10, 22, 09, 30, 0 );
-    T_soil_rbd{ idx, 'SOILT_O1_22p5_AVG' } = NaN;
     
   case UNM_sites.JSav
-    switch year
-      case 2009
-        % There is a bad SWC data period in 2009 (constant values)
-          idx = ts > datenum( 2009, 2, 2, 12, 30, 0 ) & ...
-              ts < datenum( 2009, 3, 6, 15, 0, 0 );
-          [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SWC_J1' );
-          T_soil_rbd{ idx, cols_rbd } = NaN;
-      case 2014
-        % There is a bad SWC data period in 2014 (constant values
-          idx = ts > datenum( 2014, 1, 10, 10, 0, 0 ) & ...
-              ts < datenum( 2014, 2, 27, 18, 30, 0 );
-          [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SWC_J1_[13]0' );
-          T_soil_rbd{ idx, cols_rbd } = NaN;
-    end
-  % From early 2012 to early 2014 there was no cs616 period logged for
-  % the SWC_J1_5 sensor. There was a datalogger converted VWC value
-  % though (SWC_conv_J1_5_AVG) . Copy this into the appropriate range
-  % in SWC_J1_5_AVG
+    % From early 2012 to early 2014 there was no cs616 period logged for
+    % the SWC_J1_5 sensor. There was a datalogger converted VWC value
+    % though (SWC_conv_J1_5_AVG) . Copy this into the appropriate range
+    % in SWC_J1_5_AVG
     if year > 2011 && year < 2015
         idx = ts > datenum( 2012, 5, 2, 11, 0, 0 ) & ...
             ts < datenum( 2014, 1, 10, 10, 30, 0 );
         T_soil_rbd( idx, 'SWC_J1_5_AVG' ) = T_soil_rbd( idx, 'SWC_conv_J1_5_AVG' );
+    end
+    % Now individual year fixes.
+    switch year
+      case {2007, 2008}
+          % Bad SoilT data in early years
+          [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_(O[12]|J1_5)' );
+          T_soil_rbd{ :, cols_rbd } = NaN;
+      case 2009
+          % constant value data in 2009
+          idx = ts > datenum( 2009, 2, 2, 12, 30, 0 ) & ...
+              ts < datenum(2009, 3, 6, 15, 0, 0);
+          [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SWC_(O[12]|[EJ]1)' );
+          T_soil_rbd{ idx, cols_rbd } = NaN;
+          % Bad SoilT data in early years
+          idx = ts < datenum( 2009, 7, 8, 16, 0, 0 );
+          [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_(O[12]|J1|E1)' );
+          T_soil_rbd{ idx, cols_rbd } = NaN;
+          % Bad SoilT in J1 5 and 10 starts in 2009
+          idx = ts > datenum( 2009, 7, 8, 15, 30, 0 );
+          [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_J1_(5|10)' );
+          T_soil_rbd{ idx, cols_rbd } = NaN;
+      case {2010, 2011}
+          % Bad SoilT in J1 5 and 10 starts in 2009
+          idx = ts < datenum( 2011, 11, 18, 17, 30, 0 );
+          [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_J1_(5|10)' );
+          T_soil_rbd{ idx, cols_rbd } = NaN;
+      case 2013
+          % Constant values to remove
+          idx = ts > datenum( 2013, 7, 25, 13, 0, 0 ) & ...
+              ts < datenum( 2013, 10, 22, 13, 0, 0 );
+          [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_[OJ][1-3]' );
+          T_soil_rbd{ idx, cols_rbd } = NaN;
+      case 2014
+        % Bad period before sensor pits were redone
+          idx = ts > datenum( 2014, 1, 10, 10, 0, 0 ) & ...
+              ts < datenum( 2014, 2, 27, 18, 30, 0 );
+          [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SWC_[OJ][1-3]' );
+          T_soil_rbd{ idx, cols_rbd } = NaN;
+           % Bad period in summer
+          idx = ts > datenum( 2014, 7, 1, 23, 30, 0 ) & ...
+              ts < datenum( 2014, 7, 15, 22, 0, 0 );
+          T_soil_rbd{ idx, 'SOILT_J2_5_AVG' } = NaN;
     end
 end
 
