@@ -54,8 +54,8 @@ args.addRequired( 'data', @isnumeric );
 args.addRequired( 't_str', @ischar );
 args.addParamValue( 'cmap', [], @isnumeric );
 args.addParamValue( 'clim', [], @isnumeric );
-args.addParamValue( 'h_fig', NaN, @isnumeric );
-args.addParamValue( 'h_ax', NaN, @isnumeric );
+args.addParamValue( 'h_fig', [], @isobject );
+args.addParamValue( 'h_ax', [], @isobject );
 args.addParamValue( 'center_caxis', false, @islogical );
 args.addParamValue( 'fig_visible', true, @islogical );
 
@@ -81,11 +81,11 @@ else
 end
 
 % if figure or axes were not specified as arguments, create them now
-if isnan( h_fig )
+if isempty( h_fig )
     h_fig = figure( 'Visible', fig_visible );
     %figure( h_fig );
 end
-if isnan( h_ax )
+if isempty( h_ax )
     h_ax = axes();
 end
 
