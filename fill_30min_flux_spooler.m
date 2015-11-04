@@ -68,8 +68,8 @@ if sitecode == 1 % GLand
     elseif year == 2012
         %output = fill_30min_flux_processor( output, 1,2012, DOYidx( 196 ), DOYidx( 216 ) );
         %output = fill_30min_flux_processor( output, 1,2012, DOYidx( 226 ), DOYidx( 241 ) );
-    elseif year == 2013
-        %output = fill_30min_flux_processor( output, 1,2013, DOYidx( 148.9 ), DOYidx( 149.6 ) );
+    elseif year == 2015
+        output = fill_30min_flux_processor( output, 1,2015, 5461, 6112 );
     end
     
 elseif sitecode == 2 % SLand
