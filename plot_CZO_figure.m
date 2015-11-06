@@ -142,10 +142,16 @@ agg = array2table( [ year_mon, agg_sums, T_mean, Rg_max ], 'VariableNames',...
             
 agg.timestamp = datenum( agg.year, agg.month, 1 );
 
-% Remove the last couple months because they are gapfilled (for latest
+% Remove some time periods because they are gapfilled/not needed (for latest
 % figure sent to Jon Chorover)
-%test = agg.timestamp > datenum( 2015, 9, 1 );
-%agg{ test, 3:end } = NaN;
+test = agg.timestamp < datenum( 2009, 10, 1 );
+agg( test, : ) = [];
+% Remove fire
+test = agg.timestamp > datenum( 2013, 4, 1 ) & agg.timestamp < datenum( 2013, 12, 1 );
+agg{ test, 3:end } = NaN;
+% Remove end of 2015
+test = agg.timestamp > datenum( 2015, 9, 1 );
+agg{ test, 3:end } = NaN;
 
 %================
 % plot the figure
@@ -162,7 +168,7 @@ else
 end
 
 tick_years = reshape( repmat( unique( agg.year )', 2, 1 ), [], 1 );
-tick_months = repmat( [ 1, 7 ]', numel( unique( args.Results.years ) ), 1 );
+tick_months = repmat( [ 1, 7 ]', numel( unique( agg.year ) ), 1 );
 x_ticks = datenum( tick_years, tick_months, 1 );
 %x_limits = [ min( x_ticks ) - 30, max( x_ticks ) + 30 ];
 
@@ -179,9 +185,9 @@ set( ax1, 'XLim', x_limits, ...
 if not( all( isnan( args.Results.ylims ) ) )
     set( ax1, 'YLim', args.Results.ylims( 1, : ) );
 end
-ylabel( 'NEE [ gC m^{-2} ]',  'FontSize', 14  );
+ylabel( {'NEE','[ gC m^{-2} ]'},  'FontSize', 18  );
 info = parse_UNM_site_table();
-title( info.SITE_NAME( args.Results.sitecode ), 'FontSize', 14 );
+title( info.SITE_NAME( args.Results.sitecode ), 'FontSize', 18 );
 %ylim( [ -150, 250 ] );
 
 %--
@@ -198,7 +204,7 @@ set( ax2, 'XLim', x_limits, ...
 if not( isnan( args.Results.ylims ) )
     set( ax2, 'YLim', args.Results.ylims( 2, : ) );
 end
-ylabel( 'GPP & RE [ gC m^{-2} ]', 'FontSize', 14 );
+ylabel( {'GPP & RE','[ gC m^{-2} ]'}, 'FontSize', 18 );
 legend( [ h_GPP, h_RE ], 'GPP', 'RE', 'Location', 'NorthEast' );
 
 pal = cbrewer( 'div', 'PRGn', 9 );
@@ -214,7 +220,7 @@ ax3L = axes( 'Units', 'Normalized', ...
              'Position', [0.1300 0.3291 0.7750 0.1577 ] );
 h_ET = bar( double( agg.timestamp ), double( agg.ET ), ...
             'FaceColor', med_blue );
-ylabel('ET [ mm ]',  'FontSize', 14 )
+ylabel({'ET','[ mm ]'},  'FontSize', 18 )
 set( ax3L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...
            'XTickLabel', [], ...           
@@ -241,7 +247,7 @@ if not( isnan( args.Results.ylims ) )
     set( ax3R, 'YLim', args.Results.ylims( 4, : ) );
 end
 
-ylabel( 'Rg [ W m^{-2} ]',  'FontSize', 14  );
+ylabel( {'Rg','[ W m^{-2} ]'},  'FontSize', 18  );
 
 set( ax3L, 'box', 'off' );
 set( ax3R, 'box', 'off' );
@@ -253,12 +259,12 @@ ax4L = axes( 'Units', 'Normalized', ...
              'Position', [ 0.1300 0.1100 0.7750 0.1577 ] );
 h_pcp = bar( agg.timestamp, agg.PCP, ...
         'FaceColor', med_blue );
-ylabel('Precip [ mm ]',  'FontSize', 14 )
+ylabel({'Precip','[ mm ]'},  'FontSize', 18 )
 set( ax4L, 'XLim', x_limits, ...
            'XTick', x_ticks, ...           
            'YColor', get( h_ET, 'FaceColor' ), ...
            'XTickLabel', datestr( x_ticks, 'mmm yy' ), ...
-           'FontSize', 13 );
+           'FontSize', 16 );
 if not( isnan( args.Results.ylims ) )
     set( ax4L, 'YLim', args.Results.ylims( 5, : ) );
 end
@@ -278,7 +284,7 @@ if not( isnan( args.Results.ylims ) )
     set( ax4R, 'YLim', args.Results.ylims( 6, : ) );
 end
 
-ylabel( 'Air temp [ ^{\circ}C ]', 'FontSize', 14  );
+ylabel( {'Air temp','[ ^{\circ}C ]'}, 'FontSize', 18  );
 
 set( ax4L, 'box', 'off' );
 set( ax4R, 'box', 'off' );
