@@ -347,7 +347,7 @@ result = 0;
                 filledData.( varName )( filledIdx2 ), ...
                 '.', 'MarkerEdgeColor', [ 217, 95, 2 ] / 255.0 );
         else
-            h_filled_2 = 0;
+            h_filled_2 = [];
         end
         ylabel( varName );
         xlabel( 'day of year' );

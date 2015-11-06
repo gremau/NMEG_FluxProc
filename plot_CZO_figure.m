@@ -71,7 +71,7 @@ end
 % -----
 
 % load ameriflux data for requested years
-aflx_data = assemble_multi_year_ameriflux( args.Results.sitecode, ...
+aflx_data = assemble_multiyear_ameriflux( args.Results.sitecode, ...
                                            args.Results.years, ...
                                            'suffix', 'gapfilled', ...
                                            'binary_data', args.Results.binary_data );
@@ -81,15 +81,19 @@ if args.Results.sitecode == UNM_sites.PPine
           ( aflx_data.DTIME > 149 ) & ...
           ( aflx_data.DTIME < 195 );
     aflx_data.RE( idx ) = aflx_data.RE( idx ) * 0.5;
-    aflx_data.FC( idx ) = aflx_data.RE( idx ) - aflx_data.GPP( idx );
+    aflx_data.FC_F( idx ) = aflx_data.RECO( idx ) - aflx_data.GPP( idx );
 end
 
 %convert C fluxes to gC / m2
-aflx_data.FCgc = umolPerSecPerM2_2_gcPerMSq( aflx_data.FC );
+aflx_data.FCgc = umolPerSecPerM2_2_gcPerMSq( aflx_data.FC_F );
 aflx_data.GPPgc = umolPerSecPerM2_2_gcPerMSq( aflx_data.GPP ); 
-aflx_data.REgc = umolPerSecPerM2_2_gcPerMSq( aflx_data.RE );
+aflx_data.REgc = umolPerSecPerM2_2_gcPerMSq( aflx_data.RECO );
+% convert latent heat flux to mm / 30 minutes
+lmbda = ( 2.501 - 0.00236 .* aflx_data.TA_F ) .* 1000;
+et_mms = ( 1 ./ ( lmbda .* 1000 )) .* aflx_data.LE_F;
+aflx_data.ETmm = et_mms * 1800;
 % convert water flux (mg/m^2/s) to mm / 30 minutes
-aflx_data.ETmm = aflx_data.FH2O * 30 * 60 * 1e-6;
+%aflx_data.ETmm = aflx_data.FH2O * 30 * 60 * 1e-6;
 
 % calculate matlab datenum timestamps
 tstamp = datenum( aflx_data.YEAR, 1, 0 ) + aflx_data.DTIME;
@@ -97,45 +101,51 @@ tstamp = datenum( aflx_data.YEAR, 1, 0 ) + aflx_data.DTIME;
 
 % calculate monthly sums for pcp and carbon fluxes
 [ year_mon, agg_sums, idx ] = consolidator( ...
-    double( [ aflx_data.YEAR, month ] ), ...
-    double( aflx_data( :, { 'PRECIP', 'FCgc', ...
+    [ aflx_data.YEAR, month ], ...
+    table2array(aflx_data( :, { 'P_F', 'FCgc', ...
                     'GPPgc', 'REgc', 'ETmm' } ) ), ...
     @nansum );
 
 % FIXME - should be able to get rid of this after precip gapfilling is
 % complete - make sure there are not gaps in precip in 2013-2014
-if args.Results.sitecode == UNM_sites.MCon
-    % sub in Redondo pcp for Mcon pcp as per conversation with Marcy 30 Jul 2012
-    redondo_pcp = get_redondo_monthly_pcp_2011_to_present();
-    redondo_pcp = redondo_pcp( 1:end-1, : ); % Includes Jan 2015 - remove
-    replaceIdx = year_mon( :, 1 ) > 2010
-    if sum( replaceIdx ) == length( redondo_pcp )
-        agg_sums( replaceIdx, 1 ) = redondo_pcp( 1:end, 3 );
-    else
-        error('redondo and MCon precip do not match in time');
-    end
-%     for i = 1:size( redondo_pcp, 1 )
-%         idx = year_mon( :, 1) == redondo_pcp( i, 1 ) &&  
-%         %agg_sums( idx, 1 ) = redondo_pcp.pcp( i, 3);
+% if args.Results.sitecode == UNM_sites.MCon
+%     % sub in Redondo pcp for Mcon pcp as per conversation with Marcy 30 Jul 2012
+%     redondo_pcp = get_redondo_monthly_pcp_2011_to_present();
+%     redondo_pcp = redondo_pcp( 1:end-1, : ); % Includes Jan 2015 - remove
+%     replaceIdx = year_mon( :, 1 ) > 2010;
+%     if sum( replaceIdx ) == length( redondo_pcp )
+%         agg_sums( replaceIdx, 1 ) = redondo_pcp( 1:end, 3 );
+%     else
+%         error('redondo and MCon precip do not match in time');
 %     end
-end
+% %     for i = 1:size( redondo_pcp, 1 )
+% %         idx = year_mon( :, 1) == redondo_pcp( i, 1 ) &&  
+% %         %agg_sums( idx, 1 ) = redondo_pcp.pcp( i, 3);
+% %     end
+% end
 
 % calculate monthly means for air T
 [ year_mon, T_mean, idx ] = consolidator( ...
     double( [ aflx_data.YEAR, month ] ), ...
-    double( aflx_data.TA ), ...
+    double( aflx_data.TA_F ), ...
     @nanmean );
 
 [ year_mon, Rg_max, idx ] = consolidator( ...
     double( [ aflx_data.YEAR, month ] ), ...
-    double( aflx_data.Rg ), ...
+    double( aflx_data.SW_IN_F ), ...
     @nanmean );
 
 % combine aggregated data to dataset object
-agg = dataset( { [ year_mon, agg_sums, T_mean, Rg_max ], ...
-                 'year', 'month', 'PCP', 'NEE', 'GPP', ...
+agg = array2table( [ year_mon, agg_sums, T_mean, Rg_max ], 'VariableNames',...
+                 {'year', 'month', 'PCP', 'NEE', 'GPP', ...
                  'RE', 'ET', 'TA', 'Rg' } );
+            
 agg.timestamp = datenum( agg.year, agg.month, 1 );
+
+% Remove the last couple months because they are gapfilled (for latest
+% figure sent to Jon Chorover)
+%test = agg.timestamp > datenum( 2015, 9, 1 );
+%agg{ test, 3:end } = NaN;
 
 %================
 % plot the figure

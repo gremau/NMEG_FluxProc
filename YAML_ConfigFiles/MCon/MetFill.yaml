@@ -22,8 +22,8 @@ config_year:
             siteType    : snotel
             siteID      : 1017  # Vacas Locas
             linfit      : false
-          - 
-            siteType    : prism
-            siteID      : MCon  # Quemazon
-            linfit      : false
+                #- 
+                #siteType    : prism
+                #siteID      : MCon  # Quemazon
+                #linfit      : false
 ...
