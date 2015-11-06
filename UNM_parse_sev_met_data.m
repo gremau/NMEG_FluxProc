@@ -29,9 +29,20 @@ function metTable = UNM_parse_sev_met_data( year, varargin )
 if year < 2013
     fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
         'sev_met_data_2007_2012.csv' );
+    metTable = readtable( fname, 'Delimiter', ',', 'TreatAsEmpty', '.' );
+% elseif year > 2012
+%     fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
+%         'sev_met_data_2013_2014_2site.csv' );
 elseif year > 2012
     fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
-        'sev_met_data_2013_2014_2site.csv' );
+        sprintf('sev_met_data_%s.dat', num2str(year)) );
+    fid  = fopen( fname );
+    headers = fgetl( fid );
+    headers = strsplit( headers, ' ' );
+    fmt = repmat( '%f ', 1, length( headers ));
+    C = textscan( fid, fmt, 'TreatAsEmpty', '.');
+    fclose(fid);
+    metTable = table( C{:,:}, 'VariableNames', headers );
 end
 
 % Determine site id (if requested)
@@ -44,17 +55,22 @@ else
 end
 
 % Read the data into a table
-metTable = readtable( fname, 'Delimiter', ',', 'TreatAsEmpty', '.' );
+%metTable = readtable( fname, 'Delimiter', ',', 'TreatAsEmpty', '.' );
+
+% Remove bad values
 badValues = metTable{ :, : } == -999 | metTable{ :, : } == -888 ;
 metTable{ :, : }( badValues ) = NaN; 
 
 % There are some discrepancies in the header names between the 2 files
 if year > 2012
-    metTable.Properties.VariableNames{ 'StationID' } = 'Station_ID';
-    metTable.Properties.VariableNames{ 'Julian_Day' } = 'Jul_Day';
-    metTable.Properties.VariableNames{ 'Relative_Humidity' } = 'RH';
-    metTable.Properties.VariableNames{ 'Solar_Radiation' } = 'Solar_Rad';
-    metTable.Properties.VariableNames{ 'Precipitation' } = 'Precip';
+    metTable.Properties.VariableNames{ 'sta' } = 'Station_ID';
+    metTable.Properties.VariableNames{ 'year' } = 'Year';
+    metTable.Properties.VariableNames{ 'time' } = 'Hour';
+    metTable.Properties.VariableNames{ 'day' } = 'Jul_Day';
+    metTable.Properties.VariableNames{ 'airt' } = 'Temp_C';
+    metTable.Properties.VariableNames{ 'rh' } = 'RH';
+    metTable.Properties.VariableNames{ 'sol' } = 'Solar_Rad';
+    metTable.Properties.VariableNames{ 'ppt' } = 'Precip';
 end
 
 % Trim out extra sites from the table if requested
