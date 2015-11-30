@@ -21,7 +21,7 @@ h_fig1 = figure( 'Name', fig_title, ...
     'Position', [150 150 1050 550], 'Visible', 'on' );
 hold on;
 % Colors and legend strings for plotting
-colors = { '.r', '.m', '.b', '.y' };
+colors = { '.r', '.m', '.b', '.y', '.g', '.c' };
 leg_strings = {};
 
 % Loop through each filter window and filter/plot

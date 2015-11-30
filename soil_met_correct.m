@@ -215,7 +215,12 @@ if ~isempty( T_soil_rbd )
     T_soil_rbd( :, allnan ) = [];
     
     % Now filter with the standard deviation filter
-    sd_filter_windows = [ 1, 1, 1 ];
+    % First set up filter - PJ sites need more filtering
+    if sitecode==UNM_sites.PJ || sitecode==UNM_sites.PJ_girdle
+        sd_filter_windows = [ 1, 1, 1, 1, 1, 1 ];
+    else
+        sd_filter_windows = [ 1, 1, 1 ];
+    end
     sd_filter_thresh = 3;
     
     for i = 1:length( T_soil_rbd.Properties.VariableNames )
@@ -392,7 +397,38 @@ switch sitecode
               ts < datenum( 2014, 7, 15, 22, 0, 0 );
           T_soil_rbd{ idx, 'SOILT_J2_5_AVG' } = NaN;
     end
+    
+    case { UNM_sites.PJ, UNM_sites.PJ_girdle }
+        if year > 2008 && year < 2014
+            if sitecode==UNM_sites.PJ
+                site_token = 'PJC';
+            elseif sitecode==UNM_sites.PJ_girdle
+                site_token = 'PJG';
+            end
+            % Get the name of Laura Morillas's QC'd soil data file
+            soilqcPathFileName = fullfile(get_site_directory(sitecode), ...
+                'secondary_loggers', 'cr23x_files', ...
+                'LM_CR23xCompilations_qc', num2str( year ), sprintf( ...
+                'SWC_%s_%d_REFINED_30min.CSV', site_token, year) );
+            soilqc = readtable( soilqcPathFileName, 'FileType', 'text', ...
+                'Delimiter', ',', 'TreatAsEmpty', {'NA'} );
+            % Fix funny header names
+            newColNames = regexprep( soilqc.Properties.VariableNames, ...
+                '(^x[0-9][0-9]WC|^WC)', 'SWC_LM' );
+            %newColNames = regexprep(newColNames, 'SWC_', 'SWC_LMqc_');
+            newColNames = regexprep(newColNames, 'AVGH', 'AVG');
+            soilqc.Properties.VariableNames = newColNames;
+            % Now join with T_soil_rbd
+            new = array2table( repmat( nan, 1, size( soilqc, 2 )), ...
+                'VariableNames', newColNames );
+            soilqc = [ soilqc; new ];
+            T_soil_rbd = [ T_soil_rbd, ...
+                soilqc( :, ~cellfun( 'isempty', ...
+                strfind(newColNames, '_LM_' )))];
+        end
 end
+
+
 
 %===============Write file==================
 
