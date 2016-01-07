@@ -27,18 +27,19 @@ function fluxrc =  UNM_flux_process_config()
 % matters -- each abbreviation's position in the list is its site code
 %  This could be changed in get_site_code.m
 %             Site Abbrev          Site Code
-site_names = {'GLand', ...         % 1
-              'SLand', ...         % 2
-              'JSav', ...          % 3
-              'PJ', ...            % 4
-              'PPine', ...         % 5
-              'MCon', ...          % 6
-              'TX', ...            % 7
-              'TX_forest', ...     % 8
-              'TX_grassland', ...  % 9
-              'PJ_girdle', ...     % 10
+site_names = {'GLand', ...          % 1
+              'SLand', ...          % 2
+              'JSav', ...           % 3
+              'PJ', ...             % 4
+              'PPine', ...          % 5
+              'MCon', ...           % 6
+              'TX', ...             % 7
+              'TX_forest', ...      % 8
+              'TX_grassland', ...   % 9
+              'PJ_girdle', ...      % 10
               'New_GLand', ...      % 11
-              'SevEco'};        % 12
+              'SevEco', ...         % 12
+              'MCon_SS'};           % 13
 
 FLUXROOT = getenv('FLUXROOT');
 while length(FLUXROOT) == 0

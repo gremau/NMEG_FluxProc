@@ -3,8 +3,8 @@ function main_success = process_card_main( this_site, varargin )
 % datalogger flash card.
 %
 % Tasks performed:
-%    * Copies the raw data from the card to the appropriate 'Raw data from
-%      cards' directory
+%    * Copies the raw data from the card to the appropriate 'raw_card_data'
+%      directory
 %    * converts 30-minute data to a TOA5 file
 %    * converts 10 hz data to TOB1 files
 %    * copies the uncompressed TOB1 files to MyBook USB hard drive
