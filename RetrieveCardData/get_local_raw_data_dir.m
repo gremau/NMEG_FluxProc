@@ -20,6 +20,9 @@ function dir_path = get_local_raw_data_dir(site, mod_date)
 %   dir_path: string; full path to the raw data directory
 %
 % (c) Timothy W. Hilton, UNM, Oct 2011
+
+warning( sprintf(['This file (get_local_raw_data_dir.m) is deprecated.' ...
+    '\nCode moved to retrieve_card_data.m'] ));
     
 site = UNM_sites( site );
 

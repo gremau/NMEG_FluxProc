@@ -1,4 +1,4 @@
-function main_success = process_card_main( this_site, varargin )
+function main_success = process_card_main( this_site, logger_name, varargin )
 % PROCESS_CARD_MAIN - main function for retrieving flux tower data from a
 % datalogger flash card.
 %
@@ -33,6 +33,8 @@ function main_success = process_card_main( this_site, varargin )
 %
 % INPUTS:
 %   this_site: UNM_sites object or integer code; the site being processed
+%   logger_name: The name of the datalogger card data is being processed
+%       for. 
 %   data_location: string; Optional keyword argument specifying the location of
 %       the raw data to be processed. Legal values are 'card' and 'disk'; the
 %       default is 'card'.
@@ -59,14 +61,15 @@ function main_success = process_card_main( this_site, varargin )
 % -----
 args = inputParser;
 args.addRequired( 'this_site', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'logger_name', @ischar );
 args.addParameter( 'data_location', 'card', @ischar );
 args.addParameter( 'data_path', '', @ischar );
 args.addParameter( 'interactive', true, @islogical );
 
 % parse optional inputs
-args.parse( this_site, varargin{ : } );
-
+args.parse( this_site, logger_name, varargin{ : } );
 this_site = args.Results.this_site;
+logger_name = args.Results.logger_name;
 
 %--------------------------------------------------------------------------
 % open a log file
@@ -91,7 +94,7 @@ try
         data_location = args.Results.data_path;
     end
     [card_copy_success, raw_data_dir, mod_date] = ...
-        retrieve_tower_data_from_card( this_site, data_location );
+        retrieve_card_data_from_loc( this_site, logger_name, data_location );
 catch err
     % echo the error message
     fprintf( 'Error copying raw data from card to local drive.' )
