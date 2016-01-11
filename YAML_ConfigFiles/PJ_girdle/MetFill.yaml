@@ -1,41 +1,40 @@
 ---
-config_site: PJ_girdle
-config_year: 
-    - year      : 2007
-      fillTair  :
-          - 
-            siteType    : nmeg
-            siteID      : 4    # PJ control
-            linfit      : false
-          - 
-            siteType    : nmeg
-            siteID      : 3    # Juniper Savanna
-            linfit      : false
-      fillrH    :
-          - 
-            siteType    : nmeg
-            siteID      : 4    # PJ control
-            linfit      : false
-          - 
-            siteType    : nmeg
-            siteID      : 3    # Juniper Savanna
-            linfit      : false
-      fillRg    : 
-          - 
-            siteType    : nmeg
-            siteID      : 4    # PJ control
-            linfit      : false
-          - 
-            siteType    : nmeg
-            siteID      : 3    # Juniper Savanna
-            linfit      : false
-      fillPrecip:
-          - 
-            siteType    : nmeg
-            siteID      : 4    # PJ control
-            linfit      : false
-          - 
-            siteType    : prism
-            siteID      : PJ_girdle
-            linfit      : false
+config_site     : PJ_girdle
+config_by_date  : false 
+fillTair  :
+  - 
+    siteType    : nmeg
+    siteID      : 4    # PJ control
+    linfit      : false
+  - 
+    siteType    : nmeg
+    siteID      : 3    # Juniper Savanna
+    linfit      : false
+fillrH    :
+  - 
+    siteType    : nmeg
+    siteID      : 4    # PJ control
+    linfit      : false
+  - 
+    siteType    : nmeg
+    siteID      : 3    # Juniper Savanna
+    linfit      : false
+fillRg    : 
+  - 
+    siteType    : nmeg
+    siteID      : 4    # PJ control
+    linfit      : false
+  - 
+    siteType    : nmeg
+    siteID      : 3    # Juniper Savanna
+    linfit      : false
+fillPrecip:
+  - 
+    siteType    : nmeg
+    siteID      : 4    # PJ control
+    linfit      : false
+  - 
+    siteType    : prism
+    siteID      : PJ_girdle
+    linfit      : false
 ...
