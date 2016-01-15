@@ -71,6 +71,9 @@ args.parse( this_site, logger_name, varargin{ : } );
 this_site = args.Results.this_site;
 logger_name = args.Results.logger_name;
 
+% Get the datalogger configuration
+conf = parse_yaml_config('Dataloggers', this_site);
+
 %--------------------------------------------------------------------------
 % open a log file
 

@@ -69,8 +69,8 @@ thisData = fillTstamps( thisData, thisData.timestamp, 1/48 );
 % Get Met gapfilling configuration
 % We need to parse YAML config files to do this
 
-configFileName = 'MetFill.yaml';
-thisConfig = parse_yaml_site_config( configFileName, sitecode, year );
+configFileName = 'MetFill';
+thisConfig = parse_yaml_config( configFileName, sitecode );
 
 %--------------------------------------------------
 % VPD will need to be recalculated for the Tair and
