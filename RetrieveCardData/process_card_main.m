@@ -35,10 +35,11 @@ function main_success = process_card_main( this_site, logger_name, varargin )
 %   this_site: UNM_sites object or integer code; the site being processed
 %   logger_name: The name of the datalogger card data is being processed
 %       for. 
+%
+% PARAMETER-VALUE PAIRS
 %   data_location: string; Optional keyword argument specifying the location of
 %       the raw data to be processed. Legal values are 'card' and 'disk'; the
 %       default is 'card'.
-% PARAMETER-VALUE PAIRS
 %   data_path: string; the path to the directory containing the raw card data
 %       on disk.  Must be specified if data_location is 'disk'.  Ignored if
 %       data_location is 'card'.
