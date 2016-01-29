@@ -11,7 +11,10 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
 %     sitecode [ UNM_sites object ]: code of site to be filled
 %     year [ integer ]: year to be filled
 % PARAMETER-VALUE PAIRS
-%     draw_plots: {true} | false; if true, plot observed and filled T, Rg, RH.
+%     write_file: true | {false}; if true, write new for_gapfilling_filled
+%                                 file
+%     draw_plots: {true} | false; if true, plot observed and filled 
+%                          T, Rg, RH.
 %
 % OUTPUTS
 %     result [ integer ]: 0 on success, -1 on failure
@@ -30,13 +33,16 @@ args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'year', ...
     @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
-args.addParamValue( 'draw_plots', true, ...
+args.addParameter( 'write_output', false, ...
+    @(x) ( islogical( x ) & numel( x ) == 1 ) );
+args.addParameter( 'draw_plots', true, ...
     @(x) ( islogical( x ) & numel( x ) == 1 ) );
 args.parse( sitecode, year, varargin{ : } );
 % -----
 
 sitecode = args.Results.sitecode;
 year = args.Results.year;
+write_output = args.Results.write_output;
 draw_plots = args.Results.draw_plots;
 
 if isintval( sitecode )
@@ -156,15 +162,17 @@ foo( isnan( foo ) ) = -9999;
 thisData{:,:} = foo;
 
 % Write filled data to file except for matlab datenum timestamp column
-outfile = fullfile( get_site_directory( sitecode ), ...
-    'processed_flux', ...
-    sprintf( '%s_flux_all_%d_for_gap_filling_filled.txt', ...
-    get_site_name( sitecode ), year ) );
-fprintf( 'writing %s\n', outfile );
-thisData.timestamp = [];
-thisData2 = table2dataset(thisData);
-export_dataset_tim( outfile, thisData2, 'write_units', true );
-%export( thisData( :, 2:end ), 'file', outfile );
+if write_output
+    outfile = fullfile( get_site_directory( sitecode ), ...
+        'processed_flux', ...
+        sprintf( '%s_flux_all_%d_for_gap_filling_filled.txt', ...
+        get_site_name( sitecode ), year ) );
+    fprintf( 'writing %s\n', outfile );
+    thisData.timestamp = [];
+    thisData2 = table2dataset(thisData);
+    export_dataset_tim( outfile, thisData2, 'write_units', true );
+    %export( thisData( :, 2:end ), 'file', outfile );
+end
 
 result = 0;
 
