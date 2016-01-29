@@ -103,10 +103,11 @@ tstamp = datenum( 2004, 1, 0 ) + dtime;
 t_min = datenum( 2004, 1, 1 );
 t_max = datenum( 2004, 12, 31, 23, 59, 59 );
 tstamp = datenum_2_round30min( tstamp, 10, t_min );
-temp_data = dataset( { [ tstamp, data ], 'timestamp', 'data' } );
+temp_data = array2table( [ tstamp, data ], ...
+    'VariableNames', {'timestamp', 'data'});
 % temp_data now contains original data. Data missing from temp data
 % (between t_min and t_max) will be filled with NaN
-temp_data = dataset_fill_timestamps( temp_data, 'timestamp', ...
+temp_data = table_fill_timestamps( temp_data, 'timestamp', ...
                                      't_min', t_min, 't_max', t_max );
                                  
 % Make the filled timestamp back into fractional day of year
