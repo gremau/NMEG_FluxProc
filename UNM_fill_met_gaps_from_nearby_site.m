@@ -11,7 +11,7 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
 %     sitecode [ UNM_sites object ]: code of site to be filled
 %     year [ integer ]: year to be filled
 % PARAMETER-VALUE PAIRS
-%     write_file: true | {false}; if true, write new for_gapfilling_filled
+%     write_output: true | {false}; if true, write new for_gapfilling_filled
 %                                 file
 %     draw_plots: {true} | false; if true, plot observed and filled
 %                          T, Rg, RH.
