@@ -73,7 +73,7 @@ end_dt = [ num2str( year ), '-12-31' ];
 
 configFileName = 'MetFill';
 thisConfig = parse_yaml_config( sitecode, configFileName, ...
-    'date_range', { start_dt, end_dt } );
+    { start_dt, end_dt } );
 
 %--------------------------------------------------
 % VPD will need to be recalculated for the Tair and
