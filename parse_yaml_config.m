@@ -39,12 +39,19 @@ rmpath( yamlPath );
 rmpath( 'C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\' );
 
 % The yaml parser reads some field in as a cellarray of structs. Its easier
-% to work with struct arrays, so convert them
+% to work with struct arrays, so convert them. This throws an error if the
+% structs in input cellarray don't have the same fields (improperly
+% formatted yaml file).
 fnames = fieldnames( rawConfig );
 for i = 1:length( fnames )
     f = fnames{ i };
     if iscell(rawConfig.( f ))
-        rawConfig.(f) = cell2mat( rawConfig.( f ));
+        try
+            rawConfig.(f) = cell2mat( rawConfig.( f ));
+        catch
+            error( sprintf(['Error converting %s, fields in %s \n', ...
+                'cannot be converted to a stucture array'], yaml_name, f ));
+        end
     end
 end
 
@@ -89,19 +96,17 @@ if parse_by_date;
     for i = 1:length( fnames )
         fname = fnames{ i };
         if isstruct( rawConfig.( fname ))
-            startdates = datenum( { rawConfig.( fname ).start_date } );
-            % First check enddates for None and assign current date
+            confStart = datenum( { rawConfig.( fname ).start_date } );
+            % First check confEnd for None and assign current date
             convert = strcmpi({rawConfig.(fname).end_date}, 'None');
             [rawConfig.(fname)(convert).end_date] = ...
                 deal(datestr( now, 'yyyy-mm-dd'));
-            enddates = datenum( { rawConfig.( fname ).end_date } );
-            % Check that either the start date or end date is 
+            confEnd = datenum( { rawConfig.( fname ).end_date } );
+            % Check if either the start date or end date is 
             % inside date_range
-            keep_startdates = startdates >= date_range(1) & ...
-                startdates <= date_range(2);
-            keep_enddates = enddates >= date_range(1) & ...
-                enddates <= date_range(2);
-            keep = keep_startdates | keep_enddates;
+            keep_confStart =  confStart <= date_range( 2 );
+            keep_confEnd = confEnd >= date_range( 1 );
+            keep = keep_confStart & keep_confEnd;
             % Remove the configurations outside of date_range
             parsedConfig.( fname ) = rawConfig.( fname )( keep );
         else

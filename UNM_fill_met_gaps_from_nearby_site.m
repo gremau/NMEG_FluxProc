@@ -1,5 +1,5 @@
 function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
-                                                      varargin )
+    varargin )
 % UNM_FILL_MET_GAPS_FROM_NEARBY_SITE - fills gaps in site's meteorological data
 %   from the closest nearby site
 %
@@ -13,7 +13,7 @@ function result = UNM_fill_met_gaps_from_nearby_site( sitecode, year, ...
 % PARAMETER-VALUE PAIRS
 %     write_file: true | {false}; if true, write new for_gapfilling_filled
 %                                 file
-%     draw_plots: {true} | false; if true, plot observed and filled 
+%     draw_plots: {true} | false; if true, plot observed and filled
 %                          T, Rg, RH.
 %
 % OUTPUTS
@@ -67,10 +67,13 @@ thisData = fillTstamps( thisData, thisData.timestamp, 1/48 );
 
 %--------------------------------------------------
 % Get Met gapfilling configuration
-% We need to parse YAML config files to do this
+% We need to parse YAML config files for given year to do this
+start_dt = [ num2str( year ), '-01-01' ];
+end_dt = [ num2str( year ), '-12-31' ];
 
 configFileName = 'MetFill';
-thisConfig = parse_yaml_config( configFileName, sitecode );
+thisConfig = parse_yaml_config( sitecode, configFileName, ...
+    'date_range', { start_dt, end_dt } );
 
 %--------------------------------------------------
 % VPD will need to be recalculated for the Tair and
@@ -93,49 +96,44 @@ for i = 1:length( fillVars )
     % filling site listed in varConfig, load it
     for j = 1:length( varConfig )
         % Create a field name to look for in fillData
-        varConfig{j}.('fillDataField') = ...
-            [ varConfig{ j }.siteType '_' ...
-            num2str( varConfig{ j }.siteID ) ];
+        varConfig( j ).('fillDataField') = ...
+            [ varConfig( j ).siteType '_' ...
+            num2str( varConfig( j ).siteID ) ];
         % If that field is not present run getFillData
-        if not( isfield( fillData, varConfig{ j }.fillDataField ) )
+        if not( isfield( fillData, varConfig( j ).fillDataField ) )
             fillData = getFillData( fillData, ...
-                varConfig{ j }.siteType, varConfig{ j }.siteID );
+                varConfig( j ).siteType, varConfig( j ).siteID );
         end
-    end
-    % If there is no secondary site for the variable, enter some dummy
-    % values into config
-    if length( varConfig ) < 2
-        varConfig{ 2 } = struct( 'fillDataField', 'empty', 'linfit', 0);
-        fillData.('empty') = [];
     end
     
     try
         % Replace missing data in thisData with data from fillData
         % NOTE this also returns indices of what was filled
-        [ thisData, filledIdx1, filledIdx2 ] = ...
-            fill_variable( thisData, ...
-            fillData.( varConfig{ 1 }.fillDataField ), ...
-            fillData.( varConfig{ 2 }.fillDataField ), ...
-            fillVars{ i }, fillVars{ i }, fillVars{ i }, ...
-            varConfig{ 1 }.linfit, ...
-            varConfig{ 2 }.linfit );
+        [ thisData, varConfig ] = ...
+            fill_variable( thisData, fillData, fillVars{ i }, varConfig );
     catch
         fprintf([ 'ABORTING UNM_fill_met_gaps_from_nearby_site \n' ...
             'There is not enough ancillary met data available \n' ...
             'Filled file not written. \n' ]);
         result = 1;
         error( 'Met gapfilling failed' );
-        
     end
-    % Remove bad values from the now filled variables
+    
+    % Combine the two filled indices into one ( used for recalcVPD )
+    filledIdx = [];
+    for count=1:length( varConfig )
+        filledIdx = [ filledIdx, varConfig( count ).fillIdx ];
+    end
+        
+    % Remove bad values from the now filled variables and recalc VPD
     if strcmp( fillVars{ i }, 'rH' )
         thisData.rH( thisData.rH > 100.0 ) = 100.0;
         thisData.rH( thisData.rH < 0.0 ) = 0.0;
         % Add filled indices to the vpd refill index
-        recalcVPD = [ recalcVPD ; filledIdx1 ; filledIdx2 ];
+        recalcVPD = [ recalcVPD ; filledIdx ];
     elseif strcmp( fillVars{ i }, 'Tair' );
         % Add filled indices to the vpd refill index
-        recalcVPD = [ recalcVPD ; filledIdx1 ; filledIdx2 ];
+        recalcVPD = [ recalcVPD ; filledIdx ];
     elseif strcmp( fillVars{ i }, 'Rg' )
         thisData.Rg( thisData.Rg < -50 ) = NaN;
     elseif strcmp( fillVars{ i }, 'Precip' )
@@ -144,9 +142,8 @@ for i = 1:length( fillVars )
     
     % Draw a plot if requested
     if draw_plots
-    h_fig = plot_filled_variable( thisData, ...
-        fillVars{ i }, filledIdx1, filledIdx2, ...
-        sitecode, year );
+        h_fig = plot_filled_variable( thisData, fillVars{ i }, ...
+            varConfig, sitecode, year );
     end
 end
 
@@ -192,52 +189,52 @@ result = 0;
         % Based on configuration, load filling site data, prepare the
         % data, and put into fillSiteData structure
         try
-        switch lower( siteType )
-            case 'nmeg'
-                fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt \n', ...
-                    get_site_name( siteID ), year );
-                addData = parse_forgapfilling_file( siteID, year, ...
-                    'use_filled', filled_file_false );
-                nmegSiteQC = parse_fluxall_qc_file( siteID, year );
-                addData.Precip = nmegSiteQC.precip;
-                
-            case 'sev' % Parse the nearest Sevilletta met site
-                addData = UNM_parse_sev_met_data( year, siteID );
-                addData = prepare_met_data( addData, year, 'Sev' );
-                
-            case 'vcp' % Parse the nearest VC met site
-                addData = UNM_parse_valles_met_data( 'VCP', year, siteID );
-                addData = prepare_met_data( addData, year, 'VCP' );
-                
-            case 'dri' % DRI files only contain 1 site
-                addData = UNM_parse_valles_met_data( 'DRI', year, 'Jemez' );
-                addData = prepare_met_data( addData, year, 'DRI' );
-                
-            case 'snotel' % Parse the nearest SNOTEL site
-                addData = UNM_parse_SNOTEL_data( siteID, year );
-                addData = prepare_daily_precip( addData, 'Precip');
-                
-            case 'ghcnd' % Parse the nearest GHCND site
-                addData = UNM_parse_GHCND_met_data( siteID, year );
-                addData = prepare_daily_precip( addData, 'PRCP' );
-                % Convert from tenths to mm
-                addData.Precip = addData.Precip ./ 10;
-                
-            case 'prism'
-                addData = UNM_parse_PRISM_met_data( sitecode, year );
-                addData = prepare_daily_precip( addData, 'Precip');
-                
-            case 'daymet'
-                addData = UNM_parse_DayMet_data( sitecode, year );
-                addData = prepare_daily_precip( addData, 'prcp_mm_day_' );
-        end
-        % Fill the timestamps in this dataset and put in fillSiteData
-        filledStruct.( newFieldName ) = ...
-            fillTstamps( addData, thisData.timestamp, 1/48 );
+            switch lower( siteType )
+                case 'nmeg'
+                    fprintf( 'parsing %s_flux_all_%d_for_gapfilling.txt \n', ...
+                        get_site_name( siteID ), year );
+                    addData = parse_forgapfilling_file( siteID, year, ...
+                        'use_filled', filled_file_false );
+                    nmegSiteQC = parse_fluxall_qc_file( siteID, year );
+                    addData.Precip = nmegSiteQC.precip;
+                    
+                case 'sev' % Parse the nearest Sevilletta met site
+                    addData = UNM_parse_sev_met_data( year, siteID );
+                    addData = prepare_met_data( addData, year, 'Sev' );
+                    
+                case 'vcp' % Parse the nearest VC met site
+                    addData = UNM_parse_valles_met_data( 'VCP', year, siteID );
+                    addData = prepare_met_data( addData, year, 'VCP' );
+                    
+                case 'dri' % DRI files only contain 1 site
+                    addData = UNM_parse_valles_met_data( 'DRI', year, 'Jemez' );
+                    addData = prepare_met_data( addData, year, 'DRI' );
+                    
+                case 'snotel' % Parse the nearest SNOTEL site
+                    addData = UNM_parse_SNOTEL_data( siteID, year );
+                    addData = prepare_daily_precip( addData, 'Precip');
+                    
+                case 'ghcnd' % Parse the nearest GHCND site
+                    addData = UNM_parse_GHCND_met_data( siteID, year );
+                    addData = prepare_daily_precip( addData, 'PRCP' );
+                    % Convert from tenths to mm
+                    addData.Precip = addData.Precip ./ 10;
+                    
+                case 'prism'
+                    addData = UNM_parse_PRISM_met_data( sitecode, year );
+                    addData = prepare_daily_precip( addData, 'Precip');
+                    
+                case 'daymet'
+                    addData = UNM_parse_DayMet_data( sitecode, year );
+                    addData = prepare_daily_precip( addData, 'prcp_mm_day_' );
+            end
+            % Fill the timestamps in this dataset and put in fillSiteData
+            filledStruct.( newFieldName ) = ...
+                fillTstamps( addData, thisData.timestamp, 1/48 );
         catch
             % Let missing data slide with a warning only in current year
             % and fill with NaNs. This is an error in earlier years
-            if year == this_year; 
+            if year == this_year;
                 warning( sprintf( 'The %s filling data failed to parse', ...
                     newFieldName ));
             else
@@ -245,11 +242,10 @@ result = 0;
                     newFieldName ));
             end
         end
-            
     end
-%==========================================================================
 
-    % Function to fill in timestamps of a new dataset
+%==========================================================================
+% Function to fill in timestamps of a new dataset
     function filledTsData = fillTstamps( data, tStamps, delta )
         % Subset data
         data = data( ( data.timestamp >= min( tStamps ) & ...
@@ -261,81 +257,71 @@ result = 0;
             'delta_t', delta );
         filledTsData.timestamp = datenum( filledTsData.timestamp );
     end
+    
 %==========================================================================
-
-    function [ fillDest, idx1, idx2 ] = fill_variable( fillDest, ...
-            source1, source2, ...
-            varNameDest, ...
-            varNameSource1, ...
-            varNameSource2, ...
-            linfitSource1, ...
-            linfitSource2)
+    function [ fillDest, varConfRet ] = fill_variable( fillDest, ...
+            fillSource, varName, varConf )
         % replace missing values in on variable of dataset fillDest with
         % corresponding values from dataset source1.  Where source1 also
         % has missing values, fall back to source2 if provided.
-     
-        n_missing = numel( find( isnan( fillDest.( varNameDest ) ) ) );
         
-        % Flag indicating no fill data available
+        % Initialize some flags/counters
         nodata = 0;
+        n_filled = 0;
+        n_missing = numel( find( isnan( fillDest.( varName ) ) ) );
+        varConfRet = varConf; % Copy conf for adding indices
+        varConfRet(:).fillIdx = [];
         
-        % Check that there is valid data in the filling data
-        if sum( ~isnan( source1.( varNameSource1 ))) == 0
-            nodata = nodata + 1;
-            warning(sprintf('There is no valid data in %s source 1', ...
-                varNameSource1));
-        end
-        % Otherwise, get the index of data in fillDest to fill with
-        % non-nan data from source 1
-        idx1 = find( isnan( fillDest.( varNameDest ) ) & ...
-            ~isnan( source1.( varNameSource1 ) ) );
-        % Do a linear fit if requested
-        if linfitSource1
-            replacement = linfit_var( source1.( varNameSource1 ), ...
-                fillDest.( varNameDest ), ...
-                idx1 );
-        else
-            replacement = source1.( varNameSource1 );
-        end
-        % Put the replacement data in the fill destination
-        fillDest.( varNameDest )( idx1 ) = replacement( idx1 );
-        
-        % If there is a secondary site, fill remaining missing values
-        idx2 = [];  %initialize to empty in case no second site provided
-        if not( isempty( source2 ) )
-            if sum( ~isnan( source2.( varNameSource2 ))) == 0
+        for k = 1:length( varConf )
+            % Get data source and set linfit and scaling options
+            source = fillSource.(varConf(k).fillDataField );
+            linfitSource = false;
+            scaleSource = false;
+            if isfield( varConf, 'linfit' ) && varConf.linfit
+                linfitSource = true;
+            end
+            if isfield( varConf, 'scale' ) && varConf.scale
+                scaleSource = true;
+            end
+            % Check that there is valid data in the filling data
+            if sum( ~isnan( source.( varName ))) == 0
                 nodata = nodata + 1;
-                warning(sprintf('There is no valid data in %s source 2', ...
-                    varNameSource2));
+                warning(sprintf('There is no valid data in %s source %d', ...
+                    varName, k ));
             end
-            idx2 = find( isnan( fillDest.( varNameDest ) ) & ...
-                isnan( source1.( varNameSource1 ) ) & ...
-                ~isnan( source2.( varNameSource2 ) ) );
-            if linfitSource2
-                replacement = linfit_var( source2.( varNameSource2 ), ...
-                    fillDest.( varNameDest ), ...
-                    idx2 );
+            % Get the index of data in fillDest to fill with
+            % non-nan data from source
+            fillIdx = find( isnan( fillDest.( varName )) & ...
+                ~isnan( source.( varName ) ) );
+            varConfRet( k ).fillIdx = fillIdx;
+            % Do a linear fit if requested
+            if linfitSource
+                replacement = linfit_var( source.( varName ), ...
+                    fillDest.( varName ), fillIdx );
             else
-                replacement = source2.( varNameSource2 );
+                replacement = source.( varName );
             end
-            % Put the replacement data in the fill destination
-            fillDest.( varNameDest )( idx2 ) = replacement( idx2 );
+            % Scale the data if requested
+            if scaleSource
+                replacement = replacement * ( 1 + varConf.scale/100 )
+            end
             
+            % Put the replacement data in the fill destination and count
+            fillDest.( varName )( fillIdx ) = replacement( fillIdx );
+            n_filled = n_filled + numel( fillIdx );
         end
         if nodata > 1
             error(sprintf('No data found in %s source 1 or %s source 2',...
-                    varNameSource1, varNameSource2 ));
+                varName, varName ));
         end
         % Calculate and display number of filled data
-        n_filled = numel( idx1 ) + numel( idx2 );
         fprintf( '%s: replaced %d / %d missing observations\n', ...
-            varNameDest, n_filled, n_missing );
+            varName, n_filled, n_missing );
     end
-%==========================================================================
 
+%==========================================================================
     function h_fig = plot_filled_variable( filledData, varName, ...
-            filledIdx1, filledIdx2, ...
-            sitecode, year )
+            varConf, sitecode, year )
         
         seconds = repmat( 0.0, size( filledData, 1 ), 1 );
         ts = datenum( filledData.year, filledData.month, filledData.day, ...
@@ -343,26 +329,25 @@ result = 0;
         nobs = size( filledData, 1 );
         jan1 = datenum( filledData.year, repmat( 1, nobs, 1 ), repmat( 1, nobs, 1 ) );
         doy = ts - jan1 + 1;
-        
+        % Make figure and plot all data
         h_fig = figure();
-        h_obs = plot( doy, filledData.( varName ), '.k' );
+        handles(1) = plot( doy, filledData.( varName ), '.k' );
         hold on;
-        h_filled_1 = plot( doy( filledIdx1 ), ...
-            filledData.( varName )( filledIdx1 ), ...
-            '.', 'MarkerEdgeColor', [ 27, 158, 119 ] / 255.0 );
-        if not( isempty( filledIdx2 ) )
-            h_filled_2 = plot( doy( filledIdx2 ), ...
-                filledData.( varName )( filledIdx2 ), ...
-                '.', 'MarkerEdgeColor', [ 217, 95, 2 ] / 255.0 );
-        else
-            h_filled_2 = [];
+        % Then plot filled data from each source
+        mcolors = parula( length( varConf ) );
+        for l = 1:length( varConf )
+            fillIdx = varConf( l ).fillIdx;
+            handles(l+1) = plot( doy( fillIdx ), ...
+                filledData.( varName )( fillIdx ), ...
+                '.', 'MarkerEdgeColor', mcolors( l, : ) );
         end
         ylabel( varName );
         xlabel( 'day of year' );
         title( sprintf( '%s %d', get_site_name( sitecode ), year ) );
-        legend( [ h_obs, h_filled_1, h_filled_2 ], ...
-            'observed', 'filled 1', 'filled 2' );
+        legend( handles, ...
+            'observed', 'filled 1', 'filled 2', 'filled 3' );
     end
+
 %===========================================================================
 
     function T = prepare_met_data( T_in, year, site )
