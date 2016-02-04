@@ -833,6 +833,20 @@ precip = fix_incorrect_precip_factors( sitecode, year_arg, ...
 % In 2010 the thermocouple in the CNR1 at GLand failed. Use air temp.
 if sitecode == 1 & year_arg==2010;;
     CNR1TempK = air_temp_hmp + 273.15;
+% In 2007 the thermocouple in the CNR1 at PPine failed for a while in 
+% the spring. Use air temp.
+elseif sitecode == 5 & year_arg==2007;
+    CNR1TempK = CNR1TK;
+    idx = DOYidx( 155.5 ):DOYidx( 198.55 );
+    CNR1TempK( idx ) = air_temp_hmp( idx ) + 273.15;
+elseif sitecode == 5 & year_arg==2013;
+    CNR1TempK = CNR1TK;
+    idx = DOYidx( 353.18 ):17520;
+    CNR1TempK( idx ) = air_temp_hmp( idx ) + 273.15;
+elseif sitecode == 5 & year_arg==2014;
+    CNR1TempK = CNR1TK;
+    idx = [ DOYidx( 1 ):DOYidx( 3.6 ), DOYidx( 83.81 ):DOYidx( 106.36 ) ] ;
+    CNR1TempK( idx ) = air_temp_hmp( idx ) + 273.15;
 % In 2014 the thermocouple in the CNR1 at NewGLand failed for a while in 
 % the spring. Use air temp.
 elseif sitecode == 11 & year_arg==2014;
