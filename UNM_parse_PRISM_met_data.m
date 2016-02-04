@@ -36,10 +36,10 @@ precipFname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
 precipDataT = readtable( precipFname, 'Delimiter', ',' );
 
 % Parse out year
-precipDataT = precipDataT( : , { 'date', get_site_name( sitecode ) });
+precipDataT = precipDataT( : , { 'date', get_site_name( sitecode, 'aflx' ) });
 
 % Change variable name
-precipDataT.Properties.VariableNames{ get_site_name( sitecode ) } = 'Precip';
+precipDataT.Properties.VariableNames{ get_site_name( sitecode, 'aflx' ) } = 'Precip';
 
 % Add a timestamp
 precipDataT.timestamp = datenum( precipDataT.date, 'yyyy-mm-dd' );
