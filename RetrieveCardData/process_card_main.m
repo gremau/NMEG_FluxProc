@@ -1,10 +1,10 @@
-function main_success = process_card_main( this_site, varargin )
+function main_success = process_card_main( this_site, logger_name, varargin )
 % PROCESS_CARD_MAIN - main function for retrieving flux tower data from a
 % datalogger flash card.
 %
 % Tasks performed:
-%    * Copies the raw data from the card to the appropriate 'Raw data from
-%      cards' directory
+%    * Copies the raw data from the card to the appropriate 'raw_card_data'
+%      directory
 %    * converts 30-minute data to a TOA5 file
 %    * converts 10 hz data to TOB1 files
 %    * copies the uncompressed TOB1 files to MyBook USB hard drive
@@ -33,10 +33,13 @@ function main_success = process_card_main( this_site, varargin )
 %
 % INPUTS:
 %   this_site: UNM_sites object or integer code; the site being processed
+%   logger_name: The name of the datalogger card data is being processed
+%       for. 
+%
+% PARAMETER-VALUE PAIRS
 %   data_location: string; Optional keyword argument specifying the location of
 %       the raw data to be processed. Legal values are 'card' and 'disk'; the
 %       default is 'card'.
-% PARAMETER-VALUE PAIRS
 %   data_path: string; the path to the directory containing the raw card data
 %       on disk.  Must be specified if data_location is 'disk'.  Ignored if
 %       data_location is 'card'.
@@ -59,14 +62,18 @@ function main_success = process_card_main( this_site, varargin )
 % -----
 args = inputParser;
 args.addRequired( 'this_site', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
+args.addRequired( 'logger_name', @ischar );
 args.addParameter( 'data_location', 'card', @ischar );
 args.addParameter( 'data_path', '', @ischar );
 args.addParameter( 'interactive', true, @islogical );
 
 % parse optional inputs
-args.parse( this_site, varargin{ : } );
-
+args.parse( this_site, logger_name, varargin{ : } );
 this_site = args.Results.this_site;
+logger_name = args.Results.logger_name;
+
+% Get the datalogger configuration
+conf = parse_yaml_config('Dataloggers', this_site);
 
 %--------------------------------------------------------------------------
 % open a log file
@@ -91,7 +98,7 @@ try
         data_location = args.Results.data_path;
     end
     [card_copy_success, raw_data_dir, mod_date] = ...
-        retrieve_tower_data_from_card( this_site, data_location );
+        retrieve_card_data_from_loc( this_site, logger_name, data_location );
 catch err
     % echo the error message
     fprintf( 'Error copying raw data from card to local drive.' )

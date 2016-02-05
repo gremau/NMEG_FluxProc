@@ -52,12 +52,12 @@ args.addRequired( 'dtime', @(x) ( isnumeric( x ) & ...
                                   all( x <=  367 ) ) );
 args.addRequired( 'data', @isnumeric );
 args.addRequired( 't_str', @ischar );
-args.addParamValue( 'cmap', [], @isnumeric );
-args.addParamValue( 'clim', [], @isnumeric );
-args.addParamValue( 'h_fig', [], @isobject );
-args.addParamValue( 'h_ax', [], @isobject );
-args.addParamValue( 'center_caxis', false, @islogical );
-args.addParamValue( 'fig_visible', true, @islogical );
+args.addParameter( 'cmap', [], @isnumeric );
+args.addParameter( 'clim', [], @isnumeric );
+args.addParameter( 'h_fig', [], @isobject );
+args.addParameter( 'h_ax', [], @isobject );
+args.addParameter( 'center_caxis', false, @islogical );
+args.addParameter( 'fig_visible', true, @islogical );
 
 % parse optional inputs
 args.parse( dtime, data, t_str, varargin{ : } );

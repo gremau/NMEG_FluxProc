@@ -179,7 +179,7 @@ methods
         % the site YAML config file
 
         % Get configuration from the site's YAML config file
-        config = parse_yaml_site_config( 'SiteVars.yaml', ...
+        config = parse_yaml_config( 'SiteVars', ...
             obj.sitecode );
 
         % Initialize flags indicating whether the secondary data

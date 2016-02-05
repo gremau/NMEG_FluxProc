@@ -58,9 +58,14 @@ switch lower( metNetwork )
         metTable = metTable( tvec( :, 1 ) == year, : );
         metTable.timestamp = datenum( metTable.dstring, 'YYmmDDHHMM' );
         
-        % Precip is in inches and temp is in F - add converted columns
+        % Precip is in cumulative inches and temp is in F
+        % add converted columns
         metTable.Tair_C = ( metTable.Tair_F  - 32 ) .* ( 5/9 );
-        metTable.Precip_mm = metTable.Precip_in * 25.4;
+        % Convert cumulative precip to hourly increments in mm
+        p_diff = [ 0; diff( metTable.Precip_in )] * 25.4;
+        % Remove negative increments
+        p_diff( p_diff < 0 ) = 0;
+        metTable.Precip_mm = p_diff;
         
     case 'vcp'
         fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...

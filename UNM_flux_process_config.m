@@ -21,24 +21,42 @@ function fluxrc =  UNM_flux_process_config()
 %      directories (e.g. 'Flux_Tower_Data_by_Site').
 %   outfolder: directory where processed fluxes will be placed.
 %
-% author: Timothy W. Hilton, UNM, Aug 2011    
+% author: Timothy W. Hilton, UNM, Aug 2011
+% Modified by Gregory E. Maurer, UNM, Feb 2016
 
 % define the allowed site abbreviations and their site codes the order
 % matters -- each abbreviation's position in the list is its site code
 %  This could be changed in get_site_code.m
 %             Site Abbrev          Site Code
-site_names = {'GLand', ...         % 1
-              'SLand', ...         % 2
-              'JSav', ...          % 3
-              'PJ', ...            % 4
-              'PPine', ...         % 5
-              'MCon', ...          % 6
-              'TX', ...            % 7
-              'TX_forest', ...     % 8
-              'TX_grassland', ...  % 9
-              'PJ_girdle', ...     % 10
+site_names = {'GLand', ...          % 1
+              'SLand', ...          % 2
+              'JSav', ...           % 3
+              'PJ', ...             % 4
+              'PPine', ...          % 5
+              'MCon', ...           % 6
+              'TX', ...             % 7
+              'TX_forest', ...      % 8
+              'TX_grassland', ...   % 9
+              'PJ_girdle', ...      % 10
               'New_GLand', ...      % 11
-              'SevEco'};        % 12
+              'SevEco', ...         % 12
+              'MCon_SS'};           % 13
+          
+%             Site Abbrev          Site Code
+aflx_names = {'US_Seg', ...          % 1
+              'US_Ses', ...          % 2
+              'US_Wjs', ...           % 3
+              'US_Mpj', ...             % 4
+              'US_Vcp', ...          % 5
+              'US_Vcm', ...           % 6
+              'Null', ...             % 7
+              'Null', ...      % 8
+              'Null', ...   % 9
+              'US_Mpg', ...      % 10
+              'US_Sen', ...      % 11
+              'Null', ...         % 12
+              'US_Vcs'};           % 13
+
 
 FLUXROOT = getenv('FLUXROOT');
 while length(FLUXROOT) == 0
@@ -56,6 +74,7 @@ sitefolder = fullfile(FLUXROOT, 'Flux_Tower_Data_by_Site');
 outfolder = fullfile(FLUXROOT, 'FluxOut');
 
 fluxrc = struct('site_names', {site_names}, ...
+                'aflx_names', {aflx_names}, ...
                 'FLUXROOT', FLUXROOT, ...
                 'sitefolder', sitefolder, ...
                 'outfolder', outfolder);

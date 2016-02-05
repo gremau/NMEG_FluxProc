@@ -31,8 +31,7 @@ function [sw_incoming, sw_outgoing, lw_incoming, lw_outgoing, Par_Avg ] = ...
 %     UNM_RemoveBadData, UNM_RemoveBadData_pre2012
 %
 % author: Timothy W. Hilton, UNM, 2013
-
-
+% modified by: Gregory E. Maurer, UNM, 2015-2016
 
 %%%%%%%%%%%%%%%%% grassland
 switch sitecode
@@ -478,13 +477,25 @@ elseif year_arg == 2008
         
         %%%%%%%%%%%%%%%%% ponderosa pine
     case UNM_sites.PPine
-        % Current multiplier for CNR1
-        % Damaged, removed 11/13/12 for repair, prior to repair sens = 6.11
-        cnr1_sensitivity = 6.11;
-        cnr1_mult = 1000 / cnr1_sensitivity;
-        % recalibrated, and reinstalled 5/02/13, new sens = 7.00
+        % Multipliers for CNR1
+        % A CNR1 was damaged, removed 11/13/12 for repair, 
+        % prior to repair sensitivity = 6.11
+        cnr1_mult_old = 1000 / 6.11;
+        % The more recent CNR1 (recalibrated, and reinstalled 5/02/13)
+        % had sensitivity of 7.0
+        cnr1_mult = 1000 / 7.0;
+        % I think the dates on these installs/calibrations and the
+        % application of the correct multipliers has been lost and mixed up
+        % over the years (Not much in logs). I try to correct it, but I
+        % have fairly low confidence that it is correct. GEM
+        
         % There was also a CNR2 briefly (see below in 2012 case for 
         % details)
+        %
+        % Final note - the lw_incoming (up) on the CNR1 was broken for many
+        % years, beginning in summer 2007. It is corrected here with some
+        % rough adjustments, but its likely that there is a better way to
+        % do this (maybe model lw incoming based on air T?).
 
         % PAR multipliers - see the current datalogger program
         PAR_KZ_new_up_sens = 8.69; % New Par_lite sensors
@@ -499,12 +510,23 @@ elseif year_arg == 2008
         % checked
         
         if year_arg == 2007
+            % lw_incoming has spikes and a level shift after July - fix them
+            idx = decimal_day > 200.45;
+            lw_incoming_filt = lw_incoming( idx ) - 50;
+            lw_incoming_filt( lw_incoming_filt > 4 ) = NaN;
+            lw_incoming_filt = stddev_filter(lw_incoming_filt, 2, 3);
+            lw_incoming( idx ) = lw_incoming_filt;
+            
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % Apply correct calibration value 7.37, SA190 manual section 3-1
-            Par_Avg  =Par_Avg .* PAR_LI_old_mult;
+            Par_Avg  = Par_Avg .* PAR_LI_old_mult;
             
         elseif year_arg == 2008
+            lw_incoming_filt = lw_incoming - 50;
+            lw_incoming_filt( lw_incoming_filt > 4 ) = NaN;
+            lw_incoming_filt = stddev_filter(lw_incoming_filt, 2, 3);
+            lw_incoming = lw_incoming_filt;
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for Licor sesor
@@ -520,18 +542,18 @@ elseif year_arg == 2008
             Par_Avg( idx ) = Par_Avg( idx ) .* PAR_KZ_old_up_mult; 
 
         elseif year_arg >= 2009 & year_arg <= 2012
+            lw_incoming_filt = lw_incoming - 50;
+            lw_incoming_filt( lw_incoming_filt > 4 ) = NaN;
+            lw_incoming_filt = stddev_filter(lw_incoming_filt, 2, 3);
+            lw_incoming = lw_incoming_filt;
             % CNR1 multiplier was good in these years
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             Par_Avg = Par_Avg .* PAR_KZ_old_up_mult;
             
-            % NOTE that there was a CNR2 installed here in late 2012 that
-            % never seemed to work.
+            % NOTE that there was a CNR2 installed here in late 2012
+            % through mid 2013 that never seemed to work.
             
         elseif year_arg == 2013
-            cnr1_mult_old = cnr1_mult;
-            % recalibrated, and reinstalled 5/02/13, new sens = 7.00
-            cnr1_mult = 1000 / 7.0;
-            
             % CNR1 calibration factor was wrong from 11/19/2013 through 
             % 01/15/2014 (it was the old one).
             idx = decimal_day > 323.7 & decimal_day <= 366.0;
@@ -550,10 +572,6 @@ elseif year_arg == 2008
             Par_Avg( idx ) = Par_Avg( idx ) .* PAR_KZ_old_up_mult;
             
         elseif year_arg == 2014
-            cnr1_mult_old = cnr1_mult;
-            % recalibrated, and reinstalled 5/02/13, new sens = 7.00
-            cnr1_mult = 1000/7.0;
-            
             % CNR1 calibration factor was wrong from 05/02/2013 through 
             % 01/15/2014 (it was the old one).
             idx = decimal_day > 0.0 & decimal_day <= 15.6;

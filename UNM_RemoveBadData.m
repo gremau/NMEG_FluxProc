@@ -833,6 +833,20 @@ precip = fix_incorrect_precip_factors( sitecode, year_arg, ...
 % In 2010 the thermocouple in the CNR1 at GLand failed. Use air temp.
 if sitecode == 1 & year_arg==2010;;
     CNR1TempK = air_temp_hmp + 273.15;
+% In 2007 the thermocouple in the CNR1 at PPine failed for a while in 
+% the spring. Use air temp.
+elseif sitecode == 5 & year_arg==2007;
+    CNR1TempK = CNR1TK;
+    idx = DOYidx( 155.5 ):DOYidx( 198.55 );
+    CNR1TempK( idx ) = air_temp_hmp( idx ) + 273.15;
+elseif sitecode == 5 & year_arg==2013;
+    CNR1TempK = CNR1TK;
+    idx = DOYidx( 353.18 ):17520;
+    CNR1TempK( idx ) = air_temp_hmp( idx ) + 273.15;
+elseif sitecode == 5 & year_arg==2014;
+    CNR1TempK = CNR1TK;
+    idx = [ DOYidx( 1 ):DOYidx( 3.6 ), DOYidx( 83.81 ):DOYidx( 106.36 ) ] ;
+    CNR1TempK( idx ) = air_temp_hmp( idx ) + 273.15;
 % In 2014 the thermocouple in the CNR1 at NewGLand failed for a while in 
 % the spring. Use air temp.
 elseif sitecode == 11 & year_arg==2014;
@@ -2395,10 +2409,21 @@ switch sitecode
         
     case UNM_sites.PPine
         switch year
+            case 2007
+                % There were some IRGA calibration problems during this
+                % time (see logs) and the IRGA was briefly returned to
+                % the lab. This is being adjusted so that Values are in the
+                % "pocket". Noticed by Bai Yang at ORNL
+                idx = DOYidx( 177 ) : DOYidx( 204.98 );
+                CO2_mean( idx ) = CO2_mean( idx ) - 16;
+                idx = DOYidx( 205 ) : 17520;
+                CO2_mean( idx ) = CO2_mean( idx ) + 16;
             case 2008
                 % There were some IRGA calibration problems during this
                 % time (see logs) and the IRGA was briefly returned to
                 % the lab.
+                idx = DOYidx( 1 ) : DOYidx( 25.8 );
+                CO2_mean( idx ) = CO2_mean( idx ) + 16;
                 idx = DOYidx( 264 ) : DOYidx( 311 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
@@ -2420,7 +2445,8 @@ switch sitecode
                 % There is a period of bad flux data here that looks
                 % like it should be removed - probably an IRGA issue
                 % There were some IRGA calibration events here (see log)
-                idx = DOYidx( 144.5 ) : DOYidx( 182.0 );
+                idx = [ DOYidx( 144.5 ) : DOYidx( 162.2 ),...
+                    DOYidx( 163.76 ) :  DOYidx( 182.0 ) ];
                 fc_raw_massman_wpl( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
@@ -2450,6 +2476,8 @@ switch sitecode
                 % Radiation was still down in early 2013
                 sw_incoming( 1:idx ) = NaN;
                 sw_outgoing( 1:idx ) = NaN;
+                lw_incoming( 1:idx ) = NaN;
+                lw_outgoing( 1:idx ) = NaN;
         end
         
     case UNM_sites.MCon

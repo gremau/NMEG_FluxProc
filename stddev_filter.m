@@ -1,6 +1,7 @@
 function [ filtered_array, sdflag ] = stddev_filter( array_in, ...
                                                      filter_windows, ...
                                                      std_dev, varargin )
+% filter windows is in days
 
 % Initialize the output array and remove-data flag
 if isa( array_in, 'table' );

@@ -1,29 +1,44 @@
 ---
-config_site: MCon
-config_year: 
-    - year: 2007
-      fillTair  :
-          - 
-            siteType    : vcp
-            siteID      : 14    # Valles Caldera Redondo met stn (14)
-            linfit      : false
-      fillrH    :
-          - 
-            siteType    : vcp
-            siteID      : 14
-            linfit      : false
-      fillRg    : 
-          - 
-            siteType    : vcp
-            siteID      : 14
-            linfit      : true
-      fillPrecip:
-          - 
-            siteType    : snotel
-            siteID      : 1017  # Vacas Locas
-            linfit      : false
-                #- 
-                #siteType    : prism
-                #siteID      : MCon  # Quemazon
-                #linfit      : false
+config_site     : MCon
+config_by_date  : true 
+fillTair  :
+  - 
+    start_date  : '2007-01-01'
+    end_date    : None      
+    siteType    : vcp
+    siteID      : 14    # Valles Caldera Redondo met stn (14)
+    linfit      : false
+fillrH    :
+  - 
+    start_date  : '2007-01-01'
+    end_date    : None      
+    siteType    : vcp
+    siteID      : 14
+    linfit      : false
+fillRg    : 
+  - 
+    start_date  : '2007-01-01'
+    end_date    : '2008-12-31'
+    siteType    : vcp
+    siteID      : 14
+    linfit      : true
+    scale       : 10
+  - 
+    start_date  : '2009-01-01'
+    end_date    : None      
+    siteType    : vcp
+    siteID      : 14
+    linfit      : true
+    scale       : 0    
+fillPrecip:
+  - 
+    start_date  : '2007-01-01'
+    end_date    : None  
+    siteType    : snotel
+    siteID      : 1017  # Vacas Locas
+    linfit      : false
+  #- 
+    #siteType    : prism
+    #siteID      : MCon
+    #linfit      : false
 ...
