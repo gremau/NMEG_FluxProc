@@ -129,7 +129,8 @@ datetick('x','mmm dd', 'keepticks');
 
 % Load the PRISM precip for this year if it is available
 try
-    PRISM_precip = UNM_parse_PRISM_met_data( sitecode, year );
+    siteID = get_site_name( sitecode, 'aflx' );
+    PRISM_precip = UNM_parse_PRISM_met_data( siteID, year );
 catch
     PRISM_precip = table( timestamp, precip * NaN, ...
         'VariableNames', { 'timestamp', 'Precip' } );

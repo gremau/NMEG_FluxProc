@@ -122,7 +122,7 @@ for i = 1:length( fillVars )
     % Combine the two filled indices into one ( used for recalcVPD )
     filledIdx = [];
     for count=1:length( varConfig )
-        filledIdx = [ filledIdx, varConfig( count ).fillIdx ];
+        filledIdx = [ filledIdx; varConfig( count ).fillIdx ];
     end
         
     % Remove bad values from the now filled variables and recalc VPD
@@ -221,7 +221,7 @@ result = 0;
                     addData.Precip = addData.Precip ./ 10;
                     
                 case 'prism'
-                    addData = UNM_parse_PRISM_met_data( sitecode, year );
+                    addData = UNM_parse_PRISM_met_data( siteID, year );
                     addData = prepare_daily_precip( addData, 'Precip');
                     
                 case 'daymet'
@@ -270,17 +270,17 @@ result = 0;
         n_filled = 0;
         n_missing = numel( find( isnan( fillDest.( varName ) ) ) );
         varConfRet = varConf; % Copy conf for adding indices
-        varConfRet(:).fillIdx = [];
+        [ varConfRet.fillIdx ] = deal( [] );
         
         for k = 1:length( varConf )
             % Get data source and set linfit and scaling options
-            source = fillSource.(varConf(k).fillDataField );
+            source = fillSource.( varConf(k).fillDataField );
             linfitSource = false;
             scaleSource = false;
-            if isfield( varConf, 'linfit' ) && varConf.linfit
+            if isfield( varConf(k), 'linfit' ) && varConf(k).linfit
                 linfitSource = true;
             end
-            if isfield( varConf, 'scale' ) && varConf.scale
+            if isfield( varConf(k), 'scale' ) && varConf(k).scale
                 scaleSource = true;
             end
             % Check that there is valid data in the filling data
@@ -303,7 +303,7 @@ result = 0;
             end
             % Scale the data if requested
             if scaleSource
-                replacement = replacement * ( 1 + varConf.scale/100 )
+                replacement = replacement * ( 1 + varConf(k).scale/100 );
             end
             
             % Put the replacement data in the fill destination and count
@@ -332,20 +332,23 @@ result = 0;
         % Make figure and plot all data
         h_fig = figure();
         handles(1) = plot( doy, filledData.( varName ), '.k' );
+        handleNames = {'observed'};
         hold on;
         % Then plot filled data from each source
-        mcolors = parula( length( varConf ) );
+        mcolors = summer( length( varConf ) );
         for l = 1:length( varConf )
             fillIdx = varConf( l ).fillIdx;
-            handles(l+1) = plot( doy( fillIdx ), ...
-                filledData.( varName )( fillIdx ), ...
-                '.', 'MarkerEdgeColor', mcolors( l, : ) );
+            if ~isempty( fillIdx )
+                handles(l+1) = plot( doy( fillIdx ), ...
+                    filledData.( varName )( fillIdx ), ...
+                    '.', 'MarkerEdgeColor', mcolors( l, : ) );
+                handleNames{ l + 1 } = [ 'filled ', num2str( l ) ];
+            end
         end
         ylabel( varName );
         xlabel( 'day of year' );
         title( sprintf( '%s %d', get_site_name( sitecode ), year ) );
-        legend( handles, ...
-            'observed', 'filled 1', 'filled 2', 'filled 3' );
+        legend( handles, handleNames );
     end
 
 %===========================================================================
