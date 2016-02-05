@@ -22,7 +22,7 @@ fillRg    :
     siteType    : vcp
     siteID      : 14
     linfit      : true
-    scale       : 10
+    scale       : 12
   - 
     start_date  : '2009-01-01'
     end_date    : None      
@@ -33,10 +33,22 @@ fillRg    :
 fillPrecip:
   - 
     start_date  : '2007-01-01'
-    end_date    : None  
-    siteType    : snotel
-    siteID      : 1017  # Vacas Locas
+    end_date    : None      
+    siteType    : vcp
+    siteID      : 14
     linfit      : false
+  - 
+    start_date  : '2007-01-01'
+    end_date    : None      
+    siteType    : prism
+    siteID      : US_Vcm
+    linfit      : false
+        #- 
+        #start_date  : '2007-01-01'
+        #end_date    : None  
+        #siteType    : snotel
+        #siteID      : 1017  # Vacas Locas
+        #linfit      : false
   #- 
     #siteType    : prism
     #siteID      : MCon

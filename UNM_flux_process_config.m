@@ -43,19 +43,19 @@ site_names = {'GLand', ...          % 1
               'MCon_SS'};           % 13
           
 %             Site Abbrev          Site Code
-aflx_names = {'US_Seg', ...          % 1
-              'US_Ses', ...          % 2
-              'US_Wjs', ...           % 3
-              'US_Mpj', ...             % 4
-              'US_Vcp', ...          % 5
-              'US_Vcm', ...           % 6
-              'Null', ...             % 7
-              'Null', ...      % 8
-              'Null', ...   % 9
-              'US_Mpg', ...      % 10
-              'US_Sen', ...      % 11
-              'Null', ...         % 12
-              'US_Vcs'};           % 13
+aflx_names = {'US_Seg', ...         % 1
+              'US_Ses', ...         % 2
+              'US_Wjs', ...         % 3
+              'US_Mpj', ...         % 4
+              'US_Vcp', ...         % 5
+              'US_Vcm', ...         % 6
+              'Null', ...           % 7
+              'Null', ...           % 8
+              'Null', ...           % 9
+              'US_Mpg', ...         % 10
+              'US_Sen', ...         % 11
+              'Null', ...           % 12
+              'US_Vcs'};            % 13
 
 
 FLUXROOT = getenv('FLUXROOT');
