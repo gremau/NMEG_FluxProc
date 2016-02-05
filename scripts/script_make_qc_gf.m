@@ -3,8 +3,8 @@
 sitelist = ...%{UNM_sites.SLand, UNM_sites.JSav, UNM_sites.New_GLand,...
     {UNM_sites.PJ, UNM_sites.PJ_girdle};
     %UNM_sites.GLand, UNM_sites.PPine, UNM_sites.MCon,...
-sitelist = {UNM_sites.MCon};
-yearlist = 2007:2009;
+sitelist = {UNM_sites.PPine};
+yearlist = 2012:2014;
 
 write_qc = false;
 write_gf = false;
@@ -36,6 +36,6 @@ for i = 1:length(sitelist);
         % 
         % Otherwise, send the resulting for_gapfilling files to
         % the MPI eddyproc web service.
-        close all;
+        %close all;
     end
 end
