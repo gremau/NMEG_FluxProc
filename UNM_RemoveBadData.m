@@ -2409,10 +2409,21 @@ switch sitecode
         
     case UNM_sites.PPine
         switch year
+            case 2007
+                % There were some IRGA calibration problems during this
+                % time (see logs) and the IRGA was briefly returned to
+                % the lab. This is being adjusted so that Values are in the
+                % "pocket". Noticed by Bai Yang at ORNL
+                idx = DOYidx( 177 ) : DOYidx( 204.98 );
+                CO2_mean( idx ) = CO2_mean( idx ) - 16;
+                idx = DOYidx( 205 ) : 17520;
+                CO2_mean( idx ) = CO2_mean( idx ) + 16;
             case 2008
                 % There were some IRGA calibration problems during this
                 % time (see logs) and the IRGA was briefly returned to
                 % the lab.
+                idx = DOYidx( 1 ) : DOYidx( 25.8 );
+                CO2_mean( idx ) = CO2_mean( idx ) + 16;
                 idx = DOYidx( 264 ) : DOYidx( 311 );
                 fc_raw_massman_wpl( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
@@ -2434,7 +2445,8 @@ switch sitecode
                 % There is a period of bad flux data here that looks
                 % like it should be removed - probably an IRGA issue
                 % There were some IRGA calibration events here (see log)
-                idx = DOYidx( 144.5 ) : DOYidx( 182.0 );
+                idx = [ DOYidx( 144.5 ) : DOYidx( 162.2 ),...
+                    DOYidx( 163.76 ) :  DOYidx( 182.0 ) ];
                 fc_raw_massman_wpl( idx ) = NaN;
                 HL_wpl_massman( idx ) = NaN;
                 E_wpl_massman( idx ) = NaN;
@@ -2464,6 +2476,8 @@ switch sitecode
                 % Radiation was still down in early 2013
                 sw_incoming( 1:idx ) = NaN;
                 sw_outgoing( 1:idx ) = NaN;
+                lw_incoming( 1:idx ) = NaN;
+                lw_outgoing( 1:idx ) = NaN;
         end
         
     case UNM_sites.MCon
