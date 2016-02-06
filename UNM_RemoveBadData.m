@@ -2378,6 +2378,22 @@ switch sitecode
                 lw_incoming( 1:idx ) = NaN;
                 lw_outgoing( 1:idx ) = NaN;
                 NR_tot( 1:idx ) = NaN;
+            case 2011
+                % Maybe some IRGA problem, screen [CO2] but it
+                % didn't look like it affects fluxes.
+                CO2_mean( DOYidx( 357.5  ) : end ) = NaN;
+            case 2012
+                % Maybe some IRGA problem, screen [CO2] but it
+                % didn't look like it affects fluxes.
+                CO2_mean( 1: DOYidx( 10 ) ) = NaN;
+                CO2_mean( DOYidx( 78 ) : DOYidx( 175 ) ) = NaN;
+
+            case 2014
+                % Maybe some IRGA problem, screen [CO2] but it
+                % didn't look like it affects fluxes.
+                CO2_mean( DOYidx( 105 ) : DOYidx( 122.5 ) ) = NaN;
+                % The bad H2O IRGA was here (0922) from 5/2 to 10/31
+                % Do something!?!?
         end
                 
     case UNM_sites.PJ_girdle
@@ -2391,6 +2407,7 @@ switch sitecode
                 % Bad sonic temperature (fluxes bad during this time too)
                 Tdry( DOYidx( 114.7 ) : DOYidx( 120.5 ) ) = NaN;
                 vpd( DOYidx( 114.7 ) : DOYidx( 120.5 ) ) = NaN;
+
             case 2014
                 % There looks to be an IRGA problem on these dates - 
                 % [CO2] drops then shows a steep declining pattern.
