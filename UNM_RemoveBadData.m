@@ -2385,7 +2385,7 @@ switch sitecode
             case 2012
                 % Maybe some IRGA problem, screen [CO2] but it
                 % didn't look like it affects fluxes.
-                CO2_mean( 1: DOYidx( 10 ) ) = NaN;
+                CO2_mean( 1: DOYidx( 19.45 ) ) = NaN;
                 CO2_mean( DOYidx( 78 ) : DOYidx( 175 ) ) = NaN;
 
             case 2014

@@ -15,4 +15,5 @@ secondary_data_sources   :
     # This is our newer precip station
     - type          : cr1000
       start_date    : 2014-01-14 11:50
+      end_date      : None
 ...

@@ -65,6 +65,12 @@ switch site
     % Several periods with abnormally high respiration at PPine. Amend
     % as per Marcy's request
     switch yr
+      case 2007
+        idx = DOYidx( 227.24 ) : DOYidx( 240.16 );
+        data_amended.Reco_HBLR_amended( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 4.2 );
+        dfig = plot_amended( data_in, data_amended, ...
+            'Reco_HBLR', site, yr );
       case 2009
         idx = DOYidx( 21 ) : DOYidx( 28.25 );
         data_amended.Reco_HBLR_amended( idx ) = ...
@@ -123,6 +129,12 @@ switch site
         
   case UNM_sites.MCon
     switch yr
+      case 2008
+        idx = DOYidx( 362 );
+        data_amended.Reco_HBLR_amended( idx:end ) = ...
+            norm( data_in.Reco_HBLR( idx:end ), 1.8 );
+        dfig = plot_amended( data_in, data_amended, ...
+            'Reco_HBLR', site, yr );
       case 2009
         % This seems to shift flux variables for the first 20 days of 2009
         % at MCon (which are all gapfilled) forward 1 hour. This is surely

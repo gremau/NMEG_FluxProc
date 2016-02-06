@@ -12,7 +12,7 @@ function tbl = parse_TK201X_output( sitecode, year )
 %
 % written by: Gregory E. Maurer, UNM, April 2015
 
-site_conf = parse_yaml_config( 'SiteVars', sitecode );
+site_conf = parse_yaml_config( sitecode, 'SiteVars' );
 af_name = site_conf.ameriflux_name;
 
 % Look for the right file
