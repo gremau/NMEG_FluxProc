@@ -26,8 +26,8 @@ function precipDataT = UNM_parse_PRISM_met_data( siteID, year )
 
 
 
-precipFname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
-    'MetData', 'PRISM_daily', sprintf( 'PRISM_DailyPrecip_%d.csv', year ));
+precipFname = fullfile( getenv( 'FLUXROOT' ), 'Ancillary_met_data',...
+    'PRISM_daily', sprintf( 'PRISM_Daily_ppt_%d.csv', year ));
 
 % Get data
 precipDataT = readtable( precipFname, 'Delimiter', ',' );

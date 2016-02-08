@@ -43,11 +43,11 @@ end
 switch lower( metNetwork )
     case 'dri'
         if ischar(siteid)
-            fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
-                'MetData', sprintf( 'DRI_%s_06-current.dat', siteid ) );
+            fname = fullfile( getenv( 'FLUXROOT' ), 'Ancillary_met_data', ...
+                sprintf( 'DRI_%s_06-current.dat', siteid ) );
         else
-            fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
-                'MetData', 'DRI_AllSites_06-current.dat' );
+            fname = fullfile( getenv( 'FLUXROOT' ), 'Ancillary_met_data', ...
+                'DRI_AllSites_06-current.dat' );
         end
         % Get data from the DRI met station
         metTable = readtable( fname, 'Delimiter', ',' );
@@ -68,8 +68,8 @@ switch lower( metNetwork )
         metTable.Precip_mm = p_diff;
         
     case 'vcp'
-        fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
-            'MetData', sprintf( 'valles_met_data_%d.dat', year ) );
+        fname = fullfile( getenv( 'FLUXROOT' ), 'Ancillary_met_data', ...
+            sprintf( 'valles_met_data_%d.dat', year ) );
         % these met files use "." to record missing values.  This confuses matlab
         % because it is (1) not numeric, so can't be read by routines that expect
         % numeric data, and (2) is the same character as the decimal used in

@@ -31,8 +31,8 @@ function met_data_T = UNM_parse_DayMet_data( sitecode, year )
 %
 % author: Timothy W. Hilton, UNM, March 2012
 
-fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData',...
-    'MetData', sprintf( 'DayMet_%s.csv', get_site_name( sitecode ) ));
+fname = fullfile( getenv( 'FLUXROOT' ), 'Ancillary_met_data',...
+    'DayMet', sprintf( 'DayMet_%s.csv', get_site_name( sitecode ) ));
 
 % Get data
 met_data_T = readtable( fname, 'Delimiter', ',', 'HeaderLines', 7 );

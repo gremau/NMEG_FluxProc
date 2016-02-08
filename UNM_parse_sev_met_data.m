@@ -27,14 +27,14 @@ function metTable = UNM_parse_sev_met_data( year, varargin )
 % modified by: Gregory E. Maurer, UNM, December 2014
 
 if year < 2013
-    fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
+    fname = fullfile( getenv( 'FLUXROOT' ), 'Ancillary_met_data', ...
         'sev_met_data_2007_2012.csv' );
     metTable = readtable( fname, 'Delimiter', ',', 'TreatAsEmpty', '.' );
 % elseif year > 2012
 %     fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
 %         'sev_met_data_2013_2014_2site.csv' );
 elseif year > 2012
-    fname = fullfile( getenv( 'FLUXROOT' ), 'AncillaryData', 'MetData', ...
+    fname = fullfile( getenv( 'FLUXROOT' ), 'Ancillary_met_data', ...
         sprintf('sev_met_data_%s.dat', num2str(year)) );
     fid  = fopen( fname );
     headers = fgetl( fid );
