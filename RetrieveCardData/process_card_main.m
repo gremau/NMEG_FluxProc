@@ -73,7 +73,10 @@ this_site = args.Results.this_site;
 logger_name = args.Results.logger_name;
 
 % Get the datalogger configuration
-conf = parse_yaml_config('Dataloggers', this_site);
+datenum_now = datestr( now, 'yyyy-mm-dd');
+datenum_monthago = datestr( now-32, 'yyyy-mm-dd');
+conf = parse_yaml_config( this_site, 'Dataloggers', ...
+    { datenum_now, datenum_monthago } );
 
 %--------------------------------------------------------------------------
 % open a log file
