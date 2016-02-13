@@ -493,9 +493,9 @@ elseif year_arg == 2008
         % details)
         %
         % Final note - the lw_incoming (up) on the CNR1 was broken for many
-        % years, beginning in summer 2007. It is corrected here with some
-        % rough adjustments, but its likely that there is a better way to
-        % do this (maybe model lw incoming based on air T? Look up 
+        % years, beginning in summer 2007. Daytime longwave_in is removed
+        % here and it can be filled in with modeled radiation.
+        % (maybe model lw incoming based on air T? Look up 
         % Brutsaert method and some Marks/Dozier papers).
 
         % PAR multipliers - see the current datalogger program
@@ -511,12 +511,11 @@ elseif year_arg == 2008
         % checked
         
         if year_arg == 2007
-            % lw_incoming has spikes and a level shift after July - fix them
-            idx = decimal_day > 200.45;
-            lw_incoming_filt = lw_incoming( idx );
-            lw_incoming_filt( lw_incoming_filt > 5 ) = NaN;
-            lw_incoming_filt = stddev_filter(lw_incoming_filt, 2, 3);
-            lw_incoming( idx ) = lw_incoming_filt;
+            % daytime lw_incoming failed after July - remove it
+            idx = decimal_day > 200.45 & sw_incoming > 25;
+            lw_incoming( idx ) = nan;
+            idx = decimal_day > 200.45 & lw_incoming > 5;
+            lw_incoming( idx ) = nan;
 
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
@@ -524,10 +523,9 @@ elseif year_arg == 2008
             Par_Avg  = Par_Avg .* PAR_LI_old_mult;
             
         elseif year_arg == 2008
-            lw_incoming_filt = lw_incoming;
-            lw_incoming_filt( lw_incoming_filt > 5 ) = NaN;
-            lw_incoming_filt = stddev_filter(lw_incoming_filt, 2, 3);
-            lw_incoming = lw_incoming_filt;
+            % daytime lw_incoming failed this year - remove it
+            idx = lw_incoming > 5 & sw_incoming > 25;
+            lw_incoming( idx ) = nan;
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for Licor sesor
@@ -543,10 +541,9 @@ elseif year_arg == 2008
             Par_Avg( idx ) = Par_Avg( idx ) .* PAR_KZ_old_up_mult; 
 
         elseif year_arg >= 2009 & year_arg <= 2012
-            lw_incoming_filt = lw_incoming;
-            lw_incoming_filt( lw_incoming_filt > 5 ) = NaN;
-            lw_incoming_filt = stddev_filter(lw_incoming_filt, 2, 3);
-            lw_incoming = lw_incoming_filt;
+            % daytime lw_incoming failed this year - remove it
+            idx = lw_incoming > 5 & sw_incoming > 25;
+            lw_incoming( idx ) = nan;
             % CNR1 multiplier was good in these years
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             Par_Avg = Par_Avg .* PAR_KZ_old_up_mult;
