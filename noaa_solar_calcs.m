@@ -24,11 +24,14 @@ min = dates( :, 5 );
 % FIXME - need a better way to ensure correct input/output
 if length( datenums ) == 48 && sum( [ hours ; min ] ) > 0
     dectime = datenums - floor( datenums ); % time past local midnight
-    julDayNum = ( datenum( dates ) - datenum( 1900, 1, -1 )) + ...
+    % Should we be adding dectime here?
+    julDayNum = ( datenums - datenum( 1900, 1, -1 )) + ...
         2415018.5 - ( tzone/24 );
-else
-    dectime = localtime/24; % time past local midnight;
-    julDayNum = ( datenum( dates ) - datenum( 1900, 1, -1 )) + ...
+else 
+    %dectime = localtime/24; % time past local midnight;
+    dectime = datenums - floor( datenums ); % time past local midnight
+    % Should we be adding dectime here?
+    julDayNum = ( datenums - datenum( 1900, 1, -1 )) + ...
         2415018.5 + dectime - ( tzone/24 );
 end
 
@@ -139,6 +142,6 @@ solarElevationAngleDeg = 90 - solarZenithAngleDeg;
 
 % Return a vector of values
 solarCalcs = [ datenums, solarNoonLST, sunriseTimeLST, sunsetTimeLST ...
-    solarZenithAngleDeg ];
+    solarZenithAngleDeg, sunDeclinDeg, hourAngleDeg ];
 end
 
