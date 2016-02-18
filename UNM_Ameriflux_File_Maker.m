@@ -221,7 +221,8 @@ amflux_gf.Properties.VariableUnits{end} = 'mumol/m2/s';
 amflux_gf.Properties.VariableUnits{end-1} = 'mumol/m2/s';
 amflux_gaps.Properties.VariableUnits{end} = 'mumol/m2/s';
 amflux_gaps.Properties.VariableUnits{end-1} = 'mumol/m2/s';
-amflux_gf( :, [ 32:44 ] ) = [];
+% FIXME = this needs to be explicit about columns to remove
+amflux_gf( :, [ 34:46 ] ) = [];
 amflux_gaps( :, [ 24:35 ] ) = [];
 
 if args.Results.write_files

@@ -108,7 +108,9 @@ Rg_flag = verify_gapfilling( pt_tbl.Rg_f, qc_tbl.sw_incoming, 1e-4 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.Rg_f, ...
                      { 'SW_IN_F' }, { 'W/m2' }, Rg_flag ); %SW_IN_F
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.sw_incoming, ...
-                       { 'SW_IN' }, { 'W/m2' } );                   
+                       { 'SW_IN' }, { 'W/m2' } );
+% Make sure original RNET is nan in these locations also
+qc_tbl.NR_tot( Rg_flag ) = nan;
 
 % Precip
 % Gapfilled precip should be found in MPI files
@@ -117,6 +119,46 @@ amflx_gf = add_cols( amflx_gf, pt_tbl.Precip, ... % P_F
     { 'P_F' }, { 'mm' }, P_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.precip, { 'P' }, { 'mm' } );
 
+%%%% % % % % % % % %
+% FIXME: for now gapfilling of longwave occurs here
+
+Lio = model_rad_in( sitecode, timestamp, amflx_gf.TA_F, ...
+    qc_tbl.atm_press * 10, amflx_gf.RH_F, amflx_gf.SW_IN_F );
+lw_in_gf = qc_tbl.lw_incoming;
+gf_idx = isnan(lw_in_gf) & pt_tbl.Rg_f >= 25;
+% Fill gaps
+lw_in_gf( gf_idx ) = Lio( gf_idx, 2 );
+
+% Longwave up - pyrgeometer
+LW_IN_flag = verify_gapfilling( lw_in_gf, qc_tbl.lw_incoming, 1e-4 );
+amflx_gf = add_cols( amflx_gf, lw_in_gf, ...
+                     { 'LW_IN_F' }, { 'W/m2' }, LW_IN_flag ); %LW_IN_F
+amflx_gaps = add_cols( amflx_gaps, qc_tbl.lw_incoming, ...
+                       { 'LW_IN' }, { 'W/m2' } );
+                   
+figure();
+plot(timestamp, amflx_gf.LW_IN_F, '.r');
+hold on;
+plot(timestamp, amflx_gaps.LW_IN, '.b');
+title('LW_IN');
+                   
+% Recalculate Rnet
+rnet_new = ( amflx_gf.SW_IN_F + amflx_gf.LW_IN_F ) - ...
+    ( qc_tbl.sw_outgoing + qc_tbl.lw_outgoing );
+
+RNET_flag = verify_gapfilling( rnet_new, qc_tbl.NR_tot, 1e-3 );
+amflx_gf = add_cols( amflx_gf, rnet_new, ...
+                     { 'RNET_F' }, { 'W/m2' }, RNET_flag ); %RNET_F
+amflx_gaps = add_cols( amflx_gaps, qc_tbl.NR_tot, ...
+                       { 'RNET' }, { 'W/m2' } );
+                   
+figure();
+plot(timestamp, amflx_gf.RNET_F, '.r');
+hold on;
+plot(timestamp, amflx_gaps.RNET, '.b');
+title('RNET');
+%%%% % % % % % % % %
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Add NON-GAPFILLED met and radiation variables
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -124,17 +166,14 @@ amflx_gaps = add_cols( amflx_gaps, qc_tbl.precip, { 'P' }, { 'mm' } );
 % FIXME - Potentially missing: APAR, PAR_out, PAR_DIFF, Rg_DIFF.
 
 met_nongf = [ qc_tbl.u_star, qc_tbl.wnd_dir_compass, qc_tbl.wnd_spd, ...
-              qc_tbl.atm_press, qc_tbl.Par_Avg, ...%qc_tbl.PAR_out, ...
-              qc_tbl.NR_tot, qc_tbl.sw_outgoing, qc_tbl.lw_incoming, ...
-              qc_tbl.lw_outgoing ];
+              qc_tbl.atm_press, qc_tbl.Par_Avg, ...%qc_tbl.PAR_out, qc_tbl.NR_tot, qc_tbl.lw_incoming
+              qc_tbl.sw_outgoing, qc_tbl.lw_outgoing ];
 headers = { 'USTAR', 'WD', 'WS', ...
-            'PA', 'PAR', ...%'PAR_out', ...
-            'RNET', 'SW_OUT', 'LW_IN', ...
-            'LW_OUT' };
+            'PA', 'PAR', ...%'PAR_out', 'RNET_old', 'LW_IN'
+            'SW_OUT', 'LW_OUT' };
 units = { 'm/s', 'deg', 'm/s', ...
-          'kPa', 'mumol/m2/s', ...% 'mumol/m2/s', ...
-          'W/m2', 'W/m2', 'W/m2', ...
-          'W/m2' };
+          'kPa', 'mumol/m2/s', ...% 'mumol/m2/s', 'W/m2', 'W/m2',...
+          'W/m2', 'W/m2'};
       
 % Make table
 met_nongf_tbl = array2table( met_nongf, 'VariableNames', headers );
@@ -382,18 +421,18 @@ amflx_gf = replace_badvals( amflx_gf, -9999, fp_tol );
 
     % Function to make sure the observed data and gapfilled data don't
     % overlap - returns a flag indicating where gapfilling has occurred
-    function flag = verify_gapfilling( gapfilled, obs, tol )
+    function gap_flag = verify_gapfilling( gapfilled, obs, tol )
         % Verify that gapfilled and obs are the same size
         if length( gapfilled ) ~= length( obs )
             error( 'Gapfilled and observed data have different sizes!' );
         end
         % Initialize a gapfilled data flag to true
         % ( double - old int8 flag was problematic )
-        flag = true( size( obs, 1 ), 1 );
-        flag( ~isnan( obs ) ) = false; % Mark observations with zero
+        gap_flag = true( size( obs, 1 ), 1 );
+        gap_flag( ~isnan( obs ) ) = false; % Mark observations with zero
         % Backfill the gapfilled column with observations when available
         gapfilled_obs = gapfilled;
-        gapfilled_obs( ~flag ) = obs( ~flag );
+        gapfilled_obs( ~gap_flag ) = obs( ~gap_flag );
         % Do the backfilled and original gapfilled columns match?
         % There are some small rounding errors when comparing mpi output
         % to our files, but otherwise the columns should be the same
