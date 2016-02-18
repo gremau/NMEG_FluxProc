@@ -524,7 +524,7 @@ elseif year_arg == 2008
             
         elseif year_arg == 2008
             % daytime lw_incoming failed this year - remove it
-            idx = lw_incoming > 5 & sw_incoming > 25;
+            idx = lw_incoming > 5 | sw_incoming > 25;
             lw_incoming( idx ) = nan;
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
@@ -542,7 +542,7 @@ elseif year_arg == 2008
 
         elseif year_arg >= 2009 & year_arg <= 2012
             % daytime lw_incoming failed this year - remove it
-            idx = lw_incoming > 5 & sw_incoming > 25;
+            idx = lw_incoming > 5 | sw_incoming > 25;
             lw_incoming( idx ) = nan;
             % CNR1 multiplier was good in these years
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
