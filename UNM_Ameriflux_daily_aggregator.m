@@ -120,8 +120,15 @@ classdef UNM_Ameriflux_daily_aggregator
             units_sum = { 'mm' };
             % radiation variables: aggregate by W m-2 to J m-2
             % FIXME - missing PAR_out (need to add to qc files)
-            vars_rad = { 'RNET', 'PAR', 'SW_IN_F', 'SW_OUT', 'LW_IN', ...
-                'LW_OUT', 'LE_F', 'H_F' };
+            % Also - RNET and LW_IN are being replaced by RNET_F and 
+            % LW_IN_F in gapfilled files - this will need to be modified
+            if obj.sitecode==UNM_sites.PPine
+                vars_rad = { 'RNET_F', 'PAR', 'SW_IN_F', 'SW_OUT', ...
+                    'LW_IN_F', 'LW_OUT', 'LE_F', 'H_F' };
+            else
+                vars_rad = { 'RNET', 'PAR', 'SW_IN_F', 'SW_OUT', ...
+                    'LW_IN', 'LW_OUT', 'LE_F', 'H_F' };
+            end
             units_rad = repmat( { 'J m-2' }, 1, numel( vars_rad ) );
             
             t_30min = double( [ obj.aflx_data.YEAR, obj.aflx_data.DOY ] );

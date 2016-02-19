@@ -35,6 +35,6 @@ fillPrecip:
     linfit      : false
   - 
     siteType    : prism
-    siteID      : PJ_girdle
+    siteID      : US_Mpg
     linfit      : false
 ...
