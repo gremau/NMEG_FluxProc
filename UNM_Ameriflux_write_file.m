@@ -63,6 +63,9 @@ end
 delim = ',';
 ncol = size( af_tbl, 2 );
 
+% Add git repository info
+gitInfo = getGitInfo();
+
 sites_info = parse_UNM_site_table();
 aflx_site_name = char( sites_info.Ameriflux( sitecode ) );
 fname = fullfile( outdir, ...
@@ -78,6 +81,9 @@ fid = fopen( fname, 'w+' );
 fprintf( fid, 'Site name: %s\n', aflx_site_name );
 fprintf( fid, 'Email: %s\n', email );
 fprintf( fid, 'Created: %s\n', datestr( now() ) );
+fprintf( fid, 'Processing code URL: %s\n', gitInfo.url );
+fprintf( fid, 'Repository branch: %s\n', gitInfo.branch );
+fprintf( fid, 'Last commit hash: %s\n', gitInfo.hash );
 
 % Write variables name and unit headers
 tok_str = sprintf( '%s%%s', delim );
