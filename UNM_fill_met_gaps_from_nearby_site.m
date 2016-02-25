@@ -341,8 +341,12 @@ result = 0;
             if ~isempty( fillIdx )
                 handles(l+1) = plot( doy( fillIdx ), ...
                     filledData.( varName )( fillIdx ), ...
-                    '.', 'MarkerEdgeColor', mcolors( l, : ) );
+                    '.', 'MarkerEdgeColor', mcolors( l, : ), 'MarkerSize', 10 );
                 handleNames{ l + 1 } = [ 'filled ', num2str( l ) ];
+            else % if empty still plot something and acknowledge as none
+                handles(l+1) = plot( 1, nan, '.', 'MarkerEdgeColor', 'white' );
+                handleNames{ l + 1 } = [ 'filled ', num2str( l ), ...
+                    ' (none)' ];
             end
         end
         ylabel( varName );
