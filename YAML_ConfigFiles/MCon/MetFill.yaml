@@ -49,8 +49,4 @@ fillPrecip:
         #siteType    : snotel
         #siteID      : 1017  # Vacas Locas
         #linfit      : false
-  #- 
-    #siteType    : prism
-    #siteID      : MCon
-    #linfit      : false
 ...
