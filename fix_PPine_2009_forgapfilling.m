@@ -21,7 +21,7 @@ function changed_idx = fix_PPine_2009_forgapfilling()
 
 % I don't see these purported problems anymore, with the possible exception
 % of the >2 fluxes days 330-365 (can be taken care of elsewhere anyways)
-error('Should this script be running????');
+error( 'This function ( fix_PPine_2009_forgapfilling ) is deprecated' );
 
 fgf = parse_forgapfilling_file( UNM_sites.PPine, 2009 );
 aflx_gf = parse_ameriflux_file( fullfile( getenv( 'FLUXROOT' ), ...

@@ -11,7 +11,8 @@ function success = fix_MCon_2012_forgapfilling()
 % author: Timothy W. Hilton, UNM, Oct 2012
 
 % Gapfiller doesn't seem to create this spike anymore
-error('Should this script be running????');
+
+error( 'This function ( fix_MCon_2012_forgapfilling ) is deprecated' );
 
 fgf = parse_forgapfilling_file( UNM_sites.MCon, 2012, true );
 aflx_gf = parse_ameriflux_file( fullfile( getenv( 'FLUXROOT' ), ...

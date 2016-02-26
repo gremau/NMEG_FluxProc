@@ -15,7 +15,7 @@ function changed_idx = fix_PPine_2012_forgapfilling()
 % author: Timothy W. Hilton, UNM, Oct 2012
 
 % I no longer see these spikes
-error('Should this script be running????');
+error( 'This function ( fix_PPine_2012_forgapfilling ) is deprecated' );
 
 fgf = parse_forgapfilling_file( UNM_sites.PPine, 2012 );
 aflx_gf = parse_ameriflux_file( fullfile( getenv( 'FLUXROOT' ), ...
