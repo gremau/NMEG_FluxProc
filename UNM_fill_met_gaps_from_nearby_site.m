@@ -167,7 +167,7 @@ if write_output
     fprintf( 'writing %s\n', outfile );
     thisData.timestamp = [];
     thisData2 = table2dataset(thisData);
-    export_dataset_tim( outfile, thisData2, 'write_units', true );
+    write_table_std( outfile, thisData2, 'write_units', true );
     %export( thisData( :, 2:end ), 'file', outfile );
 end
 
