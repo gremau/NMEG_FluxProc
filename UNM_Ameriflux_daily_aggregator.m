@@ -67,8 +67,6 @@ classdef UNM_Ameriflux_daily_aggregator
             args.addRequired( 'sitecode', ...
                 @(x) ( isnumeric(x) | isa( x, 'UNM_sites' ) ) );
             args.addOptional( 'years', NaN, @isnumeric );
-            args.addParameter( 'binary_data', ...
-                false, @(x) ( islogical(x) & numel( x ) ==  1 ) );
             args.parse( sitecode, varargin{ : } );
             % make sure sitecode is a UNM_sites object
             obj.sitecode = UNM_sites( args.Results.sitecode );
@@ -83,8 +81,7 @@ classdef UNM_Ameriflux_daily_aggregator
             obj.aflx_data = ...
                 assemble_multiyear_ameriflux( args.Results.sitecode, ...
                 obj.years, ...
-                'suffix', 'gapfilled', ...
-                'binary_data', args.Results.binary_data );
+                'suffix', 'gapfilled' );
             
             % no data from the future :)
             future_idx = obj.aflx_data.timestamp > now();
@@ -120,15 +117,9 @@ classdef UNM_Ameriflux_daily_aggregator
             units_sum = { 'mm' };
             % radiation variables: aggregate by W m-2 to J m-2
             % FIXME - missing PAR_out (need to add to qc files)
-            % Also - RNET and LW_IN are being replaced by RNET_F and 
-            % LW_IN_F in gapfilled files - this will need to be modified
-            if obj.sitecode==UNM_sites.PPine
-                vars_rad = { 'RNET_F', 'PAR', 'SW_IN_F', 'SW_OUT', ...
-                    'LW_IN_F', 'LW_OUT', 'LE_F', 'H_F' };
-            else
-                vars_rad = { 'RNET', 'PAR', 'SW_IN_F', 'SW_OUT', ...
-                    'LW_IN', 'LW_OUT', 'LE_F', 'H_F' };
-            end
+
+            vars_rad = { 'RNET_F', 'PAR', 'SW_IN_F', 'SW_OUT', ...
+                'LW_IN_F', 'LW_OUT', 'LE_F', 'H_F' };
             units_rad = repmat( { 'J m-2' }, 1, numel( vars_rad ) );
             
             t_30min = double( [ obj.aflx_data.YEAR, obj.aflx_data.DOY ] );

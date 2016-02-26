@@ -1,22 +1,23 @@
-function amflux_ds = parse_ameriflux_file( fname )
-% PARSE_AMERIFLUX_FILE - parse an ameriflux file to a matlab dataset
+function amflux_tab = parse_ameriflux_file( fname )
+% PARSE_AMERIFLUX_FILE - parse an ameriflux file to a matlab table
 %
 % If necessary, variable names are converted to Matlab-legal variable names
 % using genvarname.
 % 
 % USAGE:
-%   amflux_ds = parse_ameriflux_file( fname )
+%   amflux_tab = parse_ameriflux_file( fname )
 %
 % INPUTS
 %   fname: character string; full path to the Ameriflux file to be parsed
 %
 % OUTPUTS
-%   amflux_ds: dataset array containing the parsed Ameriflux data
+%   amflux_tab: table array containing the parsed Ameriflux data
 %
 % SEE ALSO
-%   dataset, genvarname
+%   table, genvarname
 %
 % author: Timothy W. Hilton, UNM, Dec 2011
+% modified by Gregory E. Maurer, UNM, Feb 2016
 
 headerlines = 6;
 delim = detect_delimiter( fname );
@@ -42,6 +43,6 @@ data =  replace_badvals( data, [ -9999 ], 1e-10 );
 
 fclose( fid );
 
-amflux_ds = dataset( { data, var_names{ : } } );
-amflux_ds.Properties.Units = var_units;
+amflux_tab = array2table( data, 'VariableNames', var_names );
+amflux_tab.Properties.VariableUnits =  var_units;
 

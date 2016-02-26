@@ -28,6 +28,8 @@ function  ds  = ameriflux_dataset_get_timestamp( ds )
 %    dataset, datenum, parse_ameriflux_file, UNM_parse_both_ameriflux_files
 %
 % author: Timothy W. Hilton, UNM, 2012
+
+warning( 'This function ( ameriflux_dataset_get_tstamp.m ) is deprecated' );
     
 if ismember('TIMESTAMP', ds.Properties.VarNames)
     
