@@ -135,7 +135,7 @@ switch sitecode
                 data( idx, : ) = shift_data( data( idx, : ), 1.0, allCols );
                 % The entire year must shift an additional 0.5 hours
                 data = shift_data( data, 0.5, allCols );
-            case { 2013, 2014 }
+            case { 2013, 2014, 2015 }
                 data = shift_data( data, 0.5, allCols );
         end
         
