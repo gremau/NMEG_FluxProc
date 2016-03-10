@@ -1,0 +1,33 @@
+---
+config_site     : MCon_SS
+config_by_year  : false
+dataloggers  :
+  - 
+    name        : main
+    make        : CR3000
+    ID          : 9238
+    sensor_types: flux, radiation, met
+    start_date  : '2015-12-08 04:30'
+    end_date    : None
+  - 
+    name        : soil
+    make        : CR1000
+    ID          : 74324
+    sensor_types: soil
+    start_date  : '2015-12-08 04:30'
+    end_date    : None
+  - 
+    name        : precip
+    make        : CR1000
+    ID          : 47606
+    sensor_types: met
+    start_date  : '2015-12-08 04:30'
+    end_date    : None
+  - 
+    name        : sap
+    make        : CR1000
+    ID          : 5822
+    sensor_types: sapflux
+    start_date  : '2015-12-08 04:30'
+    end_date    : None
+...

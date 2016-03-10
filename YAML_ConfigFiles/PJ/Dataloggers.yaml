@@ -1,0 +1,19 @@
+---
+config_site     : PJ
+config_by_year  : false
+dataloggers  :
+  - 
+    name        : flux
+    make        : CR5000
+    ID          : 2035
+    sensor_types: flux, radiation, met
+    start_date  : '2007-11-09 17:30'
+    end_date    : None
+  - 
+    name        : soil_sap
+    make        : CR23X
+    ID          : 
+    sensor_types: soil, sapflow
+    start_date  : '2009-05-12 13:30'
+    end_date    : None
+...
