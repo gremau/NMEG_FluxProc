@@ -132,8 +132,6 @@ switch sitecode
             % FIXME - drop and use CG3CO vars?
             [lw_incoming, lw_outgoing] = ...
                 lw_correct( lw_incoming, lw_outgoing );
-            % Calibration correction for the older K & Z PAR sensor.
-            %Par_Avg( idx ) = Par_Avg( idx ) .* PAR_KZ_old_up_mult;
         end
         
         %%%%%%%%%%%%%%%%% shrubland
@@ -244,26 +242,10 @@ elseif year_arg == 2008
             Par_Avg(idx) = NaN;
         
         elseif year_arg == 2015
-            % Calibration added to datalogger programs on 01/17/2014
-            idx = find( decimal_day < 17.5 );
-            sw_incoming( idx ) = ...
-                sw_incoming(idx) ./ cnr1_mult_old2 .* cnr1_mult;
-            sw_outgoing( idx ) = ...
-                sw_outgoing(idx) ./ cnr1_mult_old2 .* cnr1_mult;
-            lw_incoming( idx ) = ...
-                lw_incoming(idx) ./ cnr1_mult_old2 .* cnr1_mult;
-            lw_outgoing( idx ) = ...
-                lw_outgoing(idx) ./ cnr1_mult_old2 .* cnr1_mult;
             % Temperature correction just for long-wave
             % FIXME - drop and use CG3CO vars?
             [lw_incoming, lw_outgoing] = ...
                 lw_correct( lw_incoming, lw_outgoing );
-            % Calibration correction for the older K & Z PAR sensor.
-            Par_Avg( idx ) = Par_Avg( idx ) .* PAR_KZ_old_up_mult;
-            
-            % Fix one spiky period
-            idx = decimal_day > 257 & decimal_day < 267 & Par_Avg > 2100;
-            Par_Avg(idx) = NaN;
         end
         
         %%%%%%%%%%%%%%%%% juniper savanna

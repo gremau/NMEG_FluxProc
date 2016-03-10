@@ -154,7 +154,7 @@ switch sitecode
                 data( clockSet3, : ) = shift_data( ...
                     data( clockSet3, : ), 0.5, allCols );
 
-            case { 2008, 2009 2010 2011 2012 2013 2014 }
+            case { 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 }
                 data = shift_data( data, 0.5, allCols );
 
         end
