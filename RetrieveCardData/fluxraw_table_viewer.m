@@ -1,5 +1,5 @@
-function fh =  fluxraw_dataset_viewer( ds, this_site, mod_date )
-%FLUXRAW_DATASET_VIEWER --  graphical user interface to view TOA5 files
+function fh =  fluxraw_table_viewer( tbl, this_site, mod_date )
+%FLUXRAW_TABLE_VIEWER --  graphical user interface to view TOA5 files
 %containing 30-minute datalogger data.  
 %
 % This is intended for use during card conversion for a quick visual
@@ -8,10 +8,10 @@ function fh =  fluxraw_dataset_viewer( ds, this_site, mod_date )
 %"previous" and "next" buttons to move among variables.  Support Matlab's
 %zooming and scrolling capabilities.
 %       
-% USAGE fh = fluxraw_dataset_viewer( ds, this_site, mod_date )
+% USAGE fh = fluxraw_table_viewer( tbl, this_site, mod_date )
 %
 % INPUTS:
-%    ds: dataset array; the data to be plotted.
+%    tbl: table array; the data to be plotted.
 %    this_site: UNM_sites object; which UNM site?
 %    mod_date: the modification time of the 30-minute datalogger file (used
 %        to identify the TOA5 file)
@@ -20,18 +20,18 @@ function fh =  fluxraw_dataset_viewer( ds, this_site, mod_date )
 %    fh: handle to the figure window created
 %
 % (c) Timothy W. Hilton, UNM, Mar 2012
+%  Rewritten by Gregory Maurer, UNM, Mar, 2015
     
 %-------------------------
 % Initialization tasks
 %--------------------------
 
-warning('This function ("fluxraw_dataset_viewer") is deprecated!');
-% Use table version instead
+
 
 % determine screensize
     scrsz = get(0,'ScreenSize');
     
-    nfields = size( ds, 2 );
+    nfields = size( tbl, 2 );
 
     % create a figure to contain the GUI, use entire screen horizontally,
     % upper half of the screen vertically
@@ -69,31 +69,31 @@ warning('This function ("fluxraw_dataset_viewer") is deprecated!');
                           'String','===>', ...
                           'Position', [ 250 10 200 40], ...
                           'CallBack', { @next_but_cbk, nfields, ...
-                        axh, fh, ds, pbh_prev } );
+                        axh, fh, tbl, pbh_prev } );
 
-    set( pbh_prev, 'CallBack', { @prev_but_cbk, nfields, axh, fh, ds, pbh_next} );
-    set( pbh_next, 'CallBack', { @next_but_cbk, nfields, axh, fh, ds, pbh_prev} );
-    set( fh, 'WindowKeyPressFcn', { @key_press_cbk, fh, nfields, axh, ds, ...
+    set( pbh_prev, 'CallBack', { @prev_but_cbk, nfields, axh, fh, tbl, pbh_next} );
+    set( pbh_next, 'CallBack', { @next_but_cbk, nfields, axh, fh, tbl, pbh_prev} );
+    set( fh, 'WindowKeyPressFcn', { @key_press_cbk, fh, nfields, axh, tbl, ...
                         pbh_prev, pbh_next } );
 
 %--------------------------
 %  plot first field
 %--------------------------
 
-plot_fluxraw_field( axh, ds, 1 );
+plot_fluxraw_field( axh, tbl, 1 );
 xlabel( axh, 'date' );
 datetick( 'x', 'ddmmmyy' );
-t_str = ds.Properties.VarNames{ 1 };
+t_str = tbl.Properties.VariableNames{ 1 };
 t_str = strrep( t_str, '_', '\_');
 t_str = strrep( t_str, '0x2E', '.');
-ylabel( axh, sprintf( '%s [%s]', t_str, ds.Properties.Units{ 1 } ) );
+ylabel( axh, sprintf( '%s [%s]', t_str, tbl.Properties.VariableUnits{ 1 } ) );
 
 %--------------------------
 %  Callbacks for GUI
 %--------------------------
 
 function cur_col = prev_but_cbk( source, eventdata, ...
-                                 nfields, axh, fh, ds, pbh_next )
+                                 nfields, axh, fh, tbl, pbh_next )
     %% change the plot to the previous data field
     
     % decrement cur_col
@@ -101,7 +101,7 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     ud.cur_col = max( ud.cur_col - 1, 1 );
     set( fh, 'UserData', ud );
     
-    plot_fluxraw_field( axh, ds, ud.cur_col );
+    plot_fluxraw_field( axh, tbl, ud.cur_col );
     
     % just backed up, so can't be on last column
     set( pbh_next, 'enable', 'on' );
@@ -114,7 +114,7 @@ function cur_col = prev_but_cbk( source, eventdata, ...
     end    
     
 function cur_col = next_but_cbk( source, eventdata, ...
-                                 nfields, axh, fh, ds, pbh_prev )
+                                 nfields, axh, fh, tbl, pbh_prev )
     %% change the plot to the previous data field
     
     % decrement cur_col
@@ -123,8 +123,8 @@ function cur_col = next_but_cbk( source, eventdata, ...
     set( fh, 'UserData', ud );
     
     % get the new variable names
-    this_var = ds.Properties.VarNames{ ud.cur_col };
-    plot_fluxraw_field( axh, ds, ud.cur_col );
+    this_var = tbl.Properties.VariableNames{ ud.cur_col };
+    plot_fluxraw_field( axh, tbl, ud.cur_col );
 
     % just advanced, so can't be on first column
     set( pbh_prev, 'enable', 'on' );
@@ -137,19 +137,19 @@ function cur_col = next_but_cbk( source, eventdata, ...
     end
     
 function zoom_but_cbk( source, eventdata, ...
-                       nfields, axh, fh, ds )
+                       nfields, axh, fh, tbl )
 %% change the plot to the previous data field
 
 ud = get( fh, 'UserData' );
 cur_ylim = get( axh, 'YLim' );
 
-new_ylim = prctile( double( ds( :, ud.cur_col ) ), ...
+new_ylim = prctile( double( tbl( :, ud.cur_col ) ), ...
                     [ 0.1, 99.9 ] );
 set( axh, 'YLim', new_ylim );
 
 %==================================================
 
-function key_press_cbk( source, eventdata, fh, nfields, axh, ds, ...
+function key_press_cbk( source, eventdata, fh, nfields, axh, tbl, ...
                         pbh_prev, pbh_next  )
 
 switch eventdata.Key
@@ -158,33 +158,33 @@ switch eventdata.Key
     close( fh );
 
   case 'leftarrow'
-    prev_but_cbk( pbh_prev, eventdata, nfields, axh, fh, ds, pbh_next );
+    prev_but_cbk( pbh_prev, eventdata, nfields, axh, fh, tbl, pbh_next );
     
   case 'rightarrow'
-    next_but_cbk( pbh_next, eventdata, nfields, axh, fh, ds, pbh_prev );
+    next_but_cbk( pbh_next, eventdata, nfields, axh, fh, tbl, pbh_prev );
     
   case 'z'
-    zoom_but_cbk( source, eventdata, nfields, axh, fh, ds );
+    zoom_but_cbk( source, eventdata, nfields, axh, fh, tbl );
     
 end
 
 %==================================================
 
-function plot_fluxraw_field( axh, ds, cur_col)
-% PLOT_FLUXRAW_FIELD - plots single field of fluxraw dataset to specified axes
+function plot_fluxraw_field( axh, tbl, cur_col)
+% PLOT_FLUXRAW_FIELD - plots single field of fluxraw table to specified axes
 %   
 
 % get the new variable names
-this_var = ds.Properties.VarNames{ cur_col };
-this_data = ds.( this_var );
+this_var = tbl.Properties.VariableNames{ cur_col };
+this_data = tbl.( this_var );
 idx_huge = find( abs( this_data ) > 1e12 );
 n_huge = numel( idx_huge );
 if ( n_huge <= 5 )
     this_data( idx_huge ) = NaN;
 end
-if isnumeric( ds.( this_var ) )
-    plot( axh, ds.timestamp, this_data, '.k' );
-    this_units = ds.Properties.Units{ cur_col };
+if isnumeric( tbl.( this_var ) )
+    plot( axh, tbl.timestamp, this_data, '.k' );
+    this_units = tbl.Properties.VariableUnits{ cur_col };
 else
     cla( axh );
 end

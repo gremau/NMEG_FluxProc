@@ -130,10 +130,10 @@ end
 %make diagnostic plots of the raw flux data from the card
 if args.Results.interactive
     if fluxdata_convert_success
-        fluxraw = toa5_2_dataset(toa5_fname);
+        fluxraw = toa5_2_table(toa5_fname);
         % save( 'fluxraw_viewer_restart.mat' );  main_success = 1;
         % return
-        h_viewer = fluxraw_dataset_viewer(fluxraw, this_site, mod_date);
+        h_viewer = fluxraw_table_viewer(fluxraw, this_site, mod_date);
         figure( h_viewer );  % bring h_viewer to the front
         waitfor( h_viewer );
         clear('fluxraw');
