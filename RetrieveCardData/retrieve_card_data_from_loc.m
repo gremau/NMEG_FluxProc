@@ -11,6 +11,7 @@ function [result, dest_dir, mod_date] = ...
 %    retrieve_card_data_from_loc( site, data_loc )
 % INPUTS
 %    site: integer or UNM_sites object; site being processed
+%    logger_name: string; name of the logger
 %    data_loc: string; either 'card' if the data are on a flash card or
 %        the path to the directory containing the data if they are already on
 %        disk
@@ -55,20 +56,24 @@ mod_date_arr = [];
 for i = 1:numel(tower_files)
     src = fullfile( data_loc, ...
         tower_files( i ).name );
-    mod_date_arr( i )  = datenum(tower_files(i).date); %modification date for ...
-    % the data file
+    mod_date_arr( i )  = datenum(tower_files(i).date);
+    %modification date for the data file
     mod_date = mod_date_arr( i );
-    if any( mod_date_arr > now() )
-        error( 'Raw data has modification date in the future' );
-    end
-    if any( diff( mod_date_arr ) > 1e-6 )
-        % if the raw data files have different modification dates, issue
-        % warning and use the most recent
-        warning( sprintf( [ 'Raw data files have different modification dates.'...
-            '  Using %s (the most recent).\n' ], ...
-            datestr( max( mod_date_arr ) ) ) );
-        mod_date = max( mod_date_arr );
-    end
+
+end
+
+% Check that mod date is not in future
+if any( mod_date_arr > now() )
+    error( 'Raw data has modification date in the future' );
+end
+
+% Issue a warning if the raw data files have different modification dates,
+% This should normally be the case
+if any( diff( mod_date_arr ) > 1e-6 )
+    warning( sprintf( [ 'Raw data files have different modification dates.\n'...
+        '         Using %s (the most recent).\n' ], ...
+        datestr( max( mod_date_arr ) ) ) );
+    mod_date = max( mod_date_arr );
 end
 
 %
@@ -129,12 +134,16 @@ end
         
         site = UNM_sites( site );
         
+        card_datestr = datestr(mod_date, 'yyyymmdd');
+        card_dvec = datevec( mod_date );
+        card_yrstr = num2str( card_dvec( :,1 ));
+        
         site_dir = get_site_directory( get_site_code( site ) );
         dir_path = fullfile(site_dir, 'raw_card_data', ...
-            logger_name, ...
+            [logger_name, '_', card_yrstr], ...
             sprintf('%s_%s', ...
             char( site ), ...
-            datestr(mod_date, 'yyyymmdd')));
+            card_datestr));
     end
 end
 
