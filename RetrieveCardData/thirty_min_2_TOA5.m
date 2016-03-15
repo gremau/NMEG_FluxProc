@@ -21,6 +21,7 @@ function [success, toa5_fname] = thirty_min_2_TOA5(site, raw_data_dir)
 %    toa5_fname: string; full path of the new TOA5 file.
 %
 % (c) Timothy W. Hilton, UNM, Oct 2012
+% Rewritten by Gregory E. Maurer, UNM, March 2015
 
 
 site = UNM_sites( site );
@@ -42,7 +43,7 @@ else
     output_temp_dir = tempname();
     mkdir(output_temp_dir);
     
-    %create the configuration file for CardConvert
+    %create the configuration file and command string for CardConvert
     toa5_ccf_file = tempname();
     ccf_success = build_TOA5_card_convert_ccf_file(toa5_ccf_file, ...
         raw_data_dir, ...

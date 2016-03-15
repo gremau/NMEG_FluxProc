@@ -1,4 +1,4 @@
-function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir,...
+function [success, all_ts_fnames] = tsdata_2_TOB1(site, raw_data_dir,...
     varargin)
 % TSDATA_2_TOB1 - convert a datalogger 10-hz raw data file to a series of daily
 % TOB1 files in the appropriate directory.
@@ -24,6 +24,7 @@ function [success, all_ts_names] = tsdata_2_TOB1(site, raw_data_dir,...
 %    all_ts_fnames: cell array of strings; full paths to all new TOB1 files.
 %
 % (c) Timothy W. Hilton, UNM, Oct 2012
+% Rewritten by Gregory E. Maurer, UNM, March 2015
 
 site = UNM_sites( site );
 
@@ -42,7 +43,8 @@ success = true;
 all_ts_fnames = '';
 
 thirty_min_file = dir(fullfile(raw_data_dir, '*.flux.dat'));
-ts_data_file_struct = dir(fullfile(raw_data_dir, '*.ts_data.dat'));
+%ts_data_file_struct = dir(fullfile(raw_data_dir, '*.ts_data.dat'));
+ts_data_file_struct = dir(fullfile(raw_data_dir, '*.ts_data*'));
 
 % Select a safe output directory for wireless patches
 if args.Results.wireless
@@ -72,18 +74,22 @@ if isempty(ts_data_file_struct)
     end
     
 elseif length(ts_data_file_struct) > 1
-    error('There are multiple ts_data files in the given directory');
-    success = false;
-    return
+    if site~=UNM_sites.SLand && site~=UNM_sites.MCon_SS;
+        error('There are multiple ts_data files in the given directory');
+        success = false;
+        return
+    else
+        ts_data_file = { ts_data_file_struct.name };
+    end
 else
-    ts_data_file = ts_data_file_struct.name;
+    ts_data_file =  { ts_data_file_struct.name };
 end
 
 %create a temporary directory for the tsdata output
 output_temp_dir = tempname();
 mkdir(output_temp_dir);
 
-%create the configuration file for CardConvert
+%create the configuration file and command string for CardConvert
 tob1_ccf_file = tempname();
 ccf_success = build_tsdata_card_convert_ccf_file(tob1_ccf_file, ...
                                                  raw_data_dir, ...
@@ -133,19 +139,31 @@ if ~isempty(thirty_min_file)
     end
 end
 
-%rename the tob1 files according to the site and place it in the
-%site's ts_data directory
-default_root = sprintf('TOB1_%s',...
-                       char(regexp(ts_data_file, ...
-                                   '.*\.ts_data', 'match')));
-default_name = dir(fullfile(output_temp_dir, [default_root, '*']));
-all_ts_fnames = cell(1, length(default_name));
-for i = 1:length(default_name)
-    newname = strrep(default_name(i).name,...
-                     default_root, sprintf('TOB1_%s', char( site )));
-    default_fullpath = fullfile(output_temp_dir, default_name(i).name);
+% Rename the tob1 files according to the site and place it in the
+% site's ts_data directory
+
+% First get the root filename of the original ts_data files from card
+ts_data_roots = regexp(ts_data_file, '.*\.ts_data', 'match', 'once');
+ts_data_root = unique(ts_data_roots); % Get root filename
+% Get the root filename for the converted TOB1 files
+default_root = sprintf( 'TOB1_%s', char( ts_data_root ));
+% Make lists of files based on the default root (ts_data and ts_data2)
+default_name_irga1 = dir(fullfile(output_temp_dir, [default_root, '_*']));
+default_name_irga2 = dir(fullfile(output_temp_dir, [default_root, '2_*']));
+
+% Now move and rename all temporary TOB1 files
+all_ts1_fnames = cell(1, length(default_name_irga1));
+for i = 1:length(default_name_irga1)
+    % Take TOB1 filename and rename to our TOB1 naming convention
+    tob_fname = default_name_irga1(i).name;
+    tob_root_full = regexp(tob_fname, [default_root, '_\d{1,3}'], ...
+        'match', 'once');
+    newname = strrep(tob_fname, tob_root_full, ...
+        sprintf('TOB1_%s', char( site )));
+    % Set temp and destination filepaths
+    default_fullpath = fullfile(output_temp_dir, tob_fname);
     newname_fullpath = fullfile(tsdata_dir, newname);
-    all_ts_names{i} = newname_fullpath;
+    all_ts1_fnames{i} = newname_fullpath;
     if exist(newname_fullpath) == 2
         % if file already exists, overwrite it
         delete(newname_fullpath);
@@ -159,6 +177,38 @@ for i = 1:length(default_name)
               'moving TOA5 file to TOA5 directory failed');
     end
 end
+
+% If ts_data2 files (second IRGA) are present move them too
+if ~isempty(default_name_irga2)
+    all_ts2_fnames = cell(1, length(default_name_irga2));
+    for i = 1:length(default_name_irga2)
+        tob_fname = default_name_irga2(i).name;
+        tob_root_full = regexp(tob_fname, [default_root, '2_\d{1,3}'], ...
+            'match', 'once');
+        newname = strrep(tob_fname, tob_root_full, ...
+            sprintf('TOB1_%s', char( site )));
+        newname = strrep(tob_fname, tob_root_full, ...
+            sprintf('TOB1_%s_irga2', char( site )));
+        default_fullpath = fullfile(output_temp_dir, tob_fname);
+        newname_fullpath = fullfile(tsdata_dir, newname);
+        all_ts2_fnames{i} = newname_fullpath;
+        if exist(newname_fullpath) == 2
+            % if file already exists, overwrite it
+            delete(newname_fullpath);
+        end
+        fprintf(1, '%s --> %s\n', default_fullpath, newname_fullpath);
+        move_success = ...
+            java.io.File(default_fullpath).renameTo(java.io.File(newname_fullpath));
+        success = move_success & success;
+        if not(move_success)
+            error('thirty_min_2_TOA5:rename_fail',...
+                'moving TOA5 file to TOA5 directory failed');
+        end
+    end
+end
+
+% Put together ts_data and ts_data2 filenames
+all_ts_fnames = horzcat(all_ts1_fnames, all_ts2_fnames);
 
 %remove the temporary output directory & CardConvert ccf file
 [rm_success, msgid, msg] = rmdir(output_temp_dir);
