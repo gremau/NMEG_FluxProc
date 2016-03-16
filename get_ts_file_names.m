@@ -42,6 +42,11 @@ function fnames = get_ts_file_names( site, date_start, date_end, data_dir );
     tstamp_strings( empty_idx ) = [];
     fnames( empty_idx ) = [];
     
+    % ignore files with "irga2" in the file name
+    irga2_idx = find( ~cellfun( @isempty, regexp( fnames, 'irga2' )));
+    tstamp_strings( irga2_idx ) = [];
+    fnames( irga2_idx ) = [];
+    
     dn = cellfun( @( x ) datenum(x, 'yyyy_mm_dd_HHMM'), ...
                   tstamp_strings, ...
                   'UniformOutput', false );

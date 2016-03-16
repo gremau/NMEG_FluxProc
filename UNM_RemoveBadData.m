@@ -2031,7 +2031,7 @@ if write_complete_out_file
     
     outfilename_csv = fullfile( outfolder, ...
         sprintf( '%s_qc.txt', filename ) );
-    out_data = dataset( { datamatrix2, header2{ 2:end } } );
+    out_data = array2table( datamatrix2, 'VariableNames', header2( 2:end ));
     write_table_std( outfilename_csv, out_data );
     %export( out_data, 'file', outfilename_csv );
     

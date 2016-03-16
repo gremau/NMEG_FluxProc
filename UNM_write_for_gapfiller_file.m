@@ -59,19 +59,19 @@ f_validate = @(x) isnumeric(x) & not( isempty( x ) );
 % parse inputs, with defaults and typechecking
 % -----
 args = inputParser;
-args.addParamValue( 'timestamp', [], f_validate );
-args.addParamValue( 'qcNEE', [], f_validate );
-args.addParamValue( 'NEE', [],  f_validate );
-args.addParamValue( 'LE', [], f_validate );
-args.addParamValue( 'H', [], f_validate );
-args.addParamValue( 'Rg', [], f_validate );
-args.addParamValue( 'Tair', [], f_validate );
-args.addParamValue( 'Tsoil', [], f_validate );
-args.addParamValue( 'RH', [], f_validate );
-args.addParamValue( 'VPD', [], f_validate );
-args.addParamValue( 'Ustar', [], f_validate );
-args.addParamValue( 'Precip', [], f_validate );
-args.addParamValue( 'fname', '', @ischar );
+args.addParameter( 'timestamp', [], f_validate );
+args.addParameter( 'qcNEE', [], f_validate );
+args.addParameter( 'NEE', [],  f_validate );
+args.addParameter( 'LE', [], f_validate );
+args.addParameter( 'H', [], f_validate );
+args.addParameter( 'Rg', [], f_validate );
+args.addParameter( 'Tair', [], f_validate );
+args.addParameter( 'Tsoil', [], f_validate );
+args.addParameter( 'RH', [], f_validate );
+args.addParameter( 'VPD', [], f_validate );
+args.addParameter( 'Ustar', [], f_validate );
+args.addParameter( 'Precip', [], f_validate );
+args.addParameter( 'fname', '', @ischar );
 
 args.parse( varargin{ : } );
 
@@ -88,7 +88,7 @@ var_names = { 'day', 'month', 'year', 'hour', 'minute', 'qcNEE', 'NEE', 'LE', 'H
               'Rg', 'Tair', 'Tsoil', 'rH', 'VPD', 'Ustar', 'Precip' };
 var_units = { '--', '--', '--', '--', '--', '--', 'umolm-2s-1', 'Wm-2', 'Wm-2', ...
               'Wm-2', 'degC', 'degC', '%', 'hPa', 'ms-1', 'mm' };
-fgf = dataset( { [ day, ...
+fgf = array2table( [ day, ...
                    month, ...
                    year, ...
                    hour, ...
@@ -104,8 +104,8 @@ fgf = dataset( { [ day, ...
                    args.Results.VPD, ...
                    args.Results.Ustar, ...
                    args.Results.Precip], ...
-                 var_names{ : } } );
-fgf.Properties.Units = var_units;
+                 'VariableNames', var_names );
+fgf.Properties.VariableUnits = var_units;
 
 if isempty( args.Results.fname )
     fname = tempname();

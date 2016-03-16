@@ -27,6 +27,9 @@ function UNM_site_plot_fullyear_time_offsets( sitecode, year, varargin )
 % -----
 % define optional inputs, with defaults and typechecking
 % -----
+
+warning('This script (UNM_site_plot_fullyear_time_offsets) is deprecated!');
+
 args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 [ this_year, ~, ~ ] = datevec( now );

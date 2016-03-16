@@ -152,7 +152,7 @@ end
 %convert the time series (10 hz) data to TOB1 files
 try 
     fprintf(1, '\n----------\n');
-    fprintf(1, 'CONVERTING TIME SERIES DATA TO TOB1 FILES...');
+    fprintf(1, 'CONVERTING TIME SERIES DATA TO TOB1 FILES...\n');
     [tsdata_convert_success, ts_data_fnames] = ...
         tsdata_2_TOB1(this_site, raw_data_dir);
     fprintf(1, ' Done\n');
@@ -228,7 +228,7 @@ end
 try
     fprintf(1, '\n----------\n');
     if args.Results.interactive
-        fprintf(1, 'transfering compressed raw data to edac...\n');
+        fprintf(1, 'TRANSFERING COMPRESSED RAW DATA TO EDAC...\n');
         h = msgbox( 'click to begin FTP transfer', '' );
         waitfor( h );
         transfer_2_edac(this_site, card_archive_name)
@@ -273,6 +273,7 @@ if strcmp( logger_name, 'flux' )
         inclYears = unique( datesVec( :, 1 ) );
         if length( inclYears ) > 1
             start_first = min( dates );
+            % FIXME - this date setting might be a problem (30 min shift?)
             end_first = datenum( inclYears( 1 ), 12, 31, 23, 30, 0 );
             start_second = datenum( inclYears( 2 ), 1, 1 );
             end_second = max( dates );
@@ -306,14 +307,6 @@ if strcmp( logger_name, 'flux' )
     [ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
     UNM_RemoveBadData( UNM_sites( this_site ), year, ...
         'draw_plots', double( args.Results.interactive ) );
-    
-    % compare sunrise as measured by observed solar radiation to runrise as
-    % calculated by solar angle
-    % FIXME - can probably remove/replace this - useful plots for correcting
-    %         time shifts are now made by UNM_fix_datalogger_timestamps.m
-    % fprintf(1, '\n----------\n');
-    % fprintf(1, 'make sure timestamps rise the sun at the correct time...\n');
-    % UNM_site_plot_fullyear_time_offsets( UNM_sites( this_site ), year );
     
     % fill missing temperature, PAR, relative humidity from nearby sites if
     % available.

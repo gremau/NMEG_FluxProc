@@ -28,6 +28,8 @@ function UNM_site_plot_doy_time_offsets( sitecode, year, doy, varargin )
 %
 % author: Timothy W. Hilton, UNM, June 2012
 
+warning('This script (UNM_site_plot_doy_time_offsets) is deprecated!');
+
 [ this_year, ~, ~, ~, ~, ~ ] = datevec( now() );
 
 args = inputParser;
