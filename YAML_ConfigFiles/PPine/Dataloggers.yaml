@@ -1,6 +1,6 @@
 ---
 config_site     : PPine
-config_by_year  : true
+config_by_date  : true
 dataloggers  :
   - 
     name        : flux

@@ -1,9 +1,9 @@
 ---
 config_site     : MCon_SS
-config_by_year  : false
+config_by_date  : false
 dataloggers  :
   - 
-    name        : main
+    name        : flux
     make        : CR3000
     ID          : 9238
     sensor_types: flux, radiation, met

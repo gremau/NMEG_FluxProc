@@ -1,6 +1,6 @@
 ---
 config_site     : New_GLand
-config_by_year  : false
+config_by_date  : false
 dataloggers  :
   - 
     name        : flux

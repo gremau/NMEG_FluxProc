@@ -1,6 +1,6 @@
 ---
 config_site     : PJ_girdle
-config_by_year  : false
+config_by_date  : false
 dataloggers  :
   - 
     name        : flux
