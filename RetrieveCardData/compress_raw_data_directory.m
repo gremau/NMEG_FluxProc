@@ -1,4 +1,4 @@
-function success = compress_raw_data_directory( raw_data_dir )
+function [success, arch_name] = compress_raw_data_directory( raw_data_dir )
 % COMPRESS_RAW_DATA_DIRECTORY - compresses a directory using 7-zip; wait until
 % compression is complete before resuming Matlab execution.
 %
@@ -10,8 +10,10 @@ function success = compress_raw_data_directory( raw_data_dir )
 %
 % OUTPUTS:
 %    success: 0 on success, 1 on failure.
+%    arch_name: string, full path/name of created archive.
 %
 % (c) Timothy W. Hilton, UNM, Oct 2011
+% Modified by Gregory E. Maurer, UNM, March 2016
     
 success = 1;
 
@@ -32,17 +34,16 @@ try
     end
     pause off;
     
-    fprintf(1, 'output: %s', output);
+    fprintf(1, 'output: %s\n', output);
     
-    if (result == 0)  %indicates compression successful
-        delete(fullfile(raw_data_dir, '*'));
-        rmdir(raw_data_dir);
-        fprintf(1, 'removed %s\n', raw_data_dir);
-    end
+    arch_name = sprintf('%s.7z', raw_data_dir);
+    
+    % This used to delete the original folder, but it is now preserved
     
 catch err
     disp( getReport( err ) );
     success = 0;
+    arch_name = '';
 end
 
     

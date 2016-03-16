@@ -7,23 +7,23 @@ function main_success = process_card_main( this_site, logger_name, varargin )
 %      directory
 %    * converts 30-minute data to a TOA5 file
 %    * converts 10 hz data to TOB1 files
-%    * copies the uncompressed TOB1 files to MyBook USB hard drive
-%    * copies uncompressed raw data to Story USB hard drive
-%    * compresses the raw data on the internal hard drive
+%    * compresses the raw card data on the internal hard drive
+%    * ???copies the uncompressed TOB1 files to MyBook USB hard drive
+%    * copies compressed raw card data to Story USB hard drive
 %    * FTPs the compressed raw data to EDAC
 %    * calculates 30-minute averages of 10-hz eddy covariance data
 %    * inserts the data into the appropriate annual FLUXALL file.
 %
 % DATALOGGER FILE REQUIREMENTS: 
-% process_card_main expects to find exactly one thirty-minute data file and
-% exactly one 10-hz data file in the directory containing the datalogger data.
-% The thirty-minute data file must be named *.flux.dat and the 10 hz data file
-% must be named *.ts_data.dat.  If these requirements are not met
+% process_card_main expects to find exactly one thirty-min data file and
+% one or more 10-hz data files in the specified card data directory.
+% The thirty-minute data file must be named *.flux.dat and the 10 hz data
+% files must be named *.ts_data*.dat.  If these requirements are not met
 % preocess_card_main will not be able to find the datalogger data.  If a
-% LoggerNet "repair" operation is necessary the unrepaired datalogger files
-% should be moved to a different directory (this may be a subdirectory within
-% the data directory), and the repaired file names must satisfy the above format
-% requirements.
+% LoggerNet "repair" operation is needed the unrepaired datalogger files
+% should be moved to a different directory (may be a subdirectory within
+% the data directory), and repaired file names must satisfy the above
+% format requirements.
 %
 % USAGE: 
 %    process_card_main( this_site )
@@ -56,6 +56,7 @@ function main_success = process_card_main( this_site, logger_name, varargin )
 %    network connection dies so that FTP transfer does not complete.
 %
 % Timothy W. Hilton, UNM, 2011-2013
+% Rewritten by Gregory E. Maurer, UNM, March 2016
 
 % -----
 % define optional inputs, with defaults and typechecking
@@ -78,9 +79,15 @@ datenum_monthago = datestr( now-32, 'yyyy-mm-dd');
 conf = parse_yaml_config( this_site, 'Dataloggers', ...
     { datenum_now, datenum_monthago } );
 
+% Check configuration to be sure the specified datalogger exists
+conf_logger_names = { conf.dataloggers.name };
+if ~ismember( logger_name, conf_logger_names )
+    error( sprintf(['Datalogger not configured. ',...
+        'Check Dataloggers.yaml for %s site\n'], char(this_site)));
+end
+
 %--------------------------------------------------------------------------
 % open a log file
-
 fname_log = fullfile( getenv( 'FLUXROOT' ), ...
                       'Card_Processing_Logs', ...
                       sprintf( '%s_%s_card_process.log', ...
@@ -164,40 +171,55 @@ catch err
 end
 
 %copy uncompressed TOB1 data to MyBook
-try 
-    fprintf(1, '\n----------\n');
-    fprintf(1, 'COPYING UNCOMPRESSED TOB1 DATA TO MYBOOK...\n');
-    copy_uncompressed_TOB_files(this_site, ts_data_fnames);
-    fprintf(1, 'Done copying uncompressed TOB1 data to mybook\n');
-catch err
-    % echo the error report
-    fprintf( 'Error copying uncompressed TOB1 data to MyBook\n' );
-    disp( getReport( err ) );
-    fprintf( 'continuing with processing\n' );
-end
+% try 
+%     fprintf(1, '\n----------\n');
+%     fprintf(1, 'COPYING UNCOMPRESSED TOB1 DATA TO MYBOOK...\n');
+%     copy_uncompressed_TOB_files(this_site, ts_data_fnames);
+%     fprintf(1, 'Done copying uncompressed TOB1 data to mybook\n');
+% catch err
+%     % echo the error report
+%     fprintf( 'Error copying uncompressed TOB1 data to MyBook\n' );
+%     disp( getReport( err ) );
+%     fprintf( 'continuing with processing\n' );
+% end
+% 
+% %copy uncompressed raw data to Story
+% try
+%     fprintf(1, '\n----------\n');
+%     fprintf(1, 'COPYING UNCOMPRESSED RAW CARD DATA TO STORY...\n');
+%     copy_uncompressed_raw_card_data(this_site, raw_data_dir);
+%     fprintf(1, 'Done copying uncompressed card data to Story\n');
+% catch err
+%     % echo the error report
+%     fprintf( 'Error copying uncompressed raw card data to Story\n' );
+%     disp( getReport( err ) );
+%     fprintf( 'continuing with processing\n' );
+% end
 
-%copy uncompressed raw data to Story
-try
-    fprintf(1, '\n----------\n');
-    fprintf(1, 'COPYING UNCOMPRESSED RAW CARD DATA TO STORY...\n');
-    copy_uncompressed_raw_card_data(this_site, raw_data_dir);
-    fprintf(1, 'Done copying uncompressed TOB1 data to mybook\n');
-catch err
-    % echo the error report
-    fprintf( 'Error copying uncompressed raw card data to Story\n' );
-    disp( getReport( err ) );
-    fprintf( 'continuing with processing\n' );
-end
+
 
 %compress the raw data on the local drive
 try
     fprintf(1, '\n----------\n');
     fprintf(1, 'COMPRESSING RAW DATA ON INTERNAL DRIVE...\n');
-    compress_raw_data_directory(raw_data_dir);
+    [~, card_archive_name] = compress_raw_data_directory(raw_data_dir);
     fprintf(1, 'Done compressing\n');
 catch err
     % echo the error report
     fprintf( 'Error compressing raw data\n' );
+    disp( getReport( err ) );
+    fprintf( 'continuing with processing\n' );
+end
+
+%copy compressed raw data to Story
+try
+    fprintf(1, '\n----------\n');
+    fprintf(1, 'COPYING COMPRESSED RAW CARD DATA TO STORY...\n');
+    copy_compressed_raw_card_data(this_site, card_archive_name);
+    fprintf(1, 'Done copying compressed card data to Story\n');
+catch err
+    % echo the error report
+    fprintf( 'Error copying compressed raw card data to Story\n' );
     disp( getReport( err ) );
     fprintf( 'continuing with processing\n' );
 end
@@ -209,7 +231,7 @@ try
         fprintf(1, 'transfering compressed raw data to edac...\n');
         h = msgbox( 'click to begin FTP transfer', '' );
         waitfor( h );
-        transfer_2_edac(this_site, sprintf('%s.7z', raw_data_dir))
+        transfer_2_edac(this_site, card_archive_name)
         fprintf(1, 'Done transferring.\n');
     else
         fprintf(1, ['Non-interactive -- skipping compressed raw data ' ...
@@ -223,6 +245,14 @@ catch err
 end
 
 save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'card_restart_01.mat' ) );
+
+% FIXME - Remove the original folder?
+%     if (result == 0)  %indicates compression successful
+%         delete(fullfile(raw_data_dir, '*'));
+%         rmdir(raw_data_dir);
+%         fprintf(1, 'removed %s\n', raw_data_dir);
+%     end
+
 
 % --------------------------------------------------
 % the data are now copied from the card and backed up.
