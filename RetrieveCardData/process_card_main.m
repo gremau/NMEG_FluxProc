@@ -244,6 +244,8 @@ catch err
     fprintf( 'continuing with processing\n' );
 end
 
+% This saves the MATLAB environment so that it can be restarted in case
+% something bad happens
 save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'card_restart_01.mat' ) );
 
 % FIXME - Remove the original folder?
@@ -257,71 +259,77 @@ save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'card_restart_01.mat' ) );
 % --------------------------------------------------
 % the data are now copied from the card and backed up.
 
-% merge the new data into the fluxall file
-try
-    fprintf(1, '\n----------\n');
-    fprintf(1, 'merging new data into FLUXALL file...\n');
-    dates = cellfun( @get_TOA5_TOB1_file_date, ts_data_fnames );
-    % Note that sometimes a card contains data from 2 years
-    % 2 fluxall files need to be made in this case
-    datesVec = datevec( dates );
-    inclYears = unique( datesVec( :, 1 ) );
-    if length( inclYears ) > 1
-        start_first = min( dates );
-        end_first = datenum( inclYears( 1 ), 12, 31, 23, 30, 0 );
-        start_second = datenum( inclYears( 2 ), 1, 1 );
-        end_second = max( dates );
-        cdp1 = card_data_processor( UNM_sites( this_site ), ...
-            'date_start', start_first, ...
-            'date_end', end_first );
-        cdp1.update_fluxall();
-        cdp2 = card_data_processor( UNM_sites( this_site ), ...
-            'date_start', start_second, ...
-            'date_end', end_second + 1 );
-        cdp2.update_fluxall();
-    else
-        cdp = card_data_processor( UNM_sites( this_site ), ...
-            'date_start', min( dates ), ...
-            'date_end', max( dates ) + 1 );
-        cdp.update_fluxall();
+% If this is a flux datalogger card process the data
+if strcmp( logger_name, 'flux' )
+    
+    % merge the new data into the fluxall file
+    try
+        fprintf(1, '\n----------\n');
+        fprintf(1, 'merging new data into FLUXALL file...\n');
+        dates = cellfun( @get_TOA5_TOB1_file_date, ts_data_fnames );
+        % Note that sometimes a card contains data from 2 years
+        % 2 fluxall files need to be made in this case
+        datesVec = datevec( dates );
+        inclYears = unique( datesVec( :, 1 ) );
+        if length( inclYears ) > 1
+            start_first = min( dates );
+            end_first = datenum( inclYears( 1 ), 12, 31, 23, 30, 0 );
+            start_second = datenum( inclYears( 2 ), 1, 1 );
+            end_second = max( dates );
+            cdp1 = card_data_processor( UNM_sites( this_site ), ...
+                'date_start', start_first, ...
+                'date_end', end_first );
+            cdp1.update_fluxall();
+            cdp2 = card_data_processor( UNM_sites( this_site ), ...
+                'date_start', start_second, ...
+                'date_end', end_second + 1 );
+            cdp2.update_fluxall();
+        else
+            cdp = card_data_processor( UNM_sites( this_site ), ...
+                'date_start', min( dates ), ...
+                'date_end', max( dates ) + 1 );
+            cdp.update_fluxall();
+        end
+    catch err
+        % echo the error report
+        fprintf( 'Error merging the new data into FLUXALL\n' );
+        disp( getReport( err ) );
+        main_success = 1;
+        % if fluxall was not updated successfully, there is nothing else to do.
+        diary off
+        return
     end
-catch err
-    % echo the error report
-    fprintf( 'Error merging the new data into FLUXALL\n' );
-    disp( getReport( err ) );
-    main_success = 1;
-    % if fluxall was not updated successfully, there is nothing else to do.
-    diary off
-    return
+    
+    % run RemoveBadData to create for gapfilling file, qc file.
+    fprintf(1, '\n----------\n');
+    fprintf(1, 'starting UNM_RemoveBadData...\n');
+    [ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
+    UNM_RemoveBadData( UNM_sites( this_site ), year, ...
+        'draw_plots', double( args.Results.interactive ) );
+    
+    % compare sunrise as measured by observed solar radiation to runrise as
+    % calculated by solar angle
+    % FIXME - can probably remove/replace this - useful plots for correcting
+    %         time shifts are now made by UNM_fix_datalogger_timestamps.m
+    % fprintf(1, '\n----------\n');
+    % fprintf(1, 'make sure timestamps rise the sun at the correct time...\n');
+    % UNM_site_plot_fullyear_time_offsets( UNM_sites( this_site ), year );
+    
+    % fill missing temperature, PAR, relative humidity from nearby sites if
+    % available.
+    fprintf(1, '\n----------\n');
+    fprintf(1, ['attempting to fill missing temperature, PAR, relative humidity ' ...
+        'from nearby sites...\n'] );
+    UNM_fill_met_gaps_from_nearby_site( UNM_sites( this_site ), year );
+    
+    % run RemoveBadData again to check visually that the filters did OK
+    fprintf(1, '\n----------\n');
+    fprintf(1, 'starting UNM_RemoveBadData...\n');
+    [ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
+    UNM_RemoveBadData( UNM_sites( this_site ), year, 'draw_plots', 3 );
+
+% End flux card data processing
 end
-
-% run RemoveBadData to create for gapfilling file, qc file.  
-fprintf(1, '\n----------\n');
-fprintf(1, 'starting UNM_RemoveBadData...\n');
-[ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
-UNM_RemoveBadData( UNM_sites( this_site ), year, ...
-                   'draw_plots', double( args.Results.interactive ) );
-
-% compare sunrise as measured by observed solar radiation to runrise as
-% calculated by solar angle
-% FIXME - can probably remove/replace this - useful plots for correcting
-%         time shifts are now made by UNM_fix_datalogger_timestamps.m
-% fprintf(1, '\n----------\n');
-% fprintf(1, 'make sure timestamps rise the sun at the correct time...\n');
-% UNM_site_plot_fullyear_time_offsets( UNM_sites( this_site ), year );
-
-% fill missing temperature, PAR, relative humidity from nearby sites if
-% available.
-fprintf(1, '\n----------\n');
-fprintf(1, ['attempting to fill missing temperature, PAR, relative humidity ' ...
-            'from nearby sites...\n'] );
-UNM_fill_met_gaps_from_nearby_site( UNM_sites( this_site ), year );
-
-% run RemoveBadData again to check visually that the filters did OK
-fprintf(1, '\n----------\n');
-fprintf(1, 'starting UNM_RemoveBadData...\n');
-[ year, ~, ~, ~, ~, ~ ] = datevec( min( dates ) );
-UNM_RemoveBadData( UNM_sites( this_site ), year, 'draw_plots', 3 );
 
 % close the log file
 diary off

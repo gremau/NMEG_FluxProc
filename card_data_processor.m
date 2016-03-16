@@ -179,8 +179,7 @@ methods
         % the site YAML config file
 
         % Get configuration from the site's YAML config file
-        config = parse_yaml_config( 'SiteVars', ...
-            obj.sitecode );
+        config = parse_yaml_config( obj.sitecode, 'SiteVars' );
 
         % Initialize flags indicating whether the secondary data
         % overlaps obj.date_start and obj.date_end
