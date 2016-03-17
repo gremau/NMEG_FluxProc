@@ -34,4 +34,13 @@ dataloggers  :
     start_date      : '2014-01-14 11:50'
     end_date        : None
     conv_file_loc   : secondary_loggers/precip_CR1000
+  - 
+    # This is the SAHRA site (Data available from DRI WRCC
+    name            : SAHRA_soil
+    make            : other
+    ID              : 
+    sensor_types    : soil
+    start_date      : '2007-01-01 00:00'
+    end_date        : '2013-06-01 00:00'
+    conv_file_loc   : secondary_loggers/SAHRA_logger
 ...

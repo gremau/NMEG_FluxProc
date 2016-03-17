@@ -34,4 +34,13 @@ dataloggers     :
     start_date      : '2015-11-02 13:00'
     end_date        : None
     conv_file_loc   : toa5, ts_data
+  - 
+    name            : DRI_soil
+    make            : other
+    ID              : 
+    sensor_types    : soil
+    start_date      : '2008-01-01 00:30'
+    end_date        : None
+    conv_file_loc   : secondary_loggers/DRI_logger
+
 ...

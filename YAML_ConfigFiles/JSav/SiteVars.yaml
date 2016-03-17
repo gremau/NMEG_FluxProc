@@ -7,9 +7,4 @@ longitude   : -105.861545
 elevation   : 1931
 timezone    : -7
 flux_meas_height  :
-secondary_data_sources   :
-    # This is the CR1000 datalogger at the site
-    - type          : cr1000
-      start_date    : 2012-05-02 11:30
-      end_date      : 2014-02-12 07:00
 ...

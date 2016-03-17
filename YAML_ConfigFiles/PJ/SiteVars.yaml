@@ -7,8 +7,4 @@ longitude   : -106.237694
 elevation   : 2196
 timezone    : -7
 flux_meas_height  :
-secondary_data_sources   :
-    # This is the CR23x datalogger at the site
-    - type          : cr23x
-      start_date    : 2009-05-12 00:00
 ...

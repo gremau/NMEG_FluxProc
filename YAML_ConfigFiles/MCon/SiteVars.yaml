@@ -7,13 +7,4 @@ longitude   : -106.532114
 elevation   : 3043
 timezone    : -7
 flux_meas_height    :
-secondary_data_sources   :
-    # This is the SAHRA site (Data available from DRI WRCC)
-    - type          : other
-      start_date    : 2007-01-01 00:00
-      end_date      : 2013-06-01 00:00
-    # This is our newer precip station
-    - type          : cr1000
-      start_date    : 2014-01-14 11:50
-      end_date      : None
 ...
