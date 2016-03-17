@@ -3,31 +3,35 @@ config_site     : MCon
 config_by_date  : true
 dataloggers  :
   - 
-    name        : flux
-    make        : CR5000
-    ID          : 1532
-    sensor_types: flux, radiation, met
-    start_date  : '2006-08-31 10:00'
-    end_date    : '2010-08-18 14:00'
+    name            : flux
+    make            : CR5000
+    ID              : 1532
+    sensor_types    : flux, radiation, met
+    start_date      : '2006-08-31 10:00'
+    end_date        : '2010-08-18 14:00'
+    conv_file_loc   : toa5, ts_data
   - 
-    name        : flux
-    make        : CR5000
-    ID          : 1401
-    sensor_types: flux, radiation, met
-    start_date  : '2010-08-18 16:00'
-    end_date    : '2013-05-02 14:00'
+    name            : flux
+    make            : CR5000
+    ID              : 1401
+    sensor_types    : flux, radiation, met
+    start_date      : '2010-08-18 16:00'
+    end_date        : '2013-05-02 14:00'
+    conv_file_loc   : toa5, ts_data
   - 
-    name        : flux
-    make        : CR5000
-    ID          : 2792
-    sensor_types: flux, radiation, met
-    start_date  : '2013-11-12 18:30'
-    end_date    : None
+    name            : flux
+    make            : CR5000
+    ID              : 2792
+    sensor_types    : flux, radiation, met
+    start_date      : '2013-11-12 18:30'
+    end_date        : None
+    conv_file_loc   : toa5, ts_data
   - 
-    name        : precip
-    make        : CR1000
-    ID          : 49012
-    sensor_types: soil
-    start_date  : '2014-01-14 11:50'
-    end_date    : None
+    name            : precip
+    make            : CR1000
+    ID              : 49012
+    sensor_types    : soil
+    start_date      : '2014-01-14 11:50'
+    end_date        : None
+    conv_file_loc   : secondary_loggers/precip_CR1000
 ...

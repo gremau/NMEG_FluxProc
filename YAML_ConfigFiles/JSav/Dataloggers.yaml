@@ -3,24 +3,27 @@ config_site     : JSav
 config_by_date  : true
 dataloggers  :
   - 
-    name        : flux
-    make        : CR5000
-    ID          : 2133
-    sensor_types: flux, radiation, met
-    start_date  : '2007-09-24 14:30'
-    end_date    : None
+    name            : flux
+    make            : CR5000
+    ID              : 2133
+    sensor_types    : flux, radiation, met
+    start_date      : '2007-09-24 14:30'
+    end_date        : None
+    conv_file_loc   : toa5, ts_data
   - 
-    name        : flux
-    make        : CR5000
-    ID          : 2035
-    sensor_types: flux, radiation, met
-    start_date  : '2007-05-04 13:30'
-    end_date    : '2007-09-07 01:30'
+    name            : flux
+    make            : CR5000
+    ID              : 2035
+    sensor_types    : flux, radiation, met
+    start_date      : '2007-05-04 13:30'
+    end_date        : '2007-09-07 01:30'
+    conv_file_loc   : toa5, ts_data
   - 
-    name        : soil
-    make        : CR1000
-    ID          : 47606
-    sensor_types: soil
-    start_date  : '2012-05-02 11:30'
-    end_date    : '2014-01-17 16:00'
+    name            : soil
+    make            : CR1000
+    ID              : 47606
+    sensor_types    : soil
+    start_date      : '2012-05-02 11:30'
+    end_date        : '2014-01-17 16:00'
+    conv_file_loc   : secondary_loggers
 ...

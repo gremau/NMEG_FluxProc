@@ -3,10 +3,11 @@ config_site     : GLand
 config_by_date  : false
 dataloggers  :
   - 
-    name        : flux
-    make        : CR3000
-    ID          : 1473
-    sensor_types: flux, radiation, met
-    start_date  : '2007-06-05 17:00'
-    end_date    : None
+    name            : flux
+    make            : CR3000
+    ID              : 1473
+    sensor_types    : flux, radiation, met
+    start_date      : '2007-06-05 17:00'
+    end_date        : None
+    conv_file_loc   : toa5, ts_data
 ...
