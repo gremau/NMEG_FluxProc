@@ -7,8 +7,8 @@ function parsedConfig = parse_yaml_config( sitecode, yaml_name, ...
 %       sitecode : UNM_sites object
 %       yaml_name: string - filename for the desired YAML config file
 % OPTIONAL INPUTS
-%       date_range: MATLAB cellarray of date strings (yyyy-mm-dd)
-%           indicating the configuration period to retrieve.
+%       date_range: MATLAB array of datenums indicating the start and end
+%           of configuration period to retrieve.
 % OUTPUT
 %       parsedConfig: structure - contains field:value pairs from the
 %       configuration file
@@ -18,7 +18,9 @@ function parsedConfig = parse_yaml_config( sitecode, yaml_name, ...
 args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'yaml_name', @ischar );
-args.addOptional( 'date_range', {}, @iscell );
+date_validation = @(x) isnumeric(x) && x(1) > datenum('2005-12-31') ...
+    && length(x) < 3;
+args.addOptional( 'date_range', [], date_validation );
 
 % parse optional inputs
 args.parse( sitecode, yaml_name, varargin{ : } );
@@ -63,28 +65,27 @@ else
     error( 'The YAML config file is for the wrong site!' );
 end
 
-% Set flag for date parsing if date_range provided
-% FIXME - the logic here works but could really use improvement
-if length(date_range)==2
-    parse_by_date = true;
-    date_range = datenum( date_range );
-elseif length(date_range) > 2 || length(date_range) == 1
-    error( 'Date range variable incorrect - try {start_date, end_date}. \n');
-elseif isempty( date_range )
-    parse_by_date = false;
+% Standardize the date_range variable
+if length(date_range)==1
+    date_range(2) = datenum( now );
+    warning( fprintf('Configuration end date not provided, using today \n') );
 end
-% If date_range not provided, but YAML file contains config_by_date
-% information, issue a warning.
-if isfield( rawConfig, 'config_by_date' ) && rawConfig.config_by_date && ...
-        ~parse_by_date
-    warning( sprintf(['YAML config file suggests date parsing! \n', ...
-        'File will be parsed using default period (all configs).\n'] ));
+
+% Determine whether to parse configurations by date
+date_range_given = length( date_range ) > 0;
+date_parse_required = isfield( rawConfig, 'config_by_date' ) && ...
+    rawConfig.config_by_date;
+
+% Set flag for required date parsing if date_range provided
+if date_parse_required && date_range_given
     parse_by_date = true;
-    date_range = [datenum('2005-12-31');  now];
-% If date_range is provided, but YAML file contains no config_by_date
-% information, issue a warning.
-elseif isfield( rawConfig, 'config_by_date' ) && ~rawConfig.config_by_date && ...
-        parse_by_date
+elseif date_parse_required && ~date_range_given
+    % If date_range not provided, but YAML file contains config_by_date
+    % information, issue an error.
+    error( 'Configuration requires date parsing, no date range given!');
+elseif ~date_parse_required && date_range_given
+    % If date_range provided, but YAML file contains no config_by_date
+    % information, issue a warning and do not parse by date
     warning( sprintf(['YAML config file contains no config_by_date info!\n', ...
         'Ignoring date_range argument.\n'] ));
     parse_by_date = false;
@@ -92,6 +93,8 @@ end
 
 % Now parse configuration by date if needed
 if parse_by_date;
+    sprintf( 'Parsing config data from %s to %s...\n', ...
+        datestr( date_range(1) ), datestr( date_range(2)));
     parsedConfig =  struct();
     for i = 1:length( fnames )
         fname = fnames{ i };
@@ -100,7 +103,7 @@ if parse_by_date;
             % First check confEnd for None and assign current date
             convert = strcmpi({rawConfig.(fname).end_date}, 'None');
             [rawConfig.(fname)(convert).end_date] = ...
-                deal(datestr( now, 'yyyy-mm-dd'));
+                deal(datestr( now, 'yyyy-mm-dd HH:MM'));
             confEnd = datenum( { rawConfig.( fname ).end_date } );
             % Check if either the start date or end date is 
             % inside date_range

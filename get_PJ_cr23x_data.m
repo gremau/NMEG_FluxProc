@@ -46,7 +46,7 @@ filePath = fullfile( getenv( 'FLUXROOT' ), ...
 %         'resolve_headers', false);
 % else
 
-directoryName = 'cr23x_files';
+directoryName = 'soil_sap_CR23X';
 dataDirectory = fullfile(filePath, directoryName);
 % IMPORTANT: Make sure the files have the format:
 % 'cr23x_$sitename$_YYYY_MM_DD_HHMM.dat'

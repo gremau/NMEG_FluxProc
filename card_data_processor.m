@@ -118,7 +118,7 @@ methods
         obj.data_30min_secondary = p.Results.data_30min_secondary;
         obj.data_10hz_already_processed  = p.Results.data_10hz_already_processed;
         obj.insert_secondary_data = p.Results.insert_secondary_data;
-        obj.secondary_data_config = {};
+        obj.secondary_data_config = [];
 
         % if start date not specified, default to 1 Jan of current year
         [ year, ~, ~, ~, ~, ~ ] = datevec( now() );
@@ -176,41 +176,53 @@ methods
 
     function obj = get_secondary_config( obj )
         % Fill in the obj.secondary_data_config property with info from
-        % the site YAML config file
-
-        % Get configuration from the site's YAML config file
-        config = parse_yaml_config( obj.sitecode, 'SiteVars' );
-
-        % Initialize flags indicating whether the secondary data
+        % the Dataloggers YAML config file
+        
+        % Initialize flag indicating whether the secondary data
         % overlaps obj.date_start and obj.date_end
         overlap_flag = false;
-        objConfIdx = 1;
-
-        % Check whether secondary is configured in the YAML file
-        if isfield( config, 'secondary_data_sources' )
-            sec_conf = config.secondary_data_sources;
-            % Loop through each secondary source and put a configuration
-            % struct into obj.secondary_data_config for each data source
-            % that overlaps obj.date_start and obj.date_end
-            for i = 1:numel( sec_conf );
-                data_start = datenum( sec_conf{ i }.start_date, ...
-                    'YYYY-mm-DD HH:MM');
-                data_end = obj.date_end;
-                if isfield( sec_conf{ i }, 'end_date' )
-                    data_end = datenum( sec_conf{ i }.end_date, ...
-                        'YYYY-mm-DD HH:MM');
-                end
-                overlap_flag = data_start <= obj.date_end && ...
-                               data_end >= obj.date_start ;
-                if overlap_flag
-                    obj.secondary_data_config{ objConfIdx } = sec_conf{ i };
-                    objConfIdx = objConfIdx + 1;
-                end
-            end
+        
+        % Get configuration from the site's YAML config file
+        conf = parse_yaml_config( obj.sitecode, 'Dataloggers', ...
+            [obj.date_start, obj.date_end] );
+        % Separate out the secondary logger configs (not 'flux')
+        dl_list = conf.dataloggers;
+        if length( dl_list ) > 1
+            sec_conf = dl_list( ...
+                cellfun( @isempty, regexp( {dl_list.name}, 'flux' )));
         else
             fprintf( 'No secondary data sources configured. Reset flag.\n');
             obj.insert_secondary_data = false;
+            return
         end
+        
+        % Initialize counter
+        objConfIdx = 1;
+        
+        % Loop through each secondary source and put a configuration
+        % struct into obj.secondary_data_config for each data source
+        % that overlaps obj.date_start and obj.date_end
+        for i = 1:numel( sec_conf );
+            data_start = datenum( sec_conf( i ).start_date, ...
+                'YYYY-mm-DD HH:MM');
+            data_end = obj.date_end;
+            if isfield( sec_conf( i ), 'end_date' )
+                data_end = datenum( sec_conf( i ).end_date, ...
+                    'YYYY-mm-DD HH:MM');
+            end
+            overlap_flag = data_start <= obj.date_end && ...
+                data_end >= obj.date_start ;
+            if overlap_flag
+                if objConfIdx==1
+                    % First iteration changes empty array to struct
+                    obj.secondary_data_config = sec_conf( i );
+                else
+                    obj.secondary_data_config( objConfIdx ) = sec_conf( i );
+                end
+                objConfIdx = objConfIdx + 1;
+            end
+        end
+        
     end
 
     % --------------------------------------------------
@@ -244,8 +256,8 @@ methods
 
         table_array = {};
         for i = 1:numel( obj.secondary_data_config );
-            conf = obj.secondary_data_config{ i };
-            switch lower( conf.type )
+            conf = obj.secondary_data_config( i );
+            switch lower( conf.make )
                 % Get the secondary data by source type and sitecode
                 case 'cr1000'
                     % Data from CR1000s located at our sites
