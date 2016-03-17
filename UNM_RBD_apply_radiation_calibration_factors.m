@@ -487,6 +487,9 @@ elseif year_arg == 2008
         idx = decimal_day > 50 & decimal_day < 77 & Par_Avg < -1;
         Par_Avg( idx ) = NaN;
         
+        % FIXME Note for 2016 - there is a period of incorrect calibration
+        % from 22-1-2016 until 18-3-2016. Need to put them in here!
+        
         %%%%%%%%%%%%%%%%% ponderosa pine
     case UNM_sites.PPine
         % Multipliers for CNR1
