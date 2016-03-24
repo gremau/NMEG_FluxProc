@@ -1,5 +1,5 @@
 function [result, dest_dir, mod_date] = ...
-    retrieve_card_data_from_loc( site, logger_name, data_loc )
+    retrieve_card_data_from_loc( site, logger_name, data_loc, mod_date )
 % RETRIEVE_CARD_DATA_FROM_LOC - copy raw datalogger data files to appropriate
 % directory on local disk.
 %
@@ -28,18 +28,8 @@ site = UNM_sites( site );
 
 result = 1;
 
-switch data_loc
-    case 'card'
-        % the data are on a flash card
-        %data_path = locate_drive( 'Removable Disk' );
-        % would like a more flexible way to determine the drive letter; locate_drive
-        % does not seem to work for the compact flash reader.
-        data_loc = 'g:\';
-        tower_files = dir( fullfile( sprintf( '%s', data_loc ), ...
-            '*.dat') );
-    otherwise
-        tower_files = dir( fullfile( data_loc, '*.dat' ) );
-end
+% Get tower files
+tower_files = dir( fullfile( data_loc, '*.dat' ) );
 
 % Error if data_loc is empty
 if isempty( tower_files )
@@ -51,41 +41,13 @@ fprintf(1, 'processing tower data files: ');
 fprintf(1, '%s ', tower_files.name);
 fprintf(1, '\n');
 
-% Get modification date for each file
-mod_date_arr = [];
-for i = 1:numel(tower_files)
-    src = fullfile( data_loc, ...
-        tower_files( i ).name );
-    mod_date_arr( i )  = datenum(tower_files(i).date);
-    %modification date for the data file
-    mod_date = mod_date_arr( i );
-
-end
-
-% Check that mod date is not in future
-if any( mod_date_arr > now() )
-    error( 'Raw data has modification date in the future' );
-end
-
-% Issue a warning if the raw data files have different modification dates,
-% This should normally be the case
-if any( diff( mod_date_arr ) > 1e-6 )
-    warning( sprintf( [ 'Raw data files have different modification dates.\n'...
-        '         Using %s (the most recent).\n' ], ...
-        datestr( max( mod_date_arr ) ) ) );
-    mod_date = max( mod_date_arr );
-end
-
-%
+% Loop through list of files and move to directory
 for i = 1:numel(tower_files)
     src = fullfile( data_loc, ...
         tower_files( i ).name );
     %create directory for files if it doesn't already exist
-    dest_dir = get_local_card_data_dir( site, logger_name, mod_date);
+    dest_dir = get_local_card_data_dir( site, logger_name, mod_date );
     if exist(dest_dir) ~= 7
-        %     % if directory already exists, throw an error
-        %     %error('retrieve_card_data_from_loc:destination error', ...
-        %     error(sprintf('%s already exists', dest_dir));
         [mkdir_success, msg, msgid] = mkdir(dest_dir);
         result = result & mkdir_success;
         if mkdir_success
@@ -95,7 +57,7 @@ for i = 1:numel(tower_files)
             result = mkdir_success;
         end
     end
-    
+    % Move...
     fprintf('%s --> %s...', src, dest_dir);
     [copy_success, msgid, msg] = copyfile(src, dest_dir);
     result = result & copy_success;

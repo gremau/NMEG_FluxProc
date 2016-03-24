@@ -156,10 +156,19 @@ all_ts1_fnames = cell(1, length(default_name_irga1));
 for i = 1:length(default_name_irga1)
     % Take TOB1 filename and rename to our TOB1 naming convention
     tob_fname = default_name_irga1(i).name;
-    tob_root_full = regexp(tob_fname, [default_root, '_\d{1,3}'], ...
+    % First try to pull out the root with the new filename convention
+    % (daily numbered ts_data files)
+    tob_root_full = regexp(tob_fname, [default_root, '_\d{1,3}_'], ...
         'match', 'once');
+    sep = '_'; % will need to replace separator
+    % If this gives an empty root, use the older, non-numbered root
+    if isempty( tob_root_full )
+        tob_root_full = regexp(tob_fname, default_root, 'match', 'once');
+        sep = ''; % no separator
+    end
+    % Construct new name
     newname = strrep(tob_fname, tob_root_full, ...
-        sprintf('TOB1_%s', char( site )));
+        [sprintf('TOB1_%s', char( site )), sep ]);
     % Set temp and destination filepaths
     default_fullpath = fullfile(output_temp_dir, tob_fname);
     newname_fullpath = fullfile(tsdata_dir, newname);
@@ -183,12 +192,19 @@ if ~isempty(default_name_irga2)
     all_ts2_fnames = cell(1, length(default_name_irga2));
     for i = 1:length(default_name_irga2)
         tob_fname = default_name_irga2(i).name;
-        tob_root_full = regexp(tob_fname, [default_root, '2_\d{1,3}'], ...
+        % First try to pull out the root with the new filename convention
+        % (daily numbered ts_data files)
+        tob_root_full = regexp(tob_fname, [default_root, '2_\d{1,3}_'], ...
             'match', 'once');
+        sep = '_'; % will need to replace separator
+        % If this gives an empty root, use the older, non-numbered root
+        if isempty( tob_root_full )
+            tob_root_full = regexp(tob_fname, [default_root, '2'], 'match', 'once');
+            sep = ''; % no separator
+        end
+        % Construct new name
         newname = strrep(tob_fname, tob_root_full, ...
-            sprintf('TOB1_%s', char( site )));
-        newname = strrep(tob_fname, tob_root_full, ...
-            sprintf('TOB1_%s_irga2', char( site )));
+            [ sprintf('TOB1_%s_irga2', char( site )), sep ]);
         default_fullpath = fullfile(output_temp_dir, tob_fname);
         newname_fullpath = fullfile(tsdata_dir, newname);
         all_ts2_fnames{i} = newname_fullpath;
@@ -208,7 +224,11 @@ if ~isempty(default_name_irga2)
 end
 
 % Put together ts_data and ts_data2 filenames
-all_ts_fnames = horzcat(all_ts1_fnames, all_ts2_fnames);
+if exist('all_ts2_fnames', 'var')
+    all_ts_fnames = horzcat(all_ts1_fnames, all_ts2_fnames);
+else
+    all_ts_fnames = all_ts1_fnames;
+end
 
 %remove the temporary output directory & CardConvert ccf file
 [rm_success, msgid, msg] = rmdir(output_temp_dir);

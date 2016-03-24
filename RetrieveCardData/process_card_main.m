@@ -73,17 +73,15 @@ args.parse( this_site, logger_name, varargin{ : } );
 this_site = args.Results.this_site;
 logger_name = args.Results.logger_name;
 
-% Get the datalogger configuration
-datenum_now = datestr( now, 'yyyy-mm-dd');
-datenum_monthago = datestr( now-32, 'yyyy-mm-dd');
-conf = parse_yaml_config( this_site, 'Dataloggers', ...
-    { datenum_now, datenum_monthago } );
-
-% Check configuration to be sure the specified datalogger exists
-conf_logger_names = { conf.dataloggers.name };
-if ~ismember( logger_name, conf_logger_names )
-    error( sprintf(['Datalogger not configured. ',...
-        'Check Dataloggers.yaml for %s site\n'], char(this_site)));
+% get data location
+switch args.Results.data_location;
+    case 'card'
+        % the data are on a flash card
+        % FIXME - need a more flexible way to determine the drive letter.
+        % locate_drive( 'Removable Disk' ) doesn't work for card reader.
+        data_location = 'g:\';
+    otherwise
+        data_location = args.Results.data_path;
 end
 
 %--------------------------------------------------------------------------
@@ -97,18 +95,72 @@ fprintf( 'logging session to %s\n', fname_log );
 diary( fname_log );
 
 %--------------------------------------------------------------------------
-site_dir = get_site_directory( this_site );
+% VALIDATE the card data directory and files
 
+% Get data files
+fprintf( 'validating files in %s\n', data_location );
+card_files = dir( fullfile( data_location, '*.dat' ) );
+
+% Error if data_loc is empty
+if isempty( card_files )
+    msg = sprintf( 'no data files found in %s', data_location );
+    error( msg );
+end
+
+% Get modification dates
+mod_date_arr = datenum({card_files.date});
+% Check that mod date is not in future
+if any( mod_date_arr > now() )
+    error( 'Raw data has modification date in the future' );
+end
+
+% Issue a warning if the raw data files have different modification dates,
+% This should normally be the case at some sites
+if any( diff( mod_date_arr ) > 1e-4 )
+    warning( sprintf( [ 'Raw data files have different modification dates.\n'...
+        '         Using %s (the most recent).\n' ], ...
+        datestr( max( mod_date_arr ) ) ) );
+    last_mod_date = max( mod_date_arr );
+    first_mod_date = min( mod_date_arr );
+else
+    last_mod_date = max( mod_date_arr );
+    first_mod_date = last_mod_date - 31;
+end
+
+% Get the datalogger configuration for site
+conf = parse_yaml_config( this_site, 'Dataloggers', ...
+    [ first_mod_date, last_mod_date ] );
+
+% Check for specified datalogger and extract its configuration
+[dl_present, dl_idx] = ismember( logger_name, { conf.dataloggers.name });
+if ~dl_present
+    error( sprintf(['Datalogger not configured. ',...
+        'Check Dataloggers.yaml for %s site\n'], char(this_site)));
+else
+    dl_conf = conf.dataloggers(dl_idx) ;
+end
+
+% Make sure datalogger ID in configuration matches that in the filenames
+fname_tokens = cellfun( @(x) strsplit( x, '.' ), {card_files.name}, ...
+    'UniformOutput', false );
+first_tokens = cellfun( @(x) x{1}, fname_tokens, 'UniformOutput', false );
+first_tokens = unique( first_tokens );
+
+if length( first_tokens )==1 && strcmp( first_tokens, num2str(dl_conf.ID))
+    fprintf( 'Card file IDs (%s) match configured datalogger.\n', ...
+        first_tokens{1} )
+else
+    error( 'Configured datalogger ID and card filenames do not match!' );
+end
+
+
+%--------------------------------------------------------------------------
 % copy the data from the card to the computer's hard drive
 try    
     fprintf(1, '\n----------\n');
     fprintf(1, 'COPYING FROM CARD TO LOCAL DISK...\n');
-    data_location = args.Results.data_location;
-    if not( strcmp( data_location, 'card' ) )
-        data_location = args.Results.data_path;
-    end
-    [card_copy_success, raw_data_dir, mod_date] = ...
-        retrieve_card_data_from_loc( this_site, logger_name, data_location );
+    [card_copy_success, raw_data_dir] = retrieve_card_data_from_loc( ...
+        this_site, logger_name, data_location, last_mod_date );
 catch err
     % echo the error message
     fprintf( 'Error copying raw data from card to local drive.' )
@@ -119,54 +171,58 @@ catch err
     return
 end
 
-% convert the thirty-minute data to TOA5 file
-try 
-    fprintf(1, '\n----------\n');
-    fprintf(1, 'CONVERTING THIRTY-MINUTE DATA TO TOA5 FORMAT...\n');
-    [fluxdata_convert_success, toa5_fname] = thirty_min_2_TOA5(this_site, ...
-                                                      raw_data_dir);
-    fprintf(1, ' Done\n');
-catch err
-    fluxdata_convert_success = false;
-    % echo the error message
-    fprintf( 'Error converting 30-minute data to TOA5 file.' )
-    disp( getReport( err ) );
-    main_success = 0;
-end
-
-%make diagnostic plots of the raw flux data from the card
-if args.Results.interactive
-    if fluxdata_convert_success
-        fluxraw = toa5_2_table(toa5_fname);
-        % save( 'fluxraw_viewer_restart.mat' );  main_success = 1;
-        % return
-        h_viewer = fluxraw_table_viewer(fluxraw, this_site, mod_date);
-        figure( h_viewer );  % bring h_viewer to the front
-        waitfor( h_viewer );
-        clear('fluxraw');
-    else
-        fprintf( 'there are no 30-minute data to display\n' );
+% If this is a flux datalogger card convert the data
+if strcmp( logger_name, 'flux' )
+    % convert the thirty-minute data to TOA5 file
+    try
+        fprintf(1, '\n----------\n');
+        fprintf(1, 'CONVERTING THIRTY-MINUTE DATA TO TOA5 FORMAT...\n');
+        [fluxdata_convert_success, toa5_fname] = thirty_min_2_TOA5(...
+            this_site, raw_data_dir);
+        fprintf(1, ' Done\n');
+    catch err
+        fluxdata_convert_success = false;
+        % echo the error message
+        fprintf( 'Error converting 30-minute data to TOA5 file.' )
+        disp( getReport( err ) );
+        main_success = 0;
     end
-end
-
-%convert the time series (10 hz) data to TOB1 files
-try 
-    fprintf(1, '\n----------\n');
-    fprintf(1, 'CONVERTING TIME SERIES DATA TO TOB1 FILES...\n');
-    [tsdata_convert_success, ts_data_fnames] = ...
-        tsdata_2_TOB1(this_site, raw_data_dir);
-    fprintf(1, ' Done\n');
-catch err
-    % echo the error report
-    fprintf( 'Error converting time series data to TOB1 files.' )
-    disp( getReport( err ) );
-    main_success = 0;
-    if not( main_success )
-        % if neither data file was converted successfully, exit
-        fprintf( 'stopping logging... ' );
-        diary off
-        fprintf( 'logging stopped\n' );
-        return
+    
+    %make diagnostic plots of the raw flux data from the card
+    if args.Results.interactive
+        if fluxdata_convert_success
+            fluxraw = toa5_2_table(toa5_fname);
+            % save( 'fluxraw_viewer_restart.mat' );  main_success = 1;
+            % return
+            h_viewer = fluxraw_table_viewer(fluxraw, this_site, ...
+                last_mod_date);
+            figure( h_viewer );  % bring h_viewer to the front
+            waitfor( h_viewer );
+            clear('fluxraw');
+        else
+            fprintf( 'there are no 30-minute data to display\n' );
+        end
+    end
+    
+    %convert the time series (10 hz) data to TOB1 files
+    try
+        fprintf(1, '\n----------\n');
+        fprintf(1, 'CONVERTING TIME SERIES DATA TO TOB1 FILES...\n');
+        [tsdata_convert_success, ts_data_fnames] = ...
+            tsdata_2_TOB1(this_site, raw_data_dir);
+        fprintf(1, ' Done\n');
+    catch err
+        % echo the error report
+        fprintf( 'Error converting time series data to TOB1 files.' )
+        disp( getReport( err ) );
+        main_success = 0;
+        if not( main_success )
+            % if neither data file was converted successfully, exit
+            fprintf( 'stopping logging... ' );
+            diary off
+            fprintf( 'logging stopped\n' );
+            return
+        end
     end
 end
 
@@ -195,8 +251,6 @@ end
 %     disp( getReport( err ) );
 %     fprintf( 'continuing with processing\n' );
 % end
-
-
 
 %compress the raw data on the local drive
 try
