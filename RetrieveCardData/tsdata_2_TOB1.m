@@ -117,7 +117,7 @@ if ~isempty(thirty_min_file)
         java.io.File(flux_file_fullpath).renameTo(java.io.File(flux_ignore));
     success = success & move_success;
     if not(move_success)
-        error('tsdata_2_TOA5:rename_fail', 'renaming flux data file failed');
+        error('tsdata_2_TOB1:rename_fail', 'renaming flux data file failed');
     end
 end
 
@@ -125,7 +125,7 @@ end
 [convert_status, result] = system(card_convert_cmd);
 success = success & (convert_status == 0);
 if convert_status ~= 0
-    error('tsdata_2_TOA5:CardConvert', 'CardConvert failed');
+    error('tsdata_2_TOB1:CardConvert', 'CardConvert failed');
 end
 
 if ~isempty(thirty_min_file)
@@ -134,7 +134,7 @@ if ~isempty(thirty_min_file)
         java.io.File(flux_ignore).renameTo(java.io.File(flux_file_fullpath));
     success = success & move_success;
     if not(move_success)
-        error('tsdata_2_TOA5:rename_fail',...
+        error('tsdata_2_TOB1:rename_fail',...
             'restoring flux data .dat extension failed');
     end
 end
@@ -182,8 +182,8 @@ for i = 1:length(default_name_irga1)
         java.io.File(default_fullpath).renameTo(java.io.File(newname_fullpath));
     success = move_success & success;
     if not(move_success)
-        error('thirty_min_2_TOA5:rename_fail',...
-              'moving TOA5 file to TOA5 directory failed');
+        error('tsdata_2_TOB1:rename_fail',...
+              'moving TOB1 file to TOB1 directory failed');
     end
 end
 
@@ -217,8 +217,8 @@ if ~isempty(default_name_irga2)
             java.io.File(default_fullpath).renameTo(java.io.File(newname_fullpath));
         success = move_success & success;
         if not(move_success)
-            error('thirty_min_2_TOA5:rename_fail',...
-                'moving TOA5 file to TOA5 directory failed');
+            error('tsdata_2_TOB1:rename_fail',...
+                'moving TOB1 file to TOB1 directory failed');
         end
     end
 end
