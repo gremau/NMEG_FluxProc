@@ -9,7 +9,10 @@ dataloggers  :
     sensor_types    : flux, radiation, met
     start_date      : '2015-12-08 04:30'
     end_date        : None
+    merge_30min     : true
+    conv_file_fmt   : TOA5, TOB1
     conv_file_loc   : toa5, ts_data
+    resolve_headers : false
   - 
     name            : soil
     make            : CR1000
@@ -17,7 +20,10 @@ dataloggers  :
     sensor_types    : soil
     start_date      : '2015-12-08 04:30'
     end_date        : None
-    conv_file_loc   : secondary_loggers/soil_CR1000
+    merge_30min     : true
+    conv_file_fmt   : TOA5
+    conv_file_loc   : secondary_loggers/soil
+    resolve_headers : false
   - 
     name            : precip
     make            : CR1000
@@ -25,7 +31,10 @@ dataloggers  :
     sensor_types    : met
     start_date      : '2015-12-08 04:30'
     end_date        : None
-    conv_file_loc   : secondary_loggers/precip_CR1000
+    merge_30min     : true
+    conv_file_fmt   : TOA5
+    conv_file_loc   : secondary_loggers/precip
+    resolve_headers : false
   - 
     name            : sap
     make            : CR1000
@@ -33,5 +42,8 @@ dataloggers  :
     sensor_types    : sapflux
     start_date      : '2015-12-08 04:30'
     end_date        : None
-    conv_file_loc   : secondary_loggers/sap_CR1000
+    merge_30min     : true
+    conv_file_fmt   : TOA5
+    conv_file_loc   : secondary_loggers/sap
+    resolve_headers : false
 ...

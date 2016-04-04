@@ -160,15 +160,15 @@ methods
         %    obj: CDP object with data_30min field updated.
         %    toa5_files: cell array; the TOA5 files whose data were added.
 
-        toa5_files = get_data_file_names( obj.date_start, ...
-            obj.date_end, ...
-            obj.sitecode, ...
-            'TOA5' );
+        toa5_files = get_loggernet_filenames( obj.sitecode, ...
+            obj.date_start, obj.date_end, 'TOA5' );
 
         %obj.data_30min = combine_and_fill_TOA5_files( toa5_files );
         obj.data_30min = combine_and_fill_datalogger_files( ...
-            'file_names', toa5_files, 'datalogger_type', 'main', ...
-            'resolve_headers', true );
+            obj.sitecode, 'TOA5', ...
+            'file_names', toa5_files, ...
+            'resolve_headers', true, ...
+            'datalogger_name', 'flux' );
 
     end  % get_30min_data
 
@@ -203,16 +203,16 @@ methods
         % struct into obj.secondary_data_config for each data source
         % that overlaps obj.date_start and obj.date_end
         for i = 1:numel( sec_conf );
+            % Overlap flag
             data_start = datenum( sec_conf( i ).start_date, ...
                 'YYYY-mm-DD HH:MM');
-            data_end = obj.date_end;
-            if isfield( sec_conf( i ), 'end_date' )
-                data_end = datenum( sec_conf( i ).end_date, ...
-                    'YYYY-mm-DD HH:MM');
-            end
+            data_end = datenum( sec_conf( i ).end_date, ...
+                'YYYY-mm-DD HH:MM');
             overlap_flag = data_start <= obj.date_end && ...
                 data_end >= obj.date_start ;
-            if overlap_flag
+            % Merge into fluxall flag
+            merge_flag = sec_conf.merge_30min;
+            if overlap_flag && merge_flag
                 if objConfIdx==1
                     % First iteration changes empty array to struct
                     obj.secondary_data_config = sec_conf( i );
@@ -248,34 +248,35 @@ methods
         %    obj: CDP object with data_30min_secondary field updated.
         %    secondary_files: cell array; the filenames whose data were added.
 
-        % FIXME Temporary hack to make this work. Functions below should
-        % return filenames at some point....
-        secondary_files = {};
         % Year to get data for
         [ year, ~ ] = datevec( obj.date_start );
 
         table_array = {};
         for i = 1:numel( obj.secondary_data_config );
             conf = obj.secondary_data_config( i );
-            switch lower( conf.make )
-                % Get the secondary data by source type and sitecode
-                case 'cr1000'
-                    % Data from CR1000s located at our sites
-                    if obj.sitecode == UNM_sites.JSav
-                        i_data = get_JSav_cr1000_data( year );
-                    elseif obj.sitecode == UNM_sites.MCon
-                        i_data = get_MCon_cr1000_data( year );
-                    else
-                        error( 'No CR1000 data for this site' );
-                    end
+            %Initialize an empty table
+            i_data = table([]);
+            % Get the secondary data by file/datalogger type
+            switch lower( conf.conv_file_fmt )
+                case 'toa5'
+                    secondary_files = get_loggernet_filenames( ...
+                        obj.sitecode, obj.date_start, obj.date_end, 'TOA5', ...
+                        'subdir', conf.conv_file_loc );
+                    i_data = combine_and_fill_datalogger_files( ...
+                        obj.sitecode, 'TOA5', ...
+                        'file_names', secondary_files, ...
+                        'resolve_headers', conf.resolve_headers, ...
+                        'datalogger_name', conf.name );
                 case 'cr23x'
                     % Get PJC and PJG data from cr23x
-                    if obj.sitecode == UNM_sites.PJ || ...
-                            obj.sitecode == UNM_sites.PJ_girdle;
-                        i_data = get_PJ_cr23x_data( obj.sitecode, year );
-                    else
-                        error( 'No CR23x data for this site' );
-                    end
+                    secondary_files = get_cr23x_filenames( ...
+                        obj.sitecode, obj.date_start, obj.date_end, ...
+                        conf.conv_file_loc );
+                    i_data = combine_and_fill_datalogger_files( ...
+                        obj.sitecode, 'cr23x', ...
+                        'file_names', secondary_files, ...
+                        'resolve_headers', conf.resolve_headers, ...
+                        'datalogger_name', conf.name );
                 case 'other'
                     % Get data from sites we don't manage
                     if obj.sitecode == UNM_sites.PPine;
@@ -283,7 +284,7 @@ methods
                     elseif obj.sitecode == UNM_sites.MCon;
                         i_data = get_MCon_SAHRA_data( year );
                     else
-                        error( 'No external data for this site' );
+                        warning( 'No external data for this site' );
                     end
             end
             % Put in table array
@@ -330,9 +331,8 @@ methods
         %    obj: CDP object with data_10hz field updated.
 
         if obj.data_10hz_already_processed
-            tob1_files = get_data_file_names( obj.date_start, ...
-                obj.date_end, ...
-                obj.sitecode, ...
+            tob1_files = get_loggernet_filenames( obj.sitecode, ...
+                obj.date_start, obj.date_end, ...
                 'TOB1' );
             % Not sure why this is here. It truncates the data if there
             % are missing TOB1 files at end of year - GEM

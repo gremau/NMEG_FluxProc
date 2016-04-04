@@ -46,7 +46,6 @@ function T = generate_header_resolution_file( sitecode, sourceType, ...
 
 sourceType = lower( sourceType );
 
-
 if isempty( varargin )
     % no files specified; prompt user to select files
     [ fileNames, pathNames, filterindex ] = uigetfile( ...
@@ -288,7 +287,7 @@ if  any( strcmp( str, aff ))
     end
     % Make resolution file name
     resolutionFileName = fullfile( resolutionPath, ...
-        [ sourceType '_Header_Resolution.csv' ]);
+        [ sourceType '_HeaderResolution.csv' ]);
     
     writetable( T, resolutionFileName );
 end

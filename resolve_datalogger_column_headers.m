@@ -1,5 +1,5 @@
 function TArray_Out = resolve_datalogger_column_headers( ...
-    TArray_In, fileNames, dataloggerType )
+    TArray_In, fileNames, resFilePath )
 % resolve_datalogger_column_headers() -- resolves changes in datalogger
 % file column headers using a header resolution file.
 %
@@ -8,7 +8,7 @@ function TArray_Out = resolve_datalogger_column_headers( ...
 % USAGE
 %   TArray_Out = resolve_datalogger_column_headers(TArray_In, ...
 %                                                       sitecode, ...
-%                                                       dataloggerType);
+%                                                       dataloggerName);
 %
 % INPUTS:
 %   'TArray_In': cell array; a cell array of Matlab tables, each
@@ -17,8 +17,8 @@ function TArray_Out = resolve_datalogger_column_headers( ...
 %       names to resolve. Filename format must be
 %       'FILETYPE_SITECODE_YYYY_MM_DD_HHMM.dat', and all names in array
 %       should have identical FILETYPE and SITECODE.
-%   'dataloggerType': string; string designating the datalogger/file type.
-%       Acceptable values are 'main', 'cr1000', and 'cr23x'
+%   'dataloggerName': string; string designating the datalogger name.
+%       Used to find the correct header resolution file
 %
 % OUTPUTS
 %    TArray_Out: cell array; a cell array of Matlab tables, as above,
@@ -30,39 +30,20 @@ function TArray_Out = resolve_datalogger_column_headers( ...
 %
 % Gregory E. Maurer, UNM, Oct, 2014
 
-% Get the site name
-% SEE fileNames INPUT REQUIREMENTS ABOVE !
-toks = regexp( fileNames{ 1 }, '_', 'split' );
-dataloggerType = lower( dataloggerType );
-% Deal with the two sites that have an '_' in the sitename
-if any( strcmp( toks{ 3 }, { 'girdle', 'GLand' }  ) )
-    sitecode = UNM_sites.( [ toks{ 2 }, '_', toks{ 3 } ] );
-else
-    sitecode = UNM_sites.( toks{ 2 } );
-end
-
-% -----
-% Use sitecode and dataloggerType find appropriate header resolution file
-resFileName = sprintf('%s_Header_Resolution.csv', dataloggerType);
-resFilePathName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), ...
-    resFileName );
-% -----
-
 % == PREPROCESSING HEADER RESOLUTION ===
 % Read in resolution file. These files are lookup tables of all possible
 % variable names (that have existed in older program versions), which
 % permit the assignment of old variables to consistent, new formats.
 fprintf( '---------- resolving column headers ----------\n' );
-fOpenMessage = [ '--------- Opening ', char( sitecode ), ' ', ...
-    resFileName, ' --------- \n' ];
-fprintf( fOpenMessage );
+fOpenMessage = [ 'Opening %s ... \n' ];
+fprintf( fOpenMessage, resFilePath );
 
 try
-    Resolutions = readtable( resFilePathName );
+    Resolutions = readtable( resFilePath );
     % First three columns not used here - remove
     Resolutions = Resolutions( :, 4:end );
 catch
-    error( sprintf( '%s file does not load!', resFileName ));
+    error( sprintf( '%s file does not load!', resFilePath ));
 end
 
 % Make sure files are sorted in chronological order

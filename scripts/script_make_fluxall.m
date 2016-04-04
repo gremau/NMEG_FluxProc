@@ -7,7 +7,7 @@
 sitelist = {UNM_sites.MCon, UNM_sites.SLand, UNM_sites.JSav, ...
     UNM_sites.GLand, UNM_sites.PPine, UNM_sites.PJ_girdle, UNM_sites.PJ, ...
     UNM_sites.New_GLand};
-sitelist = {UNM_sites.PJ, UNM_sites.PJ_girdle};
+sitelist = {UNM_sites.MCon};
 yearlist = 2015;%2013:2014;% 2009:2013;
 proc_10hz = [false, true, true, true, true, true, true, true,true];
 count = 1;
@@ -16,7 +16,7 @@ for i = 1:length(sitelist);
         % Set site and year
         sitecode = sitelist{i};
         year = yearlist(j);
-        process_10hz = true; %proc_10hz(count);
+        process_10hz = false; %proc_10hz(count);
         
         % Fix the resolution file if needed
         % generate_header_resolution_file;
@@ -54,7 +54,7 @@ for i = 1:length(sitelist);
         
         % With the new fluxall, run RBD.m to view Fc and the 
         % current settings for removing bad data
-        %UNM_RemoveBadData(sitecode, year, 'draw_plots', 1,...
+        % UNM_RemoveBadData(sitecode, year, 'draw_plots', 1,...
         %    'write_qc', false, 'write_gf', false);
         count = count + 1;
     end

@@ -1,22 +1,22 @@
 function T = cr23x_2_table( fname )
-% TOA5_2_DATASET - parse a Campbell Scientific TOA5 file to a matlab dataset
+% CR23X_2_Table - parse a Campbell Scientific CR23X file to a matlab table
 % array.
 %
-% Uses parse_TOA5_file_headers to determine variable names, variable units,
-% file size, and delimiter.  Adds a 'timestamp' variable of the file's
-% timetamps converted to Matlab serial datenumbers.  Uses clean_up_varnames
-% to convert variable names to legal Matlab variables.
+% Determines variable names, file size, and delimiter and loads file.  
+% Adds a 'timestamp' variable of the file's timestamps converted to
+% Matlab serial datenumbers. Removes datalogger "bad data" codes (usually
+% -9999 or similar) and replaces with NaN values.
 %
 % INPUTS:
 %    fname: string; full path of file to be parsed
 %
 % OUTPUTS:
-%    ds: matlab dataset array; the data from the TOA5 file
+%    T: matlab table array; the data from the TOA5 file
 %
 % SEE ALSO
-%    dataset, datenum, parse_TOA5_file_headers, clean_up_varnames
+%    table, datenum
 %
-% author: Timothy W. Hilton, UNM, Oct 2011
+% author: Gregory E Maurer, UNM,  2015
 
 % Read the lines of the data file into a cell array
 [ numlines, file_lines ] = parse_file_lines( fname );
@@ -54,6 +54,10 @@ count = cell2mat(count)';
 % Reject lines with fewer than n_numeric_vars readable numbers
 short_lines = count < n_numeric_vars;
 newT = newT( not( short_lines ), : );
+
+% replace -9999 and -99999 with NaN
+badValues = [ -9999, 9999, -99999, 99999 ];
+newT = replace_badvals( newT, badValues, 1e-6 );
 
 T =  newT;
 

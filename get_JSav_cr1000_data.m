@@ -22,6 +22,10 @@ function cr1000data = get_JSav_cr1000_data( year )
 % author: Gregory E. Maurer, UNM, March 2015
 % based on code by: Timothy W. Hilton, Dec 2012 (JSAV_CR1000_TO_DATASET)
 
+% This is probably not needed anymore since work is done in
+% card_data_processor and combine_and_fill scripts
+warning('This file is deprecated!')
+
 if year < 2012 | year > 2014
     error( ['Prior to May 2012 JSav soil water data were in the same TOA5 ' ...
         'file as all other 30-minute variables' ] );

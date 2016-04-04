@@ -9,7 +9,10 @@ dataloggers  :
     sensor_types    : flux, radiation, met
     start_date      : '2006-08-31 10:00'
     end_date        : '2010-08-18 14:00'
+    merge_30min     : true
+    conv_file_fmt   : TOA5, TOB1
     conv_file_loc   : toa5, ts_data
+    resolve_headers : true
   - 
     name            : flux
     make            : CR5000
@@ -17,7 +20,10 @@ dataloggers  :
     sensor_types    : flux, radiation, met
     start_date      : '2010-08-18 16:00'
     end_date        : '2013-05-02 14:00'
+    merge_30min     : true
+    conv_file_fmt   : TOA5, TOB1
     conv_file_loc   : toa5, ts_data
+    resolve_headers : true
   - 
     name            : flux
     make            : CR5000
@@ -25,7 +31,10 @@ dataloggers  :
     sensor_types    : flux, radiation, met
     start_date      : '2013-11-12 18:30'
     end_date        : None
+    merge_30min     : true
+    conv_file_fmt   : TOA5, TOB1
     conv_file_loc   : toa5, ts_data
+    resolve_headers : true
   - 
     name            : precip
     make            : CR1000
@@ -33,7 +42,10 @@ dataloggers  :
     sensor_types    : soil
     start_date      : '2014-01-14 11:50'
     end_date        : None
-    conv_file_loc   : secondary_loggers/precip_CR1000
+    merge_30min     : false
+    conv_file_fmt   : TOA5
+    conv_file_loc   : secondary_loggers/precip
+    resolve_headers : false
   - 
     # This is the SAHRA site (Data available from DRI WRCC
     name            : SAHRA_soil
@@ -42,5 +54,8 @@ dataloggers  :
     sensor_types    : soil
     start_date      : '2007-01-01 00:00'
     end_date        : '2013-06-01 00:00'
-    conv_file_loc   : secondary_loggers/SAHRA_logger
+    merge_30min     : true
+    conv_file_fmt   : other
+    conv_file_loc   : secondary_loggers/SAHRA_soil
+    resolve_headers : false
 ...

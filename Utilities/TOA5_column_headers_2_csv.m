@@ -28,7 +28,7 @@ function outfname = TOA5_column_headers_2_csv( sitecode, date_start, date_end )
 %
 % author: Timothy W. Hilton, Feb 2012
 
-file_list = get_data_file_names( date_start, date_end, sitecode, 'TOA5' );
+file_list = get_data_file_names( sitecode, date_start, date_end, 'TOA5' );
 
 headers = cell( size( file_list ) );
 dates = cell( size( file_list ) );

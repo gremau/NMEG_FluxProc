@@ -21,6 +21,10 @@ function cr1000Data = get_MCon_cr1000_data( year )
 % author: Gregory E. Maurer, UNM, March 2015
 % based on code by: Timothy W. Hilton, Dec 2012 (JSAV_CR1000_TO_DATASET)
 
+% This is probably not needed anymore since work is done in
+% card_data_processor and combine_and_fill scripts
+warning('This file is deprecated!')
+
 if year < 2014
     warning( ['Prior to 2014 there was no precip CR1000 at MCon' ] );
     cr1000Data = dataset();
