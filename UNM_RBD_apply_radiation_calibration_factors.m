@@ -246,6 +246,9 @@ elseif year_arg == 2008
             % FIXME - drop and use CG3CO vars?
             [lw_incoming, lw_outgoing] = ...
                 lw_correct( lw_incoming, lw_outgoing );
+            % Fix one miswired period
+            idx1 = decimal_day > 310.58;
+            Par_Avg(idx1) = -Par_Avg(idx1) - 60;
         end
         
         %%%%%%%%%%%%%%%%% juniper savanna
@@ -322,7 +325,7 @@ elseif year_arg == 2008
                 lw_outgoing( idx1 | idx2 ) = NaN;
             end
             
-        elseif year_arg >= 2014
+        elseif year_arg == 2014
             % CNR1 was damaged by hail in spring and had to be replaced.
             % Several sensors with different sensitivities were used for
             % the next year (See logs).
@@ -352,6 +355,10 @@ elseif year_arg == 2008
             % SW_incoming has some noise
             idx = sw_incoming > 1150;
             sw_incoming( idx ) = NaN;
+        elseif year_arg == 2015
+            % Temperature correction for long-wave
+            % FIXME - start using CG3CO variables?
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing );
         end
         
         %%%%%%%%%%%%%%%%% pinon juniper
@@ -424,13 +431,16 @@ elseif year_arg == 2008
             % Temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             
-        elseif year_arg >= 2014
+        elseif year_arg == 2014
             % Cals added to datalogger programs on 01/10/2014
             % Calibrate par-lite installed on 2/11/08
             Par_Avg(find(decimal_day < 10.6)) = ...
                 Par_Avg(find(decimal_day < 10.6)) .* PAR_KZ_old_up_mult;
 
             % Entire year needs lw temperature correction - GEM
+            % FIXME - start using CG3CO vars?
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+        elseif year_arg == 2015
             % FIXME - start using CG3CO vars?
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
         end
@@ -456,6 +466,11 @@ elseif year_arg == 2008
             idx = decimal_day > 113.5 & decimal_day <= 366.0;
             [lw_incoming, lw_outgoing] = ...
                 lw_correct(lw_incoming, lw_outgoing, idx );
+        elseif year_arg==2014
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+            % Fix some strange PAR drops in 2014
+            idx = decimal_day > 50 & decimal_day < 77 & Par_Avg < -1;
+            Par_Avg( idx ) = NaN;
         else
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
         end
@@ -482,10 +497,6 @@ elseif year_arg == 2008
             icpt = 36.8858;
         end
         lw_incoming = linfit_var(lw_incoming, slp, icpt);
-        
-        % Fix some strange PAR drops in 2014
-        idx = decimal_day > 50 & decimal_day < 77 & Par_Avg < -1;
-        Par_Avg( idx ) = NaN;
         
         % FIXME Note for 2016 - there is a period of incorrect calibration
         % from 22-1-2016 until 18-3-2016. Need to put them in here!
@@ -759,6 +770,9 @@ elseif year_arg == 2008
                 lw_incoming( cal_idx ) ./ cnr1_mult_old .* cnr1_mult;
             lw_outgoing( cal_idx ) = ...
                 lw_outgoing( cal_idx ) ./ cnr1_mult_old .* cnr1_mult;
+            % Temperature correction just for long-wave
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+        elseif year_arg == 2015
             % Temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
         end

@@ -187,7 +187,7 @@ switch sitecode
                 data( clockSet2, : ) = shift_data( ...
                     data( clockSet2, : ), 0.5, allCols );
                 
-            case { 2009, 2010, 2011, 2012, 2013, 2014 }
+            case { 2009, 2010, 2011, 2012, 2013, 2014, 2015 }
                 data = shift_data( data, 0.5, allCols );
         end
         
@@ -204,12 +204,12 @@ switch sitecode
                 postResetIdx = DOYidx( 342.64 ) : size( data, 1 );
                 data( postResetIdx, : ) = ...
                     shift_data( data( postResetIdx, : ), 0.5, allCols );
-            case { 2013, 2014 }
+            case { 2013, 2014, 2015 }
                 data = shift_data( data, 0.5, allCols );
         end
     case UNM_sites.PJ_girdle
         switch year
-            case { 2009, 2010, 2011, 2012, 2013, 2014 };
+            case { 2009, 2010, 2011, 2012, 2013, 2014, 2015 };
                 data = shift_data( data, 0.5, allCols );
         end
         
@@ -378,7 +378,7 @@ switch sitecode
                 postClockSet = DOYidx( 342.645 ) : size( data, 1 );
                 data( postClockSet, : ) = ...
                     shift_data( data( postClockSet, : ), 0.5, allCols );
-            case { 2013 2014 }
+            case { 2013 2014, 2015 }
                 data = shift_data( data, 0.5, allCols );
         end
         
