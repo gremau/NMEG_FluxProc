@@ -30,7 +30,7 @@ function Tmain = get_MCon_SAHRA_data( year )
 % <http://www.wrcc.dri.edu/cgi-bin/rawMAIN.pl?nmvcnx>
 % This file contains all data from the SAHRA site at MCon:
 filePath = fullfile( get_site_directory( UNM_sites.MCon ), ...
-    'secondary_loggers', 'SAHRA_logger' );
+    'secondary_loggers', 'SAHRA_soil' );
 fname1 = fullfile( filePath, 'MCon_SAHRA_data_20061001_20130601.dat' );
 fprintf( 'reading %s \n', fname1 );
 
@@ -43,8 +43,7 @@ end
 % Steven's HydraProbe data from the SAHRA site need to be run through
 % Stevens proprietary software to convert voltages to SWC/Tsoil values.
 % Converted data are stored in this file:
-fname2 = fullfile( get_site_directory( UNM_sites.MCon ), ...
-    'soil', 'MCon_SAHRA_hydraprobes.dat' );
+fname2 = fullfile( filePath, 'MCon_SAHRA_hydraprobes.dat' );
 if exist( fname2, 'file' )
     Thydra = parse_MCon_SAHRA_hydraprobe_file( fname2 );
 % If that file doesn't already exist, it must be created from the raw

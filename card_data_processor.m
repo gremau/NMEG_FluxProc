@@ -231,13 +231,10 @@ methods
         % Obtain 30-minute data for a CDP from secondary datalogger files.
         %
         % Parses the data from a secondary datalogger specified for
-        % each site. This function calls a custom parser for each site that
-        % returns data from a secondary datalogger. These parsers are
-        % configured to retrieve data between obj.date_start and
-        % obj.date_end, concatenate this data, and ensure timestamps include
-        % all 30-minute intervals between obj.date_start and obj.date_end
-        % without duplicated timestamps. This function then places the data
-        % into obj.data_30min_secondary.
+        % each site. TOA5 and CR23X files are parsed/resolved using
+        % standard methods. Only data between obj.date_start and
+        % obj.date_end is preserved and all data have timestamps checked.
+        % This function then places the data into obj.data_30min_secondary.
         %
         % USAGE:
         %    [ obj, secondary_files ] = get_second_logger_data( obj )
@@ -278,6 +275,7 @@ methods
                         'resolve_headers', conf.resolve_headers, ...
                         'datalogger_name', conf.name );
                 case 'other'
+                    secondary_files = {};
                     % Get data from sites we don't manage
                     if obj.sitecode == UNM_sites.PPine;
                         i_data = get_PPine_DRI_data( year );

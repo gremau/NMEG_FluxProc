@@ -1,5 +1,5 @@
 function soilData = get_PPine_DRI_data( year )
-% GET_PPINE_DRI_DATA - parse DRI data for Ponderosa Pine site to dataset
+% GET_PPINE_DRI_DATA - parse DRI data for Ponderosa Pine site to table
 % array and extract the observations for a specified year.
 %
 % The PPine soil data are parsed from
@@ -14,7 +14,7 @@ function soilData = get_PPine_DRI_data( year )
 %     soilData: dataset array; SWC and Tsoil data for the specified year
 %
 % SEE ALSO
-%     dataset
+%     table
 %
 % author: Gregory E. Maurer, UNM, March 2015
 % adapted from code by Timothy W. Hilton (preprocess_PPine_soil_data.m);
@@ -25,34 +25,29 @@ function soilData = get_PPine_DRI_data( year )
 % concatenate_all_PPine_soil_data.m
 fname = fullfile( get_site_directory( UNM_sites.PPine ), ...
     'secondary_loggers', 'DRI_logger', ...
-    'PPine_soil_data_20080101_20141118.dat' );
+    'PPine_soil_data_20080101_20150128.dat' );
 
 if exist( fname, 'file' )
     fprintf( 'reading %s \n', fname );
     fmt = repmat( '%f', 1, 89 );
-    ds = dataset( 'File', fname, ...
-        'format', fmt, 'Delimiter', '\t' );
+    tbl = readtable( fname, 'Delimiter', '\t' );
 else
     try
         fprintf('%s file not found. Concatenating files...\n');
-        ds = concatenate_all_PPine_soil_data();
+        tbl = concatenate_all_PPine_soil_data();
     catch
         error( 'PPine DRI soil data not found! ');
     end
 end
-
-% Read the file to a dataset - FIXME to table (and regexp_ds_vars)
-fmt = repmat( '%f', 1, 89 );
-ds = dataset( 'File', fname, ...
-              'format', fmt, 'Delimiter', '\t' );
           
 % Find the SWC and SoilT variables
-[ SWCvars, SWCidx ] = regexp_ds_vars( ds, 'VWC' );
-[ SoilTvars, SoilTidx ] = regexp_ds_vars( ds, 'SoilT_C' );
+[ SWCvars, SWCidx ] = regexp_header_vars( tbl, 'VWC' );
+[ SoilTvars, SoilTidx ] = regexp_header_vars( tbl, 'SoilT_C' );
 % Remove extra columns
-soilData = ds( :, { 'timestamp',  SWCvars{ : }, SoilTvars{ : } } );
+soilData = tbl( :, { 'timestamp',  SWCvars{ : }, SoilTvars{ : } } );
 % Change the header of the SWC columns
-soilData.Properties.VarNames = regexprep( soilData.Properties.VarNames, ...
+soilData.Properties.VariableNames = regexprep( ...
+    soilData.Properties.VariableNames, ...
     'VWC', 'cs616SWC' );
 
 % May be nice to remove negative SWC values... or not
@@ -63,9 +58,6 @@ soilData.Properties.VarNames = regexprep( soilData.Properties.VarNames, ...
 % return data for requested year
 [ datayear, ~, ~, ~, ~, ~ ] = datevec( soilData.timestamp );
 soilData = soilData( datayear == year, : );
-
-warning('Compatibility check - Converting PPine data from dataset to table' );
-soilData = dataset2table( soilData );
 
 
 

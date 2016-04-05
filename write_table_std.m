@@ -22,6 +22,7 @@ function success = write_table_std( fname, tab_in, varargin )
 %         beneath the variable names (on line 2).  If 
 %         tab_in.Properties.VariableUnits is empty, writes '--' for each 
 %         units.  
+%     precision: floating point precision, default is 8
 %
 % OUTPUTS
 %     success: 0 if file written successfully; non-zero otherwise
@@ -38,6 +39,7 @@ args.addRequired( 'tab_in', @( x ) isa( x, 'table' ) );
 args.addParameter( 'delimiter', '\t', @ischar );
 args.addParameter( 'replace_nans', NaN, @isnumeric ); %
 args.addParameter( 'write_units', false, @islogical ); %
+args.addParameter( 'precision', 8, @(x) isa( x, 'integer' )); %
 
 % parse optional inputs
 args.parse( fname, tab_in, varargin{ : } );
@@ -72,7 +74,8 @@ end
 dlmwrite( args.Results.fname, ...
           tab_dbl, ...
           '-append', ...
-          'Delimiter', args.Results.delimiter, 'Precision', 8 );
+          'Delimiter', args.Results.delimiter, ...
+          'Precision', args.Results.precision );
 
 t_elapsed = round( ( now() - t0 ) * 24 * 60 * 60 );
 

@@ -1,4 +1,4 @@
-function ds = concatenate_all_PPine_soil_data()
+function tbl = concatenate_all_PPine_soil_data()
 % CONCATENATE_ALL_PPINE_SOIL_DATA - parses soil data for PPine from several
 %   different sources and combines into one tab-delimited file.
 %
@@ -22,46 +22,45 @@ function ds = concatenate_all_PPine_soil_data()
 %
 % Timothy W. Hilton
 
-dataPath = fullfile( getenv( 'FLUXROOT' ), 'Flux_Tower_Data_by_Site', ...
-    'PPine', 'soil', 'PPine_2008_2014_raw_soil_data' );
-outPath = fullfile( getenv( 'FLUXROOT' ), 'Flux_Tower_Data_by_Site', ...
-    'PPine', 'soil' );
+dataPath = fullfile( get_site_directory( UNM_sites.PPine ), ...
+    'secondary_loggers', 'DRI_logger', 'PPine_DRI_raw_soil_data' );
+outPath = fullfile( get_site_directory( UNM_sites.PPine ), ...
+    'secondary_loggers', 'DRI_logger' );
 
-[ ds111, ds112 ] = parse_PPine_soil_all_DAT_files( dataPath );
-ds111_0910 =  parse_PPine_soil_csv( ...
+[ t111, t112 ] = parse_PPine_soil_all_DAT_files( dataPath );
+t111_0910 =  parse_PPine_soil_csv( ...
     fullfile( dataPath, 'PP_Site_2009_2010_soil111.csv' ));
-ds112_0809 =  parse_PPine_soil_csv( ...
+t112_0809 =  parse_PPine_soil_csv( ...
     fullfile( dataPath, 'PP_Site_2008_2009_soil112.csv' ));
 
-ds = combine_data( ds111, ds112, ds111_0910, ds112_0809 );
+tbl = combine_data( t111, t112, t111_0910, t112_0809 );
 
-t_start = datestr( min( ds.timestamp ), 'yyyymmdd' );
-t_end = datestr( max( ds.timestamp ), 'yyyymmdd' );
+t_start = datestr( min( tbl.timestamp ), 'yyyymmdd' );
+t_end = datestr( max( tbl.timestamp ), 'yyyymmdd' );
 outfile = fullfile( outPath, sprintf( 'PPine_soil_data_%s_%s.dat', ...
                    t_start, t_end ));
 fprintf( 'writing %s\n', outfile );
-export( ds, 'File', outfile );
-
+write_table_std( outfile, tbl );
 %======================================================================
-function ds = combine_data( ds111, ds112, ds111_0910, ds112_0809 )
+function t = combine_data( t111, t112, t111_0910, t112_0809 )
 
-data_vars = not( ismember( ds111.Properties.VarNames, ...
+data_vars = not( ismember( t111.Properties.VariableNames, ...
                            { 'Array_ID', 'Year', 'Day', ...
                     'Time', 'timestamp' } ) );
-ds = horzcat( ds112, ds111( :, data_vars ) );
+t = horzcat( t112, t111( :, data_vars ) );
 
-ds_0810 = join( ds111_0910, ds112_0809, 'MergeKeys', true, 'Type', 'outer' );
-discard_idx = ds_0810.timestamp > min( ds.timestamp );
-ds_0810( discard_idx, : ) = [];
+t_0810 = outerjoin( t111_0910, t112_0809, 'MergeKeys', true );
+discard_idx = t_0810.timestamp > min( t.timestamp );
+t_0810( discard_idx, : ) = [];
 
 % New
-ds_0810 = ds_0810( find_unique( ds_0810.timestamp ), : );
+t_0810 = t_0810( find_unique( t_0810.timestamp ), : );
 
-ds = vertcat( ds_0810, ds );
+t = vertcat( t_0810, t );
 
 
 %======================================================================
-function [ ds111, ds112 ] = parse_PPine_soil_all_DAT_files( path )
+function [ t111, t112 ] = parse_PPine_soil_all_DAT_files( path )
 % PARSE_PPINE_SOIL_ALL_DAT_FILES - parses all PPine soil data .DAT files from
 % the working directory.  Each .DAT file contains data from at least three separate
 %   "arrays" of observations.  The arrays have the IDs 110, 111, and 112.  We
@@ -71,8 +70,8 @@ function [ ds111, ds112 ] = parse_PPine_soil_all_DAT_files( path )
 file_info = dir([ path '\*.DAT' ]);
 
 % initialize cell arrays to contain parsed datasets
-ds111 = cell( 1, numel( file_info ) );
-ds112 = cell( 1, numel( file_info ) );
+t111 = cell( 1, numel( file_info ) );
+t112 = cell( 1, numel( file_info ) );
 
 headers111 = PPine_array_headers( 111 );
 headers112 = PPine_array_headers( 112 );
@@ -82,60 +81,60 @@ for i = 1:numel( file_info )
     [ data111, data112 ] = parse_PPine_soil_DAT_file( ...
         fullfile( path, file_info( i ).name ));
 
-    ds111{ i } = dataset( { data111, headers111{:} } );
-    ds112{ i } = dataset( { data112, headers112{:} } );
+    t111{ i } = array2table( data111, 'VariableNames', headers111 );
+    t112{ i } = array2table( data112, 'VariableNames', headers112 );
     
-    ds111{ i }.timestamp = mcconnel_times_2_datenum( ds111{ i } );
-    ds112{ i }.timestamp = mcconnel_times_2_datenum( ds112{ i } );
+    t111{ i }.timestamp = mcconnel_times_2_datenum( t111{ i } );
+    t112{ i }.timestamp = mcconnel_times_2_datenum( t112{ i } );
     
 end
 
-ds111 = vertcat( ds111{ : } );
-ds112 = vertcat( ds112{ : } );
+t111 = vertcat( t111{ : } );
+t112 = vertcat( t112{ : } );
 
 % discard duplicate timestamps
-ds111 = ds111( find_unique( ds111.timestamp ), : );
-ds112 = ds112( find_unique( ds112.timestamp ), : );
+t111 = t111( find_unique( t111.timestamp ), : );
+t112 = t112( find_unique( t112.timestamp ), : );
 
 % fill in any missing hourly timestamps
-t_min = min( [ ds111.timestamp; ds112.timestamp ] );
-t_max = max( [ ds111.timestamp; ds112.timestamp ] );
+t_min = min( [ t111.timestamp; t112.timestamp ] );
+t_max = max( [ t111.timestamp; t112.timestamp ] );
 one_hour = 1 / 24; % one hour in units of days
-ds111 = dataset_fill_timestamps( ds111, 'timestamp', ...
+t111 = table_fill_timestamps( t111, 'timestamp', ...
                                  'delta_t', one_hour, ...
                                  't_min', t_min, ...
                                  't_max', t_max );
-ds112 = dataset_fill_timestamps( ds112, 'timestamp', ...
+t112 = table_fill_timestamps( t112, 'timestamp', ...
                                  'delta_t', one_hour, ...
                                  't_min', t_min, ...
                                  't_max', t_max );
 
 % interpolate from hourly to 30 minutes
-ds111 = hourly_2_30min( ds111 );
-ds112 = hourly_2_30min( ds112 );
+t111 = hourly_2_30min( t111 );
+t112 = hourly_2_30min( t112 );
 
-% t_start = min( [ ds111.timestamp; ds112.timestamp ] );
-% t_end = max( [ ds111.timestamp; ds112.timestamp ] );
+% t_start = min( [ t111.timestamp; t112.timestamp ] );
+% t_end = max( [ t111.timestamp; t112.timestamp ] );
 % two_mins = 2 / ( 24 * 60 );  % two minutes in units of days
-% [ ds111, ds112 ] = merge_datasets_by_datenum( ds111, ds112, ...
+% [ t111, t112 ] = merge_datasets_by_datenum( t111, t112, ...
 %                                               'timestamp', 'timestamp', ...
 %                                               two_mins, ...
 %                                               t_start, t_end );
 
 
 %======================================================================
-function dn = mcconnel_times_2_datenum( ds )
+function dn = mcconnel_times_2_datenum( t )
 % the timestamps in Joe McConnel's PPine soil data are give as year, day of
 % year, and time in HHMM format.  Convert these to matlab datenums
 
 mins_per_day = 24 * 60;
 hours_per_day = 24;
 
-hh = floor( ds.Time / 100 );
-mm = mod( ds.Time, 100 );
+hh = floor( t.Time / 100 );
+mm = mod( t.Time, 100 );
 
-dn = datenum( ds.Year, 1, 0 ) + ...
-     ds.Day + ...
+dn = datenum( t.Year, 1, 0 ) + ...
+     t.Day + ...
      ( hh / hours_per_day ) + ...
      ( mm / mins_per_day );
      
@@ -190,7 +189,7 @@ data112 = horzcat( data112{ : } )';
 
 
 %======================================================================
-function ds =  parse_PPine_soil_csv( fname )
+function t =  parse_PPine_soil_csv( fname )
 
 dlm = ',';  %files are comma-delimited
 start_row = 1; % skip first row (header)
@@ -203,23 +202,23 @@ headers = PPine_array_headers( arrayID );
 % New
 data = replace_badvals( data, [ -6999 ], 1e-6 );
 
-ds = dataset( { data, headers{ : } } );
+t = array2table( data, 'VariableNames', headers );
 
-ds.timestamp = mcconnel_times_2_datenum( ds );
+t.timestamp = mcconnel_times_2_datenum( t );
 
 % remove duplicate timestamps
-ds = ds( find_unique( ds.timestamp ), : );
+t = t( find_unique( t.timestamp ), : );
 
 one_hour = 1 / 24; % one hour in units of days
-ds = dataset_fill_timestamps( ds, 'timestamp', ...
+t = table_fill_timestamps( t, 'timestamp', ...
                               'delta_t', one_hour, ...
-                              't_min', min( ds.timestamp ), ...
-                              't_max', max( ds.timestamp ) );
+                              't_min', min( t.timestamp ), ...
+                              't_max', max( t.timestamp ) );
 
-ds = hourly_2_30min( ds );
+t = hourly_2_30min( t );
 
 %======================================================================
-function ds = parse_Sarah_PPine_soil_xls( fname)
+function t = parse_Sarah_PPine_soil_xls( fname)
 % PARSE_SARAH_PPINE_SOIL_XLS - parse a single PPine soil met .xls file compiled
 %   by Sarah into a matlab dataset object.
 % INPUTS
@@ -254,8 +253,8 @@ var_names = { 'timestamp', ...
               'VWC_ponderosa_1_6' };
 var_units = { 'time', 'C', 'C', 'C', 'C', '%' };
 
-ds = dataset( { data, var_names{:} } );
-ds.Properties.Units = var_units;
+t = array2table( data, 'VariableNames', var_names );
+t.Properties.VariableUnits = var_units;
 
 %======================================================================
 function headers = PPine_array_headers( arrayID )
@@ -307,25 +306,25 @@ headers = regexprep( headers, 'obs6', ...
                      sprintf( 'ponderosa_%d2_50', arrayID ) );
 
 %==================================================
-function ds = hourly_2_30min( ds )
+function t = hourly_2_30min( t )
 % HOURLY_2_30MIN - interpolate the data from hourly to 30-minute
 %   
 
 thirty_mins = 30 / ( 60 * 24 );  % thirty minutes in units of days
-ts_30 = ds.timestamp + thirty_mins;
-non_time_vars = setdiff( ds.Properties.VarNames, ...
+ts_30 = t.timestamp + thirty_mins;
+non_time_vars = setdiff( t.Properties.VariableNames, ...
                          { 'timestamp', 'Array_ID', ...
                     'Year', 'Day', 'Time' } );
-data_interp = interp1( ds.timestamp, ...
-                       double( ds( :, non_time_vars ) ), ...
+data_interp = interp1( t.timestamp, ...
+                       table2array( t( :, non_time_vars ) ), ...
                        ts_30 );
-data_interp = dataset( { data_interp, non_time_vars{:} } );
+data_interp = array2table( data_interp, 'VariableNames', non_time_vars );
 data_interp.timestamp = ts_30;
 [ yyyy, ~, ~, ~, ~, ~ ] = datevec( ts_30 );
 data_interp.Year = yyyy;
 data_interp.Day = floor( ts_30 - datenum( yyyy, 1, 0 ) );
 data_interp.Time = str2num( datestr( ts_30, 'HHMM' ) );
-data_interp.Array_ID = ds.Array_ID;
+data_interp.Array_ID = t.Array_ID;
 
 % % debugging plot -- make sure the interpolated data look like the originals
 % h = figure();
@@ -337,6 +336,6 @@ data_interp.Array_ID = ds.Array_ID;
 % title( 'Soil_1_1 interpolated' );
 
 % combine the hourly data with the interpolated data and sort by timestamp
-ds = vertcat( ds, data_interp );
-[ ~, idx ] = sort( ds.timestamp );
-ds = ds( idx, : );
+t = vertcat( t, data_interp );
+[ ~, idx ] = sort( t.timestamp );
+t = t( idx, : );
