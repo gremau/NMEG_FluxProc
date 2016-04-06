@@ -23,6 +23,7 @@ function arr = replace_badvals( arr, badvals, tol )
 %     dataset
 %
 % author: Timothy W. Hilton, UNM
+% modified by Gregory E. Maurer, UNM
     
 arg_is_dataset = false;
 arg_is_table = false;

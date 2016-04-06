@@ -371,7 +371,8 @@ result = 0;
             [TairVar, rhVar, RgVar, PrecVar ] = deal(varCell{:});
         elseif strcmp(site, 'Sev')
             hr_2_30min = true; prec_conv = false;
-            varCell = { 'Temp_C', 'RH', 'Solar_Rad', 'Precip' };
+            varCell = { 'Temp_C', 'Relative_Humidity', ...
+                'Solar_Radiation', 'Precipitation' };
             [ TairVar, rhVar, RgVar, PrecVar ] = deal(varCell{:});
         end
         
