@@ -254,6 +254,8 @@ switch sitecode
                 shiftIdx = DOYidx( 172.52 ) : DOYidx( 282.52 );
                 data( shiftIdx, : ) = ...
                     shift_data( data( shiftIdx, : ), 1.0, allCols );
+            case 2015
+                data = shift_data( data, 0.5, allCols );
         end
         
     case UNM_sites.MCon
@@ -344,6 +346,8 @@ switch sitecode
                 shiftIdx = DOYidx( 126.71 ) : size( data, 1 );
                 data( shiftIdx, : ) = ...
                     shift_data( data( shiftIdx, : ), 0.5, allCols );
+            case 2015
+                data = shift_data( data, 0.5, allCols );
         end
         
     case UNM_sites.TX

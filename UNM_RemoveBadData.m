@@ -2424,6 +2424,16 @@ switch sitecode
                 HL_wpl_massman( idx ) = NaN;
                 CO2_mean( idx ) = NaN;
                 H2O_mean( idx ) = NaN;
+            case 2015
+                % There looks to be an IRGA problem on these dates - 
+                % [CO2] values are way off, so FC is removed. LE still
+                % looks bad, so I am removing it - GEM
+                idx = DOYidx( 349.71 ) : DOYidx( 359.38 );
+                E_wpl_massman( idx ) = NaN;
+                E_raw_massman( idx ) = NaN;
+                E_heat_term_massman( idx ) = NaN;
+                HL_wpl_massman( idx ) = NaN;
+                H2O_mean( idx ) = NaN;
         end
         
     case UNM_sites.PPine

@@ -346,8 +346,20 @@ elseif sitecode == 6 % MCon
         output = fill_30min_flux_processor( output, 6, 2013, DOYidx(29.75),DOYidx(30.33));
         output = fill_30min_flux_processor( output, 6, 2013, DOYidx(52.917),DOYidx(53.458));
         output = fill_30min_flux_processor( output, 6, 2013, DOYidx(324.9),DOYidx(325.375));
-      elseif year == 2014 % added by Mike Fuller
+    elseif year == 2014
         output = fill_30min_flux_processor( output, 6, 2013, 1832,2341);
+    elseif year == 2015
+        output = fill_30min_flux_processor( output, 6, 2015, 15739,15749);
+        output = fill_30min_flux_processor( output, 6, 2015, 15757,15982);
+        output = fill_30min_flux_processor( output, 6, 2015, 15993,16031);
+        output = fill_30min_flux_processor( output, 6, 2015, 16045,16081);
+        output = fill_30min_flux_processor( output, 6, 2015, 16088,16660);
+        output = fill_30min_flux_processor( output, 6, 2015, 16700,16722);
+        output = fill_30min_flux_processor( output, 6, 2015, 16787,16818);
+        output = fill_30min_flux_processor( output, 6, 2015, 17069,17108);
+        output = fill_30min_flux_processor( output, 6, 2015, 17113,17146);
+        output = fill_30min_flux_processor( output, 6, 2015, 17213,17231);
+        output = fill_30min_flux_processor( output, 6, 2015, 17415,17448);
     end
 
 elseif sitecode == 7 % TX_savanna
@@ -447,6 +459,8 @@ elseif sitecode == 10 % PJ_girdle
     elseif year == 2013
         output = fill_30min_flux_processor( output, 10,2013,5459,5686);
         output = fill_30min_flux_processor( output, 10,2013,10829,10841);
+    elseif year == 2015
+        output = fill_30min_flux_processor( output, 10,2015,16739,17202);
     end   
     
 elseif sitecode == 11 % New GLand

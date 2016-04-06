@@ -610,6 +610,10 @@ elseif year_arg == 2008
             % Temp-correct longwave
             % FIXME - should we just use CG3co values?
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+        elseif year_arg == 2015
+            % Temp-correct longwave
+            % FIXME - should we just use CG3co values?
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
         end
         
         %%%%%%%%%%%%%%%%% mixed conifer
@@ -669,6 +673,10 @@ elseif year_arg == 2008
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % Bad PPFD values early in 2014 - GEM
             Par_Avg(find(decimal_day > 52.0 & decimal_day < 107.0)) = NaN;
+        elseif year_arg == 2015
+            % Temp-correct longwave
+            % FIXME - should we just use CG3co values?
+            [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
         end
         
         %%%%%%%%%%%%%%%%% texas
