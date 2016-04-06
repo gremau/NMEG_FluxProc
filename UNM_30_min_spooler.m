@@ -20,6 +20,8 @@ function [] = UNM_30_min_spooler(sitecode,year)
 % 10 = PJ_girdle, PJG_test
 % 11 = new grassland
 
+% This is now deprecated - see fill_30min_flux_spooler.m
+error( 'This file is now deprecated' );
 
 if sitecode == 1 % GLand
     if year == 2006

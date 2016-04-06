@@ -19,6 +19,9 @@
 
 function [] = UNM_30min_flux_processor_Tim(sitecode,year,first_row,last_row)
 
+% This is now deprecated - see fill_30min_flux_processor.m
+error( 'This file is now deprecated' );
+
 % sitecode=7;
 % year=2008;
 % first_row=10228;
