@@ -203,12 +203,12 @@ result = 0;
                     addData = prepare_met_data( addData, year, 'Sev' );
                     
                 case 'vcp' % Parse the nearest VC met site
-                    addData = UNM_parse_valles_met_data( 'VCP', year, siteID );
+                    addData = UNM_parse_valles_met_data( siteID, year );
                     addData = prepare_met_data( addData, year, 'VCP' );
                     
-                case 'dri' % DRI files only contain 1 site
-                    addData = UNM_parse_valles_met_data( 'DRI', year, 'Jemez' );
-                    addData = prepare_met_data( addData, year, 'DRI' );
+                %case 'dri' % DRI files only contain 1 site
+                %    addData = UNM_parse_valles_met_data( 'DRI', year, 'Jemez' );
+                %    addData = prepare_met_data( addData, year, 'DRI' );
                     
                 case 'snotel' % Parse the nearest SNOTEL site
                     addData = UNM_parse_SNOTEL_data( siteID, year );
@@ -363,12 +363,12 @@ result = 0;
         % convert it to mm
         if strcmp(site, 'VCP')
             hr_2_30min = true; prec_conv = false; % Conversions
-            varCell = { 'airt', 'rh', 'sol', 'ppt'};
+            varCell = { 'AvAirTemp', 'RelHumidty', 'SolarRad', 'Precip_inc'};
             [ TairVar, rhVar, RgVar, PrecVar ] = deal(varCell{:});
-        elseif strcmp(site, 'DRI')
-            hr_2_30min = true; prec_conv = false;
-            varCell = { 'Tair_C', 'RH_pct', 'Rad_wm2', 'Precip_mm' };
-            [TairVar, rhVar, RgVar, PrecVar ] = deal(varCell{:});
+        %elseif strcmp(site, 'DRI')
+        %    hr_2_30min = true; prec_conv = false;
+        %    varCell = { 'Tair_C', 'RH_pct', 'Rad_wm2', 'Precip_mm' };
+        %    [TairVar, rhVar, RgVar, PrecVar ] = deal(varCell{:});
         elseif strcmp(site, 'Sev')
             hr_2_30min = true; prec_conv = false;
             varCell = { 'Temp_C', 'Relative_Humidity', ...

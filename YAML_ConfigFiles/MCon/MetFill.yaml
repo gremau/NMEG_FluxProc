@@ -6,28 +6,28 @@ fillTair  :
     start_date  : '2007-01-01'
     end_date    : None      
     siteType    : vcp
-    siteID      : 14    # Valles Caldera Redondo met stn (14)
+    siteID      : Redondo    # Valles Caldera Redondo met stn (14)
     linfit      : false
 fillrH    :
   - 
     start_date  : '2007-01-01'
     end_date    : None      
     siteType    : vcp
-    siteID      : 14
+    siteID      : Redondo
     linfit      : false
 fillRg    : 
   - 
     start_date  : '2007-01-01'
     end_date    : '2008-12-31'
     siteType    : vcp
-    siteID      : 14
+    siteID      : Redondo
     linfit      : true
     scale       : 12
   - 
     start_date  : '2009-01-01'
     end_date    : None      
     siteType    : vcp
-    siteID      : 14
+    siteID      : Redondo
     linfit      : true
     scale       : 0    
 fillPrecip:
@@ -35,7 +35,7 @@ fillPrecip:
     start_date  : '2007-01-01'
     end_date    : None      
     siteType    : vcp
-    siteID      : 14
+    siteID      : Redondo
     linfit      : false
   - 
     start_date  : '2007-01-01'

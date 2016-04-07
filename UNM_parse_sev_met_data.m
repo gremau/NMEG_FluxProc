@@ -45,19 +45,8 @@ else
     error( 'Invalid number of arguments' )
 end
 
+% Remove bad values
 metTable = replace_badvals( metTable, [-999, -888, 6999, -6999], 1e-4);
-
-% There are some discrepancies in the header names between the 2 files
-% if year > 2012
-%     metTable.Properties.VariableNames{ 'sta' } = 'Station_ID';
-%     metTable.Properties.VariableNames{ 'year' } = 'Year';
-%     metTable.Properties.VariableNames{ 'time' } = 'Hour';
-%     metTable.Properties.VariableNames{ 'day' } = 'Jul_Day';
-%     metTable.Properties.VariableNames{ 'airt' } = 'Temp_C';
-%     metTable.Properties.VariableNames{ 'rh' } = 'RH';
-%     metTable.Properties.VariableNames{ 'sol' } = 'Solar_Rad';
-%     metTable.Properties.VariableNames{ 'ppt' } = 'Precip';
-% end
 
 % Trim out extra sites from the table if requested
 if ~isempty( siteid )
