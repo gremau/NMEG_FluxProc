@@ -211,7 +211,7 @@ result = 0;
                     addData = prepare_daily_precip( addData, 'Precip');
                     
                 case 'ghcnd' % Parse the nearest GHCND site
-                    addData = UNM_parse_GHCND_met_data( siteID, year );
+                    addData = UNM_parse_GHCN_met_data( siteID, year );
                     addData = prepare_daily_precip( addData, 'PRCP' );
                     % Convert from tenths to mm
                     addData.Precip = addData.Precip ./ 10;

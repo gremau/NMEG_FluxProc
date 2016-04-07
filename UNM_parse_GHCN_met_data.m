@@ -1,4 +1,4 @@
-function metData_T = UNM_parse_GHCND_met_data( metstn, year )
+function metData_T = UNM_parse_GHCN_met_data( metstn, year )
 % Parse ancillary Global Historical Climatology Network data files
 % to matlab dataset.  
 %
@@ -13,7 +13,7 @@ function metData_T = UNM_parse_GHCND_met_data( metstn, year )
 % the target folder for instructions on downloading/formatting this data
 %
 % USAGE
-%     metData_T = UNM_parse_GHCND_met_data( sitecode, year );
+%     metData_T = UNM_parse_GHCN_met_data( sitecode, year );
 %
 % INPUTS
 %     metstn: string; 'ESTANCIA' or 'PROGRESSO' (station name)
@@ -29,10 +29,9 @@ function metData_T = UNM_parse_GHCND_met_data( metstn, year )
 switch metstn
     case 'ESTANCIA'
         fname = fullfile( getenv( 'FLUXROOT' ), 'Ancillary_met_data',...
-            sprintf( 'GHCND_ESTANCIA_DailySumm_20070101-20150630.csv' ));
+            sprintf( 'GHCND_ESTANCIA_DailySumm_20060101-20160331.csv' ));
         % Get data from the ESTANCIA - station is north of Hwy 60
         metData_T = readtable( fname, 'Delimiter', ',' );
-        
         
     case 'PROGRESSO'
         fname = fullfile( getenv( 'FLUXROOT' ), 'Ancillary_met_data',...
