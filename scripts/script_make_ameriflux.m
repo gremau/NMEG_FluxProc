@@ -12,7 +12,7 @@ yearlist = 2015;
 partmethod = 'eddyproc'; %'Reddyproc'
 % Make daily files? All AF files should be in $FLUXROOT$/Ameriflux_files
 make_daily = false;
-write_files = true;
+write_files = false;
 process_soil = false;
 
 for i = 1:length(sitelist);

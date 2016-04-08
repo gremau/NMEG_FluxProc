@@ -5,8 +5,8 @@ sitelist = {UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, UNM_sites.New_GLan
 %sitelist = {UNM_sites.MCon};
 yearlist = 2015;
 
-write_qc = true;
-write_gf = true;
+write_qc = false;
+write_gf = false;
 old_fluxall = false;
 
 for i = 1:length(sitelist);
