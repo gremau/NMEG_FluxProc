@@ -166,9 +166,7 @@ if write_output
         get_site_name( sitecode ), year ) );
     fprintf( 'writing %s\n', outfile );
     thisData.timestamp = [];
-    thisData2 = table2dataset(thisData);
-    write_table_std( outfile, thisData2, 'write_units', true );
-    %export( thisData( :, 2:end ), 'file', outfile );
+    write_table_std( outfile, thisData, 'write_units', true );
 end
 
 result = 0;
