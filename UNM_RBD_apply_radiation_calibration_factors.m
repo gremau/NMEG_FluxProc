@@ -674,6 +674,14 @@ elseif year_arg == 2008
             % Bad PPFD values early in 2014 - GEM
             Par_Avg(find(decimal_day > 52.0 & decimal_day < 107.0)) = NaN;
         elseif year_arg == 2015
+            % After the solar scaffold collapsed the CNR1 was miswired for
+            % a little while.
+            idx = decimal_day > 338.5;
+            patch = lw_incoming( idx );
+            lw_incoming( idx ) = sw_outgoing ( idx );
+            sw_outgoing( idx ) = patch;
+            idx = decimal_day > 328.61 & decimal_day < 338.58;
+            lw_outgoing( idx ) = NaN;
             % Temp-correct longwave
             % FIXME - should we just use CG3co values?
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);

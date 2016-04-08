@@ -89,6 +89,8 @@ elseif ~date_parse_required && date_range_given
     warning( sprintf(['YAML config file contains no config_by_date info!\n', ...
         'Ignoring date_range argument.\n'] ));
     parse_by_date = false;
+else % No parse_by_date field and no date range given
+    parse_by_date = false;
 end
 
 % Now parse configuration by date if needed

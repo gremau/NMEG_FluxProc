@@ -125,6 +125,19 @@ switch site
 %             norm( data_in.Reco_HBLR( idx ), 6.2 );
 %         dfig = plot_amended( data_in, data_amended, ...
 %             'Reco_HBLR', site, yr );
+      case 2015
+        % 1 periods with abnormally high respiration this year.
+        idx = DOYidx( 316.25 ) : DOYidx( 320.85 );
+        data_amended.Reco_HBLR_amended( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 6 );
+        idx = DOYidx( 323.2 ) : DOYidx( 329.0 );
+        data_amended.Reco_HBLR_amended( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 5.6 );
+        idx = DOYidx( 337.25 ) : DOYidx( 340.8 );
+        data_amended.Reco_HBLR_amended( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 4.2 );
+        dfig = plot_amended( data_in, data_amended, ...
+              'Reco_HBLR', site, yr );
     end
         
   case UNM_sites.MCon
@@ -284,6 +297,13 @@ switch site
           idx2 = DOYidx( 349 ) : DOYidx( 356.75 );
           data_amended.Reco_HBLR_amended( idx2 ) = ...
               norm( data_in.Reco_HBLR( idx2 ), 3 );
+          dfig = plot_amended( data_in, data_amended, ...
+              'Reco_HBLR', site, yr );
+        case 2015
+          % 1 periods with abnormally high respiration this year.
+          idx = DOYidx( 7.25 ) : DOYidx( 14.95 );
+          data_amended.Reco_HBLR_amended( idx ) = ...
+              norm( data_in.Reco_HBLR( idx ), 1.85 );
           dfig = plot_amended( data_in, data_amended, ...
               'Reco_HBLR', site, yr );
       end
