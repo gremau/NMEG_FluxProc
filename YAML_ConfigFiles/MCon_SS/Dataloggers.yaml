@@ -1,6 +1,6 @@
 ---
 config_site     : MCon_SS
-config_by_date  : false
+config_by_date  : true
 dataloggers  :
   - 
     name            : flux
@@ -31,7 +31,7 @@ dataloggers  :
     sensor_types    : met
     start_date      : '2015-12-08 04:30'
     end_date        : None
-    merge_30min     : true
+    merge_30min     : false # Its on 5 minute timestamps - can't merge
     conv_file_fmt   : TOA5
     conv_file_loc   : secondary_loggers/precip
     resolve_headers : false
@@ -42,7 +42,7 @@ dataloggers  :
     sensor_types    : sapflux
     start_date      : '2015-12-08 04:30'
     end_date        : None
-    merge_30min     : true
+    merge_30min     : false # Its on 15 minute timestamps - can't merg
     conv_file_fmt   : TOA5
     conv_file_loc   : secondary_loggers/sap
     resolve_headers : false

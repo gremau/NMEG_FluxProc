@@ -68,7 +68,7 @@ end
 % Standardize the date_range variable
 if length(date_range)==1
     date_range(2) = datenum( now );
-    warning( fprintf('Configuration end date not provided, using today \n') );
+    warning( sprintf('Configuration end date not provided, using today \n') );
 end
 
 % Determine whether to parse configurations by date
