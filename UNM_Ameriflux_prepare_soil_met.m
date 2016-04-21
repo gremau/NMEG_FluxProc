@@ -33,6 +33,8 @@ function ds_out =  UNM_Ameriflux_prepare_soil_met( sitecode, year, ...
 %
 % author: Timothy W. Hilton, UNM, January 2012
 
+warning('deprecated - this is being replaced by "soil_met_correct.m"');
+
 [ last_obs_row_data, ~, ~ ] = find( not( isnan( double( data( :, 2:end ) ) ) ) );
 [ last_obs_row_qc, ~, ~ ] = find( not( isnan( double( ds_qc( :, 2:end ) ) ) ) );
 last_obs_row = max( [ reshape( last_obs_row_data, 1, [] ), ...
