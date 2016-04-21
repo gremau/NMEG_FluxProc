@@ -63,7 +63,7 @@ cs616_descriptive_labels_postJul09 = { 'cs616SWC_juniper_1_2p5', ...
 vars = ds_in.Properties.VarNames;
 
 % assign descriptive labels based on the number of cs616 probes detected.
-[ cs616_vars, idx_cs616 ] = regexp_ds_vars( ds_in, 'cs616.*' );
+[ cs616_vars, idx_cs616 ] = regexp_header_vars( ds_in, 'cs616.*' );
 if numel( cs616_vars ) == 16
     vars( idx_cs616 ) = cs616_descriptive_labels_preJul09( : ); 
 elseif numel( cs616_vars ) == 18
@@ -77,12 +77,12 @@ else
 end
 
 % assign descriptive labels to soil T for first half of 2009
-[ ~, idx_Tsoil_preJul09 ] = regexp_ds_vars( ds_in, '[sS]oilT_Avg' );
+[ ~, idx_Tsoil_preJul09 ] = regexp_header_vars( ds_in, '[sS]oilT_Avg' );
 if ~isempty( idx_Tsoil_preJul09 )
     vars( idx_Tsoil_preJul09 ) = soilT_descriptive_labels_preJul09( : );
 end
 % format all probe names into strings describing cover, depth, etc.
-[ ~, idx_Tsoil ] = regexp_ds_vars( ds_in, '[sS]oilT' );
+[ ~, idx_Tsoil ] = regexp_header_vars( ds_in, '[sS]oilT' );
 if not( isempty( idx_Tsoil ) )
     vars( idx_Tsoil ) = regexprep( vars( idx_Tsoil ), '[sS]oilT', 'soilT' );
     vars( idx_Tsoil ) = regexprep( vars( idx_Tsoil ), '_Avg$', '' );

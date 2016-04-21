@@ -55,7 +55,7 @@ data = UNM_assign_soil_data_labels( sitecode, year, data );
 dummy = repmat( -9999, size( data, 1 ), 1 );
 
 % find any soil heat flux columns within QC data
-shf_vars = regexp_ds_vars( data, '(SHF|soil_heat_flux|shf).*' );
+shf_vars = regexp_header_vars( data, '(SHF|soil_heat_flux|shf).*' );
 SHF = [];
 n_shf_vars = numel( shf_vars );  % how many SHF columns are there?    
 
@@ -77,10 +77,10 @@ switch sitecode
 
     re_Tsoil = '[Ss]oilT_[A-Za-z]+_[0-9]+_[0-9]+.*'; %regexp to identify
                                                   %"soilT_COVER_NUMBER_DEPTH"
-    Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
+    Tsoil = data( :, regexp_header_vars( data, re_Tsoil ) );
     if isempty( Tsoil )
         re_Tsoil_form2 = 'Tsoil_avg'; 
-        Tsoil = data( :, regexp_ds_vars( data, re_Tsoil_form2 ) );
+        Tsoil = data( :, regexp_header_vars( data, re_Tsoil_form2 ) );
     end
 
     if ( sitecode == UNM_sites.JSav ) & ( year == 2008 )
@@ -90,7 +90,7 @@ switch sitecode
     end
     fprintf( 'Tsoil probes detected: %d\n', size( Tsoil, 2 ) );        
     
-    cs616_pd = data( :, regexp_ds_vars( data, ...
+    cs616_pd = data( :, regexp_header_vars( data, ...
                                         'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );   
 
     t0 = now();
@@ -109,7 +109,7 @@ switch sitecode
 
     
     if ( sitecode == UNM_sites.JSav ) & ( year == 2009 )
-        cs616_pd = data( :, regexp_ds_vars( data, ...
+        cs616_pd = data( :, regexp_header_vars( data, ...
                                             'cs616SWC_[A-Za-z]+_[0-9]+_[0-9]+.*' ) );   
         
         t0 = now();
@@ -143,7 +143,7 @@ switch sitecode
         cs616_Tc_smoothed = fix_2011_SLand_SWC( cs616_Tc_smoothed );
     end
     
-    TCAV = data( :, regexp_ds_vars( data, ...
+    TCAV = data( :, regexp_header_vars( data, ...
                                      'TCAV_[A-Za-z]+.*' ) );
   case { UNM_sites.PPine }
     cs616 = preprocess_PPine_soil_data( year );
@@ -159,9 +159,9 @@ switch sitecode
 
     
     re_Tsoil = 'soilT.*';
-    Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
+    Tsoil = data( :, regexp_header_vars( data, re_Tsoil ) );
     
-    TCAV = data( :, regexp_ds_vars( data, ...
+    TCAV = data( :, regexp_header_vars( data, ...
                                     'TCAV_[A-Za-z]+.*' ) );
     
   case { UNM_sites.MCon }
@@ -170,9 +170,9 @@ switch sitecode
     cs616_Tc = cs616;  % MCon SWC data are already in VWC form
 
     re_Tsoil = 'soilT.*';
-    Tsoil = data( :, regexp_ds_vars( data, re_Tsoil ) );
+    Tsoil = data( :, regexp_header_vars( data, re_Tsoil ) );
     
-    TCAV = data( :, regexp_ds_vars( data, ...
+    TCAV = data( :, regexp_header_vars( data, ...
                                     'TCAV_[A-Za-z]+.*' ) );
         
   case { UNM_sites.PJ, UNM_sites.PJ_girdle }
@@ -297,12 +297,12 @@ switch sitecode
     % do not calculate SHF with storage at the "grass" pits -- we don't have
     % SWC and soil T observations for SLand grass, and there isn't much grass
     % there anyway (as per conversation with Marcy 6 Aug 2012).
-    [ ~, SHF_grass_idx ] = regexp_ds_vars( SHF_cover_avg, 'grass' );
+    [ ~, SHF_grass_idx ] = regexp_header_vars( SHF_cover_avg, 'grass' );
     SHF_cover_avg( :, SHF_grass_idx ) = [];
   case UNM_sites.JSav
     if year >= 2009
         % similarly, ignore "edge" pits at JSav
-        [ ~, JSav_edge_idx ] = regexp_ds_vars( SHF_cover_avg, 'edge' );
+        [ ~, JSav_edge_idx ] = regexp_header_vars( SHF_cover_avg, 'edge' );
         SHF_cover_avg( :, JSav_edge_idx ) = [];
     end
   case UNM_sites.MCon
@@ -463,7 +463,7 @@ end %switch sitecode -- soil heat flux parameters
 % observations that don't correspond to a SWC observation.
 function Tsoil = JSav_match_soilT_SWC( Tsoil )
 
-[ ~, discard_idx ] = regexp_ds_vars( Tsoil, '62' );
+[ ~, discard_idx ] = regexp_header_vars( Tsoil, '62' );
 Tsoil( :, discard_idx ) = [];
 
 %--------------------------------------------------

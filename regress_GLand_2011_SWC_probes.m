@@ -35,7 +35,7 @@ args.addParamValue( 'draw_plots', true, @islogical );
 args.parse( data, varargin{ : } );
 %-----
 
-[ echo_varnames, echo_idx ] = regexp_ds_vars( data, '^echo.*' );
+[ echo_varnames, echo_idx ] = regexp_header_vars( data, '^echo.*' );
 cs616_varnames = strrep( echo_varnames, 'echoSWC_', 'cs616SWC_' );
 cs616_varnames = strrep( cs616_varnames, '_Avg', '' );
 Tsoil_varnames = strrep( cs616_varnames, 'cs616SWC_', 'soilT_' );

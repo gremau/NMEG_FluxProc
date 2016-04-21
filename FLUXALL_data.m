@@ -765,7 +765,7 @@ methods
                 if isempty( obj.ds_soil )
                     Tsoil = dummy;
                 else
-                    Tsoil_vars = regexp_ds_vars( obj.ds_soil, 'Tsoil_[0-9A-Za-z]+_Avg' );
+                    Tsoil_vars = regexp_header_vars( obj.ds_soil, 'Tsoil_[0-9A-Za-z]+_Avg' );
                     if isempty( Tsoil_vars )
                         Tsoil = dummy;
                     else

@@ -162,21 +162,21 @@ end
     
     soilT.Properties.VarNames = regexprep( soilT.Properties.VarNames, ...
                                            '_AVG$', '' );
-    [ ~, idx ] = regexp_ds_vars( soilT, '_STD$' );
+    [ ~, idx ] = regexp_header_vars( soilT, '_STD$' );
     soilT( :, idx ) = [];
     
     SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
                                          '^WC_', 'cs616SWC_' );
     SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
                                          '_AVG$', '' );
-    [ ~, idx ] = regexp_ds_vars( SWC, '_STD$' );
+    [ ~, idx ] = regexp_header_vars( SWC, '_STD$' );
     SWC( :, idx ) = [];
     
     SHF.Properties.VarNames = regexprep( SHF.Properties.VarNames, ...
                                          '_AVG$', '' );
     SHF.Properties.VarNames = regexprep( SHF.Properties.VarNames, ...
                                          '^shf', 'SHF' );
-    [ ~, idx ] = regexp_ds_vars( SHF, '_STD$' );
+    [ ~, idx ] = regexp_header_vars( SHF, '_STD$' );
     SHF( :, idx ) = [];
 
     all_but_timestamps = 1:( size( SHF, 2 ) - 1 );

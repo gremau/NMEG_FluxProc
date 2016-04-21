@@ -34,7 +34,7 @@ pits = unique( strcat( grp_vars( :, idx( 1 ) ), ...
                        grp_vars( :, idx( 2 ) ) ) );
 
 for this_pit = 1:numel( pits )
-    [ ~, idx ] = regexp_ds_vars( soil_data, pits( this_pit ) );
+    [ ~, idx ] = regexp_header_vars( soil_data, pits( this_pit ) );
     
     nan_idx = nan_idx_arg( :, idx );
     

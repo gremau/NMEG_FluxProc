@@ -41,7 +41,7 @@ function fluxall =  format_SHF_labels( sitecode, year, fluxall )
 % regular expression to identify strings containing 'shf' or 'hfp',
 % case-insensitive
 re_SHF = '.*([Ss][Hh][Ff]).*|.*([Hh][Ff][Pp]).*';
-[ ~, idx_SHF ] = regexp_ds_vars( fluxall, re_SHF );
+[ ~, idx_SHF ] = regexp_header_vars( fluxall, re_SHF );
 SHF_vars = fluxall.Properties.VarNames( idx_SHF );
 
 switch sitecode
@@ -219,7 +219,7 @@ switch sitecode
     switch year
         
       case { 2007, 2008 }
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616' );
+        [ ~, idx_cs616 ] = regexp_header_vars( fluxall, 'cs616' );
 
         % the two 52.5 cm observations to not actually exist (conversation
         % with Marcy, 26 Apr 2012) --TWH
@@ -230,7 +230,7 @@ switch sitecode
         fluxall( :, idx_to_remove ) = [];
       
       case { 2009, 2010 }
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616' );
+        [ ~, idx_cs616 ] = regexp_header_vars( fluxall, 'cs616' );
 
         % the two 52.5 cm observations to not actually exist (conversation
         % with Marcy, 26 Apr 2012) --TWH
@@ -242,10 +242,10 @@ switch sitecode
         fluxall( :, idx_to_remove ) = [];
 
         % change mux25t... labels to descriptive soilT labels
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
+        [ ~, idx_Tsoil ] = regexp_header_vars( fluxall, 'mux25t' );
         fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
 
-        [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV|tcav' );
+        [ ~, idx_TCAV ] = regexp_header_vars( fluxall, 'TCAV|tcav' );
         fluxall.Properties.VarNames( idx_TCAV ) = ...
             { 'TCAV_open_Avg', 'TCAV_cover_Avg' };
 
@@ -254,7 +254,7 @@ switch sitecode
         % are in columns 203 to 222
         re = '(^(open|grass)[12]_[0-9]{1,2}p5cm|swc.*)';  % regular expression to
                                                   % identify cs616 labels
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, re );
+        [ ~, idx_cs616 ] = regexp_header_vars( fluxall, re );
         % prepend 'cs616SWC_' to labels and separate cover type from pit number
         % (e.g. grass1... -> cs616_grass_1...
         fluxall.Properties.VarNames( idx_cs616 ) = ...
@@ -269,11 +269,11 @@ switch sitecode
         % idx_cs616 = idx_cs616( [ 1:16, 18:21 ] );
 
         % change mux25t... labels to descriptive soilT labels
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '(mux25t|soilT)' );
+        [ ~, idx_Tsoil ] = regexp_header_vars( fluxall, '(mux25t|soilT)' );
         fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
         
         % some files in late 2012 are labeled "soilt..." not "soilT..."
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'soilt' );
+        [ ~, idx_Tsoil ] = regexp_header_vars( fluxall, 'soilt' );
         fluxall.Properties.VarNames( idx_Tsoil ) = ...
             regexprep( fluxall.Properties.VarNames( idx_Tsoil ), ...
                        'soilt', ...
@@ -324,30 +324,30 @@ switch sitecode
     
     switch year
       case { 2007, 2008, 2009, 2010 }
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616_wcr.*' );
+        [ ~, idx_cs616 ] = regexp_header_vars( fluxall, 'cs616_wcr.*' );
         fluxall.Properties.VarNames( idx_cs616( 1:20 ) ) = ...
             descriptive_cs616_labels;
         fluxall( :, idx_cs616( 21:end ) )  = [];
         
         % change mux25t... labels to descriptive soilT labels
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
+        [ ~, idx_Tsoil ] = regexp_header_vars( fluxall, 'mux25t' );
         if ~isempty( idx_Tsoil )
             fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
         end
 
       case { 2011, 2012 }
         % change soil_h2o... labels to descriptive SWC labels
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, '(soil_h2o_.*_Avg|cs616SWC)' );
+        [ ~, idx_cs616 ] = regexp_header_vars( fluxall, '(soil_h2o_.*_Avg|cs616SWC)' );
         fluxall.Properties.VarNames( idx_cs616 ) = descriptive_cs616_labels;
         
         % change mux25t... labels to descriptive soilT labels
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'mux25t' );
+        [ ~, idx_Tsoil ] = regexp_header_vars( fluxall, 'mux25t' );
         if ~isempty( idx_Tsoil )
             fluxall.Properties.VarNames( idx_Tsoil ) = descriptive_soilT_labels;
         end
         
         % some files in late 2012 are labeled "soilt..._Avg" not "soilT..."
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'soilt' );
+        [ ~, idx_Tsoil ] = regexp_header_vars( fluxall, 'soilt' );
         fluxall.Properties.VarNames( idx_Tsoil ) = ...
             regexprep( fluxall.Properties.VarNames( idx_Tsoil ), ...
                        'soilt', ...
@@ -406,13 +406,13 @@ switch sitecode
         % 8/31/2007, and these were renamed (but not changed)
         % on 2/25/2008. -- GEM
         vars = fluxall.Properties.VarNames;
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'VWC.*' );
+        [ ~, idx_cs616 ] = regexp_header_vars( fluxall, 'VWC.*' );
         if ~isempty(idx_cs616)
             vars( idx_cs616 ) = cs616_descriptive_labels_preJul09;
         end
         
         %soil T
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '[sS]oilT_' );
+        [ ~, idx_Tsoil ] = regexp_header_vars( fluxall, '[sS]oilT_' );
         % Ensure that the mid-2007 change is ok, but these may be
         % the wrong labels for pre-2/25/2007 sensors entirely. --GEM
         if length(idx_Tsoil) > length(soilT_descriptive_labels_2008)
@@ -428,17 +428,17 @@ switch sitecode
       case 2008 
         vars = fluxall.Properties.VarNames;
         
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
+        [ ~, idx_cs616 ] = regexp_header_vars( fluxall, 'cs616.*' );
         vars( idx_cs616 ) = cs616_descriptive_labels_preJul09;
 
         %soil T
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '[sS]oilT_' );
+        [ ~, idx_Tsoil ] = regexp_header_vars( fluxall, '[sS]oilT_' );
         if ~isempty( idx_Tsoil )
             vars( idx_Tsoil ) = soilT_descriptive_labels_2008;
         end
 
         %TCAV
-        [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
+        [ ~, idx_TCAV ] = regexp_header_vars( fluxall, 'TCAV' );
         if ~isempty( idx_TCAV )
             vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
             vars( idx_TCAV ) = format_probe_strings( vars( idx_TCAV ) );
@@ -457,7 +457,7 @@ switch sitecode
         vars = fluxall.Properties.VarNames;
         
         %CS616 SWC probes
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
+        [ ~, idx_cs616 ] = regexp_header_vars( fluxall, 'cs616.*' );
         if not( isempty( idx_cs616 ) )
             vars( idx_cs616 ) = regexprep( vars( idx_cs616 ), ...
                                            'cs616_', 'cs616SWC_' );
@@ -466,7 +466,7 @@ switch sitecode
         end
         
         %soil T
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, '[sS]oilT_' );
+        [ ~, idx_Tsoil ] = regexp_header_vars( fluxall, '[sS]oilT_' );
         if ~isempty( idx_Tsoil )
             vars( idx_Tsoil ) = regexprep( vars( idx_Tsoil ), ...
                                            '[sS]oilT', 'soilT' );
@@ -476,7 +476,7 @@ switch sitecode
         end
         
         %TCAV
-        [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
+        [ ~, idx_TCAV ] = regexp_header_vars( fluxall, 'TCAV' );
         if ~isempty( idx_TCAV )
             vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
             vars( idx_TCAV ) = format_probe_strings( vars( idx_TCAV ) );
@@ -487,13 +487,13 @@ switch sitecode
       case { 2010, 2011, 2012, 2013 } %RJL added 2013 02/04/2014
         % echo SWC probes
         vars = fluxall.Properties.VarNames;
-        [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'SWC.*' );
+        [ ~, idx_echo ] = regexp_header_vars( fluxall, 'SWC.*' );
         vars( idx_echo ) = strrep( vars( idx_echo ), 'SWC', 'echoSWC' );
         vars( idx_echo ) = replace_hex_chars( vars( idx_echo ) );
         vars( idx_echo ) = format_probe_strings( vars( idx_echo ) );
         
         %CS616 SWC probes
-        [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, 'cs616.*' );
+        [ ~, idx_cs616 ] = regexp_header_vars( fluxall, 'cs616.*' );
         if not( isempty( idx_cs616 ) )
             vars( idx_cs616 ) = cs616_descriptive_labels_postJul09;
             vars( idx_cs616 ) = replace_hex_chars( vars( idx_cs616 ) );
@@ -501,7 +501,7 @@ switch sitecode
         end
         
         %soil T
-        [ ~, idx_Tsoil ] = regexp_ds_vars( fluxall, 'SoilT_' );
+        [ ~, idx_Tsoil ] = regexp_header_vars( fluxall, 'SoilT_' );
         if ~isempty( idx_Tsoil )
             vars( idx_Tsoil ) = regexprep( vars( idx_Tsoil ), ...
                                            'SoilT', 'soilT' );
@@ -511,14 +511,14 @@ switch sitecode
         end
                     
         %TCAV
-        [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
+        [ ~, idx_TCAV ] = regexp_header_vars( fluxall, 'TCAV' );
         if ~isempty( idx_TCAV )
             vars( idx_TCAV ) = replace_hex_chars( vars( idx_TCAV ) );
             vars( idx_TCAV ) = format_probe_strings( vars( idx_TCAV ) );
         end
         
         % soil heat flux
-        [ ~, idx_shf ] = regexp_ds_vars( fluxall, 'shf' );
+        [ ~, idx_shf ] = regexp_header_vars( fluxall, 'shf' );
         if ~isempty( idx_shf )
             vars( idx_shf ) = replace_hex_chars( vars( idx_shf ) );
             vars( idx_shf ) = format_probe_strings( vars( idx_shf ) );
@@ -535,7 +535,7 @@ switch sitecode
     switch year
       case 2008
         
-        [ ~, idx_echo ] = regexp_ds_vars( fluxall, 'echo.*' );
+        [ ~, idx_echo ] = regexp_header_vars( fluxall, 'echo.*' );
         swc_vars = arrayfun( @(x) { sprintf( 'echoSWC_%d', x ) }, ...
                              1:numel( idx_echo ) );
         fluxall.Properties.VarNames( idx_echo ) = swc_vars;
@@ -553,9 +553,9 @@ switch sitecode
     % UNM_Ameriflux_prepare_soil_met.m
     switch year
         case { 2009, 2010, 2011 }
-            [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
+            [ ~, idx_soilT ] = regexp_header_vars( fluxall, 'T107.*' );
             if isempty( idx_soilT )
-                [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'soilT.*' );
+                [ ~, idx_soilT ] = regexp_header_vars( fluxall, 'soilT.*' );
                 if isempty( idx_soilT )
                     error( ['no soil temperature found (expecting ' ...
                         'soilT_ponderosa_X_Y'] );
@@ -576,7 +576,7 @@ switch sitecode
                     'soilT_ponderosa_12_5' };
             end
             
-            [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
+            [ ~, idx_TCAV ] = regexp_header_vars( fluxall, 'TCAV.*' );
             if ~isempty( idx_TCAV )
                 fluxall.Properties.VarNames{ idx_TCAV } = 'TCAV_ponderosa_1';
             end
@@ -587,7 +587,7 @@ switch sitecode
     
     % MCon soil water content is in another file, parsed separately from
     % UNM_Ameriflux_prepare_soil_met.m
-    [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'T107.*' );
+    [ ~, idx_soilT ] = regexp_header_vars( fluxall, 'T107.*' );
     if not( isempty( idx_soilT ) )
         fluxall.Properties.VarNames( idx_soilT ) = ...
             { 'soilT_mcon_1_5', ...
@@ -596,21 +596,21 @@ switch sitecode
               'soilT_mcon_4_5' };
     end
     
-    [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV.*' );
+    [ ~, idx_TCAV ] = regexp_header_vars( fluxall, 'TCAV.*' );
     if ~isempty( idx_TCAV )
         fluxall.Properties.VarNames{ idx_TCAV } = 'TCAV_mcon_1';
     end
     
   case UNM_sites.New_GLand  % unburned grass
     
-    [ ~, idx_cs616 ] = regexp_ds_vars( fluxall, '(Soilwcr.*|cs616.*)' );
+    [ ~, idx_cs616 ] = regexp_header_vars( fluxall, '(Soilwcr.*|cs616.*)' );
     swc_vars = fluxall.Properties.VarNames( idx_cs616 );
     swc_vars = strrep( swc_vars, 'Soilwcr', 'cs616SWC' );
     swc_vars = replace_hex_chars( swc_vars );
     swc_vars = format_probe_strings( swc_vars );
     fluxall.Properties.VarNames( idx_cs616 ) = swc_vars;
     
-    [ ~, idx_soilT ] = regexp_ds_vars( fluxall, 'SoilT.*' );
+    [ ~, idx_soilT ] = regexp_header_vars( fluxall, 'SoilT.*' );
     T_vars = fluxall.Properties.VarNames( idx_soilT );
     T_vars = regexprep( T_vars, 'SoilT', 'soilT' );
     T_vars = regexprep( T_vars, '_Avg$', '' );
@@ -619,7 +619,7 @@ switch sitecode
     fluxall.Properties.VarNames( idx_soilT ) = T_vars;
     
     vars = fluxall.Properties.VarNames;
-    [ ~, idx_TCAV ] = regexp_ds_vars( fluxall, 'TCAV' );
+    [ ~, idx_TCAV ] = regexp_header_vars( fluxall, 'TCAV' );
     vars( idx_TCAV ) = regexprep( vars( idx_TCAV ), '_Avg', '_1' );
     fluxall.Properties.VarNames = vars;
 

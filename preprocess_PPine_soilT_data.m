@@ -32,7 +32,7 @@ ds = dataset( 'File', fname, ...
 
           
 %Marcy added 6/17/14          
-[ SoilTvars, SoilTidx ] = regexp_ds_vars( ds, 'SoilT_C' );
+[ SoilTvars, SoilTidx ] = regexp_header_vars( ds, 'SoilT_C' );
 SoilT = ds( :, { 'timestamp', SoilTvars{ : } } );
 
 %SoilT.Properties.VarNames = regexprep( SoilT.Properties.VarNames, ...
@@ -50,7 +50,7 @@ SoilT = SoilT( datayear == year, : );
 %           
 %           
 %           
-% [ SWCvars, SWCidx ] = regexp_ds_vars( ds, 'VWC' );
+% [ SWCvars, SWCidx ] = regexp_header_vars( ds, 'VWC' );
 % SWC = ds( :, { 'timestamp', SWCvars{ : } } );
 % 
 % SWC.Properties.VarNames = regexprep( SWC.Properties.VarNames, ...
