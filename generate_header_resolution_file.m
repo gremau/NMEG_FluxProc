@@ -27,7 +27,7 @@ function T = generate_header_resolution_file( sitecode, sourceType, ...
 % headers from each TOA5 file and three configuration files. 
 %
 % USAGE
-%    ds = generate_header_resolution_file();
+%    T = generate_header_resolution_file();
 %
 % INPUTS
 %    either a series of strings containing full paths to the TOA5
@@ -36,11 +36,11 @@ function T = generate_header_resolution_file( sitecode, sourceType, ...
 %    files to be selected interactively.
 %
 % OUTPUTS
-%    ds: Matlab dataset array; the combined and filled data
+%    T: Matlab table array; the combined and filled data
 % 
 % SEE ALSO
-%    dataset, uigetfile, UNM_assign_soil_data_labels,
-%    dataset_fill_timestamps, toa5_2_dataset
+%    table, uigetfile, UNM_assign_soil_data_labels,
+%    table_fill_timestamps, toa5_2_table
 %
 % Gregory E. Maurer, UNM,  Sept 2014
 

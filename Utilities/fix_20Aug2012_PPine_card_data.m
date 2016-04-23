@@ -6,7 +6,7 @@ toa5_data_dir = fullfile( get_site_directory( UNM_sites.PPine ), ...
                           'toa5', 'TOA5_PPine_2012_08_20_0000' );
 
 toa5_fname = fullfile( toa5_data_dir, 'TOA5_FIX1_test.flux_2012_05_09_1300.dat' );
-toa5_data = toa5_2_dataset( toa5_fname );
+toa5_data = toa5_2_table( toa5_fname );
 
 
 % We know the card was pulled on 20 Aug.  Therefore line 34 (sunrise on 21

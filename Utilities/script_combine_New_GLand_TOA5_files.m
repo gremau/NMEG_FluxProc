@@ -20,19 +20,19 @@ files = ...
 fullpaths = strcat(cellstr( repmat( path, length( files ), 1) ), files');
 
 %%--------------------
-%% read 1 Jan to 25 May into one dataset
-one = toa5_2_dataset( fullpaths{ 1 } );
+%% read 1 Jan to 25 May into one table
+one = toa5_2_table( fullpaths{ 1 } );
 for i = 2:7
-    one = vertcat( one, toa5_2_dataset( fullpaths{ i } ) );
+    one = vertcat( one, toa5_2_table( fullpaths{ i } ) );
 end
 one.DUMMY = repmat( NaN, size( one, 1 ), 1 );
 
-%% read 25 May to November into another dataset (with different var names)
-two = toa5_2_dataset( fullpaths{ 8 } );
-two.Properties.VarNames = strrep( two.Properties.VarNames, 'SWC', 'swc' );
+%% read 25 May to November into another table (with different var names)
+two = toa5_2_table( fullpaths{ 8 } );
+two.Properties.VariableNames = strrep( two.Properties.VariableNames, 'SWC', 'swc' );
 for i = 9:length( files )
-    tmp = toa5_2_dataset( fullpaths{ i } );
-    tmp.Properties.VarNames = strrep( tmp.Properties.VarNames, 'SWC', 'swc' );
+    tmp = toa5_2_table( fullpaths{ i } );
+    tmp.Properties.VariableNames = strrep( tmp.Properties.VariableNames, 'SWC', 'swc' );
     two = vertcat( two, tmp );
 end
 two.DUMMY = repmat( NaN, size( two, 1 ), 1 );
@@ -41,8 +41,8 @@ two.DUMMY = repmat( NaN, size( two, 1 ), 1 );
 
 % initialize result to the variables that exist both pre- and post- datalogger
 % changes
-[ common_vars, one_idx, two_idx ] = intersect( one.Properties.VarNames, ...
-                                               two.Properties.VarNames );
+[ common_vars, one_idx, two_idx ] = intersect( one.Properties.VariableNames, ...
+                                               two.Properties.VariableNames );
 
 result = vertcat( one( :, one_idx ), two( :, two_idx ) );
 %among the headers common to both, preserve the order that appears in the
@@ -84,7 +84,7 @@ end
 
 % fill in any missing timestamps and write the combined data to disk
 thirty_mins = 1 / 48;
-result = dataset_fill_timestamps( result, 'TIMESTAMP',  thirty_mins );
+result = table_fill_timestamps( result, 'TIMESTAMP',  thirty_mins );
 
 year2011 = ( datenum( result.TIMESTAMP, 'mm/dd/yyyy HH:MM:SS' ) > ...
              datenum( 2010, 12, 31, 23, 59, 0 ) );
