@@ -134,7 +134,7 @@ end
                                         sitename, ...
                                         year ) );
     fprintf( 'writing %s...', fname_complete );
-    export_dataset_tim( fname_complete, soil_data );
+    write_table_std( fname_complete, soil_data );
     fprintf( 'done\n' );
     
     soilT = soil_data( :, T_vars );
