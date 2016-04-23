@@ -1,6 +1,6 @@
-function plots_for_PJgirdle_report_15Oct2012()
+function plots_for_PJgirdle_report_2009_2013()
 % PLOTS_FOR_PJGIRDLE_REPORT_15OCT2012 - create a series of plots for Marcy's
-% PJ/PJ girdle report of 15 Oct 2012.
+% PJ/PJ girdle report of 31 Dec 2013.
 %   
 % Creates one plot each for cumulative NEE, GPP, and RE.  Each plot shows the
 % fluxes from PJ, PJ_girdle, and JSav alongside one another.  The fluxes are
@@ -225,7 +225,7 @@ legend( [ h_pj, h_pjg, h_jsav ], ...
         'Location', 'Best' );
 
 datetick( gca, 'x' );
-xlim( [ datenum( 2009, 3, 15 ), datenum( 2012, 6, 10 ) ] );
+xlim( [ datenum( 2009, 3, 15 ), datenum( 2013, 12, 31 ) ] );
 
 % reference line at 1 Sep 2009 (girdling)
 y_lim = get( gca, 'YLim' );
@@ -297,7 +297,7 @@ set( h_line, 'Color', 'red' );
 
 datetick( ax1, 'x', 'mmm yyyy' );
 ylim( ax1, [ 0, 4.5 ] );
-xlim( [ datenum( 2009, 3, 15 ), datenum( 2012, 6, 10 ) ] );
+xlim( [ datenum( 2009, 3, 15 ), datenum( 2013, 12, 31 ) ] );
 
 xlabel( 'date' );
 ylabel( 'RE / GPP' );
