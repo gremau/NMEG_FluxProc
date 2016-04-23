@@ -1,25 +1,27 @@
-function ds  = UNM_parse_fluxall_xls_file( sitecode, year, varargin )
+function T  = UNM_parse_fluxall_xls_file( sitecode, year, varargin )
 % UNM_PARSE_FLUXALL_XLS_FILE - parse fluxall data and timestamps from
-% Excel spreadsheet file to matlab dataset.  
+% Excel spreadsheet file to matlab dataset.
 %
-% ds  = UNM_parse_fluxall_xls_file( sitecode, year )
-% ds  = UNM_parse_fluxall_xls_file( sitecode, year, 'file', file )
+% T  = UNM_parse_fluxall_xls_file( sitecode, year )
+% T  = UNM_parse_fluxall_xls_file( sitecode, year, 'file', file )
 %
 % INPUTS
 %    sitecode: UNM_sites object; specifies the site to show
 %    year: four-digit year: specifies the year to show
 % PARAMETER-VALUE PAIRS
 %    file: character string; full path to the fluxall file to be read.  If
-%    not specified, default is 
+%    not specified, default is
 %    get_site_directory( sitecode )/SITE_FLUX_all_YEAR.xls
 %
 % OUTPUTS
-%    ds: dataset array: the data from the fluxall file
+%    T: dataset array: the data from the fluxall file
 %
 % SEE ALSO
 %    UNM_sites, dataset, get_site_directory
 %
 % Timothy W. Hilton, UNM, January 2012
+
+warning('This file is deprecated')
 
 [ this_year, ~, ~ ] = datevec( now );
 
@@ -27,8 +29,8 @@ function ds  = UNM_parse_fluxall_xls_file( sitecode, year, varargin )
 args = inputParser;
 args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'year', ...
-               @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
-args.addParamValue( 'file', '', @ischar );
+    @(x) ( isintval( x ) & ( x >= 2006 ) & ( x <= this_year ) ) );
+args.addParameter( 'file', '', @ischar );
 args.parse( sitecode, year, varargin{ : } );
 
 sitecode = args.Results.sitecode;
@@ -44,7 +46,7 @@ year = args.Results.year;
 
 % if no file specified, use default
 if isempty( args.Results.file )
-    fname = sprintf( '%s_FLUX_all_%d.xls', site, year );
+    fname = sprintf( '%s_FLUX_all_%d.xls', get_site_name(sitecode), year );
     full_fname = fullfile( get_site_directory( sitecode ), fname );
 else
     %Check if file exists
@@ -75,23 +77,23 @@ disp( sprintf( 'reading %s...', fname ) );
 
 %% read the headertext ( windows only )
 %% outside of windows, xlsread operates in 'basic' mode, and can only
-%% read the numeric portions of the spreadsheet in their entirety. 
+%% read the numeric portions of the spreadsheet in their entirety.
 if ( iswindows )
     [ num, headertext ] = xlsread( full_fname, headerrange );
     headertext = fluxall_extract_column_headers( headertext );
-    [ data, ~ ] = xlsread( full_fname, '', '', 'basic' );  
-
+    [ data, ~ ] = xlsread( full_fname, '', '', 'basic' );
+    
     empty_headers = find( cellfun( @isempty, headertext ) );
     dummyheaders = arrayfun( @(x) sprintf('Col_%03d', x), ...
-                             empty_headers( : ), ...
-                             'UniformOutput', false );
+        empty_headers( : ), ...
+        'UniformOutput', false );
     headertext( empty_headers ) = dummyheaders;
 else
-    [ data, discard ] = xlsread( full_fname, '', '', 'basic' );  
+    [ data, discard ] = xlsread( full_fname, '', '', 'basic' );
     %% create cell array of variable names -- Col_001, Col_002, ... Col_N
     dummyheaders = arrayfun( @(x) sprintf('Col_%03d', x), ...
-                             1:size( data, 2 ), ...
-                             'UniformOutput', false );
+        1:size( data, 2 ), ...
+        'UniformOutput', false );
     headertext = dummyheaders;
 end
 
@@ -105,15 +107,15 @@ ncols = numel( headertext );
 if ncols < size( data, 2 )
     data( :, ( ncols + 1 ):end ) = [];
 end
-ds = dataset( { data, headertext{:} } );
+T = array2table( data, 'VariableNames', headertext );
 
 %% convert excel serial dates to matlab datenums (as per
 %% http://www.mathworks.com/help/techdoc/import_export/f5-100860.html#br0xp1s)
-ds.timestamp2 = excel_date_2_matlab_datenum( data( :, 1 ) );
-ds.timestamp = excel_date_2_matlab_datenum( data( :, 2 ) );
+T.timestamp2 = excel_date_2_matlab_datenum( data( :, 1 ) );
+T.timestamp = excel_date_2_matlab_datenum( data( :, 2 ) );
 
 %% reject data without a timestamp
-ds = ds( ~isnan( ds.timestamp ), : );
+T = T( ~isnan( T.timestamp ), : );
 
 %--------------------------------------------------
 function headertext = fluxall_extract_column_headers( headertext )
@@ -124,9 +126,34 @@ function headertext = fluxall_extract_column_headers( headertext )
 %   UNM_parse_fluxall_xls_file.
 
 [ row, col ] = find( cellfun( @(x) ~isempty(x), ...
-                              regexpi( headertext, 'timestamp' ) ) );
+    regexpi( headertext, 'timestamp' ) ) );
 headertext{ row(end), col(end) } = 'TOA5_timestamp';
 headertext = [ headertext( row(1), col(1):col(end)-1 ), ...
-               headertext( row(end), col(end):end ) ];
+    headertext( row(end), col(end):end ) ];
 % headertext = [ headertext( row(1), col(1):col(2)-1 ), ...
 %                headertext( row(2), col(2)+1:end ) ];
+
+%-------------------------------------------------------
+function dn = excel_date_2_matlab_datenum(esd)
+% EXCEL_DATE_2_MATLAB_DATENUM - convert Microsoft Excel serial date to a Matlab
+% serial datenumber.
+%
+% See
+% http://www.mathworks.com/help/techdoc/import_export/f5-100860.html#br0xp1s.
+%
+% dn = excel_date_2_matlab_datenum(esd)
+%
+% INPUTS
+%    esd: MxN array of Excel serial dates
+% OUTPUTS
+%    dn: MxN array of Matlab datenums
+%
+% SEE ALSO
+%    datenum
+%
+% Timothy W. Hilton, UNM, January 2012
+
+
+% convert the serial date as per
+% http://www.mathworks.com/help/techdoc/import_export/f5-100860.html#br0xp1s
+dn = esd + datenum( '30-Dec-1899' )
