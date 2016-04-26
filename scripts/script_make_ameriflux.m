@@ -5,7 +5,7 @@ sitelist = {UNM_sites.MCon, UNM_sites.JSav, UNM_sites.PJ, UNM_sites.PJ_girdle, .
     UNM_sites.SLand, UNM_sites.GLand, UNM_sites.PPine, UNM_sites.New_GLand};
 %sitelist = {UNM_sites.MCon, UNM_sites.JSav, ...
 %    UNM_sites.SLand, UNM_sites.GLand, UNM_sites.PPine};
-%sitelist={UNM_sites.MCon}
+sitelist={UNM_sites.GLand};
 % Years to create files for
 yearlist = 2015;
 % Partitioned data source
