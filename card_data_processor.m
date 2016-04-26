@@ -192,7 +192,7 @@ methods
             obj = conf_within_dates( flux_conf, obj, 'flux_data_config' );
             obj = conf_within_dates( sec_conf, obj, 'secondary_data_config' );
         else
-            obj.flux_data_conf = dl_list(1);
+            obj.flux_data_config = dl_list(1);
             fprintf( 'No secondary data sources configured. Reset flag.\n');
             obj.insert_secondary_data = false;
             return
