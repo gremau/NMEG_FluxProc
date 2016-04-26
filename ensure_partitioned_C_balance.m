@@ -111,7 +111,7 @@ out_tbl = [ ecb_tbl, old_ecb_tbl ];
             case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.New_GLand }
                 Rg_threshold = 1.0;
             case UNM_sites.JSav
-                Rg_threshold = -1.0;
+                Rg_threshold = -1.0;b
             case UNM_sites.PJ
                 Rg_threshold = 0.6;
             case UNM_sites.MCon
@@ -120,7 +120,7 @@ out_tbl = [ ecb_tbl, old_ecb_tbl ];
                 Rg_threshold = 0.1;
             case UNM_sites.TX
                 Rg_threshold = 4.0;
-            case UNM_sites.PJ_girdle
+            case UNM_sites.PJ_girdlea
                 Rg_threshold = 5.0;
             otherwise
                 error( sprintf( 'Rg threshold not implemented for site %s', ...
@@ -133,7 +133,13 @@ out_tbl = [ ecb_tbl, old_ecb_tbl ];
             % fix positive GPP at night -- define night as 
             % radiation < 20 umol/m2/s set positive nighttime GPP to 
             % zero and reduce corresponding respiration accordingly
-            sol = get_solar_elevation( UNM_sites( sitecode ), tstamp );
+            conf = parse_yaml_config(UNM_sites(sitecode), 'SiteVars');
+            solCalcs = noaa_solar_calcs(conf.latitude, conf.longitude, ...
+                tstamp);
+            sol = 90 - solCalcs.solarZenithAngleDeg;
+            % Next line is old way to do this - can delete once new way (above)
+            % checks out
+            %sol = get_solar_elevation( UNM_sites( sitecode ), tstamp );
             idx = ( sol < -10 ) & ( Rg_in < Rg_threshold ) & ( GPPout > 0.1 );
             fprintf( '# of positive nighttime GPP: %d\n', numel( find( idx ) ) );
             % take nighttime positive GPP out of RE

@@ -7,6 +7,12 @@ function solarCalcs = noaa_solar_calcs( latitude, longitude, ...
 % worksheet (one year version) found at this website:
 %
 %   http://www.esrl.noaa.gov/gmd/grad/solcalc/
+% 
+% Another useful reference and implementation is the 'SolarAzEl.m' 
+% function (included in the MatlabGeneralUtilites directory). It is based
+% on information here:
+%
+%   http://stjarnhimlen.se/comp/tutorial.html#5
 %
 % Gregory E. Maurer, UNM, February 2015
 
@@ -140,8 +146,8 @@ solarElevationAngleDeg = 90 - solarZenithAngleDeg;
 % solarAzimuthAngleDegCwFromN = " if(AC2>0,mod(degrees(acos(((sin(radians($B$2))*cos(radians(AD2)))-sin(radians(T2)))/(cos(radians($B$2))*sin(radians(AD2)))))+180,360),mod(540-degrees(acos(((sin(radians($B$2))*cos(radians(AD2)))-sin(radians(T2)))/(cos(radians($B$2))*sin(radians(AD2))))),360)) "
 
 
-% Return a vector of values
-solarCalcs = [ datenums, solarNoonLST, sunriseTimeLST, sunsetTimeLST ...
-    solarZenithAngleDeg, sunDeclinDeg, hourAngleDeg ];
+% Return a table of values
+solarCalcs = table( datenums, solarNoonLST, sunriseTimeLST, sunsetTimeLST, ...
+    solarZenithAngleDeg, sunDeclinDeg, hourAngleDeg );
 end
 

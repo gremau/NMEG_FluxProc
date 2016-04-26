@@ -18,7 +18,7 @@ date30min = ( date + 1/48 : 1/48 : date + 1 )';
 % Get the hourly NOAA solar calculations for this day
 solCalcs = noaa_solar_calcs( latitude, longitude, date30min );
 % Extract solar zenith angle
-zenithAngle = solCalcs( :, 5 );
+zenithAngle = solCalcs.solarZenithAngleDeg;
 
 % Calculate potential radiation
 radPot = cosd( zenithAngle ) .* toa_wm2;

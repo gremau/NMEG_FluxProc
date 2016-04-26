@@ -81,8 +81,9 @@ solCalcs = noaa_solar_calcs( ...
     UNM_sites_info( sitecode ).longitude, ...
     solDates );
 % Convert from times from day fraction to hours
-solCalcs = solCalcs( :, 2:4 ) .* 24;
-solCalcs = [ solCalcs (solDates - datenum( year, 1, 0 )) ];
+solCalcs = solCalcs( :, {'solarNoonLST', 'sunriseTimeLST', 'sunsetTimeLST'} );
+solCalcs{:,:} = solCalcs{:,:} * 24;
+solCalcs.julday = solDates - datenum( year, 1, 0 );
 
 % ============================ FIGURE 1 =================================
 % Plot two rows of diagnostic plots. Top row is original data, bottom row
@@ -205,12 +206,12 @@ for i = 1:max( fullMonthsPresent )
     end
     % Plot the solar events
     plot( hAx( 1 ), [12, 12], leftLim , '-', 'Color', gray );
-    plot( hAx( 1 ), [solEventsWk(1), solEventsWk(1)], leftLim, ...
-        '--', 'Color', gray );
-    plot( hAx( 1 ), [solEventsWk(2), solEventsWk(2)], leftLim, ...
-        '--', 'Color', gray );
-    plot( hAx( 1 ), [solEventsWk(3), solEventsWk(3)], leftLim, ...
-        '--', 'Color', gray );
+    plot( hAx( 1 ), [solEventsWk.solarNoonLST, ...
+        solEventsWk.solarNoonLST], leftLim, '--', 'Color', gray );
+    plot( hAx( 1 ), [solEventsWk.sunriseTimeLST, ...
+        solEventsWk.sunriseTimeLST], leftLim, '--', 'Color', gray );
+    plot( hAx( 1 ), [solEventsWk.sunsetTimeLST, ...
+        solEventsWk.sunsetTimeLST], leftLim, '--', 'Color', gray );
     % Label axes
     if i == 1 || i == 5 || i == 9 ;
         ylabel( hAx( 1 ), 'Rg');
@@ -270,12 +271,15 @@ end
         end
         plot([12, 12], yLimit, '-k');
         % Making these plots before startDay doesn't make sense
-        if max(solarEvents( :, 4 )) >= endDay
-            solarEvents = solarEvents( solarEvents( :, 4 ) == ...
+        if max(solarEvents.julday) >= endDay
+            solarEvents = solarEvents( solarEvents.julday == ...
                 floor( mean( [startDay, endDay] )), : );
-            plot([solarEvents(1), solarEvents(1)], yLimit, '--r');
-            plot([solarEvents(2), solarEvents(2)], yLimit, ':r');
-            plot([solarEvents(3), solarEvents(3)], yLimit, ':r');
+            plot([solarEvents.solarNoonLST, solarEvents.solarNoonLST],...
+                yLimit, '--r');
+            plot([solarEvents.sunriseTimeLST, solarEvents.sunriseTimeLST],...
+                yLimit, ':r');
+            plot([solarEvents.sunsetTimeLST, solarEvents.sunsetTimeLST],...
+                yLimit, ':r');
             plot( meanRad.time, meanRad.( radVarName ), '-og' );
         end
         titleStr = sprintf( '%s %s timing fixed', radVarName, shiftStr );
@@ -304,11 +308,11 @@ end
         hold on;
         % Plot noon and the NOAA solar model
         plot([ 12, 12 ], [ 0, 365 ], '-k');
-        plot( solarEvents( :, 1 ) , solarEvents( :, 4 ), ...
+        plot( solarEvents.solarNoonLST , solarEvents.julday, ...
             ':', 'color', [ 0.8 0.8 0.8 ]);
-        plot( solarEvents( :, 2 ) , solarEvents( :, 4 ), ...
+        plot( solarEvents.sunriseTimeLST , solarEvents.julday, ...
             ':', 'color', [ 0.8 0.8 0.8 ]);
-        plot( solarEvents( :, 3 ) , solarEvents( :, 4 ), ...
+        plot( solarEvents.sunsetTimeLST , solarEvents.julday, ...
             ':', 'color', [ 0.8 0.8 0.8 ]);
     end
 

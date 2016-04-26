@@ -20,7 +20,12 @@ fname = get_ameriflux_filename( sitecode, ...
                                 'gapfilled' );
 this_data = parse_ameriflux_file( fname );
 this_data.timestamp = datenum( year, 1, 0 ) + this_data.DTIME;
-this_data.SolEl = get_solar_elevation( sitecode, this_data.timestamp );
+%this_data.SolEl = get_solar_elevation( sitecode, this_data.timestamp );
+
+conf = parse_yaml_config(UNM_sites(sitecode), 'SiteVars');
+solCalcs = noaa_solar_calcs(conf.latitude, conf.longitude, ...
+    this_data.timestamp);
+this_data.SolEl = 90 - solCalcs.solarZenithAngleDeg;
 
 pal = cbrewer( 'qual', 'Dark2', 8 );
 t_str = sprintf( '%s %d', ...
