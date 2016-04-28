@@ -1664,7 +1664,7 @@ LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
 LH_night_flag = ( LH_rad < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
 LH_day_flag = ( LH_rad >= 20.0 ) & ( HL_wpl_massman < 0.0 );
 if draw_plots > 2
-    script_LE_diagnostic_plot;
+    plot_LE_diagnostic;
 end
 removed_LH_wpl_mass = numel( find( LH_maxmin_flag | ...
     LH_night_flag | ...
