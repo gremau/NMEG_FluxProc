@@ -12,7 +12,7 @@ function tbl = parse_forgapfilling_file( sitecode, year, varargin )
 %     use_filled: {true}|false; use forgapfilling file with T, RH, Rg filled from
 %          nearby site.  Default is true.
 %     fname: character; path to file to read.  If unspecified, looks for
-%          $FLUXROOT/Flux_Tower_Data_by_Site/SITE/processed_flux/SITE_flux_all_YYYY_for_gapfilling[_filled].txt 
+%          $FLUXROOT/SiteData/SITE/processed_flux/SITE_flux_all_YYYY_for_gapfilling[_filled].txt 
 %
 % OUTPUTS
 %     tbl [ matlab table ]: the data contained in the file

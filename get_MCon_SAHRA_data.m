@@ -4,7 +4,7 @@ function Tmain = get_MCon_SAHRA_data( year )
 % There was a SAHRA station at the MCon site that collected data between
 % 2006 and 2013. These data include from met, sapflow, and (1) soil
 % profile sensors. These data are parsed from
-% $FLUXROOT/Flux_Tower_Data_by_Site/MCon/secondary_loggers/SAHRA_logger/MCon_SAHRA_soil_all.dat.
+% $FLUXROOT/SiteData/MCon/secondary_loggers/SAHRA_logger/MCon_SAHRA_soil_all.dat.
 % If this is not found, a new file must be created from the raw data,
 % which can be downloaded from the DRI/WRCC website at:
 % 

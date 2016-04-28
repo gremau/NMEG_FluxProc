@@ -12,7 +12,7 @@
 # author: Timothy W. Hilton, UNM, Aug 2013
 
 export FLUXROOT=/cygdrive/c/Research_Flux_Towers
-export FLUXDATA=/cygdrive/c/Research_Flux_Towers/Flux_Tower_Data_by_Site
+export FLUXDATA=/cygdrive/c/Research_Flux_Towers/SiteData
 
 # set the owner to LitvakLabUser and the group to None for everything under FLUXROOT
 chown -Rv LitvakLabUser:None $FLUXROOT/*
