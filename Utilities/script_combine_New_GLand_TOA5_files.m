@@ -2,7 +2,7 @@
 % for 2010 and 2011 unburned grassland 30-minute datalogger files.
 
 %% define file locations
-path = 'C:\Research_Flux_Towers\Flux_Tower_Data_by_Site\New_GLand\toa5\';
+path = fullfile( getenv('FLUXROOT','SiteData/New_GLand/toa5/';
 
 files = ...
     { 'TOA5_New_Gland_2010_12_21_1630.dat', ...
