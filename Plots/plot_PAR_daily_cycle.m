@@ -45,8 +45,7 @@ pos( [ 2, 4 ] ) = [ 0, 1 ];
 set( fh, 'Position', pos );
 
 for i = 1:numel( years )
-    H = floor( data{i}.HRMIN / 100 ) + ( mod( data{i}.HRMIN, 100 ) / 60 );
-
+    H = mod(data{i}.DTIME, floor(data{i}.DTIME))*24
     all_axes( i ) = subplot( numel( years ), 1, i );
     plot( H, data{i}.PAR, '.k' );
     xlim( [ 0, 24 ] );
