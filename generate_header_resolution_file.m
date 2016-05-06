@@ -86,7 +86,7 @@ for i = 1:nFiles
         this_path = pathNames;
     end
     % Load tables into table cellarray
-    if strcmpi( sourceType, 'main' ) || strcmpi( sourceType, 'cr1000' );
+    if strcmpi( sourceType, 'flux' ) || strcmpi( sourceType, 'cr1000' );
         rawTables{ i } = toa5_2_table( fullfile( this_path, fileNames{ i } ) );
     elseif strcmp(sourceType, 'cr23x');
         rawTables{ i } = cr23x_2_table( fullfile( this_path, fileNames{ i } ) );
