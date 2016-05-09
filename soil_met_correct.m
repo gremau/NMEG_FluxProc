@@ -34,8 +34,8 @@ fluxall_T = parse_fluxall_txt_file( sitecode, year );
 % Get header resolution
 % Use sitecode and dataloggerType to find appropriate header resolution file
 resFileName = sprintf('%s_Header_Resolution.csv', 'main');
-resFilePathName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), ...
-    resFileName );
+resFilePathName = fullfile( getenv('FLUXROOT'), 'FluxProcConfig', ...
+    'HeaderResolutions', char( sitecode ), resFileName );
 res = readtable( resFilePathName );
     
 % Get soil data from fluxall

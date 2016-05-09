@@ -29,7 +29,8 @@ yaml_name = args.Results.yaml_name;
 date_range = args.Results.date_range;
 
 % Path to YAML files
-yamlPath = fullfile( pwd, 'YAML_ConfigFiles', get_site_name( sitecode ));
+yamlPath = fullfile( getenv('FLUXROOT'), 'FluxProcConfig', ...
+    'YAML_ConfigFiles', get_site_name( sitecode ));
 
 % Load the configuration file using YAMLMatlab
 addpath( 'C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\' );
