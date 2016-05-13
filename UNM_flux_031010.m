@@ -457,7 +457,7 @@ elseif sitecode == 2
     z_CSAT = 3.2; sep2 = 0.134; angle = 11.18; h_canopy = 0.8;
 elseif sitecode == 3
     z_CSAT = 10.35; sep2 = .2; angle = 25; h_canopy = 3;
-elseif sitecode == 4
+elseif sitecode == 4 %PJ
     z_CSAT = 8.2; sep2 = .143; angle = 19.3; h_canopy = 4;
 elseif sitecode == 5
     z_CSAT = 24.02; sep2 = 0.15; angle = 15.266; h_canopy = 17.428;
