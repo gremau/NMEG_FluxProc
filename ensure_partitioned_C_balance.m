@@ -120,7 +120,7 @@ out_tbl = [ ecb_tbl, old_ecb_tbl ];
                 Rg_threshold = 0.1;
             case UNM_sites.TX
                 Rg_threshold = 4.0;
-            case UNM_sites.PJ_girdlea
+            case UNM_sites.PJ_girdle
                 Rg_threshold = 5.0;
             otherwise
                 error( sprintf( 'Rg threshold not implemented for site %s', ...

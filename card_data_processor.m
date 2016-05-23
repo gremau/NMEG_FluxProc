@@ -140,6 +140,8 @@ methods
                 'date_end precedes date_start');
             throw( err );
         end
+        
+        obj = get_logger_config( obj );
 
     end %constructor
 
@@ -161,7 +163,7 @@ methods
         % OUTPUTS:
         %    obj: CDP object with data_30min field updated.
         %    toa5_files: cell array; the TOA5 files whose data were added.
-
+        
         toa5_files = get_loggernet_filenames( obj.sitecode, ...
             obj.date_start, obj.date_end, 'TOA5' );
 

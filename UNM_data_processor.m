@@ -13,7 +13,7 @@ function [ chunks_30_min ] = UNM_data_processor( sitecode, filename, file_date, 
     % author: Timothy W. Hilton, UNM, Jan 2012
 % Pretty sure this is deprecated (Not called by other functions
 % See process_TOB1_chunk.m
-error('This function is deprecated!)
+error('This function is deprecated!')
 
 
     ds = read_TOB1_file( filename );
