@@ -666,10 +666,10 @@ else
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 %%% Corrections for bad IRGA prior to 1 Sept 2009 Developed March 2010 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if sitecode == 10 && ts_date < pjg_2009_date
-        HL_raw = (HL_raw.*1.1484)+3.6589; % Correction based on regression in Futher_flux_corrections .xls file
-        E_raw = ((HL_raw./Lv)./18.016).*1000;
-    end
+%     if sitecode == 10 && ts_date < pjg_2009_date
+%         HL_raw = (HL_raw.*1.1484)+3.6589; % Correction based on regression in Futher_flux_corrections .xls file
+%         E_raw = ((HL_raw./Lv)./18.016).*1000;
+%     end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % UNCORRECTED CO2 FLUX 
