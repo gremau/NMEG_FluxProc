@@ -2767,8 +2767,8 @@ switch sitecode
 %                 DOY_co2_min( idx ) = -12.0;
                 
             case 2009
-                DOY_co2_max( 1 : DOYidx( 125 ) ) = 2.25;
-                DOY_co2_max( DOYidx( 150 ) : DOYidx( 280 ) ) = 4.0;
+                %DOY_co2_max( 1 : DOYidx( 125 ) ) = 2.25;
+                %DOY_co2_max( DOYidx( 150 ) : DOYidx( 280 ) ) = 4.0;
                 % Too restrictive - GEM
                 %DOY_co2_max( DOYidx( 150 ) : DOYidx( 180 ) ) = 2.0;
                 %DOY_co2_max( DOYidx( 220 ) : DOYidx( 250 ) ) = 2.5;
@@ -2779,25 +2779,25 @@ switch sitecode
 %                 DOY_co2_max( 1 : DOYidx( 80 ) ) = 2.0;
 %                 DOY_co2_max( DOYidx( 81 ) : DOYidx( 190 ) ) = 4.0;
 %                 DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 6.0;
-                DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 5.5;
-                DOY_co2_max( DOYidx( 265 ) : DOYidx( 295 ) ) = 4.0;
+                %DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 5.5;
+                %DOY_co2_max( DOYidx( 265 ) : DOYidx( 295 ) ) = 4.0;
 %                 DOY_co2_max( DOYidx( 226 ) : end ) = 3.0;
                 
             case 2011
-                DOY_co2_max( DOYidx( 221 ) : DOYidx( 265 ) ) = 4.5;
-                DOY_co2_max( DOYidx( 266 ) : end ) = 3.5;
+                %DOY_co2_max( DOYidx( 221 ) : DOYidx( 265 ) ) = 4.5;
+                %DOY_co2_max( DOYidx( 266 ) : end ) = 3.5;
                 % Exceptions - some removed by GEM
-                std_exc_flag( DOYidx( 17.4 ) : DOYidx( 17.6 ) ) = true;
-                std_exc_flag( DOYidx( 58.4 ) : DOYidx( 58.6 ) ) = true;
-                std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;
-                std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
+                %std_exc_flag( DOYidx( 17.4 ) : DOYidx( 17.6 ) ) = true;
+                %std_exc_flag( DOYidx( 58.4 ) : DOYidx( 58.6 ) ) = true;
+                %std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;
+                %std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
 
                 
             case 2012
                 % Some of these are too restrictive - GEM
 %                 DOY_co2_max( DOYidx( 137 ) : DOYidx( 148 ) ) = 5.0;
-                DOY_co2_max( DOYidx( 185 ) : DOYidx( 220 ) ) = 5.0;
-                DOY_co2_max( DOYidx( 245 ) : DOYidx( 285 ) ) = 4.7;
+                %DOY_co2_max( DOYidx( 185 ) : DOYidx( 220 ) ) = 5.0;
+                %DOY_co2_max( DOYidx( 245 ) : DOYidx( 285 ) ) = 4.7;
 %                 DOY_co2_max( DOYidx( 314 ) : DOYidx( 316 ) ) = 1.2;
 %                 DOY_co2_max( DOYidx( 325 ) : DOYidx( 326 ) ) = 1.0;
 %                 DOY_co2_min( DOYidx( 325 ) : DOYidx( 329 ) ) = -1.5;
