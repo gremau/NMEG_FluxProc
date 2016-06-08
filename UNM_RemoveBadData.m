@@ -2635,12 +2635,12 @@ switch sitecode
             case 2007
                 % Things were somewhat noisy this year, especially before
                 % the site revamp in June
-                idx = 1 : DOYidx( 67 );
+                idx = 1 : DOYidx( 35 );
                 DOY_co2_max( idx ) = 1.8;
                 DOY_co2_min( idx ) = -0.8;
                 idx2 = ( DOYidx( 262 ) : size( DOY_co2_max, 1) );
-                DOY_co2_max( idx2 ) = 1.9;
-                DOY_co2_min( idx2 ) = -0.8;
+                %DOY_co2_max( idx2 ) = 1.9;
+                %DOY_co2_min( idx2 ) = -0.8;
             case 2008
                 % There is a big respiration spike here. Not sure of the
                 % explanation, but it is also visible at Shrub
@@ -2650,20 +2650,20 @@ switch sitecode
             case 2009
                 % Too restrictive - GEM
                 idx = DOYidx( 245 ) : DOYidx( 255 );
-                DOY_co2_max( idx ) = 2.25;
+                %DOY_co2_max( idx ) = 2.25;
                 % Too restrictive - GEM
                 % DOY_co2_max( DOYidx( 178 ) : DOYidx( 267 ) ) = 0.8;
                 
                 % the site burned DOY 210, 2009.  Here we remove points in the period
                 % following the burn that look more like noise than biologically
                 % realistic carbon uptake.
-                DOY_co2_min( DOYidx( 210 ) : DOYidx( 256 ) ) = -0.5;
-                DOY_co2_min( DOYidx( 256 ) : DOYidx( 270 ) ) = -1.2;
+                %DOY_co2_min( DOYidx( 210 ) : DOYidx( 256 ) ) = -0.5;
+                %DOY_co2_min( DOYidx( 256 ) : DOYidx( 270 ) ) = -1.2;
             case 2010
-                DOY_co2_max( DOYidx( 200 ) : DOYidx( 225 ) ) = 3.25;
-                DOY_co2_max( 1 : DOYidx( 160 ) ) = 2.0;
+                %DOY_co2_max( DOYidx( 200 ) : DOYidx( 225 ) ) = 3.25;
+                %DOY_co2_max( 1 : DOYidx( 160 ) ) = 2.0;
                 % Too restrictive (changed from 2.5-3.75)?  - GEM
-                DOY_co2_min( 1 : DOYidx( 160 ) ) = -3.75;
+               DOY_co2_min( 100 : DOYidx( 160 ) ) = -3.75;
                 % Don't understand why next 3 lines are needed - GEM
 %                 idx = DOYidx( 223 ) : DOYidx( 229 );
 %                 DOY_co2_min( idx ) = -17;
@@ -2674,32 +2674,31 @@ switch sitecode
 %                 std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
 %                 std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
                 %    std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
-                % Too restrictive ( -0.5 to -1 )- GEM
-                DOY_co2_min( DOYidx( 309 ) : end ) = -1.0;
-                DOY_co2_min( 1 : DOYidx( 210 ) ) = -1.0;
-                
-                DOY_co2_max( DOYidx( 261 ) : end ) = 2.5;
+                % Too restrictive ( -0.5 to -1 )- GEM            
+               % DOY_co2_min( DOYidx( 309 ) : end ) = -1.0;
+               % DOY_co2_min( 1 : DOYidx( 210 ) ) = -1.0;               
+                DOY_co2_max( DOYidx( 270 ) : DOYidx( 280 ) ) = 2.5;                          
                 % Too restrictive - GEM
                 %DOY_co2_max( DOYidx( 250 ) : DOYidx( 260 ) ) = 0.8;
                 DOY_co2_max( DOYidx( 280 ) : DOYidx( 285 ) ) = 1.2;
             case 2012
                 % Most of these are a bit too restrictive - GEM
-                DOY_co2_max( DOYidx( 112 ) : DOYidx( 137 ) ) = 1.25;
-                DOY_co2_max( DOYidx( 300 ) : DOYidx( 317 ) ) = 2;
+               % DOY_co2_max( DOYidx( 112 ) : DOYidx( 137 ) ) = 1.25;
+               % DOY_co2_max( DOYidx( 300 ) : DOYidx( 317 ) ) = 2;
 %                 DOY_co2_max( DOYidx( 325 ) : DOYidx( 343 ) ) = 1.4;
 %                 DOY_co2_max( DOYidx( 343 ) : DOYidx( 347 ) ) = 1.2;
 %                 DOY_co2_max( DOYidx( 348 ) : end ) = 0.75;
-                std_exc_flag( DOYidx( 174 ) : DOYidx( 175 ) ) = true;
+                %std_exc_flag( DOYidx( 174 ) : DOYidx( 175 ) ) = true;
             case 2013
                 % There is a small period where variance in fluxes is
                 % especially high - not sure it is real
-                DOY_co2_max( DOYidx( 160 ) : DOYidx( 169 ) ) = 3;
+              %  DOY_co2_max( DOYidx( 160 ) : DOYidx( 169 ) ) = 3;
                 DOY_co2_min( DOYidx( 160 ) : DOYidx( 169 ) ) = -1.75;
             case 2014
                 % There is a small period where variance in fluxes is
                 % especially high - not sure it is real
-                DOY_co2_max( DOYidx( 190 ) : DOYidx( 199 ) ) = 4;
-                DOY_co2_min( DOYidx( 190 ) : DOYidx( 199 ) ) = -2;
+              %  DOY_co2_max( DOYidx( 190 ) : DOYidx( 199 ) ) = 4;
+              %  DOY_co2_min( DOYidx( 190 ) : DOYidx( 199 ) ) = -2;
         end %GLand
         
     case UNM_sites.SLand
