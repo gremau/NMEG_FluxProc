@@ -123,7 +123,7 @@ renameTo = {'Fc_raw',...
 tbl.Properties.VariableNames(renameOldVars) = renameTo(:);
 
 % Fold in the data from the old file into the new dataset
-tbl_out = dataset_foldin_data( tbl_in, table2dataset(tbl));
+tbl_out = table_foldin_data( tbl_in, tbl);
 
 % Check that there aren't multiple years in the incoming data
 % [ nRows, nCol ] = size( tbl );

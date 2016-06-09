@@ -329,7 +329,9 @@ else
     % data into the old files. For now merge the old 2007 fluxall
     % files into the current dataset and proceed with the QC process.
     if (sitecode == 1 || sitecode == 2 ) && year_arg == 2007
-        data = merge_2007_fluxall_files( data, sitecode );
+        warning('Dataset to table conversions! FIX THESE!');
+        data = merge_2007_fluxall_files( dataset2table(data), sitecode );
+        data = table2dataset(data);
         % These old data have duplicated SW_IN measurements
         data = replacedata( data, ...
             interp_duplicated_radiation( double( data ), ...
