@@ -1655,6 +1655,14 @@ LH_flag = ( HL_raw > LH_max ) | ( HL_raw < LH_min );
 removed_LH = length( find( LH_flag ) );
 HL_raw( LH_flag ) = NaN;
 
+if sitecode == UNM_sites.SLand & (year == 2014 | year == 2015)
+    LH_min = -20;
+    LH_rad = sw_incoming;
+    
+    LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
+    LH_night_flag = ( LH_rad < 10.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
+    LH_day_flag = ( LH_rad >= 10.0 ) & ( HL_wpl_massman < 0.0 );    
+else
 % QC for HL_wpl_massman
 LH_min = -20;  %as per Jim Heilman, 28 Mar 2012
 % if PAR measurement exists, use this to remove nighttime LE, otherwise
@@ -1665,6 +1673,8 @@ LH_rad( isnan( LH_rad ) ) = NR_tot( isnan( LH_rad ) );
 LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
 LH_night_flag = ( LH_rad < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
 LH_day_flag = ( LH_rad >= 20.0 ) & ( HL_wpl_massman < 0.0 );
+end
+
 if draw_plots > 2
     plot_LE_diagnostic;
 end
