@@ -145,6 +145,8 @@ switch sitecode
                 % This is for old (pre-Litvak) fluxall data
                 clockSet1 = 1 : DOYidx( 150.73 );
                 data( clockSet1, : ) = ...
+                    shift_data( data( clockSet1, : ), 0.5, all10hzCols );
+                data( clockSet1, : ) = ...
                     shift_data( data( clockSet1, : ), 0.5, allCols );
                 % After site revamp
                 clockSet2 = DOYidx( 150.75 ) : DOYidx( 308.17 );

@@ -28,27 +28,31 @@ if ( sitecode == UNM_sites.PJ ) &  ( year_arg == 2008 )
     NR_tot(find(decimal_day > 171.5)) = NR_lw(find(decimal_day > 171.5)) + NR_sw(find(decimal_day > 171.5));    
     
 elseif ( sitecode == UNM_sites.GLand ) & ( year_arg == 2007 )
-    % this is the wind correction factor for the Q*7 used before ??/??      
-    for i = 1:5766
-        if NR_tot(1) < 0
-            NR_tot(i) = NR_tot(i)*11.42*((0.00174*wnd_spd(i)) + 0.99755);
-        elseif NR_tot(1) > 0
-            NR_tot(i) = NR_tot(i)*8.99*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
-        end
-    end
+    % this is the wind correction factor for the Q*7 used before ??/??
+    % Not working - GEM
+%     for i = 1:5766
+%         if NR_tot(1) < 0
+%             NR_tot(i) = NR_tot(i)*11.42*((0.00174*wnd_spd(i)) + 0.99755);
+%         elseif NR_tot(1) > 0
+%             NR_tot(i) = NR_tot(i)*8.99*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
+%         end
+%     end
+    NR_tot( (5767):end ) =  NR_lw( (5767):end ) + NR_sw( (5767):end );
     
 elseif (sitecode == UNM_sites.SLand ) & ( year_arg == 2007 )
     % was this a Q*7 through the big change on 5/30/07? need updated
     % calibration
+    % Not working - GEM
     may30 = 48 * ( datenum( 2007, 5, 30 ) - datenum( 2007, 1, 1 ) );
-    for i = 1:may30
-        %for i = 1:6816
-        if NR_tot(1) < 0
-            NR_tot(i) = NR_tot(i)*10.74*((0.00174*wnd_spd(i)) + 0.99755);
-        elseif NR_tot(1) > 0
-            NR_tot(i) = NR_tot(i)*8.65*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
-        end
-    end
+%     for i = 1:may30
+%         %for i = 1:6816
+%         if NR_tot(1) < 0
+%             NR_tot(i) = NR_tot(i)*10.74*((0.00174*wnd_spd(i)) + 0.99755);
+%         elseif NR_tot(1) > 0
+%             NR_tot(i) = NR_tot(i)*8.65*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
+%         end
+%     end
+    NR_tot( (may30+1):end ) =  NR_lw( (may30+1):end ) + NR_sw( (may30+1):end );
     
 else
     

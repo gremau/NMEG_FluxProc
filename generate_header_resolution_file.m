@@ -121,7 +121,7 @@ end
 
 % Header resolution config file path
 resolutionPath = fullfile( getenv('FLUXROOT'), 'FluxProcConfig' , ...
-    'HeaderResolutions', char( sitecode ) )
+    'HeaderResolutions', char( sitecode ) );
 
 % Get the appropriate header resolution files for each site
 headerChangesFile = fullfile( resolutionPath, 'Header_Changes.csv' );
