@@ -37,6 +37,9 @@ elseif ( sitecode == UNM_sites.GLand ) & ( year_arg == 2007 )
 %             NR_tot(i) = NR_tot(i)*8.99*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
 %         end
 %     end
+    % Its a little off compared to the later sensor, scale it
+    NR_tot( 1:5766 ) = NR_tot( 1:5766 ) * 0.95 - 30;
+    % Later sensor ok, recalculate NR_Tot
     NR_tot( (5767):end ) =  NR_lw( (5767):end ) + NR_sw( (5767):end );
     
 elseif (sitecode == UNM_sites.SLand ) & ( year_arg == 2007 )
@@ -52,6 +55,11 @@ elseif (sitecode == UNM_sites.SLand ) & ( year_arg == 2007 )
 %             NR_tot(i) = NR_tot(i)*8.65*(1 + (0.066*0.2*wnd_spd(i))/(0.066 + (0.2*wnd_spd(i))));
 %         end
 %     end
+    % Its a little off compared to the later sensor, scale it
+    NR_tot( 1:may30 ) = NR_tot( 1:may30 ) * 0.95 - 30;
+    % Remove an outlier
+    NR_tot( NR_tot( 1:may30 ) > 620 ) = nan;
+    % Later sensor ok, recalculate NR_Tot
     NR_tot( (may30+1):end ) =  NR_lw( (may30+1):end ) + NR_sw( (may30+1):end );
     
 else

@@ -832,12 +832,21 @@ precip = fix_incorrect_precip_factors( sitecode, year_arg, ...
 % will have lw_incomingCo and lw_outgoingCo corrected variables.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% In 2010 the thermocouple in the CNR1 at GLand failed. Use air temp.
-if sitecode == 1 & year_arg==2010;;
+% In 2007 & 2010 the thermocouple in the CNR1 at GLand failed. Use air temp.
+if sitecode == 1 && year_arg==2007;
+    CNR1TempK = CNR1TK;
+    idx1 = find(decimal_day > 156.71 & decimal_day < 162.52 )
+    CNR1TempK( idx1 ) = air_temp_hmp( idx1 ) + 273.15;
+elseif sitecode == 1 && year_arg==2010;
     CNR1TempK = air_temp_hmp + 273.15;
+% Same at shrub in 2007
+elseif sitecode == 2 && year_arg==2007;
+    CNR1TempK = CNR1TK;
+    idx1 = find(decimal_day >= 150.75 & decimal_day < 162.44);
+    CNR1TempK( idx1 ) = air_temp_hmp( idx1 ) + 273.15;
 % In 2007 the thermocouple in the CNR1 at PPine failed for a while in 
 % the spring. Use air temp.
-elseif sitecode == 5 & year_arg==2007;
+elseif sitecode == 5 && year_arg==2007;
     CNR1TempK = CNR1TK;
     idx = DOYidx( 155.5 ):DOYidx( 198.55 );
     CNR1TempK( idx ) = air_temp_hmp( idx ) + 273.15;

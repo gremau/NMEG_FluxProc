@@ -189,7 +189,7 @@ switch sitecode
             Par_Avg(find(decimal_day > 150.729)) = ...
                 Par_Avg(find(decimal_day > 150.729)) * PAR_LI_old_mult;
             
-elseif year_arg == 2008
+        elseif year_arg == 2008
             % Calibration and unit conversion into W per m^2 for 
             % CNR1 variables and adjust for incorrect cal factor in
             % dataloger program
@@ -203,7 +203,7 @@ elseif year_arg == 2008
             % I think the LiCor was in use this year
             Par_Avg = Par_Avg * PAR_LI_old_mult;
             
-        elseif year_arg >= 2009 & year_arg <= 2013
+        elseif year_arg >= 2009 && year_arg <= 2013
             % Calibration and unit conversion into W per m^2 for 
             % CNR1 variables and adjust for incorrect cal factor in
             % dataloger program
@@ -635,11 +635,18 @@ elseif year_arg == 2008
         % unit converted in the datalogger programs, but they should be
         % checked
         
-        if year_arg >= 2006 & year_arg <= 2007
+        if year_arg >= 2006 & year_arg <= 2008
+            % No idea if this is the correct "old" multiplier, just trying
+            % to make data match with 2009 forward - GEM
+            cnr1_mult_old = 1000/11.0;
+            sw_incoming = ...
+                sw_incoming / cnr1_mult_old * cnr1_mult;
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
+            % calibration for par-lite sensor
+            Par_Avg = Par_Avg * PAR_KZ_old_up_mult;
             
-        elseif year_arg >= 2008 & year_arg < 2012
+        elseif year_arg >= 2009 & year_arg < 2012
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for par-lite sensor
