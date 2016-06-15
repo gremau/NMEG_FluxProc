@@ -38,7 +38,7 @@ function tbl_gf_pt = UNM_parse_reddyproc_output( sitecode, year )
 fname = fullfile( get_site_directory( sitecode ), ...
                   'processed_flux', ...
                   sprintf( 'data_gapfilled_partitioned_%s_%d.txt', ...
-                           char( sitecode ), year ) );
+                           get_site_name( sitecode ), year ) );
 
 [ ~, fname_short, ext ] = fileparts( fname );
 fprintf( 'reading %s.%s... ', fname_short, ext );
@@ -48,6 +48,8 @@ try
 catch err
     error( sprintf( 'error parsing %s', fname) );
 end
+
+tbl_gf_pt = replace_badvals( tbl_gf_pt, [-9999], 1e-6 );
 
 seconds = 0;
 tbl_gf_pt.timestamp = datenum( tbl_gf_pt.year, ...

@@ -239,6 +239,7 @@ fprintf( fid, 'EddyProc.C$sPlotFingerprintY("NEE", Year.i=%d)\n\n', year );
 % Note that there is no ustar filtering occurring here
 fprintf( fid, '##+++ Fill gaps in variables with MDS gap filling algorithm\n' );
 fprintf( fid, 'EddyProc.C$sMDSGapFill("Tair", FillAll.b=FALSE)\n' );
+fprintf( fid, 'EddyProc.C$sMDSGapFill("VPD", FillAll.b=FALSE)\n' );
 fprintf( fid, 'EddyProc.C$sMDSGapFill("Rg", FillAll.b=FALSE)\n' );
 fprintf( fid, 'EddyProc.C$sMDSGapFill("NEE", FillAll.b=TRUE)\n' );
 fprintf( fid, 'EddyProc.C$sMDSGapFill("LE", FillAll.b=TRUE)\n' );

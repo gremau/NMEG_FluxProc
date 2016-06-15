@@ -84,19 +84,19 @@ amflx_gaps = amflx_gf;
 % Tair
 % FIXME - this is sonic temperature (Tdry - 273.15), not hmp
 % temperature. See issue 12
-TA_flag = verify_gapfilling( pt_tbl.Tair_f, qc_tbl.Tdry - 273.15, 1e-4 );
+TA_flag = verify_gapfilling( pt_tbl.Tair_f, qc_tbl.Tdry - 273.15, 1e-3 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.Tair_f, ...
                      { 'TA_F' }, { 'deg C' }, TA_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.Tdry - 273.15, ...
                        { 'TA' }, { 'deg C' } );
 
 % RH
-rH_flag = verify_gapfilling( pt_tbl.rH, qc_tbl.rH, 1e-5 );
+rH_flag = verify_gapfilling( pt_tbl.rH, qc_tbl.rH, 1e-4 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.rH, { 'RH_F' }, { '%' }, rH_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.rH, { 'RH' }, { '%' } );
 
 % VPD
-VPD_flag = verify_gapfilling( pt_tbl.VPD_f, qc_tbl.VPD, 1e-5 );
+VPD_flag = verify_gapfilling( pt_tbl.VPD_f, qc_tbl.VPD, 1e-3 );
 % Convert to kPa
 VPD = qc_tbl.VPD ./ 10;
 VPD_f = pt_tbl.VPD_f ./ 10;
@@ -104,7 +104,7 @@ amflx_gf = add_cols( amflx_gf, VPD_f, { 'VPD_F' }, { 'kPa' }, VPD_flag );
 amflx_gaps = add_cols( amflx_gaps, VPD, { 'VPD' }, { 'kPa' } );
 
 % Rg - pyrranometer
-Rg_flag = verify_gapfilling( pt_tbl.Rg_f, qc_tbl.sw_incoming, 1e-4 );
+Rg_flag = verify_gapfilling( pt_tbl.Rg_f, qc_tbl.sw_incoming, 1e-1 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.Rg_f, ...
                      { 'SW_IN_F' }, { 'W/m2' }, Rg_flag ); %SW_IN_F
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.sw_incoming, ...
@@ -114,7 +114,7 @@ qc_tbl.NR_tot( Rg_flag ) = nan;
 
 % Precip
 % Gapfilled precip should be found in MPI files
-P_flag = verify_gapfilling( pt_tbl.Precip, qc_tbl.precip, 1e-5 );
+P_flag = verify_gapfilling( pt_tbl.Precip, qc_tbl.precip, 1e-4 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.Precip, ... % P_F
     { 'P_F' }, { 'mm' }, P_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.precip, { 'P' }, { 'mm' } );
@@ -146,7 +146,7 @@ title('LW_IN');
 rnet_new = ( amflx_gf.SW_IN_F + amflx_gf.LW_IN_F ) - ...
     ( qc_tbl.sw_outgoing + qc_tbl.lw_outgoing );
 
-RNET_flag = verify_gapfilling( rnet_new, qc_tbl.NR_tot, 1e-3 );
+RNET_flag = verify_gapfilling( rnet_new, qc_tbl.NR_tot, 1e-1 );
 amflx_gf = add_cols( amflx_gf, rnet_new, ...
                      { 'RNET_F' }, { 'W/m2' }, RNET_flag ); %RNET_F
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.NR_tot, ...
@@ -190,19 +190,19 @@ clear headers units;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 FC_flag = verify_gapfilling( pt_tbl.NEE_f, qc_tbl.fc_raw_massman_wpl, ...
-    1e-5 );
+    1e-3 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.NEE_f, ...
     { 'FC_F' }, { 'mumol/m2/s' }, FC_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.fc_raw_massman_wpl, ...
     { 'FC' }, { 'mumol/m2/s' } );
 
-LE_flag = verify_gapfilling( pt_tbl.LE_f, qc_tbl.HL_wpl_massman, 1e-4 );
+LE_flag = verify_gapfilling( pt_tbl.LE_f, qc_tbl.HL_wpl_massman, 1e-2 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.LE_f, ...
     { 'LE_F' }, { 'W/m2' }, LE_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.HL_wpl_massman, ...
     { 'LE' }, { 'W/m2' } );
 
-H_flag = verify_gapfilling( pt_tbl.H_f, qc_tbl.HSdry_massman, 1e-4 );
+H_flag = verify_gapfilling( pt_tbl.H_f, qc_tbl.HSdry_massman, 1e-2 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.H_f, ...
     { 'H_F' }, { 'W/m2' }, H_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.HSdry_massman, ...

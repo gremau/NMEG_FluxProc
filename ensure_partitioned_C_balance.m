@@ -111,7 +111,7 @@ out_tbl = [ ecb_tbl, old_ecb_tbl ];
             case { UNM_sites.GLand, UNM_sites.SLand, UNM_sites.New_GLand }
                 Rg_threshold = 1.0;
             case UNM_sites.JSav
-                Rg_threshold = -1.0;b
+                Rg_threshold = -1.0;
             case UNM_sites.PJ
                 Rg_threshold = 0.6;
             case UNM_sites.MCon
