@@ -639,8 +639,9 @@ switch sitecode
             % No idea if this is the correct "old" multiplier, just trying
             % to make data match with 2009 forward - GEM
             cnr1_mult_old = 1000/11.0;
-            sw_incoming = ...
-                sw_incoming / cnr1_mult_old * cnr1_mult;
+            idx = decimal_day > 115;
+            sw_incoming(idx) = ...
+                sw_incoming(idx) / cnr1_mult_old * cnr1_mult;
             % temperature correction just for long-wave
             [lw_incoming, lw_outgoing] = lw_correct(lw_incoming, lw_outgoing);
             % calibration for par-lite sensor

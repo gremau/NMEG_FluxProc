@@ -143,20 +143,30 @@ plot(timestamp, amflx_gaps.LW_IN, '.b');
 title('LW_IN');
                    
 % Recalculate Rnet
-rnet_new = ( amflx_gf.SW_IN_F + amflx_gf.LW_IN_F ) - ...
-    ( qc_tbl.sw_outgoing + qc_tbl.lw_outgoing );
-
-RNET_flag = verify_gapfilling( rnet_new, qc_tbl.NR_tot, 1e-1 );
-amflx_gf = add_cols( amflx_gf, rnet_new, ...
-                     { 'RNET_F' }, { 'W/m2' }, RNET_flag ); %RNET_F
-amflx_gaps = add_cols( amflx_gaps, qc_tbl.NR_tot, ...
-                       { 'RNET' }, { 'W/m2' } );
-                   
-figure();
-plot(timestamp, amflx_gf.RNET_F, '.r');
-hold on;
-plot(timestamp, amflx_gaps.RNET, '.b');
-title('RNET');
+if (sitecode==UNM_sites.GLand || sitecode==UNM_sites.SLand) && ...
+        qc_tbl.timestamp(end) < datenum(2008, 01, 01, 0, 30, 0)
+    RNET_flag = false( size( amflx_gf, 1 ), 1 );
+    amflx_gf = add_cols( amflx_gf, qc_tbl.NR_tot, ...
+        { 'RNET_F' }, { 'W/m2' }, RNET_flag );
+    amflx_gaps = add_cols( amflx_gaps, qc_tbl.NR_tot, ...
+        { 'RNET' }, { 'W/m2' } );
+    
+else
+    rnet_new = ( amflx_gf.SW_IN_F + amflx_gf.LW_IN_F ) - ...
+        ( qc_tbl.sw_outgoing + qc_tbl.lw_outgoing );
+    
+    RNET_flag = verify_gapfilling( rnet_new, qc_tbl.NR_tot, 1e-1 );
+    amflx_gf = add_cols( amflx_gf, rnet_new, ...
+        { 'RNET_F' }, { 'W/m2' }, RNET_flag ); %RNET_F
+    amflx_gaps = add_cols( amflx_gaps, qc_tbl.NR_tot, ...
+        { 'RNET' }, { 'W/m2' } );
+    
+    figure();
+    plot(timestamp, amflx_gf.RNET_F, '.r');
+    hold on;
+    plot(timestamp, amflx_gaps.RNET, '.b');
+    title('RNET');
+end
 %%%% % % % % % % % %
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
