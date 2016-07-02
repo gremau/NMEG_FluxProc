@@ -159,7 +159,7 @@ elseif sitecode == UNM_sites.JSav; % Juniper savanna
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
     
-elseif sitecode == UNM_sites.PJ; % Pinyon Juniper
+elseif sitecode == UNM_sites.PJ | sitecode == UNM_sites.TestSite; % Pinyon Juniper
     ustar_lim = 0.22;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow

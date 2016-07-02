@@ -36,7 +36,7 @@ yamlPath = fullfile( getenv('FLUXROOT'), 'FluxProcConfig', ...
 addpath( 'C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\' );
 addpath( yamlPath);
 
-rawConfig = ReadYaml( [ yamlPath '\' yaml_name '.yaml' ]);
+rawConfig = ReadYaml( fullfile(yamlPath, [ yaml_name, '.yaml' ]));
 
 rmpath( yamlPath );
 rmpath( 'C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\' );

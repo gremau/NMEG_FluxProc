@@ -180,6 +180,15 @@ methods
         obj.longitude = NaN;
         obj.elevation = NaN;
         
+    elseif this_site ==  UNM_sites.TestSite
+        obj.short_name = 'TestSite';                            
+        obj.long_name = 'testing site';
+        obj.ameriflux = 'US-Test';
+        obj.ORNL = 'ustest';                            
+        obj.latitude = 34.437; 
+        obj.longitude = -106.238;
+        obj.elevation = 2195;
+        
     end % if/then/else
     end % constructor
 

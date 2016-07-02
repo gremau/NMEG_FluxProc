@@ -193,7 +193,7 @@ switch sitecode
                 data = shift_data( data, 0.5, allCols );
         end
         
-    case UNM_sites.PJ
+    case UNM_sites.PJ | UNM_sites.TestSite
         switch year
             case { 2008, 2009, 2010, 2011 }
                 data = shift_data( data, 1.5, allCols );

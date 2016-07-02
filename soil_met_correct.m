@@ -147,7 +147,7 @@ switch sitecode
                 'draw_plots', false );
         end
         
-    case { UNM_sites.PJ, UNM_sites.PJ_girdle }
+    case { UNM_sites.PJ, UNM_sites.PJ_girdle, UNM_sites.TestSite }
         % There were echo probes early on that mostly look like garbage.
         % In early to mid 2009 the TDR system came online and data look
         % better. This does not need a temperature correction.
@@ -216,7 +216,8 @@ if ~isempty( T_soil_rbd )
     
     % Now filter with the standard deviation filter
     % First set up filter - PJ sites need more filtering
-    if sitecode==UNM_sites.PJ || sitecode==UNM_sites.PJ_girdle
+    if sitecode==UNM_sites.PJ || sitecode==UNM_sites.PJ_girdle ...
+            || sitecode==UNM_sites.TestSite
         sd_filter_windows = [ 1, 1, 1, 1, 1, 1 ];
     else
         sd_filter_windows = [ 1, 1, 1 ];
@@ -404,9 +405,9 @@ switch sitecode
           T_soil_rbd{ idx, 'SOILT_J2_5_AVG' } = NaN;
     end
     
-    case { UNM_sites.PJ, UNM_sites.PJ_girdle }
+    case { UNM_sites.PJ, UNM_sites.PJ_girdle, sitecode==UNM_sites.TestSite }
         if year > 2008 && year < 2014
-            if sitecode==UNM_sites.PJ
+            if sitecode==UNM_sites.PJ | sitecode==UNM_sites.TestSite
                 site_token = 'PJC';
             elseif sitecode==UNM_sites.PJ_girdle
                 site_token = 'PJG';

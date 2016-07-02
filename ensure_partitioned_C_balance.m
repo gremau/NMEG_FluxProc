@@ -112,7 +112,7 @@ out_tbl = [ ecb_tbl, old_ecb_tbl ];
                 Rg_threshold = 1.0;
             case UNM_sites.JSav
                 Rg_threshold = -1.0;
-            case UNM_sites.PJ
+            case UNM_sites.PJ | UNM_sites.TestSite
                 Rg_threshold = 0.6;
             case UNM_sites.MCon
                 Rg_threshold = 0.0;
