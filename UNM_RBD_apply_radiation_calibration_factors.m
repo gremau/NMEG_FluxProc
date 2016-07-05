@@ -362,7 +362,7 @@ switch sitecode
         end
         
         %%%%%%%%%%%%%%%%% pinon juniper
-    case UNM_sites.PJ | UNM_sites.TestSite
+    case { UNM_sites.PJ , UNM_sites.TestSite }
         % Current multiplier for CNR1
         cnr1_sensitivity = 9.69; % from current datalogger program
         cnr1_mult = 1000 / cnr1_sensitivity;
