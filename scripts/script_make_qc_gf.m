@@ -2,7 +2,7 @@
 %clear all;
 sitelist = {UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, UNM_sites.New_GLand,...
     UNM_sites.PJ, UNM_sites.PJ_girdle, UNM_sites.PPine, UNM_sites.MCon };
-%sitelist = {UNM_sites.MCon};
+sitelist = {UNM_sites.TestSite};
 yearlist = 2015;
 
 write_qc = false;
