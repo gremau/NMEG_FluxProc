@@ -1,6 +1,6 @@
 
 
-sitecode = UNM_sites.JSav;
+sitecode = UNM_sites.New_GLand;
 
 cardPath = uigetdir( fullfile( get_site_directory( sitecode ), ...
     'Raw_data_from_cards' ), 'Pick a directory to process.' );
