@@ -65,7 +65,7 @@ elseif sitecode == 2;   %shrubland
     sonic_orient=180;   %check value
 elseif sitecode == 3;   %juniper savannah
     sonic_orient=225;
-elseif sitecode == 4;   %PJ
+elseif sitecode == 4 || sitecode == 14;   %PJ and Test Site
     sonic_orient=225;   %NEED VALUE HERE
 elseif sitecode == 5;   %PPine
     sonic_orient=329;   %%sonic orient number is 320  (magnetic-%probably need declination)-->329
@@ -77,8 +77,10 @@ elseif sitecode == 9;   % TX_grassland
     sonic_orient=120;
 elseif sitecode == 10;   % PG girdle
     sonic_orient=224;
-elseif sitecode == 11;   % PG girdle
+elseif sitecode == 11;   % New_GLand
     sonic_orient=180;
+elseif sitecode == 13;   % MCon_SS FIXME - this needs to be verified!!!
+    sonic_orient=330;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

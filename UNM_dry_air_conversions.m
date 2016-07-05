@@ -69,7 +69,7 @@ if sitecode == 1 || sitecode == 2 || sitecode == 11
 elseif sitecode == 3
     [ip,removedp]   = UNM_despike(P,6,75,85,'P',4);
     P(find(~ip))    = NaN*ones(size(find(~ip)));
-elseif sitecode == 4
+elseif sitecode == 4  || sitecode == 14
     [ip,removedp]   = UNM_despike(P,6,75,80,'P',4);
     P(find(~ip))    = NaN*ones(size(find(~ip)));
 elseif sitecode == 5
@@ -83,7 +83,10 @@ elseif sitecode == 7 || sitecode == 8 || sitecode == 9
     P(find(~ip))    = NaN*ones(size(find(~ip)));
 elseif sitecode == 10
     [ip,removedp]   = UNM_despike(P,6,70,85,'P',4);
-    P(find(~ip))    = NaN*ones(size(find(~ip)));    
+    P(find(~ip))    = NaN*ones(size(find(~ip)));
+elseif sitecode == 13 % FIXME - Guessing here for new site, should check it
+    [ip,removedp]   = UNM_despike(P,6,70,77,'P',4);
+    P(find(~ip))    = NaN*ones(size(find(~ip)));
 end
 
 IRGADIAG = [ico2&it ih2o&it ip&it];

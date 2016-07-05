@@ -457,7 +457,7 @@ elseif sitecode == 2
     z_CSAT = 3.2; sep2 = 0.134; angle = 11.18; h_canopy = 0.8;
 elseif sitecode == 3
     z_CSAT = 10.35; sep2 = .2; angle = 25; h_canopy = 3;
-elseif sitecode == 4 %PJ
+elseif sitecode == 4 || sitecode == 14 %PJ/TestSite
     z_CSAT = 8.2; sep2 = .143; angle = 19.3; h_canopy = 4;
 elseif sitecode == 5
     z_CSAT = 24.02; sep2 = 0.15; angle = 15.266; h_canopy = 17.428;
@@ -479,6 +479,8 @@ elseif sitecode == 10 % here for PJ_girdle
   end
 elseif sitecode == 11 % for New_GLand
     z_CSAT = 3.2; sep2 = 0.142; angle = 21.67; h_canopy = 0.25; %z_CSAT unknown as of 100610
+elseif sitecode == 13 % for MCon_SS , FIXME - these are wrong!!!
+    z_CSAT = 29.9; sep2 = 0.375; angle = 71.66; h_canopy = 18.56;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
