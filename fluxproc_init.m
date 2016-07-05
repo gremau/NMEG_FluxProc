@@ -1,0 +1,8 @@
+addpath('scripts/')
+%addpath('utils/')
+%addpath('exchange_utils/')
+addpath('Utilities/')
+addpath('Plots/')
+addpath('/home/greg/current/MatlabFluxUtilities/')
+addpath('/home/greg/current/MatlabGeneralUtilities/')
+addpath('/home/greg/current/MatlabGeneralUtilities/YAMLMatlab_0.4.3/')
