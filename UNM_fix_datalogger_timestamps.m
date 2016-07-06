@@ -38,8 +38,7 @@ args.addRequired( 'sitecode', @(x) ( isintval( x ) | isa( x, 'UNM_sites' ) ) );
 args.addRequired( 'year', @(x) ( isintval( x ) & ( x >= 2006 ) & ...
     ( x <= this_year ) ) );
 args.addRequired( 'dataTable', @istable );
-args.addParamValue( 'debug', true, @islogical );
-args.addParamValue( 'save_figs', true, @islogical );
+args.addParameter( 'debug', true, @islogical );
 
 % parse optional inputs
 args.parse( sitecode, year, dataTable, varargin{ : } );
@@ -48,7 +47,6 @@ sitecode = args.Results.sitecode;
 year = args.Results.year;
 dataTable = args.Results.dataTable;
 debug = args.Results.debug;
-save_figs = args.Results.save_figs;
 
 % Get data dimensions and headers
 [ nRows, nCols ] = size( dataTable );
@@ -408,20 +406,6 @@ end
 if debug
     plot_fixed_datalogger_timestamps( sitecode, year, ...
                                       dataTable, dataTableShifted );
-    if save_figs
-        save_dir = fullfile( getenv( 'PLOTS' ), 'Rad_Fingerprints' );
-        is_folder = 7; % exist returns 7 if argument is a directory
-        if exist( save_dir ) ~= is_folder
-            mkdir( getenv( 'PLOTS' ), 'Rad_Fingerprints' );
-        end
-        
-%         fname = fullfile( save_dir, ...
-%             sprintf( '%s_%d_Rg_fingerprints.eps', ...
-%             char( sitecode ), year ) );
-%         
-%         fprintf( 'saving %s\n', fname );
-%         figure_2_eps( diagnosticFig, fname );
-    end
 end
 
 % End function

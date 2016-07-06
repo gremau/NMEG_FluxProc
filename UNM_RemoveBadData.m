@@ -728,7 +728,7 @@ elseif sitecode == 3 %JSav   added TWH, 7 May 2012
     end
     SHF_labels = { 'SHF_1', 'SHF_2', 'SHF_3', 'SHF_4' };
     
-elseif sitecode == 4 %PJ
+elseif sitecode == 4 | sitecode == 14 %PJ/TestSite
     for i=1:ncol;
         if strcmp('tcav_pinon_1_Avg',headertext(i)) == 1
             Tsoil1 = data(:,i-1);
