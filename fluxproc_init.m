@@ -1,6 +1,6 @@
 addpath('scripts/')
-addpath('utils/')
-addpath('exchange_utils/')
+addpath('m_utils/')
+addpath('m_exchange_utils/')
 %addpath('Utilities/') - moved to utils/
 addpath('Plots/')
 
