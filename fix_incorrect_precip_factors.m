@@ -98,7 +98,7 @@ elseif site_code == 3   %JSav
 % datalogger used multiplier of 0.254 from install to 31 May 2010.  Correct
 % multiplier is 0.1.  Therefore apply a correction factor of 
 % ( 0.1 / 0.254 ) = 0.394.
-elseif site_code == 4     % PJ
+elseif site_code == 4 | site_code == 14    % PJ/TestSite
     May31 = datenum( 2010, 5, 31 ) - datenum( 2010, 1, 1 ) + 1;
     idx = find( year < 2010 );
     if year_in == 2010;
