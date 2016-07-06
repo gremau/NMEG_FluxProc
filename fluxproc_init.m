@@ -4,10 +4,10 @@ addpath('m_exchange_utils/')
 %addpath('Utilities/') - moved to utils/
 addpath('Plots/')
 
-% Moved to ./utils/
+% Moved to ./m_utils/
 %addpath('/home/greg/current/MatlabFluxUtilities/')
-% Moved to ./exchange_utils/
+% Moved to ./m_exchange_utils/
 %addpath('/home/greg/current/MatlabGeneralUtilities/')
 
-addpath('exchange_utils/YAMLMatlab_0.4.3/')
-addpath('exchange_utils/altmany-export_fig-76bd7fa/')
+addpath('m_exchange_utils/YAMLMatlab_0.4.3/')
+addpath('m_exchange_utils/altmany-export_fig-76bd7fa/')
