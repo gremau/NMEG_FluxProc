@@ -11,7 +11,7 @@ sitelist = {UNM_sites.MCon, UNM_sites.SLand, UNM_sites.JSav, ...
 sitelist = {UNM_sites.TestSite};
 yearlist = 2015;%2013:2014;% 2009:2013;
 
-proc_10hz = true;
+proc_10hz = false;
 count = 1;
 for i = 1:length(sitelist);
     for j = 1:length(yearlist)
