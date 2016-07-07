@@ -1,8 +1,9 @@
 addpath('scripts/')
 addpath('m_utils/')
 addpath('m_exchange_utils/')
+addpath('retrieve_card_data')
 %addpath('Utilities/') - moved to utils/
-addpath('Plots/')
+addpath('plots/')
 
 % Moved to ./m_utils/
 %addpath('/home/greg/current/MatlabFluxUtilities/')
