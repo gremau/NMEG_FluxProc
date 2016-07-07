@@ -91,7 +91,7 @@ amflx_gaps = add_cols( amflx_gaps, qc_tbl.Tdry - 273.15, ...
                        { 'TA' }, { 'deg C' } );
 
 % RH
-rH_flag = verify_gapfilling( pt_tbl.rH, qc_tbl.rH, 1e-4 );
+rH_flag = verify_gapfilling( pt_tbl.rH, qc_tbl.rH, 1e-3 );
 amflx_gf = add_cols( amflx_gf, pt_tbl.rH, { 'RH_F' }, { '%' }, rH_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.rH, { 'RH' }, { '%' } );
 

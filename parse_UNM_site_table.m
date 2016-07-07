@@ -20,7 +20,9 @@ function sites_ds = parse_UNM_site_table()
 %     dataset, UNM_sites_info
 %
 % author: Timothy W. Hilton, UNM, Dec 2011
-    
+
+warning('FIXME - this is deprecated, use config files');
+
 sites_file = fullfile( getenv( 'FLUXROOT' ), ...
                        'Tower_Information', ...
                        'UNM_flux_site_name_table.csv' );
