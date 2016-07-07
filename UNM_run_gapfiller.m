@@ -182,9 +182,11 @@ function [ gf_data_outfile, R_code_file ] = ...
 % author: Timothy W. Hilton and Litvak Lab, UNM, July 2013
 
 % Get site configuration
-siteconf = parse_yaml_config( sitecode, 'SiteVars' );
+SiteConf = parse_yaml_config( sitecode, 'SiteVars' );
 
 gf_data_outfile = '';
+
+plot_outpath = fullfile( getenv( 'FLUXROOT' ), 'Plots', 'Reddyproc_out' );
 
 R_code_file = sprintf( '%s_%s_%d_REddyProc.R', ...
                     tempname(), ...
@@ -199,7 +201,7 @@ fid = fopen( R_code_file, 'w' );
 %escape windows path backslashes for R
 gf_data_dir = preformat_win_path( gf_data_dir );
 gf_data_infile = preformat_win_path( gf_data_infile );
-
+plot_outpath = preformat_win_path( plot_outpath );
 % ------------------------------------------------------------
 % write R code to run the gapfiller to R_code_file
 
@@ -229,9 +231,9 @@ fprintf( fid, ['EddyProc.C <- sEddyProc$new("%s", EddyDataWithPosix.F, ' ...
          UNM_sites_info( sitecode ).ameriflux );
 
 fprintf( fid, '##+++ Generate plots of all data in directory plots (of current R working dir)\n' );
-fprintf( fid, 'EddyProc.C$sPlotHHFluxes("NEE")\n' );
-fprintf( fid, 'EddyProc.C$sPlotFingerprint("Rg")\n' );
-fprintf( fid, 'EddyProc.C$sPlotDiurnalCycle("Tair")\n' );
+fprintf( fid, 'EddyProc.C$sPlotHHFluxes("NEE", Dir.s="%s")\n', plot_outpath);
+fprintf( fid, 'EddyProc.C$sPlotFingerprint("Rg", Dir.s="%s")\n', plot_outpath);
+fprintf( fid, 'EddyProc.C$sPlotDiurnalCycle("Tair", Dir.s="%s")\n', plot_outpath);
 fprintf( fid, '##+++ Plot individual years to screen (of current R graphics device)\n' );
 fprintf( fid, 'EddyProc.C$sPlotHHFluxesY("NEE", Year.i=%d)\n', year );
 fprintf( fid, 'EddyProc.C$sPlotFingerprintY("NEE", Year.i=%d)\n\n', year );
@@ -246,21 +248,21 @@ fprintf( fid, 'EddyProc.C$sMDSGapFill("LE", FillAll.b=TRUE)\n' );
 fprintf( fid, 'EddyProc.C$sMDSGapFill("H", FillAll.b=TRUE)\n\n' );
 
 fprintf( fid, '##+++ Generate plots of filled data in directory /plots (of current R working dir)\n' );
-fprintf( fid, 'EddyProc.C$sPlotHHFluxes("NEE_f")\n' );
-fprintf( fid, 'EddyProc.C$sPlotFingerprint("NEE_f")\n' );
-fprintf( fid, 'EddyProc.C$sPlotDailySums("NEE_f","NEE_fsd")\n' );
-fprintf( fid, 'EddyProc.C$sPlotDiurnalCycle("NEE_f")\n\n' );
+fprintf( fid, 'EddyProc.C$sPlotHHFluxes("NEE_f", Dir.s="%s")\n', plot_outpath);
+fprintf( fid, 'EddyProc.C$sPlotFingerprint("NEE_f", Dir.s="%s")\n', plot_outpath);
+fprintf( fid, 'EddyProc.C$sPlotDailySums("NEE_f","NEE_fsd", Dir.s="%s")\n', plot_outpath);
+fprintf( fid, 'EddyProc.C$sPlotDiurnalCycle("NEE_f", Dir.s="%s")\n\n', plot_outpath);
 
 fprintf( fid, '#+++ Partition NEE into GPP and respiration (Reichstein 2005)\n');
 fprintf( fid, ['EddyProc.C$sMRFluxPartition(', ...
     sprintf('Lat_deg.n=%2.2f, Long_deg.n=%3.2f, TimeZone_h.n=-7)', ...
-           siteconf.latitude, siteconf.longitude), '\n']);  %Add location of site
+           SiteConf.latitude, SiteConf.longitude), '\n']);  %Add location of site
 
 fprintf( fid, '#+++ Example plots of calculated GPP and respiration\n' ); 
 fprintf( fid, 'EddyProc.C$sPlotFingerprintY("GPP_f", Year.i=%d)\n', year );
-fprintf( fid, 'EddyProc.C$sPlotFingerprint("GPP_f")\n' );
+fprintf( fid, 'EddyProc.C$sPlotFingerprint("GPP_f", Dir.s="%s")\n', plot_outpath);
 fprintf( fid, 'EddyProc.C$sPlotHHFluxesY("Reco", Year.i=%d)\n', year );
-fprintf( fid, 'EddyProc.C$sPlotHHFluxes("Reco")\n\n' );
+fprintf( fid, 'EddyProc.C$sPlotHHFluxes("Reco", Dir.s="%s")\n\n', plot_outpath);
 
 fprintf( fid, '##+++ Plot individual years/months to screen (of current R graphics device)\n' );
 fprintf( fid, 'EddyProc.C$sPlotHHFluxesY("NEE_f", Year.i=%d)\n', year );

@@ -484,7 +484,8 @@ methods
             end
         end
 
-        save( 'CDP_test_restart.mat' )
+        save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', ...\
+            'CDP_test_restart.mat' ));
 
         fprintf( '---------- merging 30-min, 10-hz, and fluxall ----------\n' );
 
@@ -542,7 +543,7 @@ methods
         t_max = max( [ reshape( obj.data_30min.timestamp, [], 1 ); ...
             reshape( obj.data_10hz_avg.timestamp, [], 1 ) ] );
 
-        save( 'cdp226.mat' );
+        save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'cdp226.mat' ));
         [ obj.data_30min, obj.data_10hz_avg ] = ...
             merge_tables_by_datenum( obj.data_30min, ...
             obj.data_10hz_avg, ...
