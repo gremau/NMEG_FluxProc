@@ -22,13 +22,14 @@ the test site mentioned above can be found [here]
 
 ### Paths and environment variables.
 
-An environment variables must be set for FluxProc to find the FLUXROOT
-directory on the local file structure. In the `startup.m` file, add
+An environment variable must be set for FluxProc to find the FLUXROOT
+directory on the local file structure. In your `startup.m` file, add
 these lines:
 
     setenv('FLUXROOT', '/.../')
 
-where "/.../" is the path to the FLUXROOT directory.
+where "/.../" is the path to the FLUXROOT directory. This will add the
+needed environment variable each time you start MATLAB.
 
 Once this is done, start MATLAB, add the NMEG_FluxProc to your path:
 
@@ -62,7 +63,7 @@ In general, user-level main functions (things that are intended to be
 called from a Matlab command line) are named UNM_*.m, and helper
 functions do not have the "UNM_" prefix.
 
-** Documentation **
+#### Documentation
 
 I have tried to consistently include in each m-file descriptive
 documentation immediately following the function definition so that
@@ -71,7 +72,8 @@ display self-contained documentation.  Thus, this readme document will
 not discuss function usage and interfaces in detail -- use the Matlab
 help!
 
-** Source control management **
+
+#### Source control management
 
 The code is version-controlled in a Mercurial
 (http://mercurial.selenic.com/) repository.  It is not necessary to
