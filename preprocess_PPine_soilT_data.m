@@ -6,7 +6,7 @@ function SoilT = preprocess_PPine_soil_data( year )
 %                     parse_PPine_soil_data.m
 %
 % The PPine soil data are parsed from
-% $FLUXROOT/Flux_Tower_Data_by_Site/PPine/soil_data/PPine_soil_data_20080101_20120522.dat.
+% $FLUXROOT/SiteData/PPine/soil_data/PPine_soil_data_20080101_20120522.dat.
 %
 % INPUTS:
 %     year: four-digit year; specifies the year for data extraction

@@ -28,6 +28,7 @@ classdef(Enumeration) UNM_sites < int32
         PJ_girdle(10),
         New_GLand(11),
         SevEco( 12 ),
-        MCon_SS( 13 )
+        MCon_SS( 13 ),
+        TestSite( 14 )
     end
 end

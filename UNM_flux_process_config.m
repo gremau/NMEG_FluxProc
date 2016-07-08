@@ -18,7 +18,7 @@ function fluxrc =  UNM_flux_process_config()
 %   FLUXROOT: path to the directory containing the flux data.  The individual
 %      sites' data directories are assumed to reside here.
 %   sitefolder: The directory within FLUXROOT containing the sites'
-%      directories (e.g. 'Flux_Tower_Data_by_Site').
+%      directories (e.g. 'SiteData').
 %   outfolder: directory where processed fluxes will be placed.
 %
 % author: Timothy W. Hilton, UNM, Aug 2011
@@ -40,8 +40,9 @@ site_names = {'GLand', ...          % 1
               'PJ_girdle', ...      % 10
               'New_GLand', ...      % 11
               'SevEco', ...         % 12
-              'MCon_SS'};           % 13
-          
+              'MCon_SS', ...        % 13
+              'TestSite'};          % 14
+              
 %             Site Abbrev          Site Code
 aflx_names = {'US_Seg', ...         % 1
               'US_Ses', ...         % 2
@@ -55,8 +56,8 @@ aflx_names = {'US_Seg', ...         % 1
               'US_Mpg', ...         % 10
               'US_Sen', ...         % 11
               'Null', ...           % 12
-              'US_Vcs'};            % 13
-
+              'US_Vcs', ...         % 13
+              'US_Test'};           % 14
 
 FLUXROOT = getenv('FLUXROOT');
 while length(FLUXROOT) == 0
@@ -70,7 +71,7 @@ while length(FLUXROOT) == 0
     end
 end
 
-sitefolder = fullfile(FLUXROOT, 'Flux_Tower_Data_by_Site');
+sitefolder = fullfile(FLUXROOT, 'SiteData');
 outfolder = fullfile(FLUXROOT, 'FluxOut');
 
 fluxrc = struct('site_names', {site_names}, ...

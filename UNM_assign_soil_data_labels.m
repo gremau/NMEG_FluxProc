@@ -107,7 +107,7 @@ switch sitecode
                           'once' );
     fluxall.Properties.VarNames( idx_SHF ) = SHF_vars;
     
-  case UNM_sites.PJ
+  case UNM_sites.PJ | UNM_sites.TestSite
     % capitalize "shf" and remove trailing "_Avg" 
     SHF_vars = regexprep( SHF_vars, { 'shf', '_Avg' },  { 'SHF', '' } );
     

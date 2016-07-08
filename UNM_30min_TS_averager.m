@@ -144,36 +144,11 @@ end
 % done creating output variables
 %-----
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Hold out periods of known calibration for Texas site
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if ( sitecode == 7 )
-    if any( TX_site_known_calibrations( timestamp ) )
-        julday = jday;
-        numdate = date;
-        %assign NaN's for missing data:
-        uvwtmean( : ) = NaN; 
-        uvwmeanrot( : ) = NaN;
-        theta = NaN;
-        uvwtvar( : ) = NaN;
-        covuvwt( : ) = NaN;
-        ustar = NaN;
-        speed = NaN;
-        HBUOYANT = NaN;
-        TRANSPORT( i, 1 ) = NaN;
-        CO2( : ) = NaN;
-        H2O( : ) = NaN;
-        FCO2( : ) = NaN;
-        FH2O( : ) = NaN;
-        HSENSIBLE( : ) = NaN;
-        HLATENT( : ) = NaN;
-        RHOM( : ) = NaN;
-        TDRY =   NaN;
-        IOKNUM( : ) = NaN;
-        removed( : )  =  NaN;
-        zoL = NaN;
-    end    
+    error('TX sites no longer configured in this version of code');
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

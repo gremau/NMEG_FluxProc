@@ -107,8 +107,8 @@ if resolve
     
     % Use sitecode and loggerName find appropriate header resolution file
     resFileName = sprintf('%s_HeaderResolution.csv', loggerName);
-    resFilePathName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), ...
-        resFileName );
+    resFilePathName = fullfile( getenv('FLUXROOT'), 'FluxProcConfig', ...
+        'HeaderResolutions', char( sitecode ), resFileName );
     % Resolve headers in TableArray using this resolution file
     TableArray = resolve_datalogger_column_headers( TableArray,...
         fileNames, resFilePathName );

@@ -33,9 +33,9 @@ fluxall_T = parse_fluxall_txt_file( sitecode, year );
 
 % Get header resolution
 % Use sitecode and dataloggerType to find appropriate header resolution file
-resFileName = sprintf('%s_Header_Resolution.csv', 'main');
-resFilePathName = fullfile( pwd, 'HeaderResolutions', char( sitecode ), ...
-    resFileName );
+resFileName = sprintf('%s_HeaderResolution.csv', 'flux');
+resFilePathName = fullfile( getenv('FLUXROOT'), 'FluxProcConfig', ...
+    'HeaderResolutions', char( sitecode ), resFileName );
 res = readtable( resFilePathName );
     
 % Get soil data from fluxall
@@ -147,7 +147,7 @@ switch sitecode
                 'draw_plots', false );
         end
         
-    case { UNM_sites.PJ, UNM_sites.PJ_girdle }
+    case { UNM_sites.PJ, UNM_sites.PJ_girdle, UNM_sites.TestSite }
         % There were echo probes early on that mostly look like garbage.
         % In early to mid 2009 the TDR system came online and data look
         % better. This does not need a temperature correction.
@@ -216,7 +216,8 @@ if ~isempty( T_soil_rbd )
     
     % Now filter with the standard deviation filter
     % First set up filter - PJ sites need more filtering
-    if sitecode==UNM_sites.PJ || sitecode==UNM_sites.PJ_girdle
+    if sitecode==UNM_sites.PJ || sitecode==UNM_sites.PJ_girdle ...
+            || sitecode==UNM_sites.TestSite
         sd_filter_windows = [ 1, 1, 1, 1, 1, 1 ];
     else
         sd_filter_windows = [ 1, 1, 1 ];
@@ -226,9 +227,15 @@ if ~isempty( T_soil_rbd )
     for i = 1:length( T_soil_rbd.Properties.VariableNames )
         colname = T_soil_rbd.Properties.VariableNames{ i };
         col = T_soil_rbd( :, colname );
-        % Get the values flagged for std deviation
-        [ filt_col, stdflag ] = stddev_filter( col, ...
-            sd_filter_windows, sd_filter_thresh, sitecode, year );
+        % Sometimes too little data available to filter
+        if sum( ~isnan( col{:,1} ) ) < min( sd_filter_windows )*48*2
+            filt_col = col;
+            filt_col{ ~isnan( col{:,1} ), 1 } = nan;
+        else
+            % Get the values flagged for std deviation
+            [ filt_col, ~ ] = stddev_filter( col, ...
+                sd_filter_windows, sd_filter_thresh, sitecode, year );
+        end
         T_soil_rbd( :, colname ) = filt_col;
     end
     
@@ -398,9 +405,9 @@ switch sitecode
           T_soil_rbd{ idx, 'SOILT_J2_5_AVG' } = NaN;
     end
     
-    case { UNM_sites.PJ, UNM_sites.PJ_girdle }
+    case { UNM_sites.PJ, UNM_sites.PJ_girdle, sitecode==UNM_sites.TestSite }
         if year > 2008 && year < 2014
-            if sitecode==UNM_sites.PJ
+            if sitecode==UNM_sites.PJ | sitecode==UNM_sites.TestSite
                 site_token = 'PJC';
             elseif sitecode==UNM_sites.PJ_girdle
                 site_token = 'PJG';

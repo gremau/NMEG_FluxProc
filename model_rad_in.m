@@ -34,8 +34,9 @@ solcalcs = noaa_solar_calcs(conf.latitude, conf.longitude, dt);
 
 % Here we are not calculating cosine of max zenith angle, but actual angle
 % at that time of day?
-cosZ = ( sind(conf.latitude) .* sind(solcalcs(:,6)) ) + ...
-    (cosd(conf.latitude) .* cosd(solcalcs(:,6)) .* cosd(solcalcs(:,7)));
+cosZ = ( sind(conf.latitude) .* sind(solcalcs.sunDeclinDeg) ) + ...
+    (cosd(conf.latitude) .* cosd(solcalcs.sunDeclinDeg) .* ...
+    cosd(solcalcs.hourAngleDeg));
 
 cosZ(cosZ < 0) = 0;
 % Try with calculated hour angle - not working

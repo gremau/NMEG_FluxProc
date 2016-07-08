@@ -159,7 +159,7 @@ elseif sitecode == UNM_sites.JSav; % Juniper savanna
     h2o_max = 30; h2o_min = 0;
     press_min = 70; press_max = 130;
     
-elseif sitecode == UNM_sites.PJ; % Pinyon Juniper
+elseif sitecode == UNM_sites.PJ | sitecode == UNM_sites.TestSite; % Pinyon Juniper
     ustar_lim = 0.22;
     n_SDs_filter_hi = 3.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
@@ -329,7 +329,9 @@ else
     % data into the old files. For now merge the old 2007 fluxall
     % files into the current dataset and proceed with the QC process.
     if (sitecode == 1 || sitecode == 2 ) && year_arg == 2007
-        data = merge_2007_fluxall_files( data, sitecode );
+        warning('Dataset to table conversions! FIX THESE!');
+        data = merge_2007_fluxall_files( dataset2table(data), sitecode );
+        data = table2dataset(data);
         % These old data have duplicated SW_IN measurements
         data = replacedata( data, ...
             interp_duplicated_radiation( double( data ), ...
@@ -726,7 +728,7 @@ elseif sitecode == 3 %JSav   added TWH, 7 May 2012
     end
     SHF_labels = { 'SHF_1', 'SHF_2', 'SHF_3', 'SHF_4' };
     
-elseif sitecode == 4 %PJ
+elseif sitecode == 4 | sitecode == 14 %PJ/TestSite
     for i=1:ncol;
         if strcmp('tcav_pinon_1_Avg',headertext(i)) == 1
             Tsoil1 = data(:,i-1);
@@ -830,12 +832,21 @@ precip = fix_incorrect_precip_factors( sitecode, year_arg, ...
 % will have lw_incomingCo and lw_outgoingCo corrected variables.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% In 2010 the thermocouple in the CNR1 at GLand failed. Use air temp.
-if sitecode == 1 & year_arg==2010;;
+% In 2007 & 2010 the thermocouple in the CNR1 at GLand failed. Use air temp.
+if sitecode == 1 && year_arg==2007;
+    CNR1TempK = CNR1TK;
+    idx1 = find(decimal_day > 156.71 & decimal_day < 162.52 )
+    CNR1TempK( idx1 ) = air_temp_hmp( idx1 ) + 273.15;
+elseif sitecode == 1 && year_arg==2010;
     CNR1TempK = air_temp_hmp + 273.15;
+% Same at shrub in 2007
+elseif sitecode == 2 && year_arg==2007;
+    CNR1TempK = CNR1TK;
+    idx1 = find(decimal_day >= 150.75 & decimal_day < 162.44);
+    CNR1TempK( idx1 ) = air_temp_hmp( idx1 ) + 273.15;
 % In 2007 the thermocouple in the CNR1 at PPine failed for a while in 
 % the spring. Use air temp.
-elseif sitecode == 5 & year_arg==2007;
+elseif sitecode == 5 && year_arg==2007;
     CNR1TempK = CNR1TK;
     idx = DOYidx( 155.5 ):DOYidx( 198.55 );
     CNR1TempK( idx ) = air_temp_hmp( idx ) + 273.15;
@@ -922,12 +933,6 @@ plot_qc_meteorology( sitecode, ...
     H2O_mean, ...
     precip );
 
-% Not sure what the reason for this is - GEM
-%save_fname = fullfile( getenv( 'FLUXROOT' ), 'FluxallConvert', ...
-%sprintf( '%s_%d_after_radiation.mat', ...
-%char( sitecode ), year(1) ) );
-%save( save_fname );
-%fprintf( 'saved %s\n', save_fname );
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Apply Burba 2008 correction for sensible heat conducted from 7500
@@ -1659,6 +1664,14 @@ LH_flag = ( HL_raw > LH_max ) | ( HL_raw < LH_min );
 removed_LH = length( find( LH_flag ) );
 HL_raw( LH_flag ) = NaN;
 
+if sitecode == UNM_sites.SLand & (year == 2014 | year == 2015)
+    LH_min = -20;
+    LH_rad = sw_incoming;
+    
+    LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
+    LH_night_flag = ( LH_rad < 10.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
+    LH_day_flag = ( LH_rad >= 10.0 ) & ( HL_wpl_massman < 0.0 );    
+else
 % QC for HL_wpl_massman
 LH_min = -20;  %as per Jim Heilman, 28 Mar 2012
 % if PAR measurement exists, use this to remove nighttime LE, otherwise
@@ -1669,8 +1682,10 @@ LH_rad( isnan( LH_rad ) ) = NR_tot( isnan( LH_rad ) );
 LH_maxmin_flag = ( HL_wpl_massman > LH_max ) | ( HL_wpl_massman < LH_min );
 LH_night_flag = ( LH_rad < 20.0 ) & ( abs( HL_wpl_massman ) > 20.0 );
 LH_day_flag = ( LH_rad >= 20.0 ) & ( HL_wpl_massman < 0.0 );
+end
+
 if draw_plots > 2
-    script_LE_diagnostic_plot;
+    plot_LE_diagnostic;
 end
 removed_LH_wpl_mass = numel( find( LH_maxmin_flag | ...
     LH_night_flag | ...
@@ -1762,22 +1777,27 @@ if ( sitecode == 3 ) & ( year_arg == 2009 )
     fc_raw_massman_wpl = fc_raw_massman_wpl_new;
 end
 
-% PJ_girdle 2009 - bad Fc gapfilling due to missing data at start of the
+% PJ_girdle 2009 - bad Fc and LE gapfilling due to missing data at start of the
 % year. Fill this gap with data from PJ (same time period).
 if ( sitecode == 10 ) & ( year_arg == 2009 )
     warning( 'PJ_girdle 2009 - Missing start of year filled with end of year data' );
     n_days = 7;
     pj = parse_forgapfilling_file( UNM_sites.PJ, 2009, 'use_filled', false );
     fc_raw_massman_wpl_new = fc_raw_massman_wpl;
+    HL_wpl_massman_new = HL_wpl_massman;
     fc_raw_massman_wpl_new( 1:n_days*48 ) = ...
         pj.NEE( 1:n_days*48 );
-    % Change the "good NEE" index so transplanted values are not removed
+    HL_wpl_massman_new( 1:n_days*48 ) = ...
+        pj.LE( 1:n_days*48 );
+    % Change the "good NEE/LE" index so transplanted values are not removed
     idx_NEE_good( 1:n_days*48 ) = true;
+    idx_E_good( 1:n_days*48 ) = true;
     figure( 'Name', 'PJ_girdle 2009 FC backfill' );
     plot( fc_raw_massman_wpl_new, '.r' );
     hold on;
     plot( fc_raw_massman_wpl, '.b' );
     fc_raw_massman_wpl = fc_raw_massman_wpl_new;
+    HL_wpl_massman = HL_wpl_massman_new;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2636,12 +2656,12 @@ switch sitecode
             case 2007
                 % Things were somewhat noisy this year, especially before
                 % the site revamp in June
-                idx = 1 : DOYidx( 67 );
+                idx = 1 : DOYidx( 35 );
                 DOY_co2_max( idx ) = 1.8;
                 DOY_co2_min( idx ) = -0.8;
                 idx2 = ( DOYidx( 262 ) : size( DOY_co2_max, 1) );
-                DOY_co2_max( idx2 ) = 1.9;
-                DOY_co2_min( idx2 ) = -0.8;
+                %DOY_co2_max( idx2 ) = 1.9;
+                %DOY_co2_min( idx2 ) = -0.8;
             case 2008
                 % There is a big respiration spike here. Not sure of the
                 % explanation, but it is also visible at Shrub
@@ -2651,20 +2671,20 @@ switch sitecode
             case 2009
                 % Too restrictive - GEM
                 idx = DOYidx( 245 ) : DOYidx( 255 );
-                DOY_co2_max( idx ) = 2.25;
+                %DOY_co2_max( idx ) = 2.25;
                 % Too restrictive - GEM
                 % DOY_co2_max( DOYidx( 178 ) : DOYidx( 267 ) ) = 0.8;
                 
                 % the site burned DOY 210, 2009.  Here we remove points in the period
                 % following the burn that look more like noise than biologically
                 % realistic carbon uptake.
-                DOY_co2_min( DOYidx( 210 ) : DOYidx( 256 ) ) = -0.5;
-                DOY_co2_min( DOYidx( 256 ) : DOYidx( 270 ) ) = -1.2;
+                %DOY_co2_min( DOYidx( 210 ) : DOYidx( 256 ) ) = -0.5;
+                %DOY_co2_min( DOYidx( 256 ) : DOYidx( 270 ) ) = -1.2;
             case 2010
-                DOY_co2_max( DOYidx( 200 ) : DOYidx( 225 ) ) = 3.25;
-                DOY_co2_max( 1 : DOYidx( 160 ) ) = 2.0;
+                %DOY_co2_max( DOYidx( 200 ) : DOYidx( 225 ) ) = 3.25;
+                %DOY_co2_max( 1 : DOYidx( 160 ) ) = 2.0;
                 % Too restrictive (changed from 2.5-3.75)?  - GEM
-                DOY_co2_min( 1 : DOYidx( 160 ) ) = -3.75;
+               DOY_co2_min( 100 : DOYidx( 160 ) ) = -3.75;
                 % Don't understand why next 3 lines are needed - GEM
 %                 idx = DOYidx( 223 ) : DOYidx( 229 );
 %                 DOY_co2_min( idx ) = -17;
@@ -2675,32 +2695,31 @@ switch sitecode
 %                 std_exc_flag( DOYidx( 159.4 ) : DOYidx( 159.6 ) ) = true;
 %                 std_exc_flag( DOYidx( 245.4 ) : DOYidx( 245.6 ) ) = true;
                 %    std_exc_flag( DOYidx( 337 ) : DOYidx( 343.7 ) ) = true;
-                % Too restrictive ( -0.5 to -1 )- GEM
-                DOY_co2_min( DOYidx( 309 ) : end ) = -1.0;
-                DOY_co2_min( 1 : DOYidx( 210 ) ) = -1.0;
-                
-                DOY_co2_max( DOYidx( 261 ) : end ) = 2.5;
+                % Too restrictive ( -0.5 to -1 )- GEM            
+               % DOY_co2_min( DOYidx( 309 ) : end ) = -1.0;
+               % DOY_co2_min( 1 : DOYidx( 210 ) ) = -1.0;               
+                DOY_co2_max( DOYidx( 270 ) : DOYidx( 280 ) ) = 2.5;                          
                 % Too restrictive - GEM
                 %DOY_co2_max( DOYidx( 250 ) : DOYidx( 260 ) ) = 0.8;
                 DOY_co2_max( DOYidx( 280 ) : DOYidx( 285 ) ) = 1.2;
             case 2012
                 % Most of these are a bit too restrictive - GEM
-                DOY_co2_max( DOYidx( 112 ) : DOYidx( 137 ) ) = 1.25;
-                DOY_co2_max( DOYidx( 300 ) : DOYidx( 317 ) ) = 2;
+               % DOY_co2_max( DOYidx( 112 ) : DOYidx( 137 ) ) = 1.25;
+               % DOY_co2_max( DOYidx( 300 ) : DOYidx( 317 ) ) = 2;
 %                 DOY_co2_max( DOYidx( 325 ) : DOYidx( 343 ) ) = 1.4;
 %                 DOY_co2_max( DOYidx( 343 ) : DOYidx( 347 ) ) = 1.2;
 %                 DOY_co2_max( DOYidx( 348 ) : end ) = 0.75;
-                std_exc_flag( DOYidx( 174 ) : DOYidx( 175 ) ) = true;
+                %std_exc_flag( DOYidx( 174 ) : DOYidx( 175 ) ) = true;
             case 2013
                 % There is a small period where variance in fluxes is
                 % especially high - not sure it is real
-                DOY_co2_max( DOYidx( 160 ) : DOYidx( 169 ) ) = 3;
+              %  DOY_co2_max( DOYidx( 160 ) : DOYidx( 169 ) ) = 3;
                 DOY_co2_min( DOYidx( 160 ) : DOYidx( 169 ) ) = -1.75;
             case 2014
                 % There is a small period where variance in fluxes is
                 % especially high - not sure it is real
-                DOY_co2_max( DOYidx( 190 ) : DOYidx( 199 ) ) = 4;
-                DOY_co2_min( DOYidx( 190 ) : DOYidx( 199 ) ) = -2;
+              %  DOY_co2_max( DOYidx( 190 ) : DOYidx( 199 ) ) = 4;
+              %  DOY_co2_min( DOYidx( 190 ) : DOYidx( 199 ) ) = -2;
         end %GLand
         
     case UNM_sites.SLand
@@ -2768,8 +2787,8 @@ switch sitecode
 %                 DOY_co2_min( idx ) = -12.0;
                 
             case 2009
-                DOY_co2_max( 1 : DOYidx( 125 ) ) = 2.25;
-                DOY_co2_max( DOYidx( 150 ) : DOYidx( 280 ) ) = 4.0;
+                %DOY_co2_max( 1 : DOYidx( 125 ) ) = 2.25;
+                %DOY_co2_max( DOYidx( 150 ) : DOYidx( 280 ) ) = 4.0;
                 % Too restrictive - GEM
                 %DOY_co2_max( DOYidx( 150 ) : DOYidx( 180 ) ) = 2.0;
                 %DOY_co2_max( DOYidx( 220 ) : DOYidx( 250 ) ) = 2.5;
@@ -2780,25 +2799,25 @@ switch sitecode
 %                 DOY_co2_max( 1 : DOYidx( 80 ) ) = 2.0;
 %                 DOY_co2_max( DOYidx( 81 ) : DOYidx( 190 ) ) = 4.0;
 %                 DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 6.0;
-                DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 5.5;
-                DOY_co2_max( DOYidx( 265 ) : DOYidx( 295 ) ) = 4.0;
+                %DOY_co2_max( DOYidx( 190 ) : DOYidx( 210 ) ) = 5.5;
+                %DOY_co2_max( DOYidx( 265 ) : DOYidx( 295 ) ) = 4.0;
 %                 DOY_co2_max( DOYidx( 226 ) : end ) = 3.0;
                 
             case 2011
-                DOY_co2_max( DOYidx( 221 ) : DOYidx( 265 ) ) = 4.5;
-                DOY_co2_max( DOYidx( 266 ) : end ) = 3.5;
+                %DOY_co2_max( DOYidx( 221 ) : DOYidx( 265 ) ) = 4.5;
+                %DOY_co2_max( DOYidx( 266 ) : end ) = 3.5;
                 % Exceptions - some removed by GEM
-                std_exc_flag( DOYidx( 17.4 ) : DOYidx( 17.6 ) ) = true;
-                std_exc_flag( DOYidx( 58.4 ) : DOYidx( 58.6 ) ) = true;
-                std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;
-                std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
+                %std_exc_flag( DOYidx( 17.4 ) : DOYidx( 17.6 ) ) = true;
+                %std_exc_flag( DOYidx( 58.4 ) : DOYidx( 58.6 ) ) = true;
+                %std_exc_flag( DOYidx( 64.3 ) : DOYidx( 64.5 ) ) = true;
+                %std_exc_flag( DOYidx( 73.4 ) : DOYidx( 73.5 ) ) = true;
 
                 
             case 2012
                 % Some of these are too restrictive - GEM
 %                 DOY_co2_max( DOYidx( 137 ) : DOYidx( 148 ) ) = 5.0;
-                DOY_co2_max( DOYidx( 185 ) : DOYidx( 220 ) ) = 5.0;
-                DOY_co2_max( DOYidx( 245 ) : DOYidx( 285 ) ) = 4.7;
+                %DOY_co2_max( DOYidx( 185 ) : DOYidx( 220 ) ) = 5.0;
+                %DOY_co2_max( DOYidx( 245 ) : DOYidx( 285 ) ) = 4.7;
 %                 DOY_co2_max( DOYidx( 314 ) : DOYidx( 316 ) ) = 1.2;
 %                 DOY_co2_max( DOYidx( 325 ) : DOYidx( 326 ) ) = 1.0;
 %                 DOY_co2_min( DOYidx( 325 ) : DOYidx( 329 ) ) = -1.5;

@@ -3,11 +3,8 @@
 *.asv
 *.pdf
 *.ps
-*.mat
-*.fig
 *.fig
 *.dat
-*.txt
 *.bak
 \#*\#
 scratch.m
@@ -31,7 +28,7 @@ doc*
 *.dmg
 *.gz
 *.iso
-*.jar
+#*.jar
 *.rar
 *.tar
 *.zip

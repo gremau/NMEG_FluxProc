@@ -3,7 +3,7 @@ function soilData = get_PPine_DRI_data( year )
 % array and extract the observations for a specified year.
 %
 % The PPine soil data are parsed from
-% $FLUXROOT/Flux_Tower_Data_by_Site/PPine/secondary_loggers/DRI_logger/PPine_soil_data_20080101_20141118.dat.
+% $FLUXROOT/SiteData/PPine/secondary_loggers/DRI_logger/PPine_soil_data_20080101_20141118.dat.
 %
 % If this is not found, and new file must be created from the raw data
 %

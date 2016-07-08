@@ -1,6 +1,6 @@
 function tbl  = parse_fluxall_txt_file( sitecode, year, varargin )
 % PARSE_FLUXALL_TXT_FILE - parse fluxall data and timestamps from
-% tab-delimited text file to matlab dataset.
+% tab-delimited text file to matlab table.
 %
 %   
 % tbl  = UNM_parse_fluxall_txt_file( sitecode, year )
@@ -15,10 +15,10 @@ function tbl  = parse_fluxall_txt_file( sitecode, year, varargin )
 %    get_site_directory( sitecode )/SITE_FLUX_all_YEAR.txt
 %
 % OUTPUTS
-%    tbl: dataset array: the data from the fluxall file
+%    tbl: table array: the data from the fluxall file
 %
 % SEE ALSO
-%    UNM_sites, dataset, get_site_directory
+%    UNM_sites,table, get_site_directory
 %
 % Timothy W. Hilton, UNM, January 2012
 % Modified by Gregory E. Maurer, UNM, April 2015

@@ -1,5 +1,4 @@
-function T = generate_header_resolution_file( sitecode, sourceType, ...
-    varargin )
+function T = generate_header_resolution_file( sitecode, logger )
 % generate_header_resolution_file() -- takes a list of TOA5 files and
 % generates a header resolution file for the site
 % ({sitecode}_Header_Resolutions.csv)
@@ -27,7 +26,7 @@ function T = generate_header_resolution_file( sitecode, sourceType, ...
 % headers from each TOA5 file and three configuration files. 
 %
 % USAGE
-%    ds = generate_header_resolution_file();
+%    T = generate_header_resolution_file();
 %
 % INPUTS
 %    either a series of strings containing full paths to the TOA5
@@ -36,35 +35,49 @@ function T = generate_header_resolution_file( sitecode, sourceType, ...
 %    files to be selected interactively.
 %
 % OUTPUTS
-%    ds: Matlab dataset array; the combined and filled data
+%    T: Matlab table array; the combined and filled data
 % 
 % SEE ALSO
-%    dataset, uigetfile, UNM_assign_soil_data_labels,
-%    dataset_fill_timestamps, toa5_2_dataset
+%    table, uigetfile, UNM_assign_soil_data_labels,
+%    table_fill_timestamps, toa5_2_table
 %
 % Gregory E. Maurer, UNM,  Sept 2014
 
-sourceType = lower( sourceType );
+tnow = now();
+logger = lower( logger );
 
-if isempty( varargin )
-    % no files specified; prompt user to select files
-    [ fileNames, pathNames, filterindex ] = uigetfile( ...
-        { '*.dat','Datalogger files (*.dat)' }, ...
-        'select files to merge', ...
-        get_site_directory( sitecode ) , ...
-        'MultiSelect', 'on' );
-    
-    if ischar( fileNames )
-        fileNames = { fileNames };
-    end
-else
-    % the arguments are file names (with full paths)
-    args = [ varargin{ : } ];
-    [ pathNames, fileNames, ext ] = cellfun( @fileparts, ...
-                                           args, ...
-                                           'UniformOutput', false );
-    fileNames = strcat( fileNames, ext );
+% Get yaml configuration and select datalogger (configured for last 60
+% days)
+fprintf('Retrieving most recent %s datalogger configuration.\n', logger);
+lConf = parse_yaml_config( sitecode, 'Dataloggers', [tnow-1, tnow] );
+lConf = lConf.dataloggers( strcmp(logger, { lConf.dataloggers.name }));
+if isempty(lConf)
+    error('This datalogger not found at %s site!', get_site_name(sitecode));
 end
+
+% Prompt user to select files
+[ fileNames, pathNames, filterindex ] = uigetfile( ...
+    { '*.dat','Datalogger files (*.dat)' }, ...
+    'select files to merge', ...
+    fullfile( get_site_directory( sitecode ), lConf.conv_file_loc), ...
+    'MultiSelect', 'on' );
+
+if ischar( fileNames )
+    fileNames = { fileNames };
+end
+
+% At some point it may be wise to run this automatically when a header
+% name change is encountered. Until then this code is commented
+% if isempty( varargin )
+% ....see above
+% else
+%     % the arguments are file names (with full paths)
+%     args = [ varargin{ : } ];
+%     [ pathNames, fileNames, ext ] = cellfun( @fileparts, ...
+%                                            args, ...
+%                                            'UniformOutput', false );
+%     fileNames = strcat( fileNames, ext );
+% end
 
 % Make sure files are sorted in chronological order and get dates
 fileNames = sort( fileNames );
@@ -86,9 +99,9 @@ for i = 1:nFiles
         this_path = pathNames;
     end
     % Load tables into table cellarray
-    if strcmpi( sourceType, 'main' ) || strcmpi( sourceType, 'cr1000' );
+    if strcmpi( logger, 'flux' ) || strcmp( lConf.conv_file_fmt, 'TOA5' );
         rawTables{ i } = toa5_2_table( fullfile( this_path, fileNames{ i } ) );
-    elseif strcmp(sourceType, 'cr23x');
+    elseif strcmp(lConf.conv_file_fmt, 'CR23X');
         rawTables{ i } = cr23x_2_table( fullfile( this_path, fileNames{ i } ) );
     end
     % Verify that the files are for the requested site
@@ -107,7 +120,8 @@ end
 %%%%%%%%%% Get the header resolution files %%%%%%%%%%%%%
 
 % Header resolution config file path
-resolutionPath = fullfile( pwd, 'HeaderResolutions', char( sitecode ) );
+resolutionPath = fullfile( getenv('FLUXROOT'), 'FluxProcConfig' , ...
+    'HeaderResolutions', char( sitecode ) );
 
 % Get the appropriate header resolution files for each site
 headerChangesFile = fullfile( resolutionPath, 'Header_Changes.csv' );
@@ -287,7 +301,7 @@ if  any( strcmp( str, aff ))
     end
     % Make resolution file name
     resolutionFileName = fullfile( resolutionPath, ...
-        [ sourceType '_HeaderResolution.csv' ]);
+        [ logger '_HeaderResolution.csv' ]);
     
     writetable( T, resolutionFileName );
 end

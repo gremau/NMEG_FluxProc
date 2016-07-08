@@ -278,7 +278,7 @@ switch site
 %           data_amended.Reco_HBLR( replace_idx ) = filler;
       end
     
-  case UNM_sites.PJ
+  case UNM_sites.PJ | UNM_sites.TestSite
     switch yr
         case 2009
           % 1 period with abnormally high respiration this year. Amend

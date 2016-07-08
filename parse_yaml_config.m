@@ -29,16 +29,15 @@ yaml_name = args.Results.yaml_name;
 date_range = args.Results.date_range;
 
 % Path to YAML files
-yamlPath = fullfile( pwd, 'YAML_ConfigFiles', get_site_name( sitecode ));
+yamlPath = fullfile( getenv('FLUXROOT'), 'FluxProcConfig', ...
+    'YAML_ConfigFiles', get_site_name( sitecode ));
 
 % Load the configuration file using YAMLMatlab
-addpath( 'C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\' );
 addpath( yamlPath);
 
-rawConfig = ReadYaml( [ yamlPath '\' yaml_name '.yaml' ]);
+rawConfig = ReadYaml( fullfile(yamlPath, [ yaml_name, '.yaml' ]));
 
 rmpath( yamlPath );
-rmpath( 'C:\Code\MatlabGeneralUtilities\YAMLMatlab_0.4.3\' );
 
 % The yaml parser reads some field in as a cellarray of structs. Its easier
 % to work with struct arrays, so convert them. This throws an error if the

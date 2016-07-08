@@ -175,7 +175,7 @@ switch sitecode
     TCAV = data( :, regexp_header_vars( data, ...
                                     'TCAV_[A-Za-z]+.*' ) );
         
-  case { UNM_sites.PJ, UNM_sites.PJ_girdle }
+  case { UNM_sites.PJ, UNM_sites.PJ_girdle, UNM_sites.TestSite }
     % PJ and PJ_girdle store their soil data outside of FluxAll.
     % These data are already converted to VWC.
     
@@ -275,7 +275,7 @@ cs616_Tc_smoothed = UNM_soil_data_smoother( cs616_Tc_smoothed, 12, false );
 % -----
 
 SHF_pars = define_SHF_pars( sitecode, year );
-if not( ismember( sitecode, [ UNM_sites.PJ, UNM_sites.PJ_girdle ] ) )
+if not( ismember( sitecode, [ UNM_sites.PJ, UNM_sites.PJ_girdle, UNM_sites.TestSite ] ) )
     SHF = data( :, shf_vars );
     shf_vars = cellfun( @(x) [ x, '_0' ], shf_vars, 'UniformOutput', false );
     SHF.Properties.VarNames = shf_vars; 
@@ -433,7 +433,7 @@ switch sitecode
     SHF_pars.bulk=1327; 
   case UNM_sites.JSav
     SHF_pars.bulk=1720; 
-  case UNM_sites.PJ
+  case UNM_sites.PJ | UNM_sites.TestSite
     SHF_pars.bulk=1437; 
   case UNM_sites.PPine
     warning( 'check PPine SHF parameters' );

@@ -9,10 +9,6 @@ function  tab  = ameriflux_table_get_timestamp( tab )
 %     etc. (for the 30-minute timestamps between 00:00 and 02:20).
 % DTIME: fractional day of year
 %
-% ameriflux_dataset_get_timestamp adds a "timestamp" column containing matlab
-% serial datenumbers for the timestamps present in ds.YEAR, ds.DOY, and
-% ds.HRMIN.  ds must contain the timestamp variables YEAR, DOY, HRMIN.
-%
 % USAGE
 %    tab  = ameriflux_table_get_timestamp( tab );
 %

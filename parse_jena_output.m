@@ -30,6 +30,8 @@ function out = parse_jena_output(fname)
 %
 % author: Timothy W. Hilton, UNM
 
+error('This file is deprecated!');
+
 fid = fopen(fname, 'r');
 line1 = fgetl(fid);
 
@@ -46,7 +48,8 @@ units = regexp(line2, '\s*', 'split');
 fmt = repmat('%f', 1, nvars);
 arr = cell2mat(textscan(fid, fmt, 'CollectOutput', true));
 
-out = dataset({arr, vars{:}});
+%out = dataset({arr, vars{:}});
+out = array2table( arr, 'VariableNames', vars );
 
 
 

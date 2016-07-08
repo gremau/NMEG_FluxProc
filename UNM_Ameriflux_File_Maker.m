@@ -20,6 +20,8 @@ function result = UNM_Ameriflux_File_Maker( sitecode, year, varargin )
 %        selected variables to a separate file.  For a list of aggregated
 %        variables, see help for UNM_ameriflux_daily_aggregator.
 %    process_soil_data: logical; if false, do not produce soil file
+%    gf_part_source: string {eddyproc|Reddyproc} which
+%        gapfiller/partitioner file to use
 %
 % Timothy W. Hilton, UNM, Dec 2011 - Jan 2012
 
@@ -38,6 +40,7 @@ args.addParameter( 'write_daily_files', true, @(x) ( islogical(x) & ...
                                                 numel( x ) ==  1 ) );
 args.addParameter( 'process_soil_data', false, @(x) ( islogical(x) & ...
                                                   numel( x ) ==  1 ) );
+args.addParameter( 'gf_part_source', 'eddyproc', @(x) ( isstr(x) ) );
 args.parse( sitecode, year, varargin{ : } );
 sitecode = args.Results.sitecode;
 year = args.Results.year;
@@ -71,9 +74,8 @@ qc_tbl = parse_fluxall_qc_file( sitecode, year );
 [ pt_MR_tbl, pt_GL_tbl ] = ...
     UNM_parse_mpi_eddyproc_output( sitecode, year );
 
-% Parse gapfilled fluxes from Reddyproc tool FIXME - not ready yet
-% [ pt_GL_tbl, pt_MR_tbl ] = ...
-%     UNM_parse_reddyproc_output( sitecode, year );
+% Parse gapfilled fluxes from Reddyproc tool
+pt_MR_tbl_R = UNM_parse_reddyproc_output( sitecode, year );
 
 % Parse gapfilled and partitioned fluxes from Trevor Keenan's files
 pt_TK_tbl = parse_TK201X_output( sitecode, year );
@@ -112,6 +114,9 @@ t_max = max( [ qc_tbl.timestamp; data.timestamp; ...
 [ pt_MR_tbl, data ] = merge_tables_by_datenum( pt_MR_tbl, data, ...
     'timestamp', 'timestamp', 3, t_min, t_max );
 
+[ pt_MR_tbl_R, data ] = merge_tables_by_datenum( pt_MR_tbl_R, data, ...
+    'timestamp', 'timestamp', 3, t_min, t_max );
+
 % Start/end time for the files being created
 Jan1 = datenum( year, 1, 1, 0, 0, 0 );
 %Dec31 = datenum( year, 12, 31, 23, 59, 59 );
@@ -126,12 +131,34 @@ pt_GL_tbl = table_fill_timestamps( pt_GL_tbl, 'timestamp', ...
     't_min', Jan1, 't_max', Dec31 );
 pt_MR_tbl = table_fill_timestamps( pt_MR_tbl, 'timestamp', ...
     't_min', Jan1, 't_max', Dec31 );
+pt_MR_tbl_R = table_fill_timestamps( pt_MR_tbl_R, 'timestamp', ...
+    't_min', Jan1, 't_max', Dec31 );
 
 % Merge gapfilling/partitioning output into one table so we don't have
 % to worry about which variables are in which table
-cols = setdiff( pt_MR_tbl.Properties.VariableNames, ...
-                pt_GL_tbl.Properties.VariableNames );
-pt_tbl = [ pt_GL_tbl, pt_MR_tbl( :, cols ) ];
+if strcmp( args.Results.gf_part_source, 'eddyproc' )
+    cols = setdiff( pt_MR_tbl.Properties.VariableNames, ...
+        pt_GL_tbl.Properties.VariableNames );
+    pt_tbl = [ pt_GL_tbl, pt_MR_tbl( :, cols ) ];
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Amend periods where gapfilling fails or is ridiculous
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    pt_tbl = amend_gapfilling_and_partitioning( sitecode, year, pt_tbl );
+elseif strcmp( args.Results.gf_part_source, 'Reddyproc' )
+    pt_tbl = pt_MR_tbl_R;
+    cols = setdiff( pt_MR_tbl.Properties.VariableNames, ...
+        pt_GL_tbl.Properties.VariableNames );
+    pt_tbl_GL = [ pt_GL_tbl, pt_MR_tbl( :, cols ) ];
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Amend periods where gapfilling fails or is ridiculous
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    pt_tbl_GL = amend_gapfilling_and_partitioning( sitecode, year, pt_tbl_GL );
+    pt_tbl.GPP_HBLR = pt_tbl_GL.GPP_HBLR;
+    pt_tbl.Reco_HBLR = pt_tbl_GL.Reco_HBLR;
+    pt_tbl = [pt_tbl,  pt_tbl_GL( :, {'Reco_HBLR_amended', 'amended_flag' })];
+else
+    error('Wrong gapfiller partitioning type!')
+end
 
 seconds_per_day = 60 * 60 * 24;
 t_run = ceil( ( now() - t0 ) * seconds_per_day );
@@ -157,7 +184,7 @@ keenan = false;
 % Amend periods where gapfilling fails or is ridiculous
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pt_tbl = amend_gapfilling_and_partitioning( sitecode, year, pt_tbl );
+%pt_tbl = amend_gapfilling_and_partitioning( sitecode, year, pt_tbl );
 
 % This adds an Reco_HBLR_amended column
 
@@ -221,9 +248,17 @@ amflux_gf.Properties.VariableUnits{end} = 'mumol/m2/s';
 amflux_gf.Properties.VariableUnits{end-1} = 'mumol/m2/s';
 amflux_gaps.Properties.VariableUnits{end} = 'mumol/m2/s';
 amflux_gaps.Properties.VariableUnits{end-1} = 'mumol/m2/s';
-% FIXME = this needs to be explicit about columns to remove
-amflux_gf( :, [ 34:46 ] ) = [];
-amflux_gaps( :, [ 24:35 ] ) = [];
+
+% REMOVE UNWANTED COLUMNS
+amflux_gf( :, {'GPP_F_MR2005','RECO_MR2005','GPP_GL2010','RECO_GL2010', ...
+    'RECO_GL2010_amended', 'amended_FLAG', 'GPP_F_MR2005_FLAG', ...
+    'GPP_MR2005_ecb', 'RECO_MR2005_ecb','NEE_MR2005_ecb', ...
+    'GPP_GL2010_amended_ecb','RECO_GL2010_amended_ecb', ...
+    'NEE_GL2010_amended_ecb'}) = [];
+amflux_gaps( :, {'GPP_F_MR2005','RECO_MR2005','GPP_GL2010','RECO_GL2010', ...
+    'RECO_GL2010_amended', 'amended_FLAG', 'GPP_MR2005_ecb', ...
+    'RECO_MR2005_ecb','NEE_MR2005_ecb', ...
+    'GPP_GL2010_amended_ecb','RECO_GL2010_amended_ecb','NEE_GL2010_amended_ecb'}) = [];
 
 if args.Results.write_files
     UNM_Ameriflux_write_file( sitecode, year, amflux_gf, ...

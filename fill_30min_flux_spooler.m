@@ -53,8 +53,8 @@ if sitecode == 1 % GLand
         output = fill_30min_flux_processor( output, 1, 2009, 1217, 2282 );
         output = fill_30min_flux_processor( output, 1,2009,9644,9778 );
         output = fill_30min_flux_processor( output, 1,2009,10600,10778 );
-        output = fill_30min_flux_processor( output, 1,2009,14478,15929, ...
-            'write_file', true);  
+        output = fill_30min_flux_processor( output, 1,2009,14478,15929);%, ...
+            %'write_file', true);  
     elseif year == 2010
         output = fill_30min_flux_processor( output, 1,2010,4740,4837);
         output = fill_30min_flux_processor( output, 1,2010,5081,5694);

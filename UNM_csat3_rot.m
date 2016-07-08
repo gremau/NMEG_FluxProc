@@ -60,6 +60,10 @@ function [UVW2,UVWMEANROT,UVWTVAR,COVUVWT,USTAR,HBUOYANT,TRANSPORT,hsout]=UNM_cs
 %     params=[];
 % end
 
+% Pretty sure this is deprecated (its not called by any other functions)
+% - see UNM_csat3.m
+error('This function is deprecated!');
+
     % calculate statistics that require all channels are despiked
     % rotate the measured wind vector. 
     % need to rotate
