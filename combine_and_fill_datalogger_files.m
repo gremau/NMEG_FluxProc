@@ -37,7 +37,7 @@ function combined_tbl = combine_and_fill_datalogger_files( sitecode, ...
 % parse and typecheck inputs
 p = inputParser;
 p.addRequired( 'sitecode', @(x) ( isintval(x) | isa( x, 'UNM_sites' )));
-p.addRequired( 'file_fmt', @(x) strcmpi( x, 'toa5' ) | strcmpi( x, 'cr23x' ))
+p.addRequired( 'file_fmt', @(x) strcmpi( x, 'toa5' ) | strcmpi( x, 'cr23x' ) | strcmpi( x, 'csv' )
 p.addParameter( 'file_names', {}, @( x ) isa( x, 'cell' ) || ischar( x ) );
 p.addParameter( 'resolve_headers', false, @islogical );
 p.addParameter( 'datalogger_name', '', @ischar );
@@ -92,6 +92,9 @@ for i = 1:numFiles
             fullfile( thisPath, fileNames{ i } ) );
     elseif strcmpi( fileFmt, 'cr23x' )
         TableArray{ i } = cr23x_2_table(...
+            fullfile( thisPath, fileNames{ i } ) );
+    elseif strcmpi( filmFmt, 'csv' )
+        TableArray{ i } = csv_2_table(...
             fullfile( thisPath, fileNames{ i } ) );
     end
 end

@@ -320,6 +320,20 @@ methods
     end  % get_secondary_data
 
     % --------------------------------------------------
+    
+    function [ obj, eddypro_files ] = get_eddypro_data( obj)
+         
+        toa5_files = get_loggernet_filenames( obj.sitecode, ...
+            obj.date_start, obj.date_end, 'TOA5' );
+
+        obj.data_30min = combine_and_fill_datalogger_files( ...
+            obj.sitecode, 'csv', ...
+            'file_names', csv_files, ...
+            'resolve_headers', obj.flux_data_config(1).resolve_headers, ...
+            'datalogger_name', obj.flux_data_config(1).name );
+    end
+    
+    % --------------------------------------------------
 
     function obj = process_10hz_data( obj )
         % Place processed 10hz data into data_10hz field of card_data_processor
