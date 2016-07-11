@@ -1,5 +1,5 @@
 % Sets paths in fluxproc directory
-if ~isempty( regexp( pwd, 'FluxProc' ) )
+if ~isempty( regexpi( pwd, 'FluxProc' ) )
     fprintf( 'Setting paths for FluxProc...\n' );
     addpath( fullfile( pwd, 'scripts' ))
     addpath( fullfile( pwd, 'm_utils' ))
