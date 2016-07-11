@@ -321,10 +321,17 @@ methods
 
     % --------------------------------------------------
     
+<<<<<<< HEAD
     function [ obj, eddypro_files ] = get_eddypro_data( obj )
          
         eddypro_files = get_loggernet_filenames( obj.sitecode, ...
             obj.date_start, obj.date_end, 'csv' );
+=======
+    function [ obj, eddypro_files ] = get_eddypro_data( obj)
+         
+        toa5_files = get_loggernet_filenames( obj.sitecode, ...
+            obj.date_start, obj.date_end, 'TOA5' );
+>>>>>>> origin/test_branch
 
         obj.data_30min = combine_and_fill_datalogger_files( ...
             obj.sitecode, 'csv', ...
