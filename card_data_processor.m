@@ -333,7 +333,7 @@ methods
         % If obj.data_10hz_already_processed is true, reads pre-processed data
         % from .mat file (see docs for card_data_processor constructor).
         %
-        % USAGE:
+        % USAGE: 
         %    [ obj ] = process_10hz_data( obj )
         % INPUTS:
         %    obj: card_data_processor object
@@ -378,6 +378,29 @@ methods
         obj.data_10hz_avg = all_data;
     end  % process_10hz_data
 
+    % --------------------------------------------------
+    
+    function obj = process_10hz_eddypro
+        
+        
+output_temp_dir = tempname();
+mkdir(output_temp_dir);
+
+
+     
+%Construct system command to run Eddy Pro
+eddypro_proj = fullfile('C:','Research_Flux_Towers',...
+                        'SiteData','TestSite',...
+                        'eddypro_proc',obj.sitecode,'.eddypro');
+eddypro_exe = fullfile('C:', 'Program Files (x86)', 'LI-COR', ...
+                            'EddyPro-6.1.0', 'bin', ...
+                            'eddypro_rp');
+eddypro_cmd = sprintf('%s %s', ...
+                           eddypro_exe, ...
+                           eddypro_proj);
+system(eddypro_cmd);
+    end
+    
     % --------------------------------------------------
 
     function obj = process_data( obj )

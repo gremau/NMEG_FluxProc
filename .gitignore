@@ -48,3 +48,5 @@ doc*
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+scripts/script_make_qc_gf.m
