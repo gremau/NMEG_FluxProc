@@ -320,6 +320,20 @@ methods
     end  % get_secondary_data
 
     % --------------------------------------------------
+    
+    function [ obj, eddypro_files ] = get_eddypro_data( obj )
+         
+        eddypro_files = get_loggernet_filenames( obj.sitecode, ...
+            obj.date_start, obj.date_end, 'csv' );
+
+        obj.data_30min = combine_and_fill_datalogger_files( ...
+            obj.sitecode, 'csv', ...
+            'file_names', csv_files, ...
+            'resolve_headers', obj.flux_data_config(1).resolve_headers, ...
+            'datalogger_name', obj.flux_data_config(1).name );
+    end
+    
+    % --------------------------------------------------
 
     function obj = process_10hz_data( obj )
         % Place processed 10hz data into data_10hz field of card_data_processor
@@ -333,7 +347,7 @@ methods
         % If obj.data_10hz_already_processed is true, reads pre-processed data
         % from .mat file (see docs for card_data_processor constructor).
         %
-        % USAGE:
+        % USAGE: 
         %    [ obj ] = process_10hz_data( obj )
         % INPUTS:
         %    obj: card_data_processor object
@@ -378,6 +392,29 @@ methods
         obj.data_10hz_avg = all_data;
     end  % process_10hz_data
 
+    % --------------------------------------------------
+    
+    function obj = process_10hz_eddypro
+        
+        
+output_temp_dir = tempname();
+mkdir(output_temp_dir);
+
+
+     
+%Construct system command to run Eddy Pro
+eddypro_proj = fullfile('C:','Research_Flux_Towers',...
+                        'SiteData','TestSite',...
+                        'eddypro_proc',obj.sitecode,'.eddypro');
+eddypro_exe = fullfile('C:', 'Program Files (x86)', 'LI-COR', ...
+                            'EddyPro-6.1.0', 'bin', ...
+                            'eddypro_rp');
+eddypro_cmd = sprintf('%s %s', ...
+                           eddypro_exe, ...
+                           eddypro_proj);
+system(eddypro_cmd);
+    end
+    
     % --------------------------------------------------
 
     function obj = process_data( obj )
