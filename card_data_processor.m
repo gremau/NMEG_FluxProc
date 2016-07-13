@@ -401,25 +401,19 @@ methods
 
     % --------------------------------------------------
     
-    function obj = process_10hz_eddypro
+    function obj = process_10hz_eddypro ( obj )
+        
+         [ result, all_data ] = ...
+                UNM_process_eddypro_main( obj.sitecode, ...
+                obj.date_start, ...
+                obj.date_end);
+        
+    
         
         
-output_temp_dir = tempname();
-mkdir(output_temp_dir);
-
-
-     
-%Construct system command to run Eddy Pro
-eddypro_proj = fullfile('C:','Research_Flux_Towers',...
-                        'SiteData','TestSite',...
-                        'eddypro_proc',obj.sitecode,'.eddypro');
-eddypro_exe = fullfile('C:', 'Program Files (x86)', 'LI-COR', ...
-                            'EddyPro-6.1.0', 'bin', ...
-                            'eddypro_rp');
-eddypro_cmd = sprintf('%s %s', ...
-                           eddypro_exe, ...
-                           eddypro_proj);
-system(eddypro_cmd);
+        %Construct system command to run Eddy Pro
+        
+        system(eddypro_cmd);
     end
     
     % --------------------------------------------------
