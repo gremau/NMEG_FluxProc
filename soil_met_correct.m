@@ -25,7 +25,7 @@ function T_soil_corr =  soil_met_correct( sitecode, year, write_qc, write_rbd )
 
 % Load data
 sitecode = UNM_sites( sitecode );
-fluxall_T = parse_fluxall_txt_file( sitecode, year );  
+fluxall_T = parse_fluxall_txt_file( sitecode, year );
 
 % -----
 % Get soil water content and soil temperature data from fluxall data

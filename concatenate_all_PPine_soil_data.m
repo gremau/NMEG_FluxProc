@@ -40,7 +40,7 @@ t_end = datestr( max( tbl.timestamp ), 'yyyymmdd' );
 outfile = fullfile( outPath, sprintf( 'PPine_soil_data_%s_%s.dat', ...
                    t_start, t_end ));
 fprintf( 'writing %s\n', outfile );
-write_table_std( outfile, tbl );
+write_table_std( outfile, tbl, 'precision', 15 );
 %======================================================================
 function t = combine_data( t111, t112, t111_0910, t112_0809 )
 
