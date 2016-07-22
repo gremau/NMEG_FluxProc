@@ -30,7 +30,7 @@ function Tmain = get_MCon_SAHRA_data( year )
 % <http://www.wrcc.dri.edu/cgi-bin/rawMAIN.pl?nmvcnx>
 % This file contains all data from the SAHRA site at MCon:
 filePath = fullfile( get_site_directory( UNM_sites.MCon ), ...
-    'secondary_loggers', 'SAHRA_soil' );
+    'secondary_loggers', 'SAHRA_logger' );
 fname1 = fullfile( filePath, 'MCon_SAHRA_data_20061001_20130601.dat' );
 fprintf( 'reading %s \n', fname1 );
 
@@ -62,12 +62,13 @@ sensor1Idx = 1:nRows;
 sensor2Idx = ( nRows + 1 ):( nRows + nRows );
 sensor3Idx = ( max( sensor2Idx ) + 1 ):( max( sensor2Idx ) + nRows ) ;
 % Join Tmain and Thydra variables (timestamps should be the same)
-Tmain.Soil_1_VWC = Thydra{ sensor1Idx', 'VWC' };
-Tmain.Soil_2_VWC = Thydra{ sensor2Idx', 'VWC' };
-Tmain.Soil_3_VWC = Thydra{ sensor3Idx', 'VWC' };
-Tmain.Soil_1_Tsoil = Thydra{ sensor1Idx', 'TSoil_C' };
-Tmain.Soil_2_Tsoil = Thydra{ sensor2Idx', 'TSoil_C' };
-Tmain.Soil_3_Tsoil = Thydra{ sensor3Idx', 'TSoil_C' };
+% I don't know what the depths are, so variable names are place holders
+Tmain.SWC_SAHRA_P1_D1 = Thydra{ sensor1Idx', 'VWC' };
+Tmain.SWC_SAHRA_P1_D2 = Thydra{ sensor2Idx', 'VWC' };
+Tmain.SWC_SAHRA_P1_D3 = Thydra{ sensor3Idx', 'VWC' };
+Tmain.SOILT_SAHRA_P1_D1 = Thydra{ sensor1Idx', 'TSoil_C' };
+Tmain.SOILT_SAHRA_P1_D2 = Thydra{ sensor2Idx', 'TSoil_C' };
+Tmain.SOILT_SAHRA_P1_D3 = Thydra{ sensor3Idx', 'TSoil_C' };
 
 % Linearly interpolate the 30 minute values
 Tmain = hourly_2_30min( Tmain );
@@ -82,11 +83,6 @@ Tmain = table_fill_timestamps( Tmain, ...
                                't_min', min( Tmain.timestamp ), ...
                                't_max', max( Tmain.timestamp ) );
                            
-
-% May be nice to remove negative SWC values... or not
-%arr = double( SWC );
-%arr( arr < 0 ) = NaN;
-%SWC = replacedata( SWC, arr );
 
 %==================================================_
 function T = parse_MCon_SAHRA_DAT_file( fname )

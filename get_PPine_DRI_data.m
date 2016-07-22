@@ -44,18 +44,6 @@ end
 [ t_vars, t_var_idx ] = regexp_header_vars( tbl, 'SoilT_C' );
 [ w_vars, w_var_idx ] = regexp_header_vars( tbl, 'VWC_' );
 
-% Remove bad VWC values
-vwc = tbl{ :, w_vars };
-vwc( vwc <= 0 ) = NaN;
-vwc( tbl.timestamp < datenum( 2009, 1, 1 ), : ) = NaN;
-tbl{ :, w_vars } = vwc;
-
-% Remove bad SoilT values
-soilt = tbl{ :, t_vars };
-soilt( soilt < -15 ) = NaN;
-soilt( tbl.timestamp < datenum( 2009, 1, 1 ), : ) = NaN;
-tbl{ :, t_vars } = soilt;
-
 DRIsoil = tbl( :, { 'timestamp', t_vars{:}, w_vars{:} } );
 
 % Change the header of the SWC and SoilT columns
