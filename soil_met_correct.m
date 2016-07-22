@@ -203,7 +203,7 @@ if ~isempty( T_soil_rbd )
     % Remove SoilT values > 120 and < -30
     data = table2array( T_soil_rbd );
     subset = data( :, ts_loc );
-    bad_ts = subset > 120 | subset < -30;
+    bad_ts = subset > 60 | subset < -22.5;
     subset( bad_ts ) = NaN;
     data( :, ts_loc ) = subset;
     T_soil_rbd = array2table( data, ...
@@ -414,7 +414,7 @@ switch sitecode
             end
             % Get the name of Laura Morillas's QC'd soil data file
             soilqcPathFileName = fullfile(get_site_directory(sitecode), ...
-                'secondary_loggers', 'cr23x_files', ...
+                'secondary_loggers', 'soil_sap', ...
                 'LM_CR23xCompilations_qc', num2str( year ), sprintf( ...
                 'SWC_%s_%d_REFINED_30min.CSV', site_token, year) );
             soilqc = readtable( soilqcPathFileName, 'FileType', 'text', ...
@@ -422,7 +422,6 @@ switch sitecode
             % Fix funny header names
             newColNames = regexprep( soilqc.Properties.VariableNames, ...
                 '(^x[0-9][0-9]WC|^WC)', 'SWC_LM' );
-            %newColNames = regexprep(newColNames, 'SWC_', 'SWC_LMqc_');
             newColNames = regexprep(newColNames, 'AVGH', 'AVG');
             soilqc.Properties.VariableNames = newColNames;
             % Now join with T_soil_rbd
@@ -432,6 +431,22 @@ switch sitecode
             T_soil_rbd = [ T_soil_rbd, ...
                 soilqc( :, ~cellfun( 'isempty', ...
                 strfind(newColNames, '_LM_' )))];
+        end
+        if year == 2013
+            % Our 30cm SOILT probe has a spike
+            idx = ts > datenum( 2013,8,5,4,30,0 ) & ts < datenum( 2013,9,26 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_J3_30' );
+            T_soil_rbd{ idx, cols_rbd } = NaN;
+        elseif year == 2014
+            % Our 30cm SOILT probe has a spike
+            idx = ts > datenum( 2014,1,24 ) & ts < datenum( 2014,2,13 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_O1_30' );
+            T_soil_rbd{ idx, cols_rbd } = NaN;
+        elseif year == 2015
+            % Our 30cm SOILT probe has a spike
+            idx = ts > datenum( 2015,7,31 ) & ts < datenum( 2015,6,6,12,0,0 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_J3' );
+            T_soil_rbd{ idx, cols_rbd } = NaN;
         end
     case  UNM_sites.PPine
         if year <= 2014
