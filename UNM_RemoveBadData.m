@@ -1229,7 +1229,9 @@ end
 if iteration > 1
     
     % Remove values with low U*
-    %ustarflag = find(u_star < ustar_lim);
+    
+    ustar_lim = 0;
+    ustarflag = find(u_star < ustar_lim);
     removed_ustar = length(ustarflag);
     decimal_day_nan(ustarflag) = NaN;
     record(ustarflag) = NaN;
@@ -1283,7 +1285,7 @@ if iteration > 2
     maxminflag = [];
     
     [ DOY_co2_min, DOY_co2_max, std_exc_flag ] = ...
-        specify_siteyear_filter_exceptions( sitecode, year_arg, ...
+        RBD_specify_siteyear_filter_exceptions( sitecode, year_arg, ...
         DOY_co2_min, DOY_co2_max );
     
     maxminflag = ( ( fc_raw_massman_wpl > DOY_co2_max ) | ...

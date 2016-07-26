@@ -199,20 +199,26 @@ clear headers units;
 % Add filled C, H2O, and energy flux variables
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-FC_flag = verify_gapfilling( pt_tbl.NEE_f, qc_tbl.fc_raw_massman_wpl, ...
-    1e-3 );
+% Since we having eddyproc conduct ustar filtering, we cannot verify the
+% gapfilling - just use the flag from the eddyproc output
+
+%FC_flag = verify_gapfilling( pt_tbl.NEE_f, qc_tbl.fc_raw_massman_wpl, ...
+%    1e-3 );
+FC_flag = pt_tbl.NEE_fqc > 0;
 amflx_gf = add_cols( amflx_gf, pt_tbl.NEE_f, ...
     { 'FC_F' }, { 'mumol/m2/s' }, FC_flag );
-amflx_gaps = add_cols( amflx_gaps, qc_tbl.fc_raw_massman_wpl, ...
+amflx_gaps = add_cols( amflx_gaps, pt_tbl.NEE, ...
     { 'FC' }, { 'mumol/m2/s' } );
 
-LE_flag = verify_gapfilling( pt_tbl.LE_f, qc_tbl.HL_wpl_massman, 1e-2 );
+%LE_flag = verify_gapfilling( pt_tbl.LE_f, qc_tbl.HL_wpl_massman, 1e-2 );
+LE_flag = pt_tbl.LE_fqc > 0;
 amflx_gf = add_cols( amflx_gf, pt_tbl.LE_f, ...
     { 'LE_F' }, { 'W/m2' }, LE_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.HL_wpl_massman, ...
     { 'LE' }, { 'W/m2' } );
 
-H_flag = verify_gapfilling( pt_tbl.H_f, qc_tbl.HSdry_massman, 1e-2 );
+%H_flag = verify_gapfilling( pt_tbl.H_f, qc_tbl.HSdry_massman, 1e-2 );
+H_flag = pt_tbl.H_fqc > 0;
 amflx_gf = add_cols( amflx_gf, pt_tbl.H_f, ...
     { 'H_F' }, { 'W/m2' }, H_flag );
 amflx_gaps = add_cols( amflx_gaps, qc_tbl.HSdry_massman, ...
