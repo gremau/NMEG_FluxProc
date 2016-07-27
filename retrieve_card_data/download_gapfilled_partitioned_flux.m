@@ -34,7 +34,6 @@ blk_fname = create_blocking_file( sprintf( ['blocking file for online ' ...
 blk_fname_unix = strrep( blk_fname, 'C:\', '/cygdrive/c/' );
 blk_fname_unix = strrep( blk_fname, '\', '/' );
 
-disp(blk_fname_unix);
 % bash script to perform the download
 % beginning with "start" causes a dos window to open and display the progress
 cmd = sprintf( ['start C:\\cygwin64\\bin\\bash --login -c ' ...
