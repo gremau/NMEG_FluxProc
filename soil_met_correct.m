@@ -25,7 +25,7 @@ function T_soil_corr =  soil_met_correct( sitecode, year, write_qc, write_rbd )
 
 % Load data
 sitecode = UNM_sites( sitecode );
-fluxall_T = parse_fluxall_txt_file( sitecode, year );  
+fluxall_T = parse_fluxall_txt_file( sitecode, year );
 
 % -----
 % Get soil water content and soil temperature data from fluxall data
@@ -54,7 +54,7 @@ T_soil.Properties.VariableNames = res.qc_mapping( res_idx( fluxall_idx) );
 
 % Separate sensor data that is already converted to VWC,
 % Includes columns marked with "echo" or "conv"
-[cols_conv, ~] = regexp_header_vars( T_soil, 'SWC_echo|SWC_conv' );
+[cols_conv, ~] = regexp_header_vars( T_soil, 'SWC_echo|SWC_conv|SWC_DRI|SWC_SAHRA' );
 if length( cols_conv ) > 0
     convtest = ismember( cols_swc, cols_conv );
     cols_swc = cols_swc( ~convtest );
@@ -200,10 +200,10 @@ if ~isempty( T_soil_rbd )
     % Get SoilT column names
     [cols_ts_corr, ts_loc] = regexp_header_vars( T_soil_rbd, 'SOILT' );
     
-    % Remove SoilT values > 120 and < -80
+    % Remove SoilT values > 120 and < -30
     data = table2array( T_soil_rbd );
     subset = data( :, ts_loc );
-    bad_ts = subset > 120 | subset < -80;
+    bad_ts = subset > 60 | subset < -22.5;
     subset( bad_ts ) = NaN;
     data( :, ts_loc ) = subset;
     T_soil_rbd = array2table( data, ...
@@ -414,7 +414,7 @@ switch sitecode
             end
             % Get the name of Laura Morillas's QC'd soil data file
             soilqcPathFileName = fullfile(get_site_directory(sitecode), ...
-                'secondary_loggers', 'cr23x_files', ...
+                'secondary_loggers', 'soil_sap', ...
                 'LM_CR23xCompilations_qc', num2str( year ), sprintf( ...
                 'SWC_%s_%d_REFINED_30min.CSV', site_token, year) );
             soilqc = readtable( soilqcPathFileName, 'FileType', 'text', ...
@@ -422,7 +422,6 @@ switch sitecode
             % Fix funny header names
             newColNames = regexprep( soilqc.Properties.VariableNames, ...
                 '(^x[0-9][0-9]WC|^WC)', 'SWC_LM' );
-            %newColNames = regexprep(newColNames, 'SWC_', 'SWC_LMqc_');
             newColNames = regexprep(newColNames, 'AVGH', 'AVG');
             soilqc.Properties.VariableNames = newColNames;
             % Now join with T_soil_rbd
@@ -433,6 +432,66 @@ switch sitecode
                 soilqc( :, ~cellfun( 'isempty', ...
                 strfind(newColNames, '_LM_' )))];
         end
+        if year == 2013
+            % Our 30cm SOILT probe has a spike
+            idx = ts > datenum( 2013,8,5,4,30,0 ) & ts < datenum( 2013,9,26 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_J3_30' );
+            T_soil_rbd{ idx, cols_rbd } = NaN;
+        elseif year == 2014
+            % Our 30cm SOILT probe has a spike
+            idx = ts > datenum( 2014,1,24 ) & ts < datenum( 2014,2,13 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_O1_30' );
+            T_soil_rbd{ idx, cols_rbd } = NaN;
+        elseif year == 2015
+            % Our 30cm SOILT probe has a spike
+            idx = ts > datenum( 2015,7,31 ) & ts < datenum( 2015,6,6,12,0,0 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_J3' );
+            T_soil_rbd{ idx, cols_rbd } = NaN;
+        end
+    case  UNM_sites.PPine
+        if year <= 2014
+            % Prior to Oct 2nd 2014, all our probes look crazy
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, '(SWC|SOILT)_P[1-3]' );
+            idx = ts < datenum( 2014, 10, 3 );
+            T_soil_rbd{ idx, cols_rbd } = NaN;
+            % Our 60cm SWC probes look bad
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SWC_P[1-3]_60' );
+            T_soil_rbd{ :, cols_rbd } = NaN;
+        end
+        if year >= 2015
+        % Our 60cm SWC probes look bad
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SWC_P[1-3]_60' );
+            T_soil_rbd{ :, cols_rbd } = NaN;
+        end
+    case UNM_sites.MCon
+        %SAHRA soil T had problems in summer from 2010-2012
+        if year == 2010
+            idx1 = ts > datenum( 2010,7,14 ) & ts < datenum( 2010,8,2 );
+            idx2 = ts > datenum( 2010,8,13 ) & ts < datenum( 2010,8,15 );
+            idx3 = ts > datenum( 2010,8,17,10,0,0 ) & ts < datenum( 2010,8,29 );
+            idx4 = ts > datenum( 2010,9,17 ) & ts < datenum( 2010,9,19 );
+            idx5 = ts > datenum( 2010,10,5,18,0,0 ) & ts < datenum( 2010,11,4 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, '(SWC|SOILT)_SAHRA_P1' );
+            T_soil_rbd{ idx1 | idx2 | idx3 | idx4 | idx5, cols_rbd } = NaN;
+        elseif year == 2011
+            idx1 = ts > datenum( 2011,7,11 ) & ts < datenum( 2011,10,9 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, '(SWC|SOILT)_SAHRA_P1' );
+            T_soil_rbd{ idx1, cols_rbd } = NaN;
+        elseif year == 2012
+            idx1 = ts > datenum( 2012,6,29,12,0,0 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, '(SWC|SOILT)_SAHRA_P1' );
+            T_soil_rbd{ idx1, cols_rbd } = NaN;
+        elseif year == 2015
+            % Our 60cm SOILT probe has a spike
+            idx = ts > datenum( 2015,5,6,4,30,0 ) & ts < datenum( 2015,5,9 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SOILT_P2_60' );
+            T_soil_rbd{ idx, cols_rbd } = NaN;
+            % Our 60cm  SWC probe looks bad
+            idx = ts > datenum( 2015,1,1 ) & ts < datenum( 2015,7,6,12,0,0 );
+            [cols_rbd, ~] = regexp_header_vars( T_soil_rbd, 'SWC_P2_60' );
+            T_soil_rbd{ idx, cols_rbd } = NaN;
+        end
+      
 end
 
 

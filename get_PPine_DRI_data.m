@@ -1,4 +1,4 @@
-function soilData = get_PPine_DRI_data( year )
+function DRIsoil = get_PPine_DRI_data( year )
 % GET_PPINE_DRI_DATA - parse DRI data for Ponderosa Pine site to table
 % array and extract the observations for a specified year.
 %
@@ -39,25 +39,26 @@ else
         error( 'PPine DRI soil data not found! ');
     end
 end
-          
-% Find the SWC and SoilT variables
-[ SWCvars, SWCidx ] = regexp_header_vars( tbl, 'VWC' );
-[ SoilTvars, SoilTidx ] = regexp_header_vars( tbl, 'SoilT_C' );
-% Remove extra columns
-soilData = tbl( :, { 'timestamp',  SWCvars{ : }, SoilTvars{ : } } );
-% Change the header of the SWC columns
-soilData.Properties.VariableNames = regexprep( ...
-    soilData.Properties.VariableNames, ...
-    'VWC', 'cs616SWC' );
 
-% May be nice to remove negative SWC values... or not
-%arr = double( SWC );
-%arr( arr < 0 ) = NaN;
-%SWC = replacedata( SWC, arr );
+% Get header names for T and VWC    
+[ t_vars, t_var_idx ] = regexp_header_vars( tbl, 'SoilT_C' );
+[ w_vars, w_var_idx ] = regexp_header_vars( tbl, 'VWC_' );
+
+DRIsoil = tbl( :, { 'timestamp', t_vars{:}, w_vars{:} } );
+
+% Change the header of the SWC and SoilT columns
+DRIsoil.Properties.VariableNames = regexprep( ...
+    DRIsoil.Properties.VariableNames, ...
+    'VWC', 'SWC_DRI' );
+DRIsoil.Properties.VariableNames = regexprep( ...
+    DRIsoil.Properties.VariableNames, ...
+    'SoilT_C', 'SOILT_DRI' );
 
 % return data for requested year
-[ datayear, ~, ~, ~, ~, ~ ] = datevec( soilData.timestamp );
-soilData = soilData( datayear == year, : );
+[ datayear, ~, ~, ~, ~, ~ ] = datevec( DRIsoil.timestamp );
+getyear = find( datayear==year) + 1;
+getyear = getyear( getyear < numel( datayear )+1 );
+DRIsoil = DRIsoil( getyear, : );  
 
 
 

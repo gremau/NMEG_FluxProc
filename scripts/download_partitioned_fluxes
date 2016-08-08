@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# allow -d flag to perform dry run: write site and year to stdout, but
+# do not actually download anything
+DOWNLOAD=true
+num=$1
+
+while getopts ":d" opt; do
+  case $opt in
+      d)
+	  echo "dry run -- nothing will actually download" >&2
+	  DOWNLOAD=false
+	  num="$2"
+	  ;;
+      \?)
+	  echo "Invalid option: -$OPTARG" >&2
+	  ;;
+  esac
+done
+
+URL_root=http://www.bgc-jena.mpg.de/~MDIwork/eddyproc/output/
+
+echo num: $num
+
+forminfo_file=http://www.bgc-jena.mpg.de/~MDIwork/eddyproc/output/$num/formInfo.prop
+
+echo $forminfo_file
+
+#site = filename=GLand_flux_all_2011_for_gap_filling.txt
+
+# read the input file from the partitioner output directory to get the
+# site and year for this gapfilling/partitioning job
+input_file=$(wget -q $forminfo_file -O - | sed -n 's|filename=\(.*\)|\1|p')
+
+# parse the input file name for the site and year
+#site_name=$(echo $input_file | sed -n 's|\([A-Za-z]\{1,50\}\)_.*|\1|p')  #reads PJ_girdle as PJ
+site_name=$(echo $input_file | sed -n 's|\([A-Za-z]\{1,50\}\)_flux_all.*|\1|p')   # requires file name format SITE_flux_all*
+year=$(echo $input_file | sed -n 's|.*_flux_all_\([0-9]\{4,\}\).*|\1|p')
+
+echo --------------------------
+echo JOB NUMBER: $num
+echo INPUTFILE: $input_file
+echo YEAR: $year
+echo SITE: $site_name
+echo --------------------------
+
+if $DOWNLOAD; then
+
+#--------------------------------------------------
+# download the gapfilled, partitioned data files to Jemez
+    
+    echo downloading 
+# DataSetafterFluxpart.txt
+    wget $URL_root/$num/DataSetafterFluxpart.txt -O $FLUXROOT/SiteData/$site_name/processed_flux/DataSetafterFluxpart_$year.txt
+
+# DataSetafterFluxpartGL2010.txt
+    wget $URL_root/$num/DataSetafterFluxpartGL2010.txt -O $FLUXROOT/SiteData/$site_name/processed_flux/DataSetafterFluxpartGL2010_$year.txt
+
+fi
+

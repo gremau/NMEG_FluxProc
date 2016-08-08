@@ -65,34 +65,34 @@ switch site
     % Several periods with abnormally high respiration at PPine. Amend
     % as per Marcy's request
     switch yr
-      case 2007
-        idx = DOYidx( 227.24 ) : DOYidx( 240.16 );
-        data_amended.Reco_HBLR_amended( idx ) = ...
-            norm( data_in.Reco_HBLR( idx ), 4.2 );
-        dfig = plot_amended( data_in, data_amended, ...
-            'Reco_HBLR', site, yr );
+%       case 2007
+%         idx = DOYidx( 227.24 ) : DOYidx( 240.16 );
+%         data_amended.Reco_HBLR_amended( idx ) = ...
+%             norm( data_in.Reco_HBLR( idx ), 4.2 );
+%         dfig = plot_amended( data_in, data_amended, ...
+%             'Reco_HBLR', site, yr );
       case 2009
         idx = DOYidx( 21 ) : DOYidx( 28.25 );
         data_amended.Reco_HBLR_amended( idx ) = ...
             norm( data_in.Reco_HBLR( idx ), 4.5 );
-        idx2 = DOYidx( 45.05 ) : DOYidx( 49 );
+        idx2 = DOYidx( 40.5 ) : DOYidx( 49 );
         data_amended.Reco_HBLR_amended( idx2 ) = ...
             norm( data_in.Reco_HBLR( idx2 ), 2.15 );
 %         idx3 = DOYidx( 243 ) : DOYidx( 249 );
 %         data_amended.Reco_HBLR_amended( idx3 ) = ...
 %             norm( data_in.Reco_HBLR( idx3 ), 5 );
-        idx4 = DOYidx( 317 ) : DOYidx( 320.85 );
-        data_amended.Reco_HBLR_amended( idx4 ) = ...
-            norm( data_in.Reco_HBLR( idx4 ), 6 );
+%         idx4 = DOYidx( 317 ) : DOYidx( 320.85 );
+%         data_amended.Reco_HBLR_amended( idx4 ) = ...
+%             norm( data_in.Reco_HBLR( idx4 ), 6 );
         dfig = plot_amended( data_in, data_amended, ...
             'Reco_HBLR', site, yr );
       case 2010
-        idx = DOYidx( 219.3 ) : DOYidx( 222.8 );
-        data_amended.Reco_HBLR_amended( idx ) = ...
-            norm( data_in.Reco_HBLR( idx ), 7 ); 
-        idx2 = DOYidx( 350 ) : DOYidx( 366 );
+%         idx = DOYidx( 219.3 ) : DOYidx( 222.8 );
+%         data_amended.Reco_HBLR_amended( idx ) = ...
+%             norm( data_in.Reco_HBLR( idx ), 7 ); 
+        idx2 = DOYidx( 345 ) : DOYidx( 366 );
         data_amended.Reco_HBLR_amended( idx2 ) = ...
-            norm( data_in.Reco_HBLR( idx2 ), 4.3 );
+            norm( data_in.Reco_HBLR( idx2 ), 2.2 );
         dfig = plot_amended( data_in, data_amended, ...
             'Reco_HBLR', site, yr );
       case 2011
@@ -101,22 +101,22 @@ switch site
             norm( data_in.Reco_HBLR( idx ), 4 );
         dfig = plot_amended( data_in, data_amended, ...
             'Reco_HBLR', site, yr );
-      case 2012
-        idx = DOYidx( 179 ) : DOYidx( 191 );
-        data_amended.Reco_HBLR_amended( idx ) = ...
-            norm( data_in.Reco_HBLR( idx ), 7 );
-        idx2 = DOYidx( 321.1 ) : DOYidx( 328 );
-        data_amended.Reco_HBLR_amended( idx2 ) = ...
-            norm( data_in.Reco_HBLR( idx2 ), 6.25 );
-        idx3 = DOYidx( 345.35 ) : DOYidx( 350.9 );
-        data_amended.Reco_HBLR_amended( idx3 ) = ...
-            norm( data_in.Reco_HBLR( idx3 ), 3.5 );
-        dfig = plot_amended( data_in, data_amended, ...
-            'Reco_HBLR', site, yr );
+%       case 2012
+%         idx = DOYidx( 179 ) : DOYidx( 191 );
+%         data_amended.Reco_HBLR_amended( idx ) = ...
+%             norm( data_in.Reco_HBLR( idx ), 7 );
+%         idx2 = DOYidx( 321.1 ) : DOYidx( 328 );
+%         data_amended.Reco_HBLR_amended( idx2 ) = ...
+%             norm( data_in.Reco_HBLR( idx2 ), 6.25 );
+%         idx3 = DOYidx( 345.35 ) : DOYidx( 350.9 );
+%         data_amended.Reco_HBLR_amended( idx3 ) = ...
+%             norm( data_in.Reco_HBLR( idx3 ), 3.5 );
+%         dfig = plot_amended( data_in, data_amended, ...
+%             'Reco_HBLR', site, yr );
       case 2013
-        idx = DOYidx( 321.3 ) : DOYidx( 333.2 );
+        idx = DOYidx( 323.2 ) : DOYidx( 366 );
         data_amended.Reco_HBLR_amended( idx ) = ...
-            norm( data_in.Reco_HBLR( idx ), 6 );
+            norm( data_in.Reco_HBLR( idx ), 2.1 );
         dfig = plot_amended( data_in, data_amended, ...
             'Reco_HBLR', site, yr );
 %       case 2014
@@ -127,12 +127,12 @@ switch site
 %             'Reco_HBLR', site, yr );
       case 2015
         % 1 periods with abnormally high respiration this year.
-        idx = DOYidx( 316.25 ) : DOYidx( 320.85 );
-        data_amended.Reco_HBLR_amended( idx ) = ...
-            norm( data_in.Reco_HBLR( idx ), 6 );
-        idx = DOYidx( 323.2 ) : DOYidx( 329.0 );
-        data_amended.Reco_HBLR_amended( idx ) = ...
-            norm( data_in.Reco_HBLR( idx ), 5.6 );
+%         idx = DOYidx( 316.25 ) : DOYidx( 320.85 );
+%         data_amended.Reco_HBLR_amended( idx ) = ...
+%             norm( data_in.Reco_HBLR( idx ), 6 );
+%         idx = DOYidx( 323.2 ) : DOYidx( 329.0 );
+%         data_amended.Reco_HBLR_amended( idx ) = ...
+%             norm( data_in.Reco_HBLR( idx ), 5.6 );
         idx = DOYidx( 337.25 ) : DOYidx( 340.8 );
         data_amended.Reco_HBLR_amended( idx ) = ...
             norm( data_in.Reco_HBLR( idx ), 4.2 );
@@ -170,6 +170,12 @@ switch site
 %                                          'cols_to_shift', shift_vars );
 %         data_amended = replacedata( temp_arr, ...
 %             'VariableNames', data_in.Properties.VariableNames );
+      case 2010
+        idx = DOYidx( 301.35 ) : DOYidx( 313.7 );
+        data_amended.Reco_HBLR_amended( idx ) = ...
+            norm( data_in.Reco_HBLR( idx ), 1.8 );
+        dfig = plot_amended( data_in, data_amended, ...
+            'Reco_HBLR', site, yr );
       case 2011
         % the gapfiller/partitioner put in a big RE spike between days 300
         % and 335.  Dampen that spike to 2 (as per conversation with Marcy 17
@@ -209,11 +215,11 @@ switch site
         case 2012
             % 1 period with abnormally high respiration this year. Amend
             % as per Marcy's request
-            idx = DOYidx( 192.5 ) : DOYidx( 217.4 );
-            data_amended.Reco_HBLR_amended( idx ) = ...
-                norm( data_in.Reco_HBLR( idx ), 1.55 );
-            dfig = plot_amended( data_in, data_amended, ...
-                'Reco_HBLR', site, yr );
+%             idx = DOYidx( 192.5 ) : DOYidx( 217.4 );
+%             data_amended.Reco_HBLR_amended( idx ) = ...
+%                 norm( data_in.Reco_HBLR( idx ), 1.55 );
+%             dfig = plot_amended( data_in, data_amended, ...
+%                 'Reco_HBLR', site, yr );
     end
     
   case UNM_sites.SLand
@@ -278,22 +284,22 @@ switch site
 %           data_amended.Reco_HBLR( replace_idx ) = filler;
       end
     
-  case UNM_sites.PJ | UNM_sites.TestSite
+  case {UNM_sites.PJ, UNM_sites.TestSite}
     switch yr
-        case 2009
-          % 1 period with abnormally high respiration this year. Amend
-          % as per Marcy's request
-          idx = DOYidx( 178.25 ) : DOYidx( 182 );
-          data_amended.Reco_HBLR_amended( idx ) = ...
-              norm( data_in.Reco_HBLR( idx ), 2.75 );
-          dfig = plot_amended( data_in, data_amended, ...
-              'Reco_HBLR', site, yr );
+%         case 2009
+%           % 1 period with abnormally high respiration this year. Amend
+%           % as per Marcy's request
+%           idx = DOYidx( 178.25 ) : DOYidx( 182 );
+%           data_amended.Reco_HBLR_amended( idx ) = ...
+%               norm( data_in.Reco_HBLR( idx ), 2.75 );
+%           dfig = plot_amended( data_in, data_amended, ...
+%               'Reco_HBLR', site, yr );
         case 2011
           % 2 periods with abnormally high respiration this year. Amend
           % as per Marcy's request
-          idx = DOYidx( 241.25 ) : DOYidx( 246.8 );
-          data_amended.Reco_HBLR_amended( idx ) = ...
-              norm( data_in.Reco_HBLR( idx ), 3.5 );
+%           idx = DOYidx( 241.25 ) : DOYidx( 246.8 );
+%           data_amended.Reco_HBLR_amended( idx ) = ...
+%               norm( data_in.Reco_HBLR( idx ), 3.5 );
           idx2 = DOYidx( 349 ) : DOYidx( 356.75 );
           data_amended.Reco_HBLR_amended( idx2 ) = ...
               norm( data_in.Reco_HBLR( idx2 ), 3 );

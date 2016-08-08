@@ -39,7 +39,7 @@ args.addRequired( 'tab_in', @( x ) isa( x, 'table' ) );
 args.addParameter( 'delimiter', '\t', @ischar );
 args.addParameter( 'replace_nans', NaN, @isnumeric ); %
 args.addParameter( 'write_units', false, @islogical ); %
-args.addParameter( 'precision', 8, @(x) isa( x, 'integer' )); %
+args.addParameter( 'precision', 8, @(x) isa( x, 'numeric' )); %
 
 % parse optional inputs
 args.parse( fname, tab_in, varargin{ : } );

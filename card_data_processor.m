@@ -527,12 +527,7 @@ methods
         if parse_10hz
             fprintf( '---------- processing 10-hz data ----------\n' );
             
-            if obj.sitecode==UNM_sites.MCon_SS
-                warning( 'MCon_SS 10hz not processing yet');
-                obj.data_10hz_avg = obj.data_30min(:,'timestamp')                
-            else
-                obj = process_10hz_data( obj );
-            end
+            obj = process_10hz_data( obj );
         end
         
         if parse_eddypro

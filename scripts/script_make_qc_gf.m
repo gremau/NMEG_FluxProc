@@ -1,10 +1,10 @@
 %close all;
 %clear all;
 
-sitelist = {UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, UNM_sites.New_GLand,...
-    UNM_sites.PJ, UNM_sites.PJ_girdle, UNM_sites.PPine, UNM_sites.MCon };
-sitelist = {UNM_sites.TestSite};
-yearlist = 2009;
+sitelist = {UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav,...
+    UNM_sites.PPine, UNM_sites.MCon };
+sitelist = {UNM_sites.SLand, UNM_sites.GLand};
+yearlist = 2007;
 
 % True, overwrite files; False; do not overwrite
 write_qc = true;
@@ -33,7 +33,7 @@ for i = 1:length(sitelist);
             'old_fluxall', old_fluxall);
         
         % Fill in gaps using the REddyProc package
-        %UNM_run_gapfiller(site, year);
+        UNM_run_gapfiller(site, year);
         % 
         % Otherwise, send the resulting for_gapfilling files to
         % the MPI eddyproc web service.
