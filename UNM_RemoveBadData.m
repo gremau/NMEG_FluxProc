@@ -245,6 +245,23 @@ elseif sitecode == UNM_sites.MCon; % Mixed conifer
     rH_min = 0; rH_max = 1;
     h2o_max = 30; h2o_min = 0;
     ustar_lim = 0.2;
+
+elseif sitecode == UNM_sites.MCon_SS; % New Mixed Conifer 
+    warning('Filters copied from MCon, adjust for NMCon ');
+    co2_min_by_month = [ -2.5, -2.5, repmat( -16, 1, 9 ), -2.5 ];%[ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ];
+    co2_max_by_month = 6;
+    n_SDs_filter_hi = 2.0; % how many std devs above the mean NEE to allow
+    n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
+    sd_filter_windows = [ 1, 3, 6 ];
+    sd_filter_thresh = 3;
+    wind_min = 153; wind_max = 213; % these are given a sonic_orient = 333;
+    Tdry_min = 250; Tdry_max = 300;
+    HS_min = -200; HS_max = 800;
+    HSmass_min = -200; HSmass_max = 800;
+    LH_min = -50; LH_max = 550;
+    rH_min = 0; rH_max = 1;
+    h2o_max = 30; h2o_min = 0;
+    ustar_lim = 0.2;
     
 elseif sitecode == UNM_sites.TX;
     ustar_lim = 0.11;
