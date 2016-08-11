@@ -9,6 +9,8 @@ properties
     data_10hz_avg;
     data_10hz_already_processed;
     data_30min;
+    data_eddypro;
+    data_eddypro_already_processed;
     flux_data_config;
     data_30min_secondary;
     insert_secondary_data;
@@ -101,6 +103,12 @@ methods
         p.addParameter( 'data_10hz_already_processed', ...
             false, ...
             @islogical );
+        p.addParameter( 'data_eddypro',...
+            table([]), ...
+            @( x ) isa( x, 'table' ) );
+        p.addParameter( 'data_eddypro_already_processed',...
+            false, ...
+            @islogical );
         p.addParameter( 'insert_secondary_data', ...
             true, ...
             @islogical );
@@ -118,6 +126,8 @@ methods
         obj.data_30min = p.Results.data_30min;
         obj.data_30min_secondary = p.Results.data_30min_secondary;
         obj.data_10hz_already_processed  = p.Results.data_10hz_already_processed;
+        obj.data_eddypro = p.Results.data_eddypro;
+        obj.data_eddypro_already_processed = p.Results.data_eddypro_already_processed;
         obj.insert_secondary_data = p.Results.insert_secondary_data;
         obj.flux_data_config = [];
         obj.secondary_data_config = [];
@@ -319,8 +329,6 @@ methods
 
     end  % get_secondary_data
 
-    % --------------------------------------------------
-
     function obj = process_10hz_data( obj )
         % Place processed 10hz data into data_10hz field of card_data_processor
         % (CDP).
@@ -333,7 +341,7 @@ methods
         % If obj.data_10hz_already_processed is true, reads pre-processed data
         % from .mat file (see docs for card_data_processor constructor).
         %
-        % USAGE:
+        % USAGE: 
         %    [ obj ] = process_10hz_data( obj )
         % INPUTS:
         %    obj: card_data_processor object
@@ -379,6 +387,41 @@ methods
     end  % process_10hz_data
 
     % --------------------------------------------------
+    
+    function obj = process_10hz_eddypro ( obj )
+        
+        
+        if obj.data_eddypro_already_processed
+            [ this_year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
+            fname = fullfile( getenv('FLUXROOT'), 'FluxOut/ep_data/', ...
+                sprintf( '%s_ep_%d.mat', ...
+                char( obj.sitecode ), ...
+                this_year ) );
+            load( fname );
+            %all_data.date = str2num( all_data.date );
+            all_data = all_data( all_data.timestamp <= obj.date_end, : );
+            
+        else
+            [ result, all_data ] = ...
+                UNM_process_eddypro_main( obj.sitecode, ...
+                obj.date_start, ...
+                obj.date_end);          
+        end
+        
+        if isa( all_data, 'dataset' )
+            warning(' Converting 10hz data from dataset to table.');
+            all_data = dataset2table( all_data );
+        end     
+            %For now (22 July 2016) we are only merging certain columns for
+            %the sake of comparison with our processing code
+            %H (4), LE(11), co2_flux (14). h20_flux (17), co2 vars
+            %(36-38),h2o vars(41-43)
+            
+            obj.data_eddypro = all_data(:,[8,11,14,17,36,37,38,...
+                41,42,43,98,100,102,104,176]);
+    end
+    
+    % --------------------------------------------------
 
     function obj = process_data( obj )
         % Force reprocessing of all data between obj.date_start and obj.date_end.
@@ -408,12 +451,14 @@ methods
         p.addParameter( 'parse_30min', false, @islogical );
         p.addParameter( 'parse_30min_secondary', false, @islogical );
         p.addParameter( 'parse_10hz', false, @islogical );
+        p.addParameter( 'parse_eddypro', false, @islogical );
         parse_result = p.parse( obj, varargin{ : } );
 
         obj = p.Results.obj;
         parse_30min = p.Results.parse_30min;
         parse_30min_secondary = p.Results.parse_30min_secondary;
         parse_10hz = p.Results.parse_10hz;
+        parse_eddypro = p.Results.parse_eddypro;
         % -----
 
         % Get the datalogger configurations
@@ -427,6 +472,10 @@ methods
 
         if isempty( obj.data_30min )
             parse_30min = true;
+        end
+        
+        if isempty( obj.data_eddypro)
+            parse_eddypro = true;
         end
 
         % Check for secondary data sources ( if we are not ignoring them )
@@ -444,7 +493,7 @@ methods
         end
 
         % -----
-
+        ep_date_flag=0;
         [ year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
         fprintf( '---------- parsing fluxall file ----------\n' );
         try
@@ -455,6 +504,8 @@ methods
                 % complete the 'reading fluxall...' message from UNM_parse_fluxall
                 fprintf( 'not found.\nBuilding fluxall from scratch\n' );
                 flux_all = [];
+                ep_date_flag = 1 ;
+                eddypro_date_start = obj.date_start; %Kludge for resetting eddypro start date when no fluxalle exists;
                 obj.date_start = datenum( year, 1, 1, 0, 30, 0);
             else
                 % display all other errors as usual
@@ -475,9 +526,17 @@ methods
         end
         if parse_10hz
             fprintf( '---------- processing 10-hz data ----------\n' );
+            
             obj = process_10hz_data( obj );
         end
-
+        
+        if parse_eddypro
+            fprintf( '--------- processing eddypro data ---------\n')
+            if ep_date_flag == 1;
+            obj.date_start = eddypro_date_start;
+            end
+            obj = process_10hz_eddypro ( obj );          
+        end
         save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', ...\
             'CDP_test_restart.mat' ));
 
@@ -535,12 +594,28 @@ methods
         % data, treat 30-min timestamps within two mins of
         % each other as equal
         t_max = max( [ reshape( obj.data_30min.timestamp, [], 1 ); ...
-            reshape( obj.data_10hz_avg.timestamp, [], 1 ) ] );
+            reshape( obj.data_10hz_avg.timestamp, [], 1 ); ...
+            reshape( obj.data_eddypro.timestamp, [], 1)] );
 
         save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'cdp226.mat' ));
+        
         [ obj.data_30min, obj.data_10hz_avg ] = ...
             merge_tables_by_datenum( obj.data_30min, ...
             obj.data_10hz_avg, ...
+            'timestamp', ...
+            'timestamp', ...
+            two_mins_tolerance, ...
+            obj.date_start, ...
+            t_max );
+        %Eddypro timestamps refer to the end of the averaging period. Before managing
+        %Reset to match NMEG timestamps, which refer to beginning of averaging
+        %period.
+        
+       
+        
+        [ obj.data_30min, obj.data_eddypro ] = ...
+            merge_tables_by_datenum( obj.data_30min, ...
+            obj.data_eddypro, ...
             'timestamp', ...
             'timestamp', ...
             two_mins_tolerance, ...
@@ -559,6 +634,16 @@ methods
         obj.data_10hz_avg.hour = h;
         obj.data_10hz_avg.min = minute;
         obj.data_10hz_avg.second = s;
+        
+        %Do the same for eddypro output
+%        [ y, mon, d, h, minute, s ] =  ...
+%             datevec( obj.data_eddypro.timestamp );
+%         obj.data_eddypro.year = y;
+%         obj.data_eddypro.month = mon;
+%         obj.data_eddypro.day = d;
+%         obj.data_eddypro.hour = h;
+%         obj.data_eddypro.min = minute;
+%         obj.data_eddypro.second = s; 
 
         % make sure all jday and 'date' values are filled in
         obj.data_10hz_avg.jday = ( obj.data_10hz_avg.timestamp - ...
@@ -577,6 +662,16 @@ methods
             new_data = [ obj.data_10hz_avg, obj.data_30min ];
         else
             error( 'Timestamp mismatch between 10hz and 30min data' );
+        end
+        % Check if timestamps for eddypro and combined 10hz/30min data are identical, then
+        % remove one or else MATLAB will complain
+        test = sum(obj.data_eddypro.timestamp == new_data.timestamp);
+        if test==size( obj.data_eddypro, 1 ) && ...
+                test==size( new_data, 1 )
+            obj.data_eddypro.timestamp = [];
+            new_data = [ new_data , obj.data_eddypro ];
+        else
+            error( 'Timestamp mismatch between Eddypro and 10hz/30min data' );
         end
 
     end
@@ -625,6 +720,11 @@ methods
 
     % --------------------------------------------------
 
+    function compare_fluxproc( obj )
+        
+    end   % compare_fluxproc
+    
+    % --------------------------------------------------
 
 end % methods
 end  % classdef

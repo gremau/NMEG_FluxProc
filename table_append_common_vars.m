@@ -43,7 +43,7 @@ if fill_vars
             varargin{ i }.Properties.VariableNames );
         nan_array = NaN( size( varargin{ i }, 1 ), 1 );
         for j = 1:numel( this_missing_vars );
-            fprintf( 'filling %s\n', this_missing_vars{ i } );
+            fprintf( 'filling %s\n', this_missing_vars{ j } );
             varargin{ i }.( this_missing_vars{ j } ) = nan_array;
         end
     end
