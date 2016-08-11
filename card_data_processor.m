@@ -533,9 +533,12 @@ methods
         if parse_eddypro
             fprintf( '--------- processing eddypro data ---------\n')
             if ep_date_flag == 1;
-            obj.date_start = eddypro_date_start;
+                obj.date_start = eddypro_date_start;
             end
-            obj = process_10hz_eddypro ( obj );          
+            obj = process_10hz_eddypro ( obj );
+            fprintf( '--- folding in 30-minute data from eddypro ---\n' );
+            obj.data_30min = table_foldin_data(...
+                obj.data_30min, obj.data_30min_secondary );
         end
         save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', ...\
             'CDP_test_restart.mat' ));
@@ -607,20 +610,17 @@ methods
             two_mins_tolerance, ...
             obj.date_start, ...
             t_max );
-        %Eddypro timestamps refer to the end of the averaging period. Before managing
-        %Reset to match NMEG timestamps, which refer to beginning of averaging
-        %period.
-        
-       
-        
-        [ obj.data_30min, obj.data_eddypro ] = ...
-            merge_tables_by_datenum( obj.data_30min, ...
-            obj.data_eddypro, ...
-            'timestamp', ...
-            'timestamp', ...
-            two_mins_tolerance, ...
-            obj.date_start, ...
-            t_max );
+        % I think this can be removed now that foldin_data is used above -
+        % GEM FIXME
+%         %Merge in eddypro data
+%         [ obj.data_30min, obj.data_eddypro ] = ...
+%             merge_tables_by_datenum( obj.data_30min, ...
+%             obj.data_eddypro, ...
+%             'timestamp', ...
+%             'timestamp', ...
+%             two_mins_tolerance, ...
+%             obj.date_start, ...
+%             t_max );
         % -----
         % make sure time columns are complete (no NaNs)
 
@@ -634,16 +634,6 @@ methods
         obj.data_10hz_avg.hour = h;
         obj.data_10hz_avg.min = minute;
         obj.data_10hz_avg.second = s;
-        
-        %Do the same for eddypro output
-%        [ y, mon, d, h, minute, s ] =  ...
-%             datevec( obj.data_eddypro.timestamp );
-%         obj.data_eddypro.year = y;
-%         obj.data_eddypro.month = mon;
-%         obj.data_eddypro.day = d;
-%         obj.data_eddypro.hour = h;
-%         obj.data_eddypro.min = minute;
-%         obj.data_eddypro.second = s; 
 
         % make sure all jday and 'date' values are filled in
         obj.data_10hz_avg.jday = ( obj.data_10hz_avg.timestamp - ...
@@ -663,16 +653,18 @@ methods
         else
             error( 'Timestamp mismatch between 10hz and 30min data' );
         end
-        % Check if timestamps for eddypro and combined 10hz/30min data are identical, then
-        % remove one or else MATLAB will complain
-        test = sum(obj.data_eddypro.timestamp == new_data.timestamp);
-        if test==size( obj.data_eddypro, 1 ) && ...
-                test==size( new_data, 1 )
-            obj.data_eddypro.timestamp = [];
-            new_data = [ new_data , obj.data_eddypro ];
-        else
-            error( 'Timestamp mismatch between Eddypro and 10hz/30min data' );
-        end
+        % I think this can be removed now that foldin_data is used above -
+        % GEM FIXME
+%         % Check if timestamps for eddypro and combined 10hz/30min data are identical, then
+%         % remove one or else MATLAB will complain
+%         test = sum(obj.data_eddypro.timestamp == new_data.timestamp);
+%         if test==size( obj.data_eddypro, 1 ) && ...
+%                 test==size( new_data, 1 )
+%             obj.data_eddypro.timestamp = [];
+%             new_data = [ new_data , obj.data_eddypro ];
+%         else
+%             error( 'Timestamp mismatch between Eddypro and 10hz/30min data' );
+%         end
 
     end
 

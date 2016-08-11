@@ -1,6 +1,8 @@
 function T = eddypro_2_table( varargin )
 % TOA5_2_TABLE - parse a Campbell Scientific TOA5 file to a matlab table
-% array.  
+% array. 
+%
+% FIXME! - documentation and cleanup
 %
 % Uses parse_TOA5_file_headers to determine variable names, variable units,
 % file size, and delimiter.  Adds a 'timestamp' variable of the file's

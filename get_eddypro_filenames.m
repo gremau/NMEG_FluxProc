@@ -3,6 +3,9 @@ function fnames = get_eddypro_filenames( site_code, date_start, date_end, ...
 % GET_EDDYPRO_FILENAMES - find all CSV files for a specified site and
 % date range.
 %
+% FIXME - documentation and cleanup. Also, could we make an existing script
+% work for this?
+%
 % generates a list of filenames containing all TOB1 or TOA5 files within the
 % site's data directory that contain data from between start date and end date.
 % The directories searched are SITEDIR/ts_data, SITEDIR/toa5, or SITEDIR/subdir,

@@ -3,6 +3,9 @@ function [ var_names, var_units, file_lines, first_data_line, delim ] = ...
 % PARSE_EDDYPRO_FILE_HEADERS - parse variable names and units for a specified TOA5
 %   file.  
 %
+% FIXME - documentation and cleanup. Also, could we make an existing script
+% work for this?
+%
 % Returns cell array of variable names, cell array of variable units, cell array
 % of full text of file, one line per cell, the first line number that contains
 % data, and the delimiter used in the file.

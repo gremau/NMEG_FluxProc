@@ -3,6 +3,8 @@ function success = modify_tob1_eddypro_proj_file( proj_file, ...
                                                   tsdata_dir )% BUILD_TOA5_CARD_CONVERT_CCF_FILE - writes a configuration file for Campbell
 % Scientific card convert for 10 hz datalogger file.
 %
+% FIXME - documentation and cleanup
+%
 % USAGE:
 %   modify_tob1_eddypro_proj_file( ccf_file,raw_data_dir,tsdata_dir)
 % INPUTS

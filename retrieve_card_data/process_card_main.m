@@ -355,10 +355,6 @@ if strcmp( logger_name, 'flux' )
         return
     end
     
-    % run make_fluxproc_comparison to compare Eddypro and NMEG processing
-    
-    
-    
     % run RemoveBadData to create for gapfilling file, qc file.
     fprintf(1, '\n----------\n');
     fprintf(1, 'starting UNM_RemoveBadData...\n');

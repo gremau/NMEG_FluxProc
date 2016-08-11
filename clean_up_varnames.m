@@ -56,7 +56,6 @@ end
 clean_names = deblank(clean_names); 
 %remove tabs
 clean_names = strrep(clean_names, '\t', '');
-%remove astericks (*)
 
 
 
