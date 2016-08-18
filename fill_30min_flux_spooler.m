@@ -360,6 +360,9 @@ elseif sitecode == 6 % MCon
         output = fill_30min_flux_processor( output, 6, 2015, 17113,17146);
         output = fill_30min_flux_processor( output, 6, 2015, 17213,17231);
         output = fill_30min_flux_processor( output, 6, 2015, 17415,17448);
+    elseif year == 2016
+        output = fill_30min_flux_processor( output, 6, 2016, DOYidx(94.44),DOYidx(95));
+        output = fill_30min_flux_processor( output, 6, 2016, DOYidx(179.22),DOYidx(182.84));      
     end
 
 elseif sitecode == 7 % TX_savanna

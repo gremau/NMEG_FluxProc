@@ -356,7 +356,6 @@ methods
             % are missing TOB1 files at end of year - GEM
             %tstamps = cellfun( @get_TOA5_TOB1_file_date, tob1_files );
             %obj.date_end = min( max( tstamps ), obj.date_end );
-
             [ this_year, ~, ~, ~, ~, ~ ] = datevec( obj.date_start );
             fname = fullfile( getenv('FLUXROOT'), 'FluxOut/TOB1_data/', ...
                 sprintf( '%s_TOB1_%d_filled.mat', ...
@@ -538,7 +537,7 @@ methods
             obj = process_10hz_eddypro ( obj );
             fprintf( '--- folding in 30-minute data from eddypro ---\n' );
             obj.data_30min = table_foldin_data(...
-                obj.data_30min, obj.data_30min_secondary );
+                obj.data_30min, obj.data_eddypro );
         end
         save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', ...\
             'CDP_test_restart.mat' ));
@@ -597,7 +596,7 @@ methods
         % data, treat 30-min timestamps within two mins of
         % each other as equal
         t_max = max( [ reshape( obj.data_30min.timestamp, [], 1 ); ...
-            reshape( obj.data_10hz_avg.timestamp, [], 1 ); ...
+            reshape( obj.data_10hz_avg.timestamp, [], 1  ); ...
             reshape( obj.data_eddypro.timestamp, [], 1)] );
 
         save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'cdp226.mat' ));

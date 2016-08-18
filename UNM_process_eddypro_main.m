@@ -36,11 +36,11 @@ result = 1;  % initialize to failure -- will change on successful completion
 [ year_start, ~, ~, ~, ~, ~ ] = datevec( t_start );
 [ year_end, ~, ~, ~, ~, ~ ] = datevec( t_end );
 
-if ( year_start ~= year_end )
-    error( '10-hz data processing may not span different calendar years' );
-else
+% if ( year_start ~= year_end )
+%     error( '10-hz data processing may not span different calendar years' );
+% else
     year = year_start;
-end
+% end
 
 if( isempty( ts_data_dir ) )
     ts_data_dir = fullfile( get_site_directory( sitecode ), 'ts_data' );
@@ -111,14 +111,15 @@ outfile = fullfile( get_out_directory( sitecode ), ...
                     'ep_data', ...
                     sprintf( '%s_ep_%d.mat', ...
                              get_site_name( sitecode ), year ) );
+
 save( outfile, 'all_data' );
 
 ts_start = min(all_data.timestamp);
 ts_start = datestr(ts_start,'yyyy_mm_dd_HHMM');
 
  [SUCCESS,MESSAGE,MESSAGEID] = movefile(fname,...
-      fullfile(getenv('FLUXROOT'),'SiteData',...
-      'ep_data',['ep_',char(sitecode),'_',ts_start,'.csv']));
+      fullfile(getenv('FLUXROOT'),'SiteData',char(sitecode),...
+      'ep_data',['ep_',char(sitecode),'_',ts_start,'.csv']))
   
  delete(fullfile(getenv('EPROOT'),['eddypro_',char(sitecode),'*']),fullfile(getenv('EPROOT'),'processing*'));
 
@@ -130,6 +131,7 @@ if exist(outfolder) ~= 7
     disp(['creating ', outfolder]);
     [result, msg, msgid] = mkdir(outfolder);
 end
+
 outfile = fullfile( get_out_directory( sitecode ), ...
                     'ep_data', ...
                     sprintf( '%s_ep_%d.mat', ...
