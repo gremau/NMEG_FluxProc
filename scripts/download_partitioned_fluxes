@@ -2,9 +2,12 @@
 
 # allow -d flag to perform dry run: write site and year to stdout, but
 # do not actually download anything
+
+# WARNING - if this fails with \r errors convert the line endings
+# with "dos2unix.exe download_partitioned_fluxes" (from cygwin term)
+
 DOWNLOAD=true
 num=$1
-
 while getopts ":d" opt; do
   case $opt in
       d)
