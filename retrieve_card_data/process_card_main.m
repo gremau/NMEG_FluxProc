@@ -350,8 +350,7 @@ if strcmp( logger_name, 'flux' )
         % if fluxall was not updated successfully, there is nothing else to do.
         diary off
         return
-    end
-    
+    end   
     % run RemoveBadData to create for gapfilling file, qc file.
     fprintf(1, '\n----------\n');
     fprintf(1, 'starting UNM_RemoveBadData...\n');

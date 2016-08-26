@@ -75,8 +75,12 @@ qc_tbl = parse_fluxall_qc_file( sitecode, year );
     UNM_parse_mpi_eddyproc_output( sitecode, year );
 
 % Parse gapfilled fluxes from Reddyproc tool
-pt_MR_tbl_R = UNM_parse_reddyproc_output( sitecode, year );
-
+try
+    pt_MR_tbl_R = UNM_parse_reddyproc_output( sitecode, year );
+catch
+    pt_MR_tbl_R = table([]);
+    warning('Reddyproc file did not parse.');
+end
 % Parse gapfilled and partitioned fluxes from Trevor Keenan's files
 pt_TK_tbl = parse_TK201X_output( sitecode, year );
 
@@ -114,9 +118,10 @@ t_max = max( [ qc_tbl.timestamp; data.timestamp; ...
 [ pt_MR_tbl, data ] = merge_tables_by_datenum( pt_MR_tbl, data, ...
     'timestamp', 'timestamp', 3, t_min, t_max );
 
-[ pt_MR_tbl_R, data ] = merge_tables_by_datenum( pt_MR_tbl_R, data, ...
-    'timestamp', 'timestamp', 3, t_min, t_max );
-
+if strcmpi(args.Results.gf_part_source, 'Reddyproc')
+    [ pt_MR_tbl_R, data ] = merge_tables_by_datenum( pt_MR_tbl_R, data, ...
+        'timestamp', 'timestamp', 3, t_min, t_max );
+end
 % Start/end time for the files being created
 Jan1 = datenum( year, 1, 1, 0, 0, 0 );
 %Dec31 = datenum( year, 12, 31, 23, 59, 59 );
@@ -131,8 +136,11 @@ pt_GL_tbl = table_fill_timestamps( pt_GL_tbl, 'timestamp', ...
     't_min', Jan1, 't_max', Dec31 );
 pt_MR_tbl = table_fill_timestamps( pt_MR_tbl, 'timestamp', ...
     't_min', Jan1, 't_max', Dec31 );
-pt_MR_tbl_R = table_fill_timestamps( pt_MR_tbl_R, 'timestamp', ...
-    't_min', Jan1, 't_max', Dec31 );
+
+if strcmpi(args.Results.gf_part_source, 'Reddyproc')
+    pt_MR_tbl_R = table_fill_timestamps( pt_MR_tbl_R, 'timestamp', ...
+        't_min', Jan1, 't_max', Dec31 );
+end
 
 % Merge gapfilling/partitioning output into one table so we don't have
 % to worry about which variables are in which table

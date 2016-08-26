@@ -248,12 +248,18 @@ elseif sitecode == UNM_sites.MCon; % Mixed conifer
 
 elseif sitecode == UNM_sites.MCon_SS; % New Mixed Conifer 
     warning('Filters copied from MCon, adjust for NMCon ');
-    co2_min_by_month = [ -2.5, -2.5, repmat( -16, 1, 9 ), -2.5 ];%[ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ];
+    co2_min_by_month = [ -6.5, -6.5, repmat( -16, 1, 9 ), -.5 ];%[ -1.5, -1.5, repmat( -12, 1, 9 ), -1.5 ];
     co2_max_by_month = 6;
     n_SDs_filter_hi = 2.0; % how many std devs above the mean NEE to allow
     n_SDs_filter_lo = 3.0; % how many std devs below the mean NEE to allow
     sd_filter_windows = [ 1, 3, 6 ];
     sd_filter_thresh = 3;
+    % Note that these are copied from MCon (which may itself be off)
+    % There are two things to consider - distortion from wind behind the
+    % anemometer and from the tower - these will be in two different
+    % directions since the flux instruments are on a boom positioned a
+    % meter or so to the east of the tower and sonic is not facing straight
+    % out from tower.
     wind_min = 153; wind_max = 213; % these are given a sonic_orient = 333;
     Tdry_min = 250; Tdry_max = 300;
     HS_min = -200; HS_max = 800;
@@ -769,6 +775,12 @@ elseif sitecode == 4 | sitecode == 14 %PJ/TestSite
 elseif ismember( sitecode, [ UNM_sites.PPine, UNM_sites.MCon ] )
     
     SHF_labels = { 'soil_heat_flux_1', 'soil_heat_flux_2', 'soil_heat_flux_3' };
+    soil_heat_flux = repmat( NaN, size( data, 1 ), 3 );
+    Tsoil = repmat( NaN, size( data, 1 ), 1 );
+    
+elseif ismember( sitecode, [ UNM_sites.MCon_SS ] )
+    
+    SHF_labels = { 'shf_pit_1_Avg', 'shf_pit_2_Avg', 'shf_pit_3_Avg' };
     soil_heat_flux = repmat( NaN, size( data, 1 ), 3 );
     Tsoil = repmat( NaN, size( data, 1 ), 1 );
     

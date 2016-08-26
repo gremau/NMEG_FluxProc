@@ -106,6 +106,13 @@ fname = listing(f_i).name;
 fname = fullfile(getenv('EPROOT'),fname);
 all_data = eddypro_2_table( fname );
 
+outfolder = fullfile(getenv('FLUXROOT'),'SiteData', char( sitecode ), ...
+			 'ep_data');
+if exist(outfolder) ~= 7
+    disp(['creating ', outfolder]);
+    [result, msg, msgid] = mkdir(outfolder);
+end
+
 %Save file if something goes wrong
 outfile = fullfile( get_out_directory( sitecode ), ...
                     'ep_data', ...
@@ -125,33 +132,12 @@ ts_start = datestr(ts_start,'yyyy_mm_dd_HHMM');
 
  %Save to .mat file. Not sure if this is necessary right now.
  %Check to see if directory exists
- outfolder = fullfile(getenv('FLUXROOT'),'SiteData', char( sitecode ), ...
-			 'ep_data');
-if exist(outfolder) ~= 7
-    disp(['creating ', outfolder]);
-    [result, msg, msgid] = mkdir(outfolder);
-end
 
-outfile = fullfile( get_out_directory( sitecode ), ...
-                    'ep_data', ...
-                    sprintf( '%s_ep_%d.mat', ...
-                             get_site_name( sitecode ), year ) );
-save( outfile, 'all_data' );
-
-
-%Find newly created eddypro output based on process date
-
-%  f_tstamp=regexpi(fname,'((?:\d*\.)?\d+)','match');
-%  
-%  datevec(cell2mat(f_tstamps),'yyyymmddHHMMSS')
-%  
-%  %Match beginning of processing timestamp to the nearest minute to find file
-%  isequal(ts(1:5),ep_t(1:5))
-
-% Read in newly processed data 
-% fname = fullfile('C:','Research_Flux_Towers',...
-%             'SiteData',obj.sitecode,...
-%             'eddypro_out',);
-
+% 
+% outfile = fullfile( get_out_directory( sitecode ), ...
+%                     'ep_data', ...
+%                     sprintf( '%s_ep_%d.mat', ...
+%                              get_site_name( sitecode ), year ) );
+% save( outfile, 'all_data' );
 
 end
