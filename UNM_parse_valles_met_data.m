@@ -37,7 +37,7 @@ for i = 1:length( file_list )
     if abs( measfreq - 24 ) <= 0.1
         % hourly data - OK
         fprintf( 'Data in hourly frequency, OK ...\n' );
-    elseif abs( measfreq - 144 ) <= 0.7
+    elseif abs( measfreq - 144 ) <= 1.5
         % 10 minute frequency needs to be converted. Take hourly means of
         % all variables except Precip, which should be summed. Create a new
         % table from these hourly values.

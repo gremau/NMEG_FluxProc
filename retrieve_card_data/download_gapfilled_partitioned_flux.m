@@ -47,7 +47,8 @@ cmd = sprintf( ['start C:\\cygwin64\\bin\\bash --login -c ' ...
 % make system call
 [s, r] = dos(cmd);
 
-fprintf( 'Downloading gapfilled & partitioned fluxes...' );
+fprintf( 'Downloading gapfilled & partitioned fluxes...\n' );
+fprintf( 'If this hangs try dos2unix.exe trick on the bash script...\n' );
 
 % do not continue until the blocking file is removed
 pause on;
