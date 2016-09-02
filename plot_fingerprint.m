@@ -100,8 +100,11 @@ end
 % -----
 tstamp = datenum( 2004, 1, 0 ) + dtime;
 % Data will be plotted for an entire year
-t_min = datenum( 2004, 1, 1 );
-t_max = datenum( 2004, 12, 31, 23, 59, 59 );
+% Note that data timestamps denote end of 30min averaging period,
+% so first meas of year is at 30min, last is at midnight
+t_min = datenum( 2004, 1, 1, 0, 30, 0 );
+t_max = datenum( 2005, 1, 1 );
+
 tstamp = datenum_2_round30min( tstamp, 10, t_min );
 temp_data = array2table( [ tstamp, data ], ...
     'VariableNames', {'timestamp', 'data'});
