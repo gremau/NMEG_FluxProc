@@ -156,7 +156,12 @@ outfile = fullfile( get_out_directory( sitecode ), ...
                              get_site_name( sitecode ), year ) );
 save( outfile, 'all_data' );
 
-    
+% FIXME - At this point reading in the TOB1_data file ("outfile") and then
+% appending the new data ("all_data") before writing "filled" files would
+% be really nice. It would reduce the amount of times you have to process
+% 10hz data while remaking fluxall files. Something similar for eddypro
+% processing would also be good
+
 % format to match existing FLUX_all_YYYY.xls files
 % for some reason, two time columns
 timestamp2 = all_data.timestamp;

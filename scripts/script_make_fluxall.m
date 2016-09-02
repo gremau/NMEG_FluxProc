@@ -8,7 +8,7 @@ sitelist = {UNM_sites.MCon, UNM_sites.SLand, UNM_sites.JSav, ...
     UNM_sites.GLand, UNM_sites.PPine, UNM_sites.PJ_girdle, UNM_sites.PJ, ...
     UNM_sites.PJ_girdle};
 
-sitelist = {UNM_sites.TestSite};
+sitelist = {UNM_sites.GLand};
 yearlist = 2015;%2013:2014;% 2009:2013;
 
 proc_10hz = false;
@@ -46,7 +46,8 @@ for i = 1:length(sitelist);
         date_end = datenum(year, 12, 31, 24, 0, 0);
         
         new = card_data_processor(sitecode, 'date_start', date_start,...
-            'date_end', date_end, 'data_10hz_already_processed', true );
+            'date_end', date_end, 'data_10hz_already_processed', true,...
+            'data_eddypro_already_processed', true);
         
         % Make a new fluxall file
         new.update_fluxall();

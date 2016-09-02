@@ -308,14 +308,11 @@ save( fullfile( getenv( 'FLUXROOT' ), 'FluxOut', 'card_restart_01.mat' ) );
 %         rmdir(raw_data_dir);
 %         fprintf(1, 'removed %s\n', raw_data_dir);
 %     end
-
-
 % --------------------------------------------------
 % the data are now copied from the card and backed up.
-
+%%
 % If this is a flux datalogger card process the data
 if strcmp( logger_name, 'flux' )
-    
     % merge the new data into the fluxall file
     try
         fprintf(1, '\n----------\n');
@@ -353,8 +350,7 @@ if strcmp( logger_name, 'flux' )
         % if fluxall was not updated successfully, there is nothing else to do.
         diary off
         return
-    end
-    
+    end   
     % run RemoveBadData to create for gapfilling file, qc file.
     fprintf(1, '\n----------\n');
     fprintf(1, 'starting UNM_RemoveBadData...\n');

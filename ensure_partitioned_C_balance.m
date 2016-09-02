@@ -116,7 +116,7 @@ out_tbl = [ ecb_tbl, old_ecb_tbl ];
                 Rg_threshold = 0.6;
             case UNM_sites.MCon
                 Rg_threshold = 0.0;
-            case UNM_sites.PPine
+            case { UNM_sites.MCon_SS, UNM_sites.PPine }
                 Rg_threshold = 0.1;
             case UNM_sites.TX
                 Rg_threshold = 4.0;

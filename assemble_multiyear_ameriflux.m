@@ -34,6 +34,12 @@ years = args.years;
 % parse ASCII Ameriflux files
 all_data = {};
 
+% Pop up a dialog asking user to select release folder
+releasename = uigetdir(fullfile( getenv( 'FLUXROOT' ), ...
+        'Ameriflux_files'));
+%releasename = fullfile( getenv( 'FLUXROOT' ), ...
+%        'Ameriflux_files', 'FLUXNET2015');
+
 for i = 1:numel( years );
     % get this year's ameriflux data
     fname = sprintf( '%s_%d_%s.txt', ...
@@ -41,9 +47,7 @@ for i = 1:numel( years );
         years( i ), ...
         args.suffix );
     fprintf( 'parsing %s\n', fname );
-    fname = fullfile( getenv( 'FLUXROOT' ), ...
-        'Ameriflux_files', ...
-        fname );
+    fname = fullfile( releasename, fname );
     if exist( fname )
         this_data = parse_ameriflux_file( fname );
         

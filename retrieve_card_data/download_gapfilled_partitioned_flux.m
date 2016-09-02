@@ -8,8 +8,13 @@ function result = download_gapfilled_partitioned_flux( job_num)
 % the Max Planck Institute end or the UNM end - I suspect MPI.  The bash script
 % knows to retry the download to get the complete file.
 %
+% MAK SURE WGET IS INSTALLED (through cygwin)
+%
 % NOTE: Deprecated as of July 2013 -- REddyProc performs gapfill and
 % partitioning locally.
+%
+% NOTE 2: Actually - we still use MPI EddyProc to get Lasslop partitioning,
+% so this file is still useful - GEM
 %
 % USAGE
 %   result = download_gapfilled_partitioned_flux( job_num )
@@ -34,14 +39,16 @@ blk_fname_unix = strrep( blk_fname, '\', '/' );
 
 % bash script to perform the download
 % beginning with "start" causes a dos window to open and display the progress
-cmd = sprintf( ['start C:\\cygwin\\bin\\bash --login -c "/home/Tim/bin/' ...
-                'download_partitioned_flux %d && rm -f %s"'], ...
+cmd = sprintf( ['start C:\\cygwin64\\bin\\bash --login -c ' ...
+                '"/cygdrive/c/Code/NMEG_FluxProc/scripts/' ...
+                'download_partitioned_fluxes %d && rm -f %s"'], ...
                job_num, blk_fname_unix );
 
 % make system call
 [s, r] = dos(cmd);
 
-fprintf( 'Downloading gapfilled & partitioned fluxes...' );
+fprintf( 'Downloading gapfilled & partitioned fluxes...\n' );
+fprintf( 'If this hangs try dos2unix.exe trick on the bash script...\n' );
 
 % do not continue until the blocking file is removed
 pause on;
