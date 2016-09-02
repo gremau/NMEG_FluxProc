@@ -10,6 +10,11 @@ function dataTableShifted = UNM_fix_datalogger_timestamps( sitecode, year, ...
 % used to determine the time shifts to be applied to the data. Script calls
 % shift_data to make the data shifts.
 %
+% A POSITIVE shift request means the observed event (sunrise) is happening
+% too LATE. A POSITIVE (sign gets flipped) request actually means to shift
+% the data EARLIER. The CURRENT time actually corresponds to the original
+% data that is LATER.
+%
 % INPUTS
 %    sitecode: UNM_sites object; specifies the site to show
 %    year: four-digit year: specifies the year to show
@@ -89,41 +94,41 @@ switch sitecode
                 % This is for old (pre-Litvak) fluxall data
                 clockSet1 = 1 : DOYidx( 156.73 );
                 data( clockSet1, : ) = ...
-                    shift_data( data( clockSet1, : ), -0.5, allCols );
+                    shift_data( data( clockSet1, : ), -1.0, allCols );
                 % After site revamp data
                 clockSet2 = DOYidx( 156.75 ) : DOYidx( 308.17 );
                 data( clockSet2, : ) = ...
-                    shift_data( data( clockSet2, : ), 1.5, allCols );
+                    shift_data( data( clockSet2, : ), 1, allCols );
                 % Data for rest of year need to be shifted 0.5 hours
-                clockSet3 = DOYidx( 308.19 ) : size( data, 1 );
-                data( clockSet3, : ) = ...
-                    shift_data( data( clockSet3, : ), 0.5, allCols );
+                %clockSet3 = DOYidx( 308.19 ) : size( data, 1 );
+                %data( clockSet3, : ) = ...
+                %    shift_data( data( clockSet3, : ), 0.5, allCols );
 
             case 2008
-                clockSet1 = 1 : DOYidx( 74.56 );
-                data( clockSet1, : ) = ...
-                    shift_data( data( clockSet1, : ), 0.5, allCols );
+                %clockSet1 = 1 : DOYidx( 74.56 );
+                %data( clockSet1, : ) = ...
+                %    shift_data( data( clockSet1, : ), 0.5, allCols );
                 clockSet2 = DOYidx( 74.58 ) : DOYidx( 307.17 );
                 data( clockSet2, : ) = ...
-                    shift_data( data( clockSet2, : ), 1.5, allCols );
+                    shift_data( data( clockSet2, : ), 1.0, allCols );
                 % Data for rest of year need to be shifted 0.5 hours
-                clockSet3 = DOYidx( 307.17 ) : size( data, 1 );
-                data( clockSet3, : ) = ...
-                    shift_data( data( clockSet3, : ), 0.5, allCols );
+                %clockSet3 = DOYidx( 307.17 ) : size( data, 1 );
+                %data( clockSet3, : ) = ...
+                %    shift_data( data( clockSet3, : ), 0.5, allCols );
                 
             case 2009
                 % There was a .5 hour shift and then it looks like clock
                 % was set to DST on day 66
-                preClockSet = 1 : DOYidx( 66.57 );
-                data( preClockSet, : ) = ...
-                    shift_data( data( preClockSet, : ), 0.5, allCols );
+                %preClockSet = 1 : DOYidx( 66.57 );
+                %data( preClockSet, : ) = ...
+                %    shift_data( data( preClockSet, : ), 0.5, allCols );
                 % Data for rest of year need to be shifted 1.5 hours
                 postClockSet = DOYidx( 66.58 ) : size( data, 1 );
                 data( postClockSet, : ) = ...
-                    shift_data( data( postClockSet, : ), 1.5, allCols );
+                    shift_data( data( postClockSet, : ), 1.0, allCols );
                 
             case { 2010, 2011 }
-                data = shift_data( data, 1.5, allCols );
+                data = shift_data( data, 1.0, allCols );
 
             case 2012
                 % Clock change on Dec 07 at 12:55
@@ -132,9 +137,9 @@ switch sitecode
                 idx = 1 : DOYidx( clockSet  );
                 data( idx, : ) = shift_data( data( idx, : ), 1.0, allCols );
                 % The entire year must shift an additional 0.5 hours
-                data = shift_data( data, 0.5, allCols );
-            case { 2013, 2014, 2015 }
-                data = shift_data( data, 0.5, allCols );
+                %data = shift_data( data, 0.5, allCols );
+            %case { 2013, 2014, 2015 }
+            %    data = shift_data( data, 0.5, allCols );
         end
         
     case UNM_sites.SLand
@@ -144,118 +149,118 @@ switch sitecode
                 clockSet1 = 1 : DOYidx( 150.73 );
                 data( clockSet1, : ) = ...
                     shift_data( data( clockSet1, : ), 0.5, all10hzCols );
-                data( clockSet1, : ) = ...
-                    shift_data( data( clockSet1, : ), 0.5, allCols );
+                %data( clockSet1, : ) = ...
+                %    shift_data( data( clockSet1, : ), 0.5, allCols );
                 % After site revamp
                 clockSet2 = DOYidx( 150.75 ) : DOYidx( 308.17 );
                 data( clockSet2, : ) = shift_data( ...
-                    data( clockSet2, : ), 1.5, allCols );
-                clockSet3 = DOYidx( 308.19 ) : size( data, 1 );
-                data( clockSet3, : ) = shift_data( ...
-                    data( clockSet3, : ), 0.5, allCols );
+                    data( clockSet2, : ), 1.0, allCols );
+                %clockSet3 = DOYidx( 308.19 ) : size( data, 1 );
+                %data( clockSet3, : ) = shift_data( ...
+                %    data( clockSet3, : ), 0.5, allCols );
 
-            case { 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 }
-                data = shift_data( data, 0.5, allCols );
+            %case { 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 }
+            %    data = shift_data( data, 0.5, allCols );
 
         end
         
     case UNM_sites.JSav
         switch year
             case 2007
-                clockSet1 = 1 : DOYidx( 152.5 );
-                data( clockSet1, : ) = shift_data( ...
-                    data( clockSet1, : ), 0.5, allCols );
+                %clockSet1 = 1 : DOYidx( 152.5 );
+                %data( clockSet1, : ) = shift_data( ...
+                %    data( clockSet1, : ), 0.5, allCols );
                 
                 clockSet2 = DOYidx( 152.52 ) : DOYidx( 334.5 );
                 data( clockSet2, : ) = shift_data( ...
-                    data( clockSet2, : ), 1.5, allCols );
+                    data( clockSet2, : ), 1.0, allCols );
                 
-                clockSet3 = DOYidx( 334.52 ) : DOYidx( 347.65 );
-                data( clockSet3, : ) = shift_data( ...
-                    data( clockSet3, : ), 0.5, allCols );
+                %clockSet3 = DOYidx( 334.52 ) : DOYidx( 347.65 );
+                %data( clockSet3, : ) = shift_data( ...
+                %    data( clockSet3, : ), 0.5, allCols );
                 
                 clockSet4 = DOYidx( 347.67 ) : size( data, 1 );
                 data( clockSet4, : ) = shift_data( ...
-                    data( clockSet4, : ), 1.5, allCols );
+                    data( clockSet4, : ), 1.0, allCols );
             
             case 2008
                 clockSet1 = 1 : DOYidx( 331.6 );
                 data( clockSet1, : ) = shift_data( ...
-                    data( clockSet1, : ), 1.5, allCols );
+                    data( clockSet1, : ), 1.0, allCols );
                 
-                clockSet2 = DOYidx( 331.62 ) : size( data, 1 );
-                data( clockSet2, : ) = shift_data( ...
-                    data( clockSet2, : ), 0.5, allCols );
+                %clockSet2 = DOYidx( 331.62 ) : size( data, 1 );
+                %data( clockSet2, : ) = shift_data( ...
+                %    data( clockSet2, : ), 0.5, allCols );
                 
-            case { 2009, 2010, 2011, 2012, 2013, 2014, 2015 }
-                data = shift_data( data, 0.5, allCols );
+            %case { 2009, 2010, 2011, 2012, 2013, 2014, 2015 }
+            %    data = shift_data( data, 0.5, allCols );
         end
         
     case { UNM_sites.PJ , UNM_sites.TestSite }
         switch year
             case { 2008, 2009, 2010, 2011 }
-                data = shift_data( data, 1.5, allCols );
+                data = shift_data( data, 1.0, allCols );
             case 2012
                 % Looks like datalogger clock was reset around day 342
                 preResetIdx = 1 : DOYidx( 342.625 );
                 data( preResetIdx, : ) = ...
-                    shift_data( data( preResetIdx, : ), 1.5, allCols );
+                    shift_data( data( preResetIdx, : ), 1.0, allCols );
                 % Data for rest of year still need to be shifted .5 hours
-                postResetIdx = DOYidx( 342.64 ) : size( data, 1 );
-                data( postResetIdx, : ) = ...
-                    shift_data( data( postResetIdx, : ), 0.5, allCols );
-            case { 2013, 2014, 2015, 2016 }
-                data = shift_data( data, 0.5, allCols );
+                %postResetIdx = DOYidx( 342.64 ) : size( data, 1 );
+                %data( postResetIdx, : ) = ...
+                %    shift_data( data( postResetIdx, : ), 0.5, allCols );
+            %case { 2013, 2014, 2015, 2016 }
+            %    data = shift_data( data, 0.5, allCols );
         end
-    case UNM_sites.PJ_girdle
-        switch year
-            case { 2009, 2010, 2011, 2012, 2013, 2014, 2015 };
-                data = shift_data( data, 0.5, allCols );
-        end
+    %case UNM_sites.PJ_girdle
+    %    switch year
+    %        case { 2009, 2010, 2011, 2012, 2013, 2014, 2015 };
+    %            data = shift_data( data, 0.5, allCols );
+    %    end
         
     case UNM_sites.PPine
         switch year
             case 2007
                 clockSet1 = 1 : DOYidx( 155.79 );
                 data( clockSet1, : ) = shift_data( ...
-                    data( clockSet1, : ), 7.5, allCols );
+                    data( clockSet1, : ), 7.0, allCols );
                 
                 clockSet2 = DOYidx( 155.81 ) : size( data, 1 );
                 data( clockSet2, : ) = shift_data( ...
-                    data( clockSet2, : ), 1.5, allCols );
+                    data( clockSet2, : ), 1.0, allCols );
 
             case { 2008, 2009, 2010 }
-                data = shift_data( data, 1.5, allCols );
+                data = shift_data( data, 1.0, allCols );
                 
             case 2011
                 % Looks like datalogger clock was reset around day 54
                 preClockSet = 1 : DOYidx( 55.395 );
                 data( preClockSet, : ) = ...
-                    shift_data( data( preClockSet, : ), 1.5, allCols );
+                    shift_data( data( preClockSet, : ), 1.0, allCols );
                 % Data for rest of year need to be shifted 1 hours
-                postClockSet = DOYidx( 55.416 ) : size( data, 1 );
-                data( postClockSet, : ) = ...
-                    shift_data( data( postClockSet, : ), 0.5, allCols );
+                %postClockSet = DOYidx( 55.416 ) : size( data, 1 );
+                %data( postClockSet, : ) = ...
+                %    shift_data( data( postClockSet, : ), 0.5, allCols );
                 
             case 2012 
-                data = shift_data( data, 1.0, allCols );
+                data = shift_data( data, 0.5, allCols );
                 
             case 2013
-                data = shift_data( data, 1.0, allCols );
+                data = shift_data( data, 0.5, allCols );
                 % There is a small period in Nov-Dec where time is shifted
                 % even further
                 shiftIdx = DOYidx( 323.69 ) : DOYidx( 362.52 );
                 data( shiftIdx, : ) = ...
                     shift_data( data( shiftIdx, : ), 1.0, allCols );
             case 2014
-                data = shift_data( data, 1.0, allCols );
+                data = shift_data( data, 0.5, allCols );
                 % There is a period in the summer where time is shifted
                 % even further
                 shiftIdx = DOYidx( 172.52 ) : DOYidx( 282.52 );
                 data( shiftIdx, : ) = ...
                     shift_data( data( shiftIdx, : ), 1.0, allCols );
-            case 2015
-                data = shift_data( data, 0.5, allCols );
+            %case 2015
+            %    data = shift_data( data, 0.5, allCols );
         end
         
     case UNM_sites.MCon
@@ -263,52 +268,52 @@ switch sitecode
             case 2007
                 idx = 1 : DOYidx( 250.687 );
                 data( idx, : ) = ...
-                    shift_data( data( idx, : ), 7.5, allCols );
+                    shift_data( data( idx, : ), 7.0, allCols );
                 idx = DOYidx( 250.7 ) : size( data, 1 );
                 data( idx, : ) = ...
-                    shift_data( data( idx, : ), 1.5, allCols );
+                    shift_data( data( idx, : ), 1.0, allCols );
 
             case {2008, 2009}
-                data = shift_data( data, 1.5, allCols );
+                data = shift_data( data, 1.0, allCols );
                 
             case 2010
                 % Same as 2009 until day 296, then a small shift (?)
                 preClockSet = 1 : DOYidx( 296.875 );
                 data( preClockSet, : ) = ...
-                    shift_data( data( preClockSet, : ), 1.5, allCols );
+                    shift_data( data( preClockSet, : ), 1.0, allCols );
                 % Then another small shift (?)
                 preClockSet = DOYidx( 296.89 ) : DOYidx( 327.79 );
                 data( preClockSet, : ) = ...
-                    shift_data( data( preClockSet, : ), 2.0, allCols );
+                    shift_data( data( preClockSet, : ), 1.5, allCols );
                 % Data for rest of year need to be shifted 2.5 hours
                 postClockSet = DOYidx( 327.81 ) : size( data, 1 );
                 data( postClockSet, : ) = ...
-                    shift_data( data( postClockSet, : ), 2.5, allCols );
+                    shift_data( data( postClockSet, : ), 2.0, allCols );
 
             case 2011
                 % Looks like datalogger clock was reset around day 47
                 preClockSet = 1 : DOYidx( 47.50 );
                 data( preClockSet, : ) = ...
-                    shift_data( data( preClockSet, : ), 3.0, allCols );
+                    shift_data( data( preClockSet, : ), 2.5, allCols );
                 % Data for rest of year need to be shifted 0.5 hours
-                postClockSet = DOYidx( 47.52 ) : size( data, 1 );
-                data( postClockSet, : ) = ...
-                    shift_data( data( postClockSet, : ), 0.5, allCols );
+                %postClockSet = DOYidx( 47.52 ) : size( data, 1 );
+                %data( postClockSet, : ) = ...
+                %    shift_data( data( postClockSet, : ), 0.5, allCols );
                 
             % This was an insane year...
             case 2012 
                 % Before all the crazy shifts...
-                shiftIdx = 1 : DOYidx( 132.6 );
-                data( shiftIdx, : ) = ...
-                    shift_data( data( shiftIdx, : ), 0.5, allCols );
+                %shiftIdx = 1 : DOYidx( 132.6 );
+                %data( shiftIdx, : ) = ...
+                %    shift_data( data( shiftIdx, : ), 0.5, allCols );
                 % First shift
                 shiftIdx = DOYidx( 132.625 ) : DOYidx( 160.771 );
                 data( shiftIdx, : ) = ...
-                    shift_data( data( shiftIdx, : ), 4.5, allCols );
+                    shift_data( data( shiftIdx, : ), 4.0, allCols );
                 % Another shift
                 shiftIdx = DOYidx( 160.792 ) : DOYidx( 224.875 );
                 data( shiftIdx, : ) = ...
-                    shift_data( data( shiftIdx, : ), 5.0, allCols );
+                    shift_data( data( shiftIdx, : ), 4.5, allCols );
                 % And another...
                 % compensate for the 11 Aug 2012 datalogger clock reset
                 % so that the clock would match the Ameriflux tech's clock.
@@ -317,37 +322,37 @@ switch sitecode
                 % 2012 17:10."
                 shiftIdx = DOYidx( 224.895 ) : DOYidx( 300.48 );
                 data( shiftIdx, : ) = ...
-                    shift_data( data( shiftIdx, : ), 1.5, allCols );
+                    shift_data( data( shiftIdx, : ), 1.0, allCols );
                 % And another
                 shiftIdx = DOYidx( 300.5 ) : DOYidx( 319.583 );
                 data( shiftIdx, : ) = ...
-                    shift_data( data( shiftIdx, : ), 2.0, allCols );
+                    shift_data( data( shiftIdx, : ), 1.5, allCols );
                 % And another
                 % Clock Update: Datalogger clock was 11/14/12 1:35:30, 
                 % PC clock was 11/14/12 11:55:08. Clocks synched at 11:55
                 % (UTC: 7:00)
-                shiftIdx = DOYidx( 319.6 ) : size( data, 1 );
-                data( shiftIdx, : ) = ...
-                    shift_data( data( shiftIdx, : ), 0.5, allCols );
+                %shiftIdx = DOYidx( 319.6 ) : size( data, 1 );
+                %data( shiftIdx, : ) = ...
+                %    shift_data( data( shiftIdx, : ), 0.5, allCols );
                 
             case 2013
                 shiftIdx = 1 : DOYidx( 58.542 );
                 data( shiftIdx, : ) = ...
-                    shift_data( data( shiftIdx, : ), 1.0, allCols );
+                    shift_data( data( shiftIdx, : ), 0.5, allCols );
                 % Small clock reset
                 shiftIdx = DOYidx( 58.562 ) : size( data, 1 );
                 data( shiftIdx, : ) = ...
-                    shift_data( data( shiftIdx, : ), 1.5, allCols );
+                    shift_data( data( shiftIdx, : ), 1.0, allCols );
             case 2014
                 shiftIdx = 1 : DOYidx( 126.688 );
                 data( shiftIdx, : ) = ...
-                    shift_data( data( shiftIdx, : ), 1.5, allCols );
+                    shift_data( data( shiftIdx, : ), 1.0, allCols );
                 % Small clock reset
-                shiftIdx = DOYidx( 126.71 ) : size( data, 1 );
-                data( shiftIdx, : ) = ...
-                    shift_data( data( shiftIdx, : ), 0.5, allCols );
-            case 2015
-                data = shift_data( data, 0.5, allCols );
+                %shiftIdx = DOYidx( 126.71 ) : size( data, 1 );
+                %data( shiftIdx, : ) = ...
+                %    shift_data( data( shiftIdx, : ), 0.5, allCols );
+            %case 2015
+            %    data = shift_data( data, 0.5, allCols );
         end
         
     case UNM_sites.TX
@@ -365,25 +370,25 @@ switch sitecode
         switch year
             case 2010
                 % Clock reset occured at 3pm on 6/27
-                preClockSet = 1 : DOYidx( 178.6042 );
-                data( preClockSet, : ) = ...
-                    shift_data( data( preClockSet, : ), 0.5, allCols );
-                % Data for rest of year need to be shifted 1.5 hours
+                %preClockSet = 1 : DOYidx( 178.6042 );
+                %data( preClockSet, : ) = ...
+                %    shift_data( data( preClockSet, : ), 0.5, allCols );
+                % Data for rest of year need to be shifted 1 hours
                 postClockSet = DOYidx( 178.625 ) : size( data, 1 );
                 data( postClockSet, : ) = ...
-                    shift_data( data( postClockSet, : ), 1.5, allCols );
+                    shift_data( data( postClockSet, : ), 1.0, allCols );
             case 2011
-                data = shift_data( data, 1.5, allCols );
+                data = shift_data( data, 1.0, allCols );
             case 2012
                 preClockSet = 1 : DOYidx( 342.625 );
                 data( preClockSet, : ) = ...
-                    shift_data( data( preClockSet, : ), 1.5, allCols );
+                    shift_data( data( preClockSet, : ), 1.0, allCols );
                 % Data for rest of year need to be shifted 0.5 hours
-                postClockSet = DOYidx( 342.645 ) : size( data, 1 );
-                data( postClockSet, : ) = ...
-                    shift_data( data( postClockSet, : ), 0.5, allCols );
-            case { 2013 2014, 2015 }
-                data = shift_data( data, 0.5, allCols );
+                %postClockSet = DOYidx( 342.645 ) : size( data, 1 );
+                %data( postClockSet, : ) = ...
+                %    shift_data( data( postClockSet, : ), 0.5, allCols );
+            %case { 2013 2014, 2015 }
+            %    data = shift_data( data, 0.5, allCols );
         end
         
 end
