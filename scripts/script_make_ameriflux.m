@@ -9,7 +9,7 @@ sitelist={UNM_sites.TestSite};
 % Years to create files for
 yearlist = 2009;
 % Partitioned data source
-partmethod = 'eddyproc'; %'eddyproc'
+partmethod = 'eddyproc'; %'Reddyproc'
 % Make daily files? All AF files should be in $FLUXROOT$/Ameriflux_files
 make_daily = false;
 write_files = true;

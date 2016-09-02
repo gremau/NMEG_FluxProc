@@ -4,7 +4,7 @@
 sitelist = {UNM_sites.GLand, UNM_sites.SLand, UNM_sites.JSav, UNM_sites.New_GLand,...
     UNM_sites.PJ, UNM_sites.PJ_girdle, UNM_sites.PPine, UNM_sites.MCon };
 sitelist = {UNM_sites.TestSite};
-yearlist = 2009;
+yearlist = 2015;
 
 % True, overwrite files; False; do not overwrite
 write_qc = true;
