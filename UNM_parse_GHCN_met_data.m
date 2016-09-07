@@ -29,7 +29,7 @@ function metData_T = UNM_parse_GHCN_met_data( metstn, year )
 switch metstn
     case 'ESTANCIA'
         fname = fullfile( getenv( 'FLUXROOT' ), 'Ancillary_met_data',...
-            sprintf( 'GHCND_ESTANCIA_DailySumm_20060101-20160331.csv' ));
+            sprintf( 'GHCND_ESTANCIA_DailySumm_20060101-20160831.csv' ));
         % Get data from the ESTANCIA - station is north of Hwy 60
         metData_T = readtable( fname, 'Delimiter', ',' );
         

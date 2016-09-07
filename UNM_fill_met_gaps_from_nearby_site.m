@@ -212,7 +212,8 @@ result = 0;
                     addData = UNM_parse_GHCN_met_data( siteID, year );
                     addData = prepare_daily_precip( addData, 'PRCP' );
                     % Convert from tenths to mm
-                    addData.Precip = addData.Precip ./ 10;
+                    % Used to be needed - no more
+                    %addData.Precip = addData.Precip ./ 10;
                     
                 case 'prism'
                     addData = UNM_parse_PRISM_met_data( siteID, year );
