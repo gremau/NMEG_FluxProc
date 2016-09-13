@@ -9,7 +9,7 @@
 \#*\#
 scratch.m
 test_batch.m
-doc*
+#doc*
 
 # Compiled source #
 ###################

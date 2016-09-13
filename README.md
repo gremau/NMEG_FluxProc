@@ -46,105 +46,38 @@ The rest of the paths needed for FluxProc can be set using
 Now FluxProc code should be initialized and ready to use the data and
 configuration files in the FLUXROOT directory.
 
-## Further documentation
 
-Below is the old UNM New Mexico Elevation Gradient data processing manual,
-by Timothy W. Hilton (hilton@unm.edu) from around July 2012. It is very
-out of date. We will begin updating the documentation in the near future.
+## Task scripts
 
-### OVERVIEW
+Common tasks have scripts that can be run with common configurations, and are easily modified. These scripts can be found in the [scripts](https://github.com/gremau/NMEG_FluxProc/scripts/) directory. Each of these scripts can be set to run for a list of sites and years and to overwrite existing output files or not.
 
+### Create new "fluxall" files
 
-This README presents Matlab functions we have developed to process and
-view data collected from the New Mexico Elevation Gradient (NMEG) eddy
-covariance sites and their associated data.
+Fluxall files ({site}_{year}_fluxall.txt') should contain raw data from all sensors at a site for one year. The [script_make_fluxall.m](https://github.com/gremau/NMEG_FluxProc/scripts/script_make_fluxall.m) script will make these files, primarily by calling `card_data_processor.m` in various configurations and reading the raw data in 'toa5' and 'ts_data' directories. Though these files should contain all sensor data, in practice there are some sites with dataloggers that have not been configured to be merged into the fluxall file (namely the Valles Caldera sites).
 
-In general, user-level main functions (things that are intended to be
-called from a Matlab command line) are named UNM_*.m, and helper
-functions do not have the "UNM_" prefix.
+### Create new "qc", "for_gapfilling", and "for_gapfilling_filled" files
 
-#### Documentation
+There are several files created from the NMEG quality control pipeline, all output to the 'processed_flux' directory. These are:
 
-I have tried to consistently include in each m-file descriptive
-documentation immediately following the function definition so that
-calling 'help' or 'doc' on the function from the Matlab prompt will
-display self-contained documentation.  Thus, this readme document will
-not discuss function usage and interfaces in detail -- use the Matlab
-help!
+1. qc files ({site}_{years}_fluxall_qc.txt): Contain all variables that are quality-controlled and then output by the `RemoveBadData.m` script.
 
+2. for_gapfilling files ({site}_flux_all_{year}_for_gap_filling.txt): Also output by `RemoveBadData.m` script and contain a subset of quality-controlled variables in a format ready to be filled with ancillary met data.
 
-#### Source control management
+3. for_gapfilling_filled files ({site}_flux_all_{year}_for_gap_filling_filled.txt): Same as the file above, but gaps in the met variables have been filled with ancillary met data by the `UNM_fill_met_gaps_from_nearby_site.m` script.
 
-The code is version-controlled in a Mercurial
-(http://mercurial.selenic.com/) repository.  It is not necessary to
-use the version control; you may simply ignore the .hg subdirectory,
-or delete it to permanently disable version control.  There is a very
-good tutorial at http://hginit.com/ if you are unfamiliar with
-Mercurial (or source control management tools in general) and wish to
-learn how to use it.  The revision history steps sequentially back to
-15 August 2011.
+To make these files, run the [script_make_qc_gf.m](https://github.com/gremau/NMEG_FluxProc/scripts/script_make_qc_gf.m). This script may also run the REddyProc gapfilling tool by calling on the [R code from the Max Planck institute](https://www.bgc-jena.mpg.de/bgi/index.php/Services/REddyProcWebRPackage), and the output (also in 'processed_flux') can be used to make AmeriFlux files, below, if desired.
+
+### Create new AmeriFlux files
+
+AmeriFlux files ({af-site}_{year}_gapfilled.txt and {af-site}_{year}_with_gaps.txt) contain quality controlled sensor data, gapfilled met data, gapfilled fluxes, and partitioned C fluxes. There are several steps currently needed to create them.
+
+1. Send the 'for_gapfilling_filled' file for each site/year to the [MPI EddyProc web service](http://www.bgc-jena.mpg.de/~MDIwork/eddyproc/upload.php). This service provides gapfilled and partitioned flux data, and is the way we currently have to get Lasslop partitioned fluxes used for the lower elevation NMEG sites.
+
+2. Once you receive notification that the partitioner has finished (by email), copy the job number and run `download_gapfilled_partitioned_flux(job#)`. This will download the resulting files to the 'processed_flux' directory.
+
+3. Run [script_make_ameriflux.m](https://github.com/gremau/NMEG_FluxProc/scripts/script_make_ameriflux.m), which will call the `UNM_Ameriflux_File_Maker.m` with the specified configuration options and output the new AmeriFlux files to 'FLUXROOT/FluxOut/'.
 
 
-### USER-LEVEL FUNCTION SUMMARY
+## Additional documentation
 
-There are four main user-level data processing matlab functions:
-
-* UNM_retrieve_card_data_GUI.m
-* UNM_RemoveBadData.m
-* UNM_fill_met_gaps_from_nearby_site.m
-* UNM_Ameriflux_file_maker_TWH.m
-
-There are several functions to parse data files from various stages of
-the data processing pipeline into Matlab:
-
-* UNM_parse_QC_txt_file.m
-* UNM_parse_QC_xls_file.m
-* UNM_parse_fluxall_txt_file.m
-* UNM_parse_fluxall_xls_file.m
-* UNM_parse_gapfilled_partitioned_output.m
-* UNM_parse_sev_met_data.m
-* UNM_parse_valles_met_data.m
-* parse_forgapfilling_file.m
-* parse_ameriflux_file.m
-
-There are also a number of functions to visualize flux data.  Some are
-called from within the processing functions listed above; some of
-these are sometimes independently useful.
-
-* plot_fingerprint.m
-* UNM_site_plot_doy_time_offsets.m
-* UNM_site_plot_fullyear_time_offsets.m
-* plot_siteyear_fingerprint_2x3array.m
-* plot_siteyear_fingerprint_single.m
-
-
-### DATA PROCESSING PIPELINE SUMMARY
-
-The steps for processing incoming data from the field sites.  I have
-attempted to make the processing routines somewhat robust to data
-glitches: missing data, mangled text, mangled file names, etc.  There
-is (as always) more work that could be done in that arena; for now, if
-something breaks, the best bet is to step into the Matlab code and
-debug.
-
-1. Insert the datalogger flash card into the computer.  
-2. Within Matlab, call UNM_retrieve_card_data_GUI.  This copies the
-   data to disk and displays a figure that plots each 30-minute data
-   field sequentially.  Step through each field and scan the plot to
-   make sure it looks reasonable!  When done, close the plot figure.
-   Matlab will now openCampbell Scientific's CardConvert to process
-   the raw data into TOA5 files and daily TOB1 10-hz files, copy those
-   files to their backup locations, compress the raw data, and copy
-   the compressed and uncompressed raw data to their backup locations.
-   The final step will require the user to manually enter a password
-   to transfer the data to the EDAC FTP server.
-3. Run UNM_RemoveBadData.  Scan the resulting plots for problems in
-   the data and fix any problems that arise.
-4. Run UNM_fill_met_gaps_from_nearby_site.
-5. Send the SITE_YEAR_for_gapfilling_filled.txt through the online
-   flux gapfiller/flux partitioner:
-   http://www.bgc-jena.mpg.de/~MDIwork/eddyproc/upload.php.
-6. From bash, call download_partitioned_data to download the gapfilled
-   partitioned data.
-7. Call UNM_Ameriflux_file_maker_TWH.m
-8. Upload the Ameriflux files to soccoro.unm.edu.
+Additional documentation can be found in the [doc](https://github.com/gremau/NMEG_FluxProc/doc/) directory.
