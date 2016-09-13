@@ -49,11 +49,11 @@ configuration files in the FLUXROOT directory.
 
 ## Task scripts
 
-Common tasks have scripts that can be run with common configurations, and are easily modified. These scripts can be found in the [scripts](https://github.com/gremau/NMEG_FluxProc/scripts/) directory. Each of these scripts can be set to run for a list of sites and years and to overwrite existing output files or not.
+Common tasks have scripts that can be run with common configurations, and are easily modified. These scripts can be found in the [scripts](scripts/) directory. Each of these scripts can be set to run for a list of sites and years and to overwrite existing output files or not.
 
 ### Create new "fluxall" files
 
-Fluxall files ({site}_{year}_fluxall.txt') should contain raw data from all sensors at a site for one year. The [script_make_fluxall.m](https://github.com/gremau/NMEG_FluxProc/scripts/script_make_fluxall.m) script will make these files, primarily by calling `card_data_processor.m` in various configurations and reading the raw data in 'toa5' and 'ts_data' directories. Though these files should contain all sensor data, in practice there are some sites with dataloggers that have not been configured to be merged into the fluxall file (namely the Valles Caldera sites).
+Fluxall files ({site}_{year}_fluxall.txt') should contain raw data from all sensors at a site for one year. The [script_make_fluxall.m](script_make_fluxall.m) script will make these files, primarily by calling `card_data_processor.m` in various configurations and reading the raw data in 'toa5' and 'ts_data' directories. Though these files should contain all sensor data, in practice there are some sites with dataloggers that have not been configured to be merged into the fluxall file (namely the Valles Caldera sites).
 
 ### Create new "qc", "for_gapfilling", and "for_gapfilling_filled" files
 
@@ -65,7 +65,7 @@ There are several files created from the NMEG quality control pipeline, all outp
 
 3. for_gapfilling_filled files ({site}_flux_all_{year}_for_gap_filling_filled.txt): Same as the file above, but gaps in the met variables have been filled with ancillary met data by the `UNM_fill_met_gaps_from_nearby_site.m` script.
 
-To make these files, run the [script_make_qc_gf.m](https://github.com/gremau/NMEG_FluxProc/scripts/script_make_qc_gf.m). This script may also run the REddyProc gapfilling tool by calling on the [R code from the Max Planck institute](https://www.bgc-jena.mpg.de/bgi/index.php/Services/REddyProcWebRPackage), and the output (also in 'processed_flux') can be used to make AmeriFlux files, below, if desired.
+To make these files, run the [script_make_qc_gf.m]script_make_qc_gf.m). This script may also run the REddyProc gapfilling tool by calling on the [R code from the Max Planck institute](https://www.bgc-jena.mpg.de/bgi/index.php/Services/REddyProcWebRPackage), and the output (also in 'processed_flux') can be used to make AmeriFlux files, below, if desired.
 
 ### Create new AmeriFlux files
 
@@ -75,7 +75,7 @@ AmeriFlux files ({af-site}_{year}_gapfilled.txt and {af-site}_{year}_with_gaps.t
 
 2. Once you receive notification that the partitioner has finished (by email), copy the job number and run `download_gapfilled_partitioned_flux(job#)`. This will download the resulting files to the 'processed_flux' directory.
 
-3. Run [script_make_ameriflux.m](https://github.com/gremau/NMEG_FluxProc/scripts/script_make_ameriflux.m), which will call the `UNM_Ameriflux_File_Maker.m` with the specified configuration options and output the new AmeriFlux files to 'FLUXROOT/FluxOut/'.
+3. Run [script_make_ameriflux.m](script_make_ameriflux.m), which will call the `UNM_Ameriflux_File_Maker.m` with the specified configuration options and output the new AmeriFlux files to 'FLUXROOT/FluxOut/'.
 
 
 ## Additional documentation (in doc/)
