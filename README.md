@@ -57,7 +57,7 @@ Fluxall files ({site}_{year}_fluxall.txt') should contain raw data from all sens
 
 ### Create new "qc", "for_gapfilling", and "for_gapfilling_filled" files
 
-There are several files created from the NMEG quality control pipeline, all output to the 'processed_flux' directory. These are:
+There are several files created from the NMEG quality control pipeline, all output to the "processed_flux" directory. These are:
 
 1. qc files ({site}_{years}_fluxall_qc.txt): Contain all variables that are quality-controlled and then output by the `RemoveBadData.m` script.
 
@@ -78,6 +78,6 @@ AmeriFlux files ({af-site}_{year}_gapfilled.txt and {af-site}_{year}_with_gaps.t
 3. Run [script_make_ameriflux.m](https://github.com/gremau/NMEG_FluxProc/scripts/script_make_ameriflux.m), which will call the `UNM_Ameriflux_File_Maker.m` with the specified configuration options and output the new AmeriFlux files to 'FLUXROOT/FluxOut/'.
 
 
-## Additional documentation
+## Additional documentation (in doc/)
 
-Additional documentation can be found in the [doc](https://github.com/gremau/NMEG_FluxProc/doc/) directory.
+* [The old README](/doc/old_README.md)
