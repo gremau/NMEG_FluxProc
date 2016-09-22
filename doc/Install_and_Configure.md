@@ -3,7 +3,7 @@
 The source code can be downloaded from [the GitHub repository](https://github.com/gremau/NMEG_FluxProc). MATLAB should be installed, and some tasks will requre cygwin (for the bash shell), Campbell Scientific's CardConvert utility, and R tobe installed and on the path.
 
 
-## Local setup
+## Local machine setup
 
 ### Data and configuration directories
 
@@ -28,9 +28,9 @@ the test site mentioned above can be found [here]
 
 ### Paths and environment variables.
 
-An environment variable must be set for FluxProc to find the FLUXROOT
-directory on the local file structure. In your `startup.m` file, add
-these lines:
+An environment variable must be set for MATLAB to find the FLUXROOT
+(and FluxProcConfig) directory on the local machine's file structure. In your
+`startup.m` file, add these lines:
 
     setenv('FLUXROOT', '/.../')
 
@@ -49,5 +49,5 @@ The rest of the paths needed for FluxProc can be set using
 
     fluxproc_setpaths
 
-Now FluxProc code should be initialized and ready to use the data and
+Now NMEG_FluxProc code should be initialized and ready to use the data and
 configuration files in the FLUXROOT directory.

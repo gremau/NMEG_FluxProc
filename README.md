@@ -14,9 +14,9 @@ Documentation is found in the `doc` directory -- start [here](doc/README.md).
 ## Data releases
 
 Many of versions of NMEG flux data have been produced by this code as it has
-changed over the years. Recently we have made the effort to version the data
+changed over the years. Recently we have made the effort to version NMEG data
 using a release system that has associated git tags. Release information is 
-on the [Releases page](doc/Releases.md) of the docs.
+on the [Data Releases page](doc/DataReleases.md) of the docs.
 
 
 
