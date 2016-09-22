@@ -3,7 +3,7 @@
 [This](https://github.com/gremau/NMEG_FluxProc) is the repository for
 FluxProc code used to process data from the New Mexico Elevation Gradient, 
 an ecological research project based at the University of New Mexico.
-For project information see [the project website](http://biology.unm.edu/litvak/res_NM_elev.html).
+For more information see [the project website](http://biology.unm.edu/litvak/res_NM_elev.html).
 This code is used to process and quality assure eddy covariance and other
 environmental sensor data.
 
