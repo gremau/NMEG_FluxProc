@@ -101,6 +101,17 @@ use_xls_fluxall = args.Results.xls_fluxall;
 
 draw_plots = args.Results.draw_plots;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% USTAR filter switch
+% If this is set to false, the ustar filter for fluxes is turned off
+% (this is desireable for making ameriflux files)
+% See line 1272 to see where this takes affect (its pretty hacky)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ustar_filter_switch = false;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 data_for_analyses = 0; %1 to output file with data sorted for specific analyses
 ET_gap_filler = 0; %run ET gap-filler program
@@ -1258,8 +1269,10 @@ end
 if iteration > 1
     
     % Remove values with low U*
-    
-    ustar_lim = 0;
+    % Only happens if switch is set to true
+    if ~ustar_filter_switch
+        ustar_lim = 0;
+    end
     ustarflag = find(u_star < ustar_lim);
     removed_ustar = length(ustarflag);
     decimal_day_nan(ustarflag) = NaN;
