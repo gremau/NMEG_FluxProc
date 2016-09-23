@@ -9,6 +9,7 @@ Elevation Gradient. It is written in and called from MATLAB (mostly).
 * [Installing and configuring on a local machine](Install_and_Configure.md)
 * [Common tasks and scripts](TaskScripts.md)
 * [Data releases (and corresponding git tags)](DataReleases.md)
+* [Configuration](ConfigFiles.md) and [Header Resolution](HeaderResolution.md) - these are just placeholders for documentation that needs to be completed.
 * Some sites have [secondary data loggers](SecondaryLoggers.md) (other than
  'flux')
 * [Managing and updating ancillary met data](AncillaryMetData.md)
